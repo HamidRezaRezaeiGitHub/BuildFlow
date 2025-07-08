@@ -1,3 +1,13 @@
 spring:
   application:
     name: BuildFlow
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,logfile
+  endpoint:
+    health:
+      show-details: always
+
