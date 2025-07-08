@@ -1,4 +1,4 @@
-package dev.hr.rezaei.build.flow;
+package dev.hr.rezaei.buildflow;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
