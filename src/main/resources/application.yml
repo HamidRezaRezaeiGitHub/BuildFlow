@@ -1,6 +1,8 @@
 spring:
   application:
     name: BuildFlow
+  security:
+    enabled: false # Custom config to enable/disable security
 
 management:
   endpoints:
@@ -11,3 +13,5 @@ management:
     health:
       show-details: always
 
+server:
+  port: 8080

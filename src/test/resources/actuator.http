@@ -1,17 +1,17 @@
 ### Health endpoint
-GET http://localhost:8080/actuator/health
+GET {{base_url}}/actuator/health
 
 ### Info endpoint
-GET http://localhost:8080/actuator/info
+GET {{base_url}}/actuator/info
 
 ### Metrics endpoint
-GET http://localhost:8080/actuator/metrics
+GET {{base_url}}/actuator/metrics
 
 ### Prometheus endpoint
-GET http://localhost:8080/actuator/prometheus
+GET {{base_url}}/actuator/prometheus
 
 ### Env endpoint
-GET http://localhost:8080/actuator/env
+GET {{base_url}}/actuator/env
 
 ### Logfile endpoint
-GET http://localhost:8080/actuator/logfile
+GET {{base_url}}/actuator/logfile

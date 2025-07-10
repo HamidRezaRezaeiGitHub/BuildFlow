@@ -22,7 +22,9 @@
     </encoder>
   </appender>
 
-  <root level="DEBUG">
+  <logger name="dev.hr.rezaei.buildflow" level="DEBUG" />
+
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
   </root>

@@ -117,3 +117,5 @@ storybook-static/
 # Secret files
 .secret/
 *secret*
+src/test/resources/http-client.private.env.json
+src/main/resources/http-client.private.env.json

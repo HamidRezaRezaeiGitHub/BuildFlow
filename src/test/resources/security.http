@@ -1,0 +1,5 @@
+### Public endpoint (should always be accessible)
+GET {{base_url}}/api/security/public
+
+### Private endpoint (should require authentication if security is enabled)
+GET {{base_url}}/api/security/private
