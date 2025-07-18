@@ -12,6 +12,8 @@ management:
   endpoint:
     health:
       show-details: always
+    logfile:
+      external-file: ${LOG_DIR:logs}/${LOG_FILE:build-flow}-${ACTIVE_PROFILE:default}-main.log
 
 server:
   port: 8080
