@@ -119,3 +119,6 @@ storybook-static/
 *secret*
 src/test/resources/http-client.private.env.json
 src/main/resources/http-client.private.env.json
+
+# Database files
+*.db
