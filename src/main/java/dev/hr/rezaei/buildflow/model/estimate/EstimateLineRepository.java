@@ -1,4 +1,4 @@
-package dev.hr.rezaei.buildflow.model.address;
+package dev.hr.rezaei.buildflow.model.estimate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface AddressRepository extends JpaRepository<Address, UUID> {
+public interface EstimateLineRepository extends JpaRepository<EstimateLine, UUID> {
 }
 

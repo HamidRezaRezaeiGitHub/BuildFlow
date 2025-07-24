@@ -1,25 +1,18 @@
-package dev.hr.rezaei.buildflow.model.address;
+package dev.hr.rezaei.buildflow.model.base;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
-@Table(name = "addresses")
-public class Address {
-    @Id
-    @GeneratedValue
-    @Column(nullable = false, updatable = false)
-    private UUID id;
-
+@SuperBuilder
+@MappedSuperclass
+public abstract class BaseAddress {
     @Column(length = 20)
     private String unitNumber;
 
@@ -36,7 +29,7 @@ public class Address {
     private String stateOrProvince;
 
     @Column(length = 20, nullable = false)
-    private String postalCode;
+    private String postalOrZipCode;
 
     @Column(length = 100, nullable = false)
     private String country;

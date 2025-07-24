@@ -1,7 +1,8 @@
 package dev.hr.rezaei.buildflow.model.estimate;
 
-public enum QuoteStrategy {
+public enum EstimateLineStrategy {
     AVERAGE,
-    LATEST
+    LATEST,
+    LOWEST,
 }
 
