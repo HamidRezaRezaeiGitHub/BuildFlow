@@ -21,9 +21,11 @@ public class Contact {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
+    @NonNull
     @Column(length = 100, nullable = false)
     private String firstName;
 
+    @NonNull
     @Column(length = 100, nullable = false)
     private String lastName;
 
@@ -38,7 +40,8 @@ public class Contact {
     @Column(name = "label", length = 50)
     private List<ContactLabel> labels = new ArrayList<>();
 
-    @Column(length = 100)
+    @NonNull
+    @Column(length = 100, nullable = false)
     private String email;
 
     @Column(length = 30)
