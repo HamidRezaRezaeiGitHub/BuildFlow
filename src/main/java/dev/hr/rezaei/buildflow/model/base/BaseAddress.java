@@ -22,15 +22,15 @@ public abstract class BaseAddress {
     @Column(length = 200)
     private String streetName;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String city;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String stateOrProvince;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String postalOrZipCode;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String country;
 }
