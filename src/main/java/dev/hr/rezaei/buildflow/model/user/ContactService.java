@@ -26,6 +26,10 @@ public class ContactService {
         return contactRepository.findById(id);
     }
 
+    /**
+     * Save a new Contact.
+     * Throws IllegalArgumentException if the contact is already persisted or if a contact with the same email exists.
+     */
     public Contact save(@NonNull Contact contact) {
         if (contact.getId() != null && contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact is already persisted.");

@@ -23,18 +23,19 @@ public class User {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, unique = true)
     private String username;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
 
+    @Builder.Default
     @Column(nullable = false)
-    private boolean registered;
+    private boolean registered = false;
 
     @NonNull
     @Builder.Default
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact = new Contact();
 
@@ -42,7 +43,7 @@ public class User {
     // Table: projects, Foreign Key: builder_id
     @NonNull
     @Builder.Default
-    @OneToMany(mappedBy = "builder", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "builderUser", fetch = FetchType.LAZY)
     private List<Project> builtProjects = new ArrayList<>();
 
     // Bidirectional relationship: One User (as owner) can have many Projects.

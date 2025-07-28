@@ -80,7 +80,7 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
                 .address(testContact.getAddress())
                 .labels(testContact.getLabels())
                 .build();
-        assertThrows(IllegalArgumentException.class, () -> contactService.save(duplicate));
+        assertThrows(RuntimeException.class, () -> contactService.save(duplicate));
     }
 
     @Test

@@ -8,9 +8,10 @@ summary of each entity and their relationships:
 ### [User](./User.java)
 
 - Represents an application user.
-- Fields: `id` (UUID, primary key), `username`, `email`, `registered` (boolean, not null).
+- Fields: `id` (UUID, primary key), `username`, `email`, `registered` (boolean, not null), `contact` (not null,
+  one-to-one, no cascade).
 - Relationships:
-    - One-to-one with [Contact](./Contact.java) (each user has a contact profile).
+    - One-to-one with [Contact](./Contact.java) (each user has a contact profile, **no cascade**).
     - Bidirectional one-to-many with [Project](../project/Project.java) as builder (user.builtProjects,
       project.builder).
     - Bidirectional one-to-many with [Project](../project/Project.java) as owner (user.ownedProjects, project.owner).
@@ -20,16 +21,17 @@ summary of each entity and their relationships:
 ### [Contact](./Contact.java)
 
 - Represents a user's contact profile.
-- Fields: `id` (UUID, primary key), `firstName`, `lastName`, `email`, `phone`, `notes`.
+- Fields: `id` (UUID, primary key), `firstName`, `lastName`, `labels` (List of [ContactLabel](./ContactLabel.java), enum
+  collection), `email`, `phone`, `address` (not null, one-to-one, cascade all).
 - Relationships:
-    - One-to-one with [Address](./ContactAddress.java) (contact address).
+    - One-to-one with [Address](./ContactAddress.java) (contact address, cascade all).
     - Has a list of [ContactLabel](./ContactLabel.java) (enum) for categorization (e.g., SUPPLIER, OWNER).
 
 ### [Address (ContactAddress)](./ContactAddress.java)
 
 - Represents a physical address for a contact.
-- Fields: `id` (UUID, primary key), `unitNumber`, `streetNumber`, `streetName`, `city`, `stateOrProvince`, `postalCode`,
-  `country`.
+- Fields: `id` (UUID, primary key), `unitNumber`, `streetNumber`, `streetName`, `city`, `stateOrProvince`,
+  `postalOrZipCode`, `country`.
 
 ### [ContactLabel](./ContactLabel.java)
 
@@ -49,7 +51,7 @@ summary of each entity and their relationships:
 
 ## Entity Lifecycle & User Stories
 
-- When a new [User](./User.java) is created (registered or not), a [Contact](./Contact.java) is also created and
-  associated. The `contact` field in `User` is never null, ensuring every user has a contact profile from creation.
+- When a new [User](./User.java) is created, a [Contact](./Contact.java) is also created and associated. The `contact`
+  field in `User` is never null. The association does not cascade.
 - When a new [Contact](./Contact.java) is created, a [ContactAddress](./ContactAddress.java) is also created and
-  associated. The `address` field in `Contact` is never null, ensuring every contact has an address from creation.
+  associated. The `address` field in `Contact` is never null and cascades all operations.
