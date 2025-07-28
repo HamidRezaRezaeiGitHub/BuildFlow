@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.model.user;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +22,25 @@ public class ContactService {
      * Find a Contact by its id.
      * Only returns if the contact is already persisted.
      */
-    public Optional<Contact> findById(UUID id) {
+    public Optional<Contact> findById(@NonNull UUID id) {
         return contactRepository.findById(id);
+    }
+
+    public Contact save(@NonNull Contact contact) {
+        if (contact.getId() != null && contactRepository.existsById(contact.getId())) {
+            throw new IllegalArgumentException("Contact is already persisted.");
+        }
+        if (existsByEmail(contact.getEmail())) {
+            throw new IllegalArgumentException("A contact with this email already exists.");
+        }
+        return contactRepository.save(contact);
     }
 
     /**
      * Update an already persisted Contact.
      * Throws IllegalArgumentException if the contact is not persisted.
      */
-    public Contact update(Contact contact) {
+    public Contact update(@NonNull Contact contact) {
         if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact must be already persisted.");
         }
@@ -40,7 +51,7 @@ public class ContactService {
      * Delete an already persisted Contact.
      * Throws IllegalArgumentException if the contact is not persisted.
      */
-    public void delete(Contact contact) {
+    public void delete(@NonNull Contact contact) {
         if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact must be already persisted.");
         }
@@ -50,7 +61,16 @@ public class ContactService {
     /**
      * Check if a Contact is persisted.
      */
-    public boolean isPersisted(Contact contact) {
+    public boolean isPersisted(@NonNull Contact contact) {
         return contact.getId() != null && contactRepository.existsById(contact.getId());
     }
+
+    public boolean existsByEmail(@NonNull String email) {
+        return contactRepository.existsByEmail(email);
+    }
+
+    public Optional<Contact> findByEmail(@NonNull String email) {
+        return contactRepository.findByEmail(email);
+    }
+
 }
