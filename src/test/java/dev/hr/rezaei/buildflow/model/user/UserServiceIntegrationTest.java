@@ -34,12 +34,35 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     private UserService userService;
 
     @Test
-    void registerNewUser_shouldPersistUser() {
-        User user = userService.registerNewUser(testContact);
+    void newRegisteredUser_shouldPersistUser() {
+        User user = userService.newRegisteredUser(testContact);
         log.debug("Saved user: {}", user);
         assertNotNull(user.getId());
         assertTrue(userService.isPersisted(user));
-        assertEquals(testUser.getEmail(), user.getEmail());
+        assertEquals(testContact.getEmail(), user.getEmail());
+        assertTrue(user.isRegistered());
+    }
+
+    @Test
+    void newUnregisteredUser_shouldPersistUser() {
+        User user = userService.newUnregisteredUser(testContact, ContactLabel.BUILDER);
+        assertNotNull(user.getId());
+        assertFalse(user.isRegistered());
+        assertTrue(userService.isPersisted(user));
+    }
+
+    @Test
+    void newRegisteredBuilder_shouldAddBuilderLabel() {
+        User user = userService.newRegisteredBuilder(testContact);
+        assertTrue(user.getContact().getLabels().contains(ContactLabel.BUILDER));
+        assertTrue(user.isRegistered());
+    }
+
+    @Test
+    void newRegisteredOwner_shouldAddOwnerLabel() {
+        User user = userService.newRegisteredOwner(testContact);
+        assertTrue(user.getContact().getLabels().contains(ContactLabel.OWNER));
+        assertTrue(user.isRegistered());
     }
 
     @Test
@@ -54,7 +77,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void update_shouldPersistChanges_whenUserIsPersisted() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         user.setUsername("updatedUsername");
         User updated = userService.update(user);
         assertEquals("updatedUsername", updated.getUsername());
@@ -72,14 +95,14 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void delete_shouldRemoveUser_whenUserIsPersisted() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         userService.delete(user);
         assertFalse(userRepository.existsById(user.getId()));
     }
 
     @Test
     void existsByEmail_shouldReturnTrue_whenUserExists() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         assertTrue(userService.existsByEmail(user.getEmail()));
     }
 
@@ -90,7 +113,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void existsByUsername_shouldReturnTrue_whenUserExists() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         assertTrue(userService.existsByUsername(user.getUsername()));
     }
 
@@ -101,7 +124,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findById_shouldReturnUser_whenExists() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         Optional<User> found = userService.findById(user.getId());
         assertTrue(found.isPresent());
         assertEquals(user.getId(), found.get().getId());
@@ -114,7 +137,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByEmail_shouldReturnUser_whenExists() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         Optional<User> found = userService.findByEmail(user.getEmail());
         assertTrue(found.isPresent());
         assertEquals(user.getEmail(), found.get().getEmail());
@@ -127,7 +150,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByUsername_shouldReturnUser_whenExists() {
-        User user = userService.registerNewUser(testContact);
+        User user = userService.newRegisteredUser(testContact);
         Optional<User> found = userService.findByUsername(user.getUsername());
         assertTrue(found.isPresent());
         assertEquals(user.getUsername(), found.get().getUsername());
@@ -138,4 +161,3 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         assertTrue(userService.findByUsername("notfounduser").isEmpty());
     }
 }
-

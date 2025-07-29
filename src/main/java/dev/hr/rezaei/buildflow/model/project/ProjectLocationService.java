@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.model.project;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +33,13 @@ public class ProjectLocationService {
             throw new IllegalArgumentException("ProjectLocation must be already persisted.");
         }
         return projectLocationRepository.save(location);
+    }
+
+    public boolean existsById(@NonNull UUID id) {
+        return projectLocationRepository.existsById(id);
+    }
+
+    public boolean isPersisted(@NonNull ProjectLocation location) {
+        return location.getId() != null && projectLocationRepository.existsById(location.getId());
     }
 }

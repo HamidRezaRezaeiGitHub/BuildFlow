@@ -7,26 +7,37 @@ ownership, builder assignment, location management, and links to cost estimates.
 
 ### [Project](./Project.java)
 
-- Represents a construction project.
-- Fields:
+- **Purpose:** Represents a construction project.
+- **Fields:**
     - `id` (UUID, primary key)
-    - `builder` ([User](../user/User.java), many-to-one, not null, bidirectional)
+    - `builderUser` ([User](../user/User.java), many-to-one, not null, bidirectional)
     - `owner` ([User](../user/User.java), many-to-one, not null, bidirectional)
-    - `location` ([ProjectLocation](./ProjectLocation.java), one-to-one, not null)
-    - `estimates` (List of [Estimate](../estimate/Estimate.java), one-to-many)
-- Relationships:
-    - Linked to a builder and an owner (both many-to-one, bidirectional, FKs: `builder_id`, `owner_id` in `projects`)
-    - Linked to a location (one-to-one, FK: `location_id` in `projects`)
-    - Has many estimates (one-to-many, bidirectional, FK: `project_id` in `estimates`)
+    - `location` ([ProjectLocation](./ProjectLocation.java), one-to-one, not null, cascade all, orphan removal)
+    - `estimates` (List of [Estimate](../estimate/Estimate.java), one-to-many, cascade all, orphan removal)
+    - `createdAt` (Instant, not null)
+    - `updatedAt` (Instant, not null)
+- **Relationships:**
+    - Many-to-one with builderUser and owner ([User](../user/User.java)), bidirectional, FKs: `builder_id`, `owner_id`
+      in `projects`
+    - One-to-one with location ([ProjectLocation](./ProjectLocation.java)), FK: `location_id` in `projects`, cascade
+      all, orphan removal
+    - One-to-many with estimates ([Estimate](../estimate/Estimate.java)), FK: `project_id` in `estimates`, cascade all,
+      orphan removal
 
 ### [ProjectLocation](./ProjectLocation.java)
 
-- Represents the address/location of a project.
-- Fields:
+- **Purpose:** Represents the address/location of a project.
+- **Fields:**
     - `id` (UUID, primary key)
-    - Inherits address fields from [BaseAddress](../BaseAddress.java)
-- Relationships:
-    - Linked to a project (one-to-one, referenced by `location_id` in `projects`)
+    - `unitNumber` (String)
+    - `streetNumber` (String)
+    - `streetName` (String)
+    - `city` (String)
+    - `stateOrProvince` (String)
+    - `postalOrZipCode` (String)
+    - `country` (String)
+- **Relationships:**
+    - One-to-one with project ([Project](./Project.java)), referenced by `location_id` in `projects`
 
 ## Repositories
 
@@ -41,7 +52,9 @@ ownership, builder assignment, location management, and links to cost estimates.
 
 ## Entity Lifecycle & User Stories
 
-- When a new [Project](./Project.java) is created, it must have a builder, an owner, and a location.
-- Each project can have multiple estimates associated with it.
+- When a new [Project](./Project.java) is created, it must have a builderUser, an owner, and a location. Location is
+  created and persisted with the project (cascade all, orphan removal).
+- Each project can have multiple estimates associated with it. Estimates are created and persisted with the project (
+  cascade all, orphan removal).
 - Each project has a unique location.
-- Each user can be a builder or owner for multiple projects (bidirectional navigation).
+- Each user can be a builderUser or owner for multiple projects (bidirectional navigation).

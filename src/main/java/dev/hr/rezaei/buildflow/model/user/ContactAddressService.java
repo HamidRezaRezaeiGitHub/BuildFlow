@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.model.user;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class ContactAddressService {
      * Find a ContactAddress by its id.
      * Only returns if the address is already persisted.
      */
-    public Optional<ContactAddress> findById(UUID id) {
+    public Optional<ContactAddress> findById(@NonNull UUID id) {
         return contactAddressRepository.findById(id);
     }
 
@@ -31,7 +32,7 @@ public class ContactAddressService {
      * Update an already persisted ContactAddress.
      * Throws IllegalArgumentException if the address is not persisted.
      */
-    public ContactAddress update(ContactAddress address) {
+    public ContactAddress update(@NonNull ContactAddress address) {
         if (address.getId() == null || !contactAddressRepository.existsById(address.getId())) {
             throw new IllegalArgumentException("ContactAddress must be already persisted.");
         }

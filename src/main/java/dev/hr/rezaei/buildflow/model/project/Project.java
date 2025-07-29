@@ -30,7 +30,7 @@ public class Project extends UpdatableEntity {
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "builder_id", nullable = false)
-    private User builder;
+    private User builderUser;
 
     // Bidirectional relationship: Many Projects can have the same User as owner.
     // Table: projects, Foreign Key: owner_id
@@ -58,7 +58,7 @@ public class Project extends UpdatableEntity {
                 "id=" + id +
                 ", createdAt=" + getCreatedAt() +
                 ", lastUpdatedAt=" + getLastUpdatedAt() +
-                ", builder.id=" + builder.getId() +
+                ", builder.id=" + builderUser.getId() +
                 ", owner.id=" + owner.getId() +
                 ", location.id=" + location.getId() +
                 ", estimates.size=" + estimates.size() +
