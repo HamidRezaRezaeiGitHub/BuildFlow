@@ -1,5 +1,7 @@
 package dev.hr.rezaei.buildflow.user;
 
+import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,11 +44,16 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public User createBuilder(@NonNull CreateBuilderRequest request) {
+    public CreateBuilderResponse createBuilder(@NonNull CreateBuilderRequest request) {
         Contact contact = ContactDtoMapper.toContact(request.getContactDto());
-        return request.isRegistered() ?
+        User user = request.isRegistered() ?
                 newRegisteredUser(contact, ContactLabel.BUILDER) :
                 newUnregisteredUser(contact, ContactLabel.BUILDER);
+
+        UserDto userDto = UserDtoMapper.fromUser(user);
+        return CreateBuilderResponse.builder()
+                .userDto(userDto)
+                .build();
     }
 
     public static User toUser(@NonNull Contact contact, ContactLabel... labels) {

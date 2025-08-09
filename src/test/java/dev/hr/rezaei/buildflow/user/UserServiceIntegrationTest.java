@@ -1,6 +1,8 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
+import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,14 +159,17 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         // Act
-        User user = userService.createBuilder(request);
+        CreateBuilderResponse response = userService.createBuilder(request);
 
         // Assert
-        assertNotNull(user.getId());
-        assertTrue(user.isRegistered());
-        assertTrue(userService.isPersisted(user));
-        assertEquals(testContact.getEmail(), user.getEmail());
-        assertTrue(user.getContact().getLabels().contains(ContactLabel.BUILDER));
+        assertNotNull(response);
+        assertNotNull(response.getUserDto());
+        UserDto userDto = response.getUserDto();
+        assertNotNull(userDto.getId());
+        assertTrue(userDto.isRegistered());
+        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertNotNull(userDto.getContactDto());
+        assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
     }
 
     @Test
@@ -177,13 +182,16 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         // Act
-        User user = userService.createBuilder(request);
+        CreateBuilderResponse response = userService.createBuilder(request);
 
         // Assert
-        assertNotNull(user.getId());
-        assertFalse(user.isRegistered());
-        assertTrue(userService.isPersisted(user));
-        assertEquals(testContact.getEmail(), user.getEmail());
-        assertTrue(user.getContact().getLabels().contains(ContactLabel.BUILDER));
+        assertNotNull(response);
+        assertNotNull(response.getUserDto());
+        UserDto userDto = response.getUserDto();
+        assertNotNull(userDto.getId());
+        assertFalse(userDto.isRegistered());
+        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertNotNull(userDto.getContactDto());
+        assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
     }
 }

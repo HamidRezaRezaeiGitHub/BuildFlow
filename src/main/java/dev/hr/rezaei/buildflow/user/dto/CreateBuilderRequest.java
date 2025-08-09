@@ -1,5 +1,6 @@
-package dev.hr.rezaei.buildflow.user;
+package dev.hr.rezaei.buildflow.user.dto;
 
+import dev.hr.rezaei.buildflow.user.ContactDto;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
