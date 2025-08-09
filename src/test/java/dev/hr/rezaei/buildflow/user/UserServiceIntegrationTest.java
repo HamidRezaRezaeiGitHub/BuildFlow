@@ -3,6 +3,8 @@ package dev.hr.rezaei.buildflow.user;
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
+import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,6 +172,15 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         assertEquals(testContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
+
+        // Verify persistence by finding the user in the database
+        Optional<User> persistedUser = userService.findById(userDto.getId());
+        assertTrue(persistedUser.isPresent());
+        User foundUser = persistedUser.get();
+        assertEquals(userDto.getId(), foundUser.getId());
+        assertEquals(userDto.getEmail(), foundUser.getEmail());
+        assertTrue(foundUser.isRegistered());
+        assertTrue(foundUser.getContact().getLabels().contains(ContactLabel.BUILDER));
     }
 
     @Test
@@ -193,5 +204,78 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         assertEquals(testContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
+
+        // Verify persistence by finding the user in the database
+        Optional<User> persistedUser = userService.findById(userDto.getId());
+        assertTrue(persistedUser.isPresent());
+        User foundUser = persistedUser.get();
+        assertEquals(userDto.getId(), foundUser.getId());
+        assertEquals(userDto.getEmail(), foundUser.getEmail());
+        assertFalse(foundUser.isRegistered());
+        assertTrue(foundUser.getContact().getLabels().contains(ContactLabel.BUILDER));
+    }
+
+    @Test
+    void createOwner_shouldPersistRegisteredOwner() {
+        // Arrange
+        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        CreateOwnerRequest request = CreateOwnerRequest.builder()
+                .registered(true)
+                .contactDto(contactDto)
+                .build();
+
+        // Act
+        CreateOwnerResponse response = userService.createOwner(request);
+
+        // Assert
+        assertNotNull(response);
+        assertNotNull(response.getUserDto());
+        UserDto userDto = response.getUserDto();
+        assertNotNull(userDto.getId());
+        assertTrue(userDto.isRegistered());
+        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertNotNull(userDto.getContactDto());
+        assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.OWNER.name()));
+
+        // Verify persistence by finding the user in the database
+        Optional<User> persistedUser = userService.findById(userDto.getId());
+        assertTrue(persistedUser.isPresent());
+        User foundUser = persistedUser.get();
+        assertEquals(userDto.getId(), foundUser.getId());
+        assertEquals(userDto.getEmail(), foundUser.getEmail());
+        assertTrue(foundUser.isRegistered());
+        assertTrue(foundUser.getContact().getLabels().contains(ContactLabel.OWNER));
+    }
+
+    @Test
+    void createOwner_shouldPersistUnregisteredOwner() {
+        // Arrange
+        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        CreateOwnerRequest request = CreateOwnerRequest.builder()
+                .registered(false)
+                .contactDto(contactDto)
+                .build();
+
+        // Act
+        CreateOwnerResponse response = userService.createOwner(request);
+
+        // Assert
+        assertNotNull(response);
+        assertNotNull(response.getUserDto());
+        UserDto userDto = response.getUserDto();
+        assertNotNull(userDto.getId());
+        assertFalse(userDto.isRegistered());
+        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertNotNull(userDto.getContactDto());
+        assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.OWNER.name()));
+
+        // Verify persistence by finding the user in the database
+        Optional<User> persistedUser = userService.findById(userDto.getId());
+        assertTrue(persistedUser.isPresent());
+        User foundUser = persistedUser.get();
+        assertEquals(userDto.getId(), foundUser.getId());
+        assertEquals(userDto.getEmail(), foundUser.getEmail());
+        assertFalse(foundUser.isRegistered());
+        assertTrue(foundUser.getContact().getLabels().contains(ContactLabel.OWNER));
     }
 }

@@ -2,6 +2,8 @@ package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
+import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,18 @@ public class UserService {
 
         UserDto userDto = UserDtoMapper.fromUser(user);
         return CreateBuilderResponse.builder()
+                .userDto(userDto)
+                .build();
+    }
+
+    public CreateOwnerResponse createOwner(@NonNull CreateOwnerRequest request) {
+        Contact contact = ContactDtoMapper.toContact(request.getContactDto());
+        User user = request.isRegistered() ?
+                newRegisteredUser(contact, ContactLabel.OWNER) :
+                newUnregisteredUser(contact, ContactLabel.OWNER);
+
+        UserDto userDto = UserDtoMapper.fromUser(user);
+        return CreateOwnerResponse.builder()
                 .userDto(userDto)
                 .build();
     }
