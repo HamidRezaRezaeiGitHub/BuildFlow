@@ -23,19 +23,25 @@ import static dev.hr.rezaei.buildflow.workitem.WorkItemDomain.PUBLIC;
 
 public abstract class AbstractModelTest {
 
-    protected ContactAddress testContactAddress;
-    protected Contact testContact;
-    protected User testUser;
+    protected ContactAddress testBuilderUserContactAddress;
+    protected ContactAddress testOwnerUserContactAddress;
+    protected Contact testBuilderUserContact;
+    protected Contact testOwnerUserContact;
+    protected User testBuilderUser;
+    protected User testOwnerUser;
     protected ProjectLocation testProjectLocation;
     protected Project testProject;
     protected WorkItem testWorkItem;
+    protected WorkItem testWorkItem2;
     protected Estimate testEstimate;
     protected EstimateGroup testEstimateGroup;
+    protected EstimateGroup testEstimateGroup2;
     protected EstimateLine testEstimateLine;
+    protected EstimateLine testEstimateLine2;
 
     @BeforeEach
     public void setUpEstimateModelObjects() {
-        testContactAddress = ContactAddress.builder()
+        testBuilderUserContactAddress = ContactAddress.builder()
                 .unitNumber("1")
                 .streetNumber("100")
                 .streetName("Main St")
@@ -45,20 +51,50 @@ public abstract class AbstractModelTest {
                 .country("Testland")
                 .build();
 
-        testContact = Contact.builder()
+        testOwnerUserContactAddress = ContactAddress.builder()
+                .unitNumber("2")
+                .streetNumber("200")
+                .streetName("Second St")
+                .city("Testtown")
+                .stateOrProvince("TT")
+                .postalOrZipCode("67890")
+                .country("Testland")
+                .build();
+
+        testBuilderUserContact = Contact.builder()
                 .firstName("Test")
                 .lastName("User")
-                .address(testContactAddress)
+                .address(testBuilderUserContactAddress)
                 .labels(new ArrayList<>())
                 .email("testuser@example.com")
                 .phone("1234567890")
                 .build();
 
-        testUser = User.builder()
+        testOwnerUserContact = Contact.builder()
+                .firstName("Owner")
+                .lastName("User")
+                .address(testOwnerUserContactAddress)
+                .labels(new ArrayList<>())
+                .email("testowner@example.com")
+                .phone("0987654321")
+                .build();
+
+        testBuilderUser = User.builder()
                 .username("testuser")
                 .email("testuser@example.com")
                 .registered(true)
-                .contact(testContact)
+                .contact(testBuilderUserContact)
+                .builtProjects(new ArrayList<>())
+                .ownedProjects(new ArrayList<>())
+                .createdQuotes(new ArrayList<>())
+                .suppliedQuotes(new ArrayList<>())
+                .build();
+
+        testOwnerUser = User.builder()
+                .username("testowner")
+                .email("testowner@example.com")
+                .registered(true)
+                .contact(testOwnerUserContact)
                 .builtProjects(new ArrayList<>())
                 .ownedProjects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
@@ -76,8 +112,8 @@ public abstract class AbstractModelTest {
                 .build();
 
         testProject = Project.builder()
-                .builderUser(testUser)
-                .owner(testUser)
+                .builderUser(testBuilderUser)
+                .owner(testOwnerUser)
                 .location(testProjectLocation)
                 .estimates(new ArrayList<>())
                 .build();
@@ -87,11 +123,23 @@ public abstract class AbstractModelTest {
                 .name("Test Work Item")
                 .description("A test work item.")
                 .optional(false)
-                .user(testUser)
+                .user(testBuilderUser)
                 .defaultGroupName(UNASSIGNED_GROUP_NAME)
                 .domain(PUBLIC)
                 .createdAt(Instant.now().minus(5, ChronoUnit.DAYS))
                 .lastUpdatedAt(Instant.now().minus(4, ChronoUnit.DAYS))
+                .build();
+
+        testWorkItem2 = WorkItem.builder()
+                .code("WI-002")
+                .name("Test Work Item 2")
+                .description("Another test work item.")
+                .optional(false)
+                .user(testBuilderUser)
+                .defaultGroupName("Second Group")
+                .domain(PUBLIC)
+                .createdAt(Instant.now().minus(3, ChronoUnit.DAYS))
+                .lastUpdatedAt(Instant.now().minus(2, ChronoUnit.DAYS))
                 .build();
 
         testEstimate = Estimate.builder()
@@ -106,6 +154,15 @@ public abstract class AbstractModelTest {
                 .estimate(testEstimate)
                 .estimateLines(new HashSet<>())
                 .build();
+        testEstimate.getGroups().add(testEstimateGroup);
+
+        testEstimateGroup2 = EstimateGroup.builder()
+                .name("Test Group 2")
+                .description("Another test estimate group.")
+                .estimate(testEstimate)
+                .estimateLines(new HashSet<>())
+                .build();
+        testEstimate.getGroups().add(testEstimateGroup2);
 
         testEstimateLine = EstimateLine.builder()
                 .estimate(testEstimate)
@@ -116,5 +173,17 @@ public abstract class AbstractModelTest {
                 .computedCost(BigDecimal.valueOf(100.0))
                 .group(testEstimateGroup)
                 .build();
+        testEstimateGroup.getEstimateLines().add(testEstimateLine);
+
+        testEstimateLine2 = EstimateLine.builder()
+                .estimate(testEstimate)
+                .workItem(testWorkItem2)
+                .quantity(5.0)
+                .estimateStrategy(EstimateLineStrategy.AVERAGE)
+                .multiplier(1.0)
+                .computedCost(BigDecimal.valueOf(50.0))
+                .group(testEstimateGroup2)
+                .build();
+        testEstimateGroup2.getEstimateLines().add(testEstimateLine2);
     }
 }

@@ -12,28 +12,28 @@ class ContactTest extends AbstractModelTest {
 
     @Test
     void toString_shouldNotThrow_whenNoCycle() {
-        assertDoesNotThrow(testContact::toString);
+        assertDoesNotThrow(testBuilderUserContact::toString);
     }
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
         Contact contact1 = Contact.builder()
-                .id(testContact.getId())
+                .id(testBuilderUserContact.getId())
                 .firstName("John")
                 .lastName("Doe")
                 .labels(java.util.List.of(ContactLabel.OWNER))
                 .email("john.doe@example.com")
                 .phone("1234567890")
-                .address(testContact.getAddress())
+                .address(testBuilderUserContact.getAddress())
                 .build();
         Contact contact2 = Contact.builder()
-                .id(testContact.getId())
+                .id(testBuilderUserContact.getId())
                 .firstName("Jane")
                 .lastName("Smith")
                 .labels(java.util.List.of(ContactLabel.SUPPLIER))
                 .email("jane.smith@example.com")
                 .phone("0987654321")
-                .address(testContact.getAddress())
+                .address(testBuilderUserContact.getAddress())
                 .build();
         // Should be equal because id is the same
         assertDoesNotThrow(() -> contact1.equals(contact2));
@@ -53,7 +53,7 @@ class ContactTest extends AbstractModelTest {
                 .labels(List.of(ContactLabel.OWNER))
                 .email("john.doe@example.com")
                 .phone("1234567890")
-                .address(testContact.getAddress())
+                .address(testBuilderUserContact.getAddress())
                 .build();
         Contact contact2 = Contact.builder()
                 .id(UUID.randomUUID())
@@ -62,7 +62,7 @@ class ContactTest extends AbstractModelTest {
                 .labels(List.of(ContactLabel.OWNER))
                 .email("john.doe@example.com")
                 .phone("1234567890")
-                .address(testContact.getAddress())
+                .address(testBuilderUserContact.getAddress())
                 .build();
         // Should not be equal because id is different
         assertNotEquals(contact1, contact2);

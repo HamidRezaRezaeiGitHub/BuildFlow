@@ -11,13 +11,13 @@ public class ContactAddressTest extends AbstractModelTest {
 
     @Test
     void toString_shouldNotThrow() {
-        assertDoesNotThrow(() -> testContactAddress.toString());
+        assertDoesNotThrow(() -> testBuilderUserContactAddress.toString());
     }
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
         ContactAddress address1 = ContactAddress.builder()
-                .id(testContactAddress.getId())
+                .id(testBuilderUserContactAddress.getId())
                 .unitNumber("1")
                 .streetNumber("100")
                 .streetName("Main St")
@@ -27,7 +27,7 @@ public class ContactAddressTest extends AbstractModelTest {
                 .country("Testland")
                 .build();
         ContactAddress address2 = ContactAddress.builder()
-                .id(testContactAddress.getId())
+                .id(testBuilderUserContactAddress.getId())
                 .unitNumber("2")
                 .streetNumber("200")
                 .streetName("Other St")

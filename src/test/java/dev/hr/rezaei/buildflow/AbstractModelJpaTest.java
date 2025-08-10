@@ -5,10 +5,7 @@ import dev.hr.rezaei.buildflow.estimate.EstimateLineRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateRepository;
 import dev.hr.rezaei.buildflow.project.ProjectLocationRepository;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
-import dev.hr.rezaei.buildflow.user.ContactAddressRepository;
-import dev.hr.rezaei.buildflow.user.ContactRepository;
-import dev.hr.rezaei.buildflow.user.User;
-import dev.hr.rezaei.buildflow.user.UserRepository;
+import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import dev.hr.rezaei.buildflow.workitem.WorkItemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,10 +47,20 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
         contactAddressRepository.deleteAll();
     }
 
+    protected void persistUserDependencies(User user) {
+        Contact contact = user.getContact();
+        if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
+            contactRepository.save(contact);
+        }
+        user.setEmail(contact.getEmail());
+        user.setUsername(contact.getEmail());
+    }
+
     protected void persistWorkItemDependencies(WorkItem workItem) {
         User owner = workItem.getUser();
         if (owner.getId() == null || !userRepository.existsById(owner.getId())) {
-            userRepository.save(owner); // It should cascade the save operation to Contact
+            persistUserDependencies(owner);
+            userRepository.save(owner);
         }
     }
 }

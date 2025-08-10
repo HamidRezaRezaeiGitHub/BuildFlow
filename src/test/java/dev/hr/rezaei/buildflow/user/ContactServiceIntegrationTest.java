@@ -27,7 +27,7 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void save_shouldPersistContact() {
-        Contact saved = contactRepository.save(testContact);
+        Contact saved = contactRepository.save(testBuilderUserContact);
         log.debug("Saved contact: {}", saved);
 
         assertNotNull(saved.getId());
@@ -36,12 +36,12 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void update_shouldThrow_whenContactIsNotPersisted() {
-        assertThrows(IllegalArgumentException.class, () -> contactService.update(testContact));
+        assertThrows(IllegalArgumentException.class, () -> contactService.update(testBuilderUserContact));
     }
 
     @Test
     void update_shouldPersistChanges_whenContactIsPersisted() {
-        Contact saved = contactRepository.save(testContact);
+        Contact saved = contactRepository.save(testBuilderUserContact);
 
         saved.setFirstName("Updated");
         Contact updated = contactService.update(saved);
@@ -51,12 +51,12 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void delete_shouldThrow_whenContactIsNotPersisted() {
-        assertThrows(IllegalArgumentException.class, () -> contactService.delete(testContact));
+        assertThrows(IllegalArgumentException.class, () -> contactService.delete(testBuilderUserContact));
     }
 
     @Test
     void delete_shouldRemoveContact_whenContactIsPersisted() {
-        Contact saved = contactRepository.save(testContact);
+        Contact saved = contactRepository.save(testBuilderUserContact);
         contactService.delete(saved);
 
         assertFalse(contactRepository.existsById(saved.getId()));
@@ -64,7 +64,7 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void save_shouldPersistContact_whenEmailIsUnique() {
-        Contact saved = contactService.save(testContact);
+        Contact saved = contactService.save(testBuilderUserContact);
 
         assertNotNull(saved.getId());
         assertTrue(contactService.isPersisted(saved));
@@ -72,21 +72,21 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void save_shouldThrow_whenEmailIsDuplicate() {
-        contactService.save(testContact);
+        contactService.save(testBuilderUserContact);
         Contact duplicate = Contact.builder()
                 .firstName("Duplicate")
                 .lastName("User")
-                .email(testContact.getEmail())
-                .address(testContact.getAddress())
-                .labels(testContact.getLabels())
+                .email(testBuilderUserContact.getEmail())
+                .address(testBuilderUserContact.getAddress())
+                .labels(testBuilderUserContact.getLabels())
                 .build();
         assertThrows(RuntimeException.class, () -> contactService.save(duplicate));
     }
 
     @Test
     void existsByEmail_shouldReturnTrue_whenContactExists() {
-        contactRepository.save(testContact);
-        assertTrue(contactService.existsByEmail(testContact.getEmail()));
+        contactRepository.save(testBuilderUserContact);
+        assertTrue(contactService.existsByEmail(testBuilderUserContact.getEmail()));
     }
 
     @Test
@@ -96,7 +96,7 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByEmail_shouldReturnContact_whenExists() {
-        Contact saved = contactRepository.save(testContact);
+        Contact saved = contactRepository.save(testBuilderUserContact);
         assertTrue(contactService.findByEmail(saved.getEmail()).isPresent());
     }
 

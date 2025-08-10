@@ -20,13 +20,13 @@ class WorkItemTest extends AbstractModelTest  {
                 .id(testWorkItem.getId())
                 .code("A")
                 .name("A")
-                .user(testUser)
+                .user(testBuilderUser)
                 .build();
         WorkItem w2 = WorkItem.builder()
                 .id(testWorkItem.getId())
                 .code("B")
                 .name("B")
-                .user(testUser)
+                .user(testBuilderUser)
                 .build();
         assertDoesNotThrow(() -> w1.equals(w2));
         assertDoesNotThrow(() -> w2.equals(w1));
@@ -42,13 +42,13 @@ class WorkItemTest extends AbstractModelTest  {
                 .id(UUID.randomUUID())
                 .code("A")
                 .name("A")
-                .user(testUser)
+                .user(testBuilderUser)
                 .build();
         WorkItem w2 = WorkItem.builder()
                 .id(UUID.randomUUID())
                 .code("A")
                 .name("A")
-                .user(testUser)
+                .user(testBuilderUser)
                 .build();
         assertNotEquals(w1, w2);
         assertNotEquals(w1.hashCode(), w2.hashCode());

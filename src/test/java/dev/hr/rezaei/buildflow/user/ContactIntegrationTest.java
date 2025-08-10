@@ -14,11 +14,11 @@ class ContactIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void save_shouldPersist_whenAllMandatoryFieldsArePresent() {
-        Contact savedContact = contactRepository.save(testContact);
+        Contact savedContact = contactRepository.save(testBuilderUserContact);
         log.debug("Saved Contact: {}", savedContact);
 
-        assertNotNull(testContact.getId());
-        assertTrue(contactRepository.findById(testContact.getId()).isPresent());
+        assertNotNull(testBuilderUserContact.getId());
+        assertTrue(contactRepository.findById(testBuilderUserContact.getId()).isPresent());
     }
 
 }

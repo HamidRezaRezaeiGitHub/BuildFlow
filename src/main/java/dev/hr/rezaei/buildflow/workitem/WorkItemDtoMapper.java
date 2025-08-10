@@ -10,7 +10,7 @@ import static dev.hr.rezaei.buildflow.util.StringUtil.orDefault;
 
 public class WorkItemDtoMapper {
 
-    public static WorkItemDto fromModel(WorkItem workItem) {
+    public static WorkItemDto fromWorkItem(WorkItem workItem) {
         if (workItem == null) return null;
         return WorkItemDto.builder()
                 .id(workItem.getId())

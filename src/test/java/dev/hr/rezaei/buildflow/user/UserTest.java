@@ -11,24 +11,24 @@ class UserTest extends AbstractModelTest {
 
     @Test
     void toString_shouldNotThrow_whenNoCycle() {
-        assertDoesNotThrow(testUser::toString);
+        assertDoesNotThrow(testBuilderUser::toString);
     }
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
         User user1 = User.builder()
-                .id(testUser.getId())
+                .id(testBuilderUser.getId())
                 .username("user1")
                 .email("user1@example.com")
                 .registered(true)
-                .contact(testUser.getContact())
+                .contact(testBuilderUser.getContact())
                 .build();
         User user2 = User.builder()
-                .id(testUser.getId())
+                .id(testBuilderUser.getId())
                 .username("user2")
                 .email("user2@example.com")
                 .registered(false)
-                .contact(testUser.getContact())
+                .contact(testBuilderUser.getContact())
                 .build();
         // Should be equal because id is the same
         assertDoesNotThrow(() -> user1.equals(user2));
@@ -46,14 +46,14 @@ class UserTest extends AbstractModelTest {
                 .username("user1")
                 .email("user1@example.com")
                 .registered(true)
-                .contact(testUser.getContact())
+                .contact(testBuilderUser.getContact())
                 .build();
         User user2 = User.builder()
                 .id(UUID.randomUUID())
                 .username("user1")
                 .email("user1@example.com")
                 .registered(true)
-                .contact(testUser.getContact())
+                .contact(testBuilderUser.getContact())
                 .build();
         // Should not be equal because id is different
         assertNotEquals(user1, user2);

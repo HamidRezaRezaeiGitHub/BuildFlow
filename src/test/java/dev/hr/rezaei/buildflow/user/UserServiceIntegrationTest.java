@@ -39,17 +39,17 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void newRegisteredUser_shouldPersistUser() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         log.debug("Saved user: {}", user);
         assertNotNull(user.getId());
         assertTrue(userService.isPersisted(user));
-        assertEquals(testContact.getEmail(), user.getEmail());
+        assertEquals(testBuilderUserContact.getEmail(), user.getEmail());
         assertTrue(user.isRegistered());
     }
 
     @Test
     void newUnregisteredUser_shouldPersistUser() {
-        User user = userService.newUnregisteredUser(testContact, ContactLabel.BUILDER);
+        User user = userService.newUnregisteredUser(testBuilderUserContact, ContactLabel.BUILDER);
         assertNotNull(user.getId());
         assertFalse(user.isRegistered());
         assertTrue(userService.isPersisted(user));
@@ -60,14 +60,14 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         User user = User.builder()
                 .username("notpersisted")
                 .email("notpersisted@example.com")
-                .contact(testContact)
+                .contact(testBuilderUserContact)
                 .build();
         assertThrows(IllegalArgumentException.class, () -> userService.update(user));
     }
 
     @Test
     void update_shouldPersistChanges_whenUserIsPersisted() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         user.setUsername("updatedUsername");
         User updated = userService.update(user);
         assertEquals("updatedUsername", updated.getUsername());
@@ -78,21 +78,21 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         User user = User.builder()
                 .username("notpersisted")
                 .email("notpersisted@example.com")
-                .contact(testContact)
+                .contact(testBuilderUserContact)
                 .build();
         assertThrows(IllegalArgumentException.class, () -> userService.delete(user));
     }
 
     @Test
     void delete_shouldRemoveUser_whenUserIsPersisted() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         userService.delete(user);
         assertFalse(userRepository.existsById(user.getId()));
     }
 
     @Test
     void existsByEmail_shouldReturnTrue_whenUserExists() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         assertTrue(userService.existsByEmail(user.getEmail()));
     }
 
@@ -103,7 +103,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void existsByUsername_shouldReturnTrue_whenUserExists() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         assertTrue(userService.existsByUsername(user.getUsername()));
     }
 
@@ -114,7 +114,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findById_shouldReturnUser_whenExists() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         Optional<User> found = userService.findById(user.getId());
         assertTrue(found.isPresent());
         assertEquals(user.getId(), found.get().getId());
@@ -127,7 +127,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByEmail_shouldReturnUser_whenExists() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         Optional<User> found = userService.findByEmail(user.getEmail());
         assertTrue(found.isPresent());
         assertEquals(user.getEmail(), found.get().getEmail());
@@ -140,7 +140,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByUsername_shouldReturnUser_whenExists() {
-        User user = userService.newRegisteredUser(testContact);
+        User user = userService.newRegisteredUser(testBuilderUserContact);
         Optional<User> found = userService.findByUsername(user.getUsername());
         assertTrue(found.isPresent());
         assertEquals(user.getUsername(), found.get().getUsername());
@@ -154,7 +154,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createBuilder_shouldPersistRegisteredBuilder() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
                 .contactDto(contactDto)
@@ -169,7 +169,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         UserDto userDto = response.getUserDto();
         assertNotNull(userDto.getId());
         assertTrue(userDto.isRegistered());
-        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertEquals(testBuilderUserContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
 
@@ -186,7 +186,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createBuilder_shouldPersistUnregisteredBuilder() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(false)
                 .contactDto(contactDto)
@@ -201,7 +201,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         UserDto userDto = response.getUserDto();
         assertNotNull(userDto.getId());
         assertFalse(userDto.isRegistered());
-        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertEquals(testBuilderUserContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.BUILDER.name()));
 
@@ -218,7 +218,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createOwner_shouldPersistRegisteredOwner() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
         CreateOwnerRequest request = CreateOwnerRequest.builder()
                 .registered(true)
                 .contactDto(contactDto)
@@ -233,7 +233,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         UserDto userDto = response.getUserDto();
         assertNotNull(userDto.getId());
         assertTrue(userDto.isRegistered());
-        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertEquals(testBuilderUserContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.OWNER.name()));
 
@@ -250,7 +250,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createOwner_shouldPersistUnregisteredOwner() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testContact);
+        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
         CreateOwnerRequest request = CreateOwnerRequest.builder()
                 .registered(false)
                 .contactDto(contactDto)
@@ -265,7 +265,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         UserDto userDto = response.getUserDto();
         assertNotNull(userDto.getId());
         assertFalse(userDto.isRegistered());
-        assertEquals(testContact.getEmail(), userDto.getEmail());
+        assertEquals(testBuilderUserContact.getEmail(), userDto.getEmail());
         assertNotNull(userDto.getContactDto());
         assertTrue(userDto.getContactDto().getLabels().contains(ContactLabel.OWNER.name()));
 
