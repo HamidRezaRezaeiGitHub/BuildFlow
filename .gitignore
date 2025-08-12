@@ -53,8 +53,8 @@ bin/
 # IntelliJ IDEA
 .idea/
 *.iml
-*.ipr
 *.iws
+*.ipr
 out/
 
 # NetBeans
@@ -66,59 +66,83 @@ nbdist/
 
 # VS Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# Mac
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
 
-# React / Node.js
-node_modules/
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Spring Boot
+application-local.yml
+application-dev.yml
+application-prod.yml
+!src/main/resources/application.yml
+!src/main/resources/application-*.yml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/
+h2/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Security - sensitive files
+client_secret_*.json
+*.pem
+*.key
+secrets/
+credentials/
+*http-client.private.env.*
+
+# Build tools
+.cache/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Node.js (for any Node scripts in root)
+node_modules/
 package-lock.json
 yarn.lock
-.env
-.env.*.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# React build output
-*.tgz
-
-# Coverage
-coverage/
-*.lcov
-
-# Misc
-*.swp
-*.swo
-*.sublime-workspace
-*.sublime-project
-
-# Optional npm cache directory
-.npm/
-
-# Optional eslint cache
-.eslintcache
-
-# Optional REACT_APP_ prefixed env files
-
-# Storybook build outputs
-.out/
-storybook-static/
-
-# Secret files
-.secret/
-*secret*
-src/test/resources/http-client.private.env.json
-src/main/resources/http-client.private.env.json
-
-# Database files
-*.db
