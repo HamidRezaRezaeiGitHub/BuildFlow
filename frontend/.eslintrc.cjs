@@ -11,6 +11,7 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'prettier',
   ],
+  ignorePatterns: ['dist', 'coverage'],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
