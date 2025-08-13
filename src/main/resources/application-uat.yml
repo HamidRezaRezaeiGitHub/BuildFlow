@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: BuildFlow
+  # Security enabled for UAT - same as production for realistic testing
+  security:
+    enabled: true
+  # H2 UAT database - separate from production with test-friendly credentials
+  datasource:
+    url: jdbc:h2:file:./data/buildflow-uat-db
+    driver-class-name: org.h2.Driver
+    username: ${H2_USERNAME:buildflow-uat}
+    password: ${H2_PASSWORD:uat-password}
+    # Connection pool settings same as production for performance testing
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  # H2 console enabled for UAT - allows data inspection during testing
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  # JPA UAT settings - validate schema like production but allow console access
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+# Management endpoints for UAT - production-like but with more debugging access
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+  # Separate management port like production
+  server:
+    port: 8081
+  # Prometheus metrics for UAT monitoring and testing
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# UAT server port - same as production
+server:
+  port: 8080

@@ -1,7 +1,18 @@
 <configuration>
   <property name="LOG_DIR" value="${LOG_DIR:-logs}" />
   <property name="LOG_FILE" value="${LOG_FILE:-build-flow}" />
-  <property name="ACTIVE_PROFILE" value="${ACTIVE_PROFILE:-default}" />
+
+  <springProfile name="!uat &amp; !production">
+    <property name="ACTIVE_PROFILE" value="test-default" />
+  </springProfile>
+
+  <springProfile name="uat">
+    <property name="ACTIVE_PROFILE" value="test-uat" />
+  </springProfile>
+
+  <springProfile name="production">
+    <property name="ACTIVE_PROFILE" value="test-production" />
+  </springProfile>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>

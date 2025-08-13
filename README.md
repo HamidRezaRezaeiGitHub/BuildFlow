@@ -8,10 +8,17 @@ A Spring Boot REST API for construction project management with comprehensive es
 # Build the complete full-stack application (includes frontend)
 ./mvnw clean package
 
-# Run the full-stack application
+# Run in different environments:
+# Development mode (default) - H2 console enabled, security disabled
 java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 
-# Alternative: Run in development mode
+# UAT mode - production-like with testing features enabled
+java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=uat
+
+# Production mode - full security, optimized configuration
+java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=production
+
+# Alternative: Run in development mode with hot reload
 ./mvnw spring-boot:run
 
 # Run tests only
@@ -20,8 +27,9 @@ java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 # Access the complete application:
 # - Frontend (React App): http://localhost:8080/
 # - Backend API: http://localhost:8080/api/*
-# - H2 Database Console: http://localhost:8080/h2-console
+# - H2 Database Console (dev/uat): http://localhost:8080/h2-console
 # - Actuator endpoints: http://localhost:8080/actuator/*
+# - Management endpoints (uat/production): http://localhost:8081/actuator/*
 ```
 
 ## 📋 Available Maven Commands
@@ -201,6 +209,8 @@ java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 - **Reduced Infrastructure**: No separate frontend hosting needed
 - **Consistent Versioning**: Frontend and backend always in sync
 - **Embedded Server**: No external web server configuration required
+- **Health Monitoring**: Built-in health checks and monitoring endpoints
+- **Scalable**: Easy horizontal scaling with standard Java deployment patterns
 
 ### Current Development Status
 
@@ -223,11 +233,32 @@ java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 
 ### Configuration
 
+#### Development Profile (default)
 - **Server Port**: 8080
 - **Database**: File-based H2 (`./data/buildflow-db`)
-- **Security**: Currently disabled for development
+- **Security**: Disabled for easier testing and debugging
 - **JPA**: Auto DDL updates enabled
-- **Logging**: Configured with daily rotation and archiving
+- **H2 Console**: Enabled at `/h2-console`
+- **Management**: Extended endpoints for debugging
+
+#### UAT Profile (`--spring.profiles.active=uat`)
+- **Server Port**: 8080 (management on 8081)
+- **Database**: File-based H2 (`/app/data/buildflow-uat-db`)
+- **Security**: Enabled - production-like authentication
+- **JPA**: Schema validation only (no auto-updates)
+- **H2 Console**: Enabled for data inspection during testing
+- **Management**: Production-like with additional debugging endpoints
+
+#### Production Profile (`--spring.profiles.active=production`)
+- **Server Port**: 8080 (management on 8081)
+- **Database**: File-based H2 (`/app/data/buildflow-production-db`)
+- **Security**: Fully enabled with authentication and authorization
+- **JPA**: Schema validation only (no auto-updates)
+- **H2 Console**: Disabled for security
+- **Management**: Limited endpoints, separate port for security
+
+#### All Profiles
+- **Logging**: Configured via logback.xml with daily rotation and archiving
 - **Frontend**: React build automatically included in JAR
 - **Static Resources**: Served from `/static/` with SPA routing support
 

@@ -1,32 +1,37 @@
 spring:
   application:
     name: BuildFlow
+  # Security disabled for development - easier testing and debugging
   security:
-    enabled: false # Custom config to enable/disable security
+    enabled: false # Custom security toggle
+  # H2 file-based database for development - persistent across restarts
   datasource:
     url: jdbc:h2:file:./data/buildflow-db
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  # H2 console enabled for development - database inspection and queries
   h2:
     console:
       enabled: true
       path: /h2-console
+  # JPA settings for development - auto-update schema
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
+    show-sql: false
 
+# Management endpoints for development - expose more endpoints for debugging
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,env,logfile
+        include: health,info,metrics,prometheus,env
   endpoint:
     health:
       show-details: always
-    logfile:
-      external-file: ${LOG_DIR:logs}/${LOG_FILE:build-flow}-${ACTIVE_PROFILE:default}-main.log
 
+# Development server port
 server:
   port: 8080

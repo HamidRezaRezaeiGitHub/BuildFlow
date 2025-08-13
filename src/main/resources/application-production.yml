@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: BuildFlow
+  # Security enabled for production - full authentication and authorization
+  security:
+    enabled: true # Custom security toggle
+  # H2 production database - persistent storage with security credentials
+  datasource:
+    url: jdbc:h2:file:./data/buildflow-production-db
+    driver-class-name: org.h2.Driver
+    username: ${H2_USERNAME:buildflow}
+    password: ${H2_PASSWORD:production-password}
+    # Connection pool settings for production load
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  # H2 console disabled for production security
+  h2:
+    console:
+      enabled: false
+  # JPA production settings - validate schema, no auto-updates
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+# Management endpoints for production - limited exposure, separate port
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+  # Separate management port for production security
+  server:
+    port: 8081
+  # Prometheus metrics for production monitoring
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Production server port
+server:
+  port: 8080
