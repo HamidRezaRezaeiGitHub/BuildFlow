@@ -1,7 +1,7 @@
 # Service Package Documentation Instructions
 
 ## Purpose
-This document provides instructions for creating comprehensive documentation for service classes in the BuildFlow application. Each package containing service classes should have a `[PackageName]Services.md` file that documents the service layer architecture, responsibilities, and interactions.
+This document provides instructions for creating comprehensive documentation for service classes in the BuildFlow application. Each package containing service classes should have a `[PackageName]Services.md` file that documents the service layer architecture, responsibilities, and business rules.
 
 ## Documentation Structure
 
@@ -43,43 +43,12 @@ This package contains the service layer classes for [domain area] in the BuildFl
     - [Custom exceptions thrown]
     - [Error scenarios handled]
 
-## Service Interactions
-
-### Cross-Package Dependencies
-
-- [ServiceName] → [OtherPackage.ServiceName] - [relationship description]
-
-### Repository Usage
-
-- [ServiceName] uses [RepositoryName] for [CRUD operations' description]
-
-### DTO Mapping
-
-- [ServiceName] uses [DtoMapperName] for [entity-to-DTO conversions]
-
-## Transaction Boundaries
-
-- **Read Operations:** [List services/methods that are read-only]
-- **Write Operations:** [List services/methods that modify data]
-- **Batch Operations:** [List services that handle bulk operations]
-
 ## Business Rules
 
 ### [Domain Rule Category]
 
--
-
-[Rule 1]: [Description]
--
-
-[Rule 2]: [Description]
-
-## Error Handling Strategy
-
-- **Validation Errors:** [How validation errors are handled]
-- **Not Found Scenarios:** [How missing entity errors are handled]
-- **Business Rule Violations:** [How business rule violations are handled]
-- **External Service Failures:** [How external dependencies failures are handled]
+- [Rule 1]: [Description]
+- [Rule 2]: [Description]
 ```
 
 ## Documentation Guidelines
@@ -98,26 +67,10 @@ This package contains the service layer classes for [domain area] in the BuildFl
 - **Validation**: Document what validations are performed
 - **Error Handling**: List custom exceptions and error scenarios
 
-### 3. Service Interactions
-- Document how services in this package interact with services in other packages
-- Show the dependency flow between services
-- Explain repository usage patterns
-- Document DTO mapping responsibilities
-
-### 4. Transaction Boundaries
-- Clearly separate read-only from write operations
-- Document batch operation strategies
-- Explain transaction propagation where relevant
-
-### 5. Business Rules
+### 3. Business Rules
 - Document domain-specific business rules enforced by services
 - Group rules by logical categories
 - Reference the business rule in the service method documentation
-
-### 6. Error Handling Strategy
-- Document the error handling approach used across services
-- List common exception types and when they're thrown
-- Explain error propagation strategies
 
 ## Best Practices
 
@@ -136,7 +89,6 @@ This package contains the service layer classes for [domain area] in the BuildFl
 ### Maintenance
 - Update documentation when service responsibilities change
 - Keep business rules section current
-- Review and update cross-service dependencies
 - Ensure error handling documentation matches implementation
 
 ## Example Entries
