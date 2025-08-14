@@ -12,6 +12,16 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * UserService providing business logic for user management operations.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserServices.md"</li>
+ *     <li>Base package documentation: "../Services.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Slf4j
 @Service
 public class UserService {

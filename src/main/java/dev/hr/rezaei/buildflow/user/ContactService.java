@@ -7,7 +7,16 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
-
+/**
+ * ContactService providing business logic for contact management operations.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserServices.md"</li>
+ *     <li>Base package documentation: "../Services.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Service
 public class ContactService {
 

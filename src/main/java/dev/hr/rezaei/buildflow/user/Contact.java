@@ -7,6 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Contact entity representing contact information for users.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserModel.md"</li>
+ *     <li>Base package documentation: "../Model.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Builder
 @Data
@@ -14,8 +24,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "contacts", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_contacts_email", columnNames = "email"),
-    @UniqueConstraint(name = "uk_contacts_address_id", columnNames = "address_id")
+        @UniqueConstraint(name = "uk_contacts_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_contacts_address_id", columnNames = "address_id")
 })
 public class Contact {
     @EqualsAndHashCode.Include
@@ -40,7 +50,7 @@ public class Contact {
     @ElementCollection(targetClass = ContactLabel.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "contact_labels",
-                    joinColumns = @JoinColumn(name = "contact_id", foreignKey = @ForeignKey(name = "fk_contact_labels_contact")))
+            joinColumns = @JoinColumn(name = "contact_id", foreignKey = @ForeignKey(name = "fk_contact_labels_contact")))
     @Column(name = "label", length = 50)
     private List<ContactLabel> labels = new ArrayList<>();
 

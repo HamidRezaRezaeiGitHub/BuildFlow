@@ -8,6 +8,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * CreateOwnerRequest representing request object for creating owner users.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserDtos.md"</li>
+ *     <li>Base package documentation: "../Dtos.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

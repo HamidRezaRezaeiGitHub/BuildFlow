@@ -12,6 +12,16 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+/**
+ * ContactAddressDto representing complete address information for API responses.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserDtos.md"</li>
+ *     <li>Base package documentation: "../Dtos.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Data

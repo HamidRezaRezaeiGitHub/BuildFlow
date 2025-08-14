@@ -13,6 +13,16 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+/**
+ * ContactRequestDto representing contact information for creation requests (without ID).
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserDtos.md"</li>
+ *     <li>Base package documentation: "../Dtos.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

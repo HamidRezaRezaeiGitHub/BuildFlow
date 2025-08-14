@@ -9,6 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * User entity representing system users (builders, owners, etc.).
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserModel.md"</li>
+ *     <li>Base package documentation: "../Model.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Entity
 @Table(name = "users", uniqueConstraints = {
     @UniqueConstraint(name = "uk_users_username", columnNames = "username"),

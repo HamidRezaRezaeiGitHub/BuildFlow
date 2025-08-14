@@ -15,6 +15,16 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * ContactDto representing complete contact information for API responses.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserDtos.md"</li>
+ *     <li>Base package documentation: "../Dtos.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor

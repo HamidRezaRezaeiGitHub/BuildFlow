@@ -7,6 +7,16 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+/**
+ * ContactAddress entity representing address information for contacts.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>User package documentation: "UserModel.md"</li>
+ *     <li>Base package documentation: "../Model.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(callSuper = true)
 @Data
