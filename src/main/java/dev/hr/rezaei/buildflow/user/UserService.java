@@ -47,24 +47,24 @@ public class UserService {
     }
 
     public CreateBuilderResponse createBuilder(@NonNull CreateBuilderRequest request) {
-        Contact contact = ContactDtoMapper.toContact(request.getContactDto());
+        Contact contact = ContactDtoMapper.toContactEntity(request.getContactRequestDto());
         User user = request.isRegistered() ?
                 newRegisteredUser(contact, ContactLabel.BUILDER) :
                 newUnregisteredUser(contact, ContactLabel.BUILDER);
 
-        UserDto userDto = UserDtoMapper.fromUser(user);
+        UserDto userDto = UserDtoMapper.toUserDto(user);
         return CreateBuilderResponse.builder()
                 .userDto(userDto)
                 .build();
     }
 
     public CreateOwnerResponse createOwner(@NonNull CreateOwnerRequest request) {
-        Contact contact = ContactDtoMapper.toContact(request.getContactDto());
+        Contact contact = ContactDtoMapper.toContactEntity(request.getContactRequestDto());
         User user = request.isRegistered() ?
                 newRegisteredUser(contact, ContactLabel.OWNER) :
                 newUnregisteredUser(contact, ContactLabel.OWNER);
 
-        UserDto userDto = UserDtoMapper.fromUser(user);
+        UserDto userDto = UserDtoMapper.toUserDto(user);
         return CreateOwnerResponse.builder()
                 .userDto(userDto)
                 .build();

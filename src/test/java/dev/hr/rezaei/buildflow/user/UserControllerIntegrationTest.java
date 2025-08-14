@@ -1,19 +1,13 @@
 package dev.hr.rezaei.buildflow.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.hr.rezaei.buildflow.AbstractDtoTest;
+import dev.hr.rezaei.buildflow.AbstractControllerTest;
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
 import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -25,17 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "spring.security.enabled=false")
-class UserControllerIntegrationTest extends AbstractDtoTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private UserService userService;
+class UserControllerIntegrationTest extends AbstractControllerTest {
 
     @Test
     void createBuilder_shouldReturnCreated_whenValidRequest() throws Exception {
@@ -86,7 +70,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithBlankFirstName)
+                .contactRequestDto(testContactRequestDtoWithBlankFirstName)
                 .build();
 
         // When & Then
@@ -103,7 +87,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithBlankLastName)
+                .contactRequestDto(testContactRequestDtoWithBlankLastName)
                 .build();
 
         // When & Then
@@ -120,7 +104,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithInvalidEmail)
+                .contactRequestDto(testContactRequestDtoWithInvalidEmail)
                 .build();
 
         // When & Then
@@ -137,7 +121,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithBlankEmail)
+                .contactRequestDto(testContactRequestDtoWithBlankEmail)
                 .build();
 
         // When & Then
@@ -154,7 +138,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithNullLabels)
+                .contactRequestDto(testContactRequestDtoWithNullLabels)
                 .build();
 
         // When & Then
@@ -171,7 +155,7 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
         // Given
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(testContactDtoWithNullAddress)
+                .contactRequestDto(testContactRequestDtoWithNullAddress)
                 .build();
 
         // When & Then
@@ -186,17 +170,15 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
     @Test
     void createBuilder_shouldReturnBadRequest_whenFieldExceedsMaxLength() throws Exception {
         // Given
-        ContactDto contactDto = ContactDto.builder()
-                .firstName("John")
-                .lastName("Builder")
-                .email("john.builder@example.com")
-                .labels(List.of("BUILDER"))
-                .addressDto(testContactAddressDtoWithLongStreetName)
-                .build();
-
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(contactDto)
+                .contactRequestDto(ContactRequestDto.builder()
+                        .firstName("John")
+                        .lastName("Builder")
+                        .email("john.builder@example.com")
+                        .labels(List.of("BUILDER"))
+                        .addressRequestDto(testContactAddressRequestDtoWithLongStreetName)
+                        .build())
                 .build();
 
         // When & Then
@@ -222,17 +204,9 @@ class UserControllerIntegrationTest extends AbstractDtoTest {
     @Test
     void createOwner_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
         // Given
-        ContactDto invalidContactDto = ContactDto.builder()
-                .firstName("Jane")
-                .lastName("Owner")
-                .email("not-an-email")  // Invalid: not a valid email format
-                .labels(List.of("OWNER"))
-                .addressDto(testOwnerContactAddressDto)
-                .build();
-
         CreateOwnerRequest request = CreateOwnerRequest.builder()
                 .registered(false)
-                .contactDto(invalidContactDto)
+                .contactRequestDto(testContactRequestDtoWithInvalidEmail)
                 .build();
 
         // When & Then

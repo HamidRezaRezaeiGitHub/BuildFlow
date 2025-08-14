@@ -1,11 +1,12 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.dto.DtoMappingException;
+import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import lombok.NonNull;
 
 public class ContactAddressDtoMapper {
 
-    public static ContactAddressDto fromContactAddress(ContactAddress address) {
+    public static ContactAddressDto toContactAddressDto(ContactAddress address) {
         if (address == null) return null;
         return ContactAddressDto.builder()
                 .id(address.getId())
@@ -19,11 +20,46 @@ public class ContactAddressDtoMapper {
                 .build();
     }
 
-    public static ContactAddress toContactAddress(@NonNull ContactAddressDto dto) {
+    public static ContactAddressRequestDto toContactAddressRequestDto(ContactAddressDto dto) {
+        if (dto == null) return null;
+        return ContactAddressRequestDto.builder()
+                .unitNumber(dto.getUnitNumber())
+                .streetNumber(dto.getStreetNumber())
+                .streetName(dto.getStreetName())
+                .city(dto.getCity())
+                .stateOrProvince(dto.getStateOrProvince())
+                .postalOrZipCode(dto.getPostalOrZipCode())
+                .country(dto.getCountry())
+                .build();
+    }
+
+    public static ContactAddressDto toContactAddressDto(ContactAddressRequestDto dto) {
+        if (dto == null) return null;
+        return ContactAddressDto.builder()
+                .unitNumber(dto.getUnitNumber())
+                .streetNumber(dto.getStreetNumber())
+                .streetName(dto.getStreetName())
+                .city(dto.getCity())
+                .stateOrProvince(dto.getStateOrProvince())
+                .postalOrZipCode(dto.getPostalOrZipCode())
+                .country(dto.getCountry())
+                .build();
+    }
+
+    public static ContactAddress toContactAddressEntity(@NonNull ContactAddressDto dto) {
         try {
             return map(dto);
         } catch (Exception e) {
             throw new DtoMappingException("Invalid ContactAddressDto: " + dto, e);
+        }
+    }
+
+    public static ContactAddress toContactAddressEntity(@NonNull ContactAddressRequestDto dto) {
+        try {
+            ContactAddressDto contactAddressDto = toContactAddressDto(dto);
+            return map(contactAddressDto);
+        } catch (Exception e) {
+            throw new DtoMappingException("Invalid ContactAddressRequestDto: " + dto, e);
         }
     }
 

@@ -1,10 +1,7 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
+import dev.hr.rezaei.buildflow.user.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -154,10 +152,23 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createBuilder_shouldPersistRegisteredBuilder() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(testBuilderUserContact.getFirstName())
+                .lastName(testBuilderUserContact.getLastName())
+                .email(testBuilderUserContact.getEmail())
+                .phone(testBuilderUserContact.getPhone())
+                .labels(List.of(ContactLabel.BUILDER.name()))
+                .addressRequestDto(ContactAddressRequestDto.builder()
+                        .streetName(testBuilderUserContact.getAddress().getStreetName())
+                        .city(testBuilderUserContact.getAddress().getCity())
+                        .stateOrProvince(testBuilderUserContact.getAddress().getStateOrProvince())
+                        .country(testBuilderUserContact.getAddress().getCountry())
+                        .build())
+                .build();
+
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(true)
-                .contactDto(contactDto)
+                .contactRequestDto(contactRequestDto)
                 .build();
 
         // Act
@@ -186,10 +197,23 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createBuilder_shouldPersistUnregisteredBuilder() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(testBuilderUserContact.getFirstName())
+                .lastName(testBuilderUserContact.getLastName())
+                .email(testBuilderUserContact.getEmail())
+                .phone(testBuilderUserContact.getPhone())
+                .labels(List.of(ContactLabel.BUILDER.name()))
+                .addressRequestDto(ContactAddressRequestDto.builder()
+                        .streetName(testBuilderUserContact.getAddress().getStreetName())
+                        .city(testBuilderUserContact.getAddress().getCity())
+                        .stateOrProvince(testBuilderUserContact.getAddress().getStateOrProvince())
+                        .country(testBuilderUserContact.getAddress().getCountry())
+                        .build())
+                .build();
+
         CreateBuilderRequest request = CreateBuilderRequest.builder()
                 .registered(false)
-                .contactDto(contactDto)
+                .contactRequestDto(contactRequestDto)
                 .build();
 
         // Act
@@ -218,10 +242,23 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createOwner_shouldPersistRegisteredOwner() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(testBuilderUserContact.getFirstName())
+                .lastName(testBuilderUserContact.getLastName())
+                .email(testBuilderUserContact.getEmail())
+                .phone(testBuilderUserContact.getPhone())
+                .labels(List.of(ContactLabel.OWNER.name()))
+                .addressRequestDto(ContactAddressRequestDto.builder()
+                        .streetName(testBuilderUserContact.getAddress().getStreetName())
+                        .city(testBuilderUserContact.getAddress().getCity())
+                        .stateOrProvince(testBuilderUserContact.getAddress().getStateOrProvince())
+                        .country(testBuilderUserContact.getAddress().getCountry())
+                        .build())
+                .build();
+
         CreateOwnerRequest request = CreateOwnerRequest.builder()
                 .registered(true)
-                .contactDto(contactDto)
+                .contactRequestDto(contactRequestDto)
                 .build();
 
         // Act
@@ -250,10 +287,23 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createOwner_shouldPersistUnregisteredOwner() {
         // Arrange
-        ContactDto contactDto = ContactDtoMapper.fromContact(testBuilderUserContact);
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(testBuilderUserContact.getFirstName())
+                .lastName(testBuilderUserContact.getLastName())
+                .email(testBuilderUserContact.getEmail())
+                .phone(testBuilderUserContact.getPhone())
+                .labels(List.of(ContactLabel.OWNER.name()))
+                .addressRequestDto(ContactAddressRequestDto.builder()
+                        .streetName(testBuilderUserContact.getAddress().getStreetName())
+                        .city(testBuilderUserContact.getAddress().getCity())
+                        .stateOrProvince(testBuilderUserContact.getAddress().getStateOrProvince())
+                        .country(testBuilderUserContact.getAddress().getCountry())
+                        .build())
+                .build();
+
         CreateOwnerRequest request = CreateOwnerRequest.builder()
                 .registered(false)
-                .contactDto(contactDto)
+                .contactRequestDto(contactRequestDto)
                 .build();
 
         // Act

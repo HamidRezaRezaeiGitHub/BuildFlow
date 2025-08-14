@@ -1,6 +1,5 @@
-package dev.hr.rezaei.buildflow.user;
+package dev.hr.rezaei.buildflow.user.dto;
 
-import dev.hr.rezaei.buildflow.dto.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -13,17 +12,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Contact information containing personal details and address")
-public class ContactDto implements Dto<Contact> {
-    @Schema(description = "Unique identifier for the contact", example = "123e4567-e89b-12d3-a456-426614174000")
-    private UUID id;
-
+@Schema(description = "Contact request information for creating new contacts")
+public class ContactRequestDto {
     @Schema(description = "First name of the contact", example = "John")
     @NotBlank(message = "First name is required")
     @Size(max = 100, message = "First name must not exceed 100 characters")
@@ -51,5 +46,5 @@ public class ContactDto implements Dto<Contact> {
     @Schema(description = "Address information for the contact")
     @Valid
     @NotNull(message = "Address information is required")
-    private ContactAddressDto addressDto;
+    private ContactAddressRequestDto addressRequestDto;
 }

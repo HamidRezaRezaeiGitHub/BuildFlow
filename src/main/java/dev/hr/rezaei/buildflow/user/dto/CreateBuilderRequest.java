@@ -1,6 +1,6 @@
 package dev.hr.rezaei.buildflow.user.dto;
 
-import dev.hr.rezaei.buildflow.user.ContactDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,11 +12,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Request object for creating a new builder user")
 public class CreateBuilderRequest {
+    @Schema(description = "Registration status of the builder", example = "true")
     @NotNull(message = "Registered status is required")
     private boolean registered;
 
+    @Schema(description = "Contact information for the builder")
     @Valid
     @NotNull(message = "Contact information is required")
-    private ContactDto contactDto;
+    private ContactRequestDto contactRequestDto;
 }

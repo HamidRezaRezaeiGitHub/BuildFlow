@@ -5,17 +5,26 @@ import lombok.NonNull;
 
 public class UserDtoMapper {
 
-    public static UserDto fromUser(User user) {
+    public static UserDto toUserDto(User user) {
         if (user == null) return null;
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .registered(user.isRegistered())
-                .contactDto(ContactDtoMapper.fromContact(user.getContact()))
+                .contactDto(ContactDtoMapper.toContactDto(user.getContact()))
                 .build();
     }
 
-    public static User toUser(@NonNull UserDto dto) {
+    public static UserDto toUserDto(ContactDto contactDto) {
+        if (contactDto == null) return null;
+        return UserDto.builder()
+                .email(contactDto.getEmail())
+                .registered(false)
+                .contactDto(contactDto)
+                .build();
+    }
+
+    public static User toUserEntity(@NonNull UserDto dto) {
         try {
             return map(dto);
         } catch (Exception e) {
@@ -29,7 +38,7 @@ public class UserDtoMapper {
                 .username(dto.getEmail())
                 .email(dto.getEmail())
                 .registered(dto.isRegistered())
-                .contact(ContactDtoMapper.toContact(dto.getContactDto()))
+                .contact(ContactDtoMapper.toContactEntity(dto.getContactDto()))
                 .build();
     }
 }
