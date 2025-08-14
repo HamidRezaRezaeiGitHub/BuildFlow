@@ -17,7 +17,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
-@Table(name = "projects")
+@Table(name = "projects", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_projects_location_id", columnNames = "location_id")
+})
 public class Project extends UpdatableEntity {
     @EqualsAndHashCode.Include
     @Id
@@ -29,20 +31,20 @@ public class Project extends UpdatableEntity {
     // Table: projects, Foreign Key: builder_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "builder_id", nullable = false)
+    @JoinColumn(name = "builder_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_builder"))
     private User builderUser;
 
     // Bidirectional relationship: Many Projects can have the same User as owner.
     // Table: projects, Foreign Key: owner_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_owner"))
     private User owner;
 
     @NonNull
     @Builder.Default
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "location_id", nullable = false)
+    @JoinColumn(name = "location_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_location"))
     private ProjectLocation location = new ProjectLocation();
 
     // Bidirectional relationship: One Project has many Estimates.

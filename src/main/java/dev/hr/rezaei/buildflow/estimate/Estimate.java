@@ -26,7 +26,7 @@ public class Estimate extends UpdatableEntity {
 
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id", nullable = false, foreignKey = @ForeignKey(name = "fk_estimates_project"))
     private Project project;
 
     @Builder.Default

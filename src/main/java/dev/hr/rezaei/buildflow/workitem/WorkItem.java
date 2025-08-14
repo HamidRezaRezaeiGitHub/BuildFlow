@@ -42,7 +42,7 @@ public class WorkItem extends UpdatableEntity {
     // Table: work_items, Foreign Key: user_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_work_items_user"))
     private User user;
 
     @Builder.Default

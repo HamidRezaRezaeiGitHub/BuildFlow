@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
+    @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+    @UniqueConstraint(name = "uk_users_contact_id", columnNames = "contact_id")
+})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @NoArgsConstructor
@@ -23,10 +27,10 @@ public class User {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, nullable = false)
     private String username;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, nullable = false)
     private String email;
 
     @Builder.Default
@@ -36,7 +40,7 @@ public class User {
     @NonNull
     @Builder.Default
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "contact_id", nullable = false)
+    @JoinColumn(name = "contact_id", nullable = false, foreignKey = @ForeignKey(name = "fk_users_contact"))
     private Contact contact = new Contact();
 
     // Bidirectional relationship: One User (as builder) can have many Projects.

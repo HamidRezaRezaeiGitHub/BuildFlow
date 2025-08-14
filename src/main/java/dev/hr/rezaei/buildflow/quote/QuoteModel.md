@@ -10,29 +10,29 @@ creation, supplier and creator tracking, work item association, and location man
 - Represents a supplier quote for a work item.
 - Fields:
     - `id` (UUID, primary key)
-    - `workItem` ([WorkItem](../estimate/WorkItem.java), many-to-one, not null)
-    - `createdBy` ([User](../../user/User.java), many-to-one, not null, bidirectional)
-    - `supplier` ([User](../../user/User.java), many-to-one, not null, bidirectional)
+    - `workItem` ([WorkItem](../workitem/WorkItem.java), many-to-one, not null)
+    - `createdBy` ([User](../user/User.java), many-to-one, not null, bidirectional)
+    - `supplier` ([User](../user/User.java), many-to-one, not null, bidirectional)
     - `unit` ([QuoteUnit](QuoteUnit.java), enum, not null)
     - `unitPrice` (BigDecimal, not null)
     - `currency` (Currency, not null)
     - `domain` ([QuoteDomain](QuoteDomain.java), enum, not null)
-    - `location` ([QuoteLocation](QuoteLocation.java), many-to-one, not null)
+    - `location` ([QuoteLocation](QuoteLocation.java), many-to-one, not null, cascade all)
     - `valid` (boolean, not null)
 - Relationships:
     - Many-to-one with WorkItem (FK: work_item_id in quotes)
     - Many-to-one with User (createdBy, FK: created_by_id in quotes, bidirectional)
     - Many-to-one with User (supplier, FK: supplier_id in quotes, bidirectional)
-    - Many-to-one with QuoteLocation (FK: location_id in quotes)
+    - Many-to-one with QuoteLocation (FK: location_id in quotes, cascade all)
 
 ### [QuoteLocation](QuoteLocation.java)
 
 - Represents the address/location for a quote.
 - Fields:
     - `id` (UUID, primary key)
-    - Inherits address fields from [BaseAddress](../BaseAddress.java)
+    - Inherits address fields from [BaseAddress](../base/BaseAddress.java)
 - Relationships:
-    - Many quotes can reference the same location (one-to-many, referenced by location_id in quotes)
+    - Referenced by Quote entities (FK: location_id in quotes)
 
 ## Enums
 

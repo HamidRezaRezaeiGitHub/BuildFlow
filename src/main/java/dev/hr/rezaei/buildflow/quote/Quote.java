@@ -29,21 +29,21 @@ public class Quote extends UpdatableEntity {
     // Table: quotes, Foreign Key: work_item_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_item_id", nullable = false)
+    @JoinColumn(name = "work_item_id", nullable = false, foreignKey = @ForeignKey(name = "fk_quotes_work_item"))
     private WorkItem workItem;
 
     // Many Quotes can be created by the same User.
     // Table: quotes, Foreign Key: created_by_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by_id", nullable = false)
+    @JoinColumn(name = "created_by_id", nullable = false, foreignKey = @ForeignKey(name = "fk_quotes_created_by"))
     private User createdBy;
 
     // Many Quotes can reference the same supplier User.
     // Table: quotes, Foreign Key: supplier_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id", nullable = false)
+    @JoinColumn(name = "supplier_id", nullable = false, foreignKey = @ForeignKey(name = "fk_quotes_supplier"))
     private User supplier;
 
     @Enumerated(EnumType.STRING)
@@ -65,7 +65,7 @@ public class Quote extends UpdatableEntity {
     @NonNull
     @Builder.Default
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "location_id", nullable = false)
+    @JoinColumn(name = "location_id", nullable = false, foreignKey = @ForeignKey(name = "fk_quotes_location"))
     private QuoteLocation location = new QuoteLocation();
 
     @Builder.Default

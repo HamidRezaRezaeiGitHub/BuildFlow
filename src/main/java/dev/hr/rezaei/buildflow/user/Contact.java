@@ -13,7 +13,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "contacts")
+@Table(name = "contacts", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_contacts_email", columnNames = "email"),
+    @UniqueConstraint(name = "uk_contacts_address_id", columnNames = "address_id")
+})
 public class Contact {
     @EqualsAndHashCode.Include
     @Id
@@ -36,12 +39,13 @@ public class Contact {
     @Builder.Default
     @ElementCollection(targetClass = ContactLabel.class)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "contact_labels", joinColumns = @JoinColumn(name = "contact_id"))
+    @CollectionTable(name = "contact_labels",
+                    joinColumns = @JoinColumn(name = "contact_id", foreignKey = @ForeignKey(name = "fk_contact_labels_contact")))
     @Column(name = "label", length = 50)
     private List<ContactLabel> labels = new ArrayList<>();
 
     @NonNull
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, nullable = false)
     private String email;
 
     @Column(length = 30)
@@ -50,7 +54,7 @@ public class Contact {
     @NonNull
     @Builder.Default
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "fk_contacts_address"))
     private ContactAddress address = new ContactAddress();
 
     @Override

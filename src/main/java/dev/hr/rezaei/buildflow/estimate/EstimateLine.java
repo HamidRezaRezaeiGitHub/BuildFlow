@@ -25,12 +25,12 @@ public class EstimateLine extends UpdatableEntity {
 
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_id", nullable = false)
+    @JoinColumn(name = "estimate_id", nullable = false, foreignKey = @ForeignKey(name = "fk_estimate_lines_estimate"))
     private Estimate estimate;
 
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_item_id", nullable = false)
+    @JoinColumn(name = "work_item_id", nullable = false, foreignKey = @ForeignKey(name = "fk_estimate_lines_work_item"))
     private WorkItem workItem;
 
     @Column(nullable = false)
@@ -50,7 +50,7 @@ public class EstimateLine extends UpdatableEntity {
     // Bidirectional relationship: Many EstimateLines belong to one EstimateGroup.
     // Table: estimate_lines, Foreign Key: group_id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_id", foreignKey = @ForeignKey(name = "fk_estimate_lines_group"))
     private EstimateGroup group;
 
     @PrePersist

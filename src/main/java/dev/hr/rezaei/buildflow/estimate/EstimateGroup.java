@@ -31,7 +31,7 @@ public class EstimateGroup {
     // Table: estimate_groups, Foreign Key: estimate_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_id", nullable = false)
+    @JoinColumn(name = "estimate_id", nullable = false, foreignKey = @ForeignKey(name = "fk_estimate_groups_estimate"))
     private Estimate estimate;
 
     // Bidirectional relationship: One EstimateGroup has many EstimateLines.

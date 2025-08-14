@@ -20,7 +20,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
 
 # Management endpoints for development - expose more endpoints for debugging
 management:
