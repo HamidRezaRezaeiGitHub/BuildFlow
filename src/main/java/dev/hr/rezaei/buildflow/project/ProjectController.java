@@ -1,11 +1,11 @@
 package dev.hr.rezaei.buildflow.project;
 
+import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -47,17 +47,7 @@ public class ProjectController {
                     description = "Invalid request data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Validation Error",
-                                    value = """
-                                            {
-                                              "error": "Validation Failed",
-                                              "message": "Invalid request content.",
-                                              "errors": ["Project information is required"],
-                                              "timestamp": "2025-08-14T16:12:51.640038Z",
-                                              "status": 400
-                                            }"""
-                            )
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
                     )
             ),
             @ApiResponse(

@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
+import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
 import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
@@ -7,7 +8,6 @@ import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -50,17 +50,7 @@ public class UserController {
                     description = "Invalid request data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Validation Error",
-                                    value = """
-                                            {
-                                              "error": "Validation Failed",
-                                              "message": "Invalid request content.",
-                                              "errors": ["Contact information is required"],
-                                              "timestamp": "2025-08-14T16:12:51.640038Z",
-                                              "status": 400
-                                            }"""
-                            )
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
                     )
             ),
             @ApiResponse(
@@ -99,17 +89,7 @@ public class UserController {
                     description = "Invalid request data",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Validation Error",
-                                    value = """
-                                            {
-                                              "error": "Validation Failed",
-                                              "message": "Invalid request content.",
-                                              "errors": ["Contact information is required"],
-                                              "timestamp": "2025-08-14T16:12:51.640038Z",
-                                              "status": 400
-                                            }"""
-                            )
+                            schema = @Schema(implementation = ValidationErrorResponse.class)
                     )
             ),
             @ApiResponse(
