@@ -16,25 +16,26 @@ public class ContactAddressTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
+        UUID sameId = testBuilderUserContactAddress.getId();
         ContactAddress address1 = ContactAddress.builder()
-                .id(testBuilderUserContactAddress.getId())
-                .unitNumber("1")
-                .streetNumber("100")
-                .streetName("Main St")
-                .city("Testville")
-                .stateOrProvince("TS")
-                .postalOrZipCode("12345")
-                .country("Testland")
+                .id(sameId)
+                .unitNumber(testBuilderUserContactAddress.getUnitNumber())
+                .streetNumber(testBuilderUserContactAddress.getStreetNumber())
+                .streetName(testBuilderUserContactAddress.getStreetName())
+                .city(testBuilderUserContactAddress.getCity())
+                .stateOrProvince(testBuilderUserContactAddress.getStateOrProvince())
+                .postalOrZipCode(testBuilderUserContactAddress.getPostalOrZipCode())
+                .country(testBuilderUserContactAddress.getCountry())
                 .build();
         ContactAddress address2 = ContactAddress.builder()
-                .id(testBuilderUserContactAddress.getId())
-                .unitNumber("2")
-                .streetNumber("200")
-                .streetName("Other St")
-                .city("Otherville")
-                .stateOrProvince("OS")
-                .postalOrZipCode("54321")
-                .country("Otherland")
+                .id(sameId)
+                .unitNumber(testOwnerUserContactAddress.getUnitNumber())
+                .streetNumber(testOwnerUserContactAddress.getStreetNumber())
+                .streetName(testOwnerUserContactAddress.getStreetName())
+                .city(testOwnerUserContactAddress.getCity())
+                .stateOrProvince(testOwnerUserContactAddress.getStateOrProvince())
+                .postalOrZipCode(testOwnerUserContactAddress.getPostalOrZipCode())
+                .country(testOwnerUserContactAddress.getCountry())
                 .build();
         // Should be equal because id is the same
         assertDoesNotThrow(() -> address1.equals(address2));
@@ -47,26 +48,11 @@ public class ContactAddressTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnFalse_forDifferentId() {
-        ContactAddress address1 = ContactAddress.builder()
-                .id(UUID.randomUUID())
-                .unitNumber("1")
-                .streetNumber("100")
-                .streetName("Main St")
-                .city("Testville")
-                .stateOrProvince("TS")
-                .postalOrZipCode("12345")
-                .country("Testland")
-                .build();
-        ContactAddress address2 = ContactAddress.builder()
-                .id(UUID.randomUUID())
-                .unitNumber("1")
-                .streetNumber("100")
-                .streetName("Main St")
-                .city("Testville")
-                .stateOrProvince("TS")
-                .postalOrZipCode("12345")
-                .country("Testland")
-                .build();
+        ContactAddress address1 = createRandomContactAddress();
+        address1.setId(UUID.randomUUID());
+        ContactAddress address2 = createRandomContactAddress();
+        address2.setId(UUID.randomUUID());
+
         // Should not be equal because id is different
         assertNotEquals(address1, address2);
         assertNotEquals(address1.hashCode(), address2.hashCode());

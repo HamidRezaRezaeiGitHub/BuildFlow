@@ -16,17 +16,18 @@ class WorkItemTest extends AbstractModelTest  {
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
+        UUID sameId = testWorkItem.getId();
         WorkItem w1 = WorkItem.builder()
-                .id(testWorkItem.getId())
-                .code("A")
-                .name("A")
-                .user(testBuilderUser)
+                .id(sameId)
+                .code(testWorkItem.getCode())
+                .name(testWorkItem.getName())
+                .user(testWorkItem.getUser())
                 .build();
         WorkItem w2 = WorkItem.builder()
-                .id(testWorkItem.getId())
-                .code("B")
-                .name("B")
-                .user(testBuilderUser)
+                .id(sameId)
+                .code(testWorkItem2.getCode())
+                .name(testWorkItem2.getName())
+                .user(testWorkItem2.getUser())
                 .build();
         assertDoesNotThrow(() -> w1.equals(w2));
         assertDoesNotThrow(() -> w2.equals(w1));
@@ -38,21 +39,12 @@ class WorkItemTest extends AbstractModelTest  {
 
     @Test
     void equals_shouldReturnFalse_forDifferentId() {
-        WorkItem w1 = WorkItem.builder()
-                .id(UUID.randomUUID())
-                .code("A")
-                .name("A")
-                .user(testBuilderUser)
-                .build();
-        WorkItem w2 = WorkItem.builder()
-                .id(UUID.randomUUID())
-                .code("A")
-                .name("A")
-                .user(testBuilderUser)
-                .build();
+        WorkItem w1 = createRandomWorkItem();
+        w1.setId(UUID.randomUUID());
+        WorkItem w2 = createRandomWorkItem();
+        w2.setId(UUID.randomUUID());
+
         assertNotEquals(w1, w2);
         assertNotEquals(w1.hashCode(), w2.hashCode());
     }
-
 }
-

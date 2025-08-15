@@ -16,19 +16,20 @@ class UserTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
+        UUID sameId = testBuilderUser.getId();
         User user1 = User.builder()
-                .id(testBuilderUser.getId())
-                .username("user1")
-                .email("user1@example.com")
-                .registered(true)
+                .id(sameId)
+                .username(testBuilderUser.getUsername())
+                .email(testBuilderUser.getEmail())
+                .registered(testBuilderUser.isRegistered())
                 .contact(testBuilderUser.getContact())
                 .build();
         User user2 = User.builder()
-                .id(testBuilderUser.getId())
-                .username("user2")
-                .email("user2@example.com")
-                .registered(false)
-                .contact(testBuilderUser.getContact())
+                .id(sameId)
+                .username(testOwnerUser.getUsername())
+                .email(testOwnerUser.getEmail())
+                .registered(testOwnerUser.isRegistered())
+                .contact(testOwnerUser.getContact())
                 .build();
         // Should be equal because id is the same
         assertDoesNotThrow(() -> user1.equals(user2));
@@ -41,20 +42,11 @@ class UserTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnFalse_forDifferentId() {
-        User user1 = User.builder()
-                .id(UUID.randomUUID())
-                .username("user1")
-                .email("user1@example.com")
-                .registered(true)
-                .contact(testBuilderUser.getContact())
-                .build();
-        User user2 = User.builder()
-                .id(UUID.randomUUID())
-                .username("user1")
-                .email("user1@example.com")
-                .registered(true)
-                .contact(testBuilderUser.getContact())
-                .build();
+        User user1 = createRandomBuilderUser();
+        user1.setId(UUID.randomUUID());
+        User user2 = createRandomOwnerUser();
+        user2.setId(UUID.randomUUID());
+
         // Should not be equal because id is different
         assertNotEquals(user1, user2);
         assertNotEquals(user1.hashCode(), user2.hashCode());

@@ -17,23 +17,24 @@ class ContactTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnTrue_forSameId() {
+        UUID sameId = testBuilderUserContact.getId();
         Contact contact1 = Contact.builder()
-                .id(testBuilderUserContact.getId())
-                .firstName("John")
-                .lastName("Doe")
-                .labels(java.util.List.of(ContactLabel.OWNER))
-                .email("john.doe@example.com")
-                .phone("1234567890")
+                .id(sameId)
+                .firstName(testBuilderUserContact.getFirstName())
+                .lastName(testBuilderUserContact.getLastName())
+                .labels(testBuilderUserContact.getLabels())
+                .email(testBuilderUserContact.getEmail())
+                .phone(testBuilderUserContact.getPhone())
                 .address(testBuilderUserContact.getAddress())
                 .build();
         Contact contact2 = Contact.builder()
-                .id(testBuilderUserContact.getId())
-                .firstName("Jane")
-                .lastName("Smith")
-                .labels(java.util.List.of(ContactLabel.SUPPLIER))
-                .email("jane.smith@example.com")
-                .phone("0987654321")
-                .address(testBuilderUserContact.getAddress())
+                .id(sameId)
+                .firstName(testOwnerUserContact.getFirstName())
+                .lastName(testOwnerUserContact.getLastName())
+                .labels(testOwnerUserContact.getLabels())
+                .email(testOwnerUserContact.getEmail())
+                .phone(testOwnerUserContact.getPhone())
+                .address(testOwnerUserContact.getAddress())
                 .build();
         // Should be equal because id is the same
         assertDoesNotThrow(() -> contact1.equals(contact2));
@@ -46,24 +47,11 @@ class ContactTest extends AbstractModelTest {
 
     @Test
     void equals_shouldReturnFalse_forDifferentId() {
-        Contact contact1 = Contact.builder()
-                .id(UUID.randomUUID())
-                .firstName("John")
-                .lastName("Doe")
-                .labels(List.of(ContactLabel.OWNER))
-                .email("john.doe@example.com")
-                .phone("1234567890")
-                .address(testBuilderUserContact.getAddress())
-                .build();
-        Contact contact2 = Contact.builder()
-                .id(UUID.randomUUID())
-                .firstName("John")
-                .lastName("Doe")
-                .labels(List.of(ContactLabel.OWNER))
-                .email("john.doe@example.com")
-                .phone("1234567890")
-                .address(testBuilderUserContact.getAddress())
-                .build();
+        Contact contact1 = createRandomContact();
+        contact1.setId(UUID.randomUUID());
+        Contact contact2 = createRandomContact();
+        contact2.setId(UUID.randomUUID());
+
         // Should not be equal because id is different
         assertNotEquals(contact1, contact2);
         assertNotEquals(contact1.hashCode(), contact2.hashCode());

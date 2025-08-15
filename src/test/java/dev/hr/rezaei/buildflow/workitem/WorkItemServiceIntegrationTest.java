@@ -144,7 +144,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         // Assert
         assertTrue(foundWorkItem.isPresent());
         assertEquals(savedWorkItem.getId(), foundWorkItem.get().getId());
-        assertEquals("WI-001", foundWorkItem.get().getCode());
+        assertEquals(testWorkItem.getCode(), foundWorkItem.get().getCode());
     }
 
     @Test
@@ -165,24 +165,9 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
-        // Create a second user for the second work item
-        Contact secondContact = Contact.builder()
-                .email("second@example.com")
-                .firstName("Second")
-                .lastName("User")
-                .build();
-        User secondUser = userService.newRegisteredUser(secondContact, ContactLabel.BUILDER);
-
-        WorkItem workItem2 = WorkItem.builder()
-                .code("WI-002")
-                .name("Second Test Work Item")
-                .description("A second test work item")
-                .optional(false)
-                .user(secondUser)
-                .defaultGroupName("Test Group")
-                .domain(WorkItemDomain.PUBLIC)
-                .build();
-
+        // Create a second work item using random creation method
+        WorkItem workItem2 = createRandomWorkItem();
+        persistWorkItemDependencies(workItem2);
         workItemRepository.save(workItem2);
 
         // Act
@@ -190,8 +175,8 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertEquals(2, allWorkItems.size());
-        assertTrue(allWorkItems.stream().anyMatch(wi -> "WI-001".equals(wi.getCode())));
-        assertTrue(allWorkItems.stream().anyMatch(wi -> "WI-002".equals(wi.getCode())));
+        assertTrue(allWorkItems.stream().anyMatch(wi -> testWorkItem.getCode().equals(wi.getCode())));
+        assertTrue(allWorkItems.stream().anyMatch(wi -> workItem2.getCode().equals(wi.getCode())));
     }
 
     @Test
@@ -200,22 +185,9 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
-        // Create a second contact for the second user
-        Contact secondContact = Contact.builder()
-                .email("user2@example.com")
-                .firstName("User2")
-                .lastName("Test")
-                .build();
-        User user2 = userService.newRegisteredUser(secondContact, ContactLabel.OWNER);
-
-        WorkItem workItem2 = WorkItem.builder()
-                .code("USER2-001")
-                .name("User 2 Work Item")
-                .user(user2)
-                .optional(false)
-                .domain(WorkItemDomain.PUBLIC)
-                .build();
-
+        // Create a second work item using random creation method
+        WorkItem workItem2 = createRandomWorkItem();
+        persistWorkItemDependencies(workItem2);
         workItemRepository.save(workItem2);
 
         // Act
@@ -223,7 +195,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertEquals(1, user1WorkItems.size());
-        assertEquals("WI-001", user1WorkItems.getFirst().getCode());
+        assertEquals(testWorkItem.getCode(), user1WorkItems.getFirst().getCode());
         assertEquals(testBuilderUser.getId(), user1WorkItems.getFirst().getUser().getId());
     }
 
@@ -259,7 +231,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertEquals(1, userWorkItems.size());
-        assertEquals("WI-001", userWorkItems.getFirst().getCode());
+        assertEquals(testWorkItem.getCode(), userWorkItems.getFirst().getCode());
         assertEquals(testBuilderUser.getId(), userWorkItems.getFirst().getUser().getId());
     }
 
@@ -279,24 +251,10 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
-        // Create a separate user for the private work item
-        Contact privateContact = Contact.builder()
-                .email("private@example.com")
-                .firstName(WorkItemDomain.PRIVATE.name())
-                .lastName("User")
-                .build();
-        User privateUser = userService.newRegisteredUser(privateContact, ContactLabel.BUILDER);
-
-        WorkItem privateWorkItem = WorkItem.builder()
-                .code("PRIVATE-001")
-                .name("Private Work Item")
-                .description("A private work item")
-                .optional(false)
-                .user(privateUser)
-                .defaultGroupName("Private Group")
-                .domain(WorkItemDomain.PRIVATE)
-                .build();
-
+        // Create a separate work item with PRIVATE domain
+        WorkItem privateWorkItem = createRandomWorkItem();
+        privateWorkItem.setDomain(WorkItemDomain.PRIVATE);
+        persistWorkItemDependencies(privateWorkItem);
         workItemRepository.save(privateWorkItem);
 
         // Act
@@ -304,7 +262,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertEquals(1, publicWorkItems.size());
-        assertEquals("WI-001", publicWorkItems.getFirst().getCode());
+        assertEquals(testWorkItem.getCode(), publicWorkItems.getFirst().getCode());
         assertEquals(WorkItemDomain.PUBLIC, publicWorkItems.getFirst().getDomain());
     }
 
@@ -347,11 +305,11 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         workItemRepository.save(testWorkItem);
 
         // Act
-        Optional<WorkItem> foundWorkItem = workItemService.findByUserIdAndCode(testBuilderUser.getId(), "WI-001");
+        Optional<WorkItem> foundWorkItem = workItemService.findByUserIdAndCode(testBuilderUser.getId(), testWorkItem.getCode());
 
         // Assert
         assertTrue(foundWorkItem.isPresent());
-        assertEquals("WI-001", foundWorkItem.get().getCode());
+        assertEquals(testWorkItem.getCode(), foundWorkItem.get().getCode());
         assertEquals(testBuilderUser.getId(), foundWorkItem.get().getUser().getId());
     }
 
@@ -395,14 +353,9 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
-        WorkItem privateWorkItem = WorkItem.builder()
-                .code("PRIVATE-USER-001")
-                .name("Private User Work Item")
-                .user(testBuilderUser)
-                .optional(false)
-                .domain(WorkItemDomain.PRIVATE)
-                .build();
-
+        WorkItem privateWorkItem = createRandomWorkItem();
+        privateWorkItem.setUser(testBuilderUser);
+        privateWorkItem.setDomain(WorkItemDomain.PRIVATE);
         workItemRepository.save(privateWorkItem);
 
         // Act
@@ -410,7 +363,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertEquals(1, publicUserWorkItems.size());
-        assertEquals("WI-001", publicUserWorkItems.getFirst().getCode());
+        assertEquals(testWorkItem.getCode(), publicUserWorkItems.getFirst().getCode());
         assertEquals(WorkItemDomain.PUBLIC, publicUserWorkItems.getFirst().getDomain());
         assertEquals(testBuilderUser.getId(), publicUserWorkItems.getFirst().getUser().getId());
     }

@@ -8,6 +8,7 @@ import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectLocation;
 import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.ContactAddress;
+import dev.hr.rezaei.buildflow.user.ContactLabel;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import org.junit.jupiter.api.BeforeEach;
@@ -185,5 +186,107 @@ public abstract class AbstractModelTest {
                 .group(testEstimateGroup2)
                 .build();
         testEstimateGroup2.getEstimateLines().add(testEstimateLine2);
+    }
+
+    protected ContactAddress createRandomContactAddress() {
+        return ContactAddress.builder()
+                .unitNumber("Unit " + (int) (Math.random() * 100))
+                .streetNumber(String.valueOf((int) (Math.random() * 1000)))
+                .streetName("Street " + (int) (Math.random() * 100))
+                .city("City " + (int) (Math.random() * 100))
+                .stateOrProvince("State " + (int) (Math.random() * 50))
+                .postalOrZipCode(String.valueOf((int) (Math.random() * 100000)))
+                .country("Country " + (int) (Math.random() * 50))
+                .build();
+    }
+
+    protected Contact createRandomContact() {
+        return Contact.builder()
+                .firstName("First " + (int) (Math.random() * 100))
+                .lastName("Last " + (int) (Math.random() * 100))
+                .address(createRandomContactAddress())
+                .labels(new ArrayList<>())
+                .email("email" + (int) (Math.random() * 1000) + "@example.com")
+                .phone(String.valueOf((int) (Math.random() * 1000000000)))
+                .build();
+    }
+
+    protected User createRandomBuilderUser() {
+        Contact contact = createRandomContact();
+        contact.getLabels().add(ContactLabel.BUILDER);
+        User builder = User.builder()
+                .email("builder" + (int) (Math.random() * 1000) + "@example.com")
+                .registered(true)
+                .contact(contact)
+                .builtProjects(new ArrayList<>())
+                .ownedProjects(new ArrayList<>())
+                .createdQuotes(new ArrayList<>())
+                .suppliedQuotes(new ArrayList<>())
+                .build();
+        builder.setUsername(builder.getEmail());
+        return builder;
+    }
+
+    protected User createRandomOwnerUser() {
+        Contact contact = createRandomContact();
+        contact.getLabels().add(ContactLabel.OWNER);
+        User owner = User.builder()
+                .email("owner" + (int) (Math.random() * 1000) + "@example.com")
+                .registered(true)
+                .contact(contact)
+                .builtProjects(new ArrayList<>())
+                .ownedProjects(new ArrayList<>())
+                .createdQuotes(new ArrayList<>())
+                .suppliedQuotes(new ArrayList<>())
+                .build();
+        owner.setUsername(owner.getEmail());
+        return owner;
+    }
+
+    protected ProjectLocation createRandomProjectLocation() {
+        return ProjectLocation.builder()
+                .unitNumber("Unit " + (int) (Math.random() * 100))
+                .streetNumber(String.valueOf((int) (Math.random() * 1000)))
+                .streetName("Street " + (int) (Math.random() * 100))
+                .city("City " + (int) (Math.random() * 100))
+                .stateOrProvince("State " + (int) (Math.random() * 50))
+                .postalOrZipCode(String.valueOf((int) (Math.random() * 100000)))
+                .country("Country " + (int) (Math.random() * 50))
+                .build();
+    }
+
+    protected Project createRandomProject() {
+        User builderUser = createRandomBuilderUser();
+        User ownerUser = createRandomOwnerUser();
+        ProjectLocation location = createRandomProjectLocation();
+
+        return Project.builder()
+                .builderUser(builderUser)
+                .owner(ownerUser)
+                .location(location)
+                .estimates(new ArrayList<>())
+                .build();
+    }
+
+    protected WorkItem createRandomWorkItem() {
+        User user = createRandomBuilderUser();
+
+        // Generate timestamps ensuring createdAt < lastUpdatedAt
+        int daysAgo = (int) (Math.random() * 30) + 5; // 5-35 days ago
+        Instant createdAt = Instant.now().minus(daysAgo, ChronoUnit.DAYS);
+        int updateDaysAgo = (int) (Math.random() * (daysAgo - 1)) + 1; // 1 to (daysAgo-1) days ago
+        Instant lastUpdatedAt = Instant.now().minus(updateDaysAgo, ChronoUnit.DAYS);
+
+        return WorkItem.builder()
+                .code("WI-" + (int) (Math.random() * 1000))
+                .name("Random Work Item " + (int) (Math.random() * 100))
+                .description("A randomly generated work item.")
+                .optional(Math.random() < 0.5)
+                .user(user)
+                .defaultGroupName(UNASSIGNED_GROUP_NAME)
+                .domain(PUBLIC)
+                .createdAt(createdAt)
+                .lastUpdatedAt(lastUpdatedAt)
+                .build();
     }
 }

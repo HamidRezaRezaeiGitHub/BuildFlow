@@ -91,7 +91,8 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void existsByEmail_shouldReturnFalse_whenContactDoesNotExist() {
-        assertFalse(contactService.existsByEmail("notfound@example.com"));
+        Contact randomContact = createRandomContact();
+        assertFalse(contactService.existsByEmail(randomContact.getEmail()));
     }
 
     @Test
@@ -102,6 +103,7 @@ class ContactServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByEmail_shouldReturnEmpty_whenNotExists() {
-        assertTrue(contactService.findByEmail("notfound@example.com").isEmpty());
+        Contact randomContact = createRandomContact();
+        assertTrue(contactService.findByEmail(randomContact.getEmail()).isEmpty());
     }
 }

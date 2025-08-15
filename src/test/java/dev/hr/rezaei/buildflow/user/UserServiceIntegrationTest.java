@@ -100,7 +100,8 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void existsByEmail_shouldReturnFalse_whenUserDoesNotExist() {
-        assertFalse(userService.existsByEmail("notfound@example.com"));
+        Contact randomContact = createRandomContact();
+        assertFalse(userService.existsByEmail(randomContact.getEmail()));
     }
 
     @Test
@@ -111,7 +112,8 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void existsByUsername_shouldReturnFalse_whenUserDoesNotExist() {
-        assertFalse(userService.existsByUsername("notfounduser"));
+        User randomUser = createRandomBuilderUser();
+        assertFalse(userService.existsByUsername(randomUser.getUsername()));
     }
 
     @Test
@@ -137,7 +139,8 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByEmail_shouldReturnEmpty_whenNotExists() {
-        assertTrue(userService.findByEmail("notfound@example.com").isEmpty());
+        Contact randomContact = createRandomContact();
+        assertTrue(userService.findByEmail(randomContact.getEmail()).isEmpty());
     }
 
     @Test
@@ -150,7 +153,8 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void findByUsername_shouldReturnEmpty_whenNotExists() {
-        assertTrue(userService.findByUsername("notfounduser").isEmpty());
+        User randomUser = createRandomBuilderUser();
+        assertTrue(userService.findByUsername(randomUser.getUsername()).isEmpty());
     }
 
     @Test
