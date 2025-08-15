@@ -1,25 +1,26 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.dto.DtoMappingException;
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDtoMapper;
+import dev.hr.rezaei.buildflow.dto.DtoMappingException;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.user.User;
 import lombok.NonNull;
 
 public class ProjectDtoMapper {
 
-    public static ProjectDto fromProject(Project project) {
+    public static ProjectDto toProjectDto(Project project) {
         if (project == null) return null;
         return ProjectDto.builder()
                 .id(project.getId())
                 .builderUserId(project.getBuilderUser().getId())
                 .ownerId(project.getOwner().getId())
-                .locationDto(ProjectLocationDtoMapper.fromProjectLocation(project.getLocation()))
+                .locationDto(ProjectLocationDtoMapper.toProjectLocationDto(project.getLocation()))
                 .createdAt(UpdatableEntityDtoMapper.toString(project.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.toString(project.getLastUpdatedAt()))
                 .build();
     }
 
-    public static Project toProject(@NonNull ProjectDto dto, User builderUser, User owner) {
+    public static Project toProjectEntity(@NonNull ProjectDto dto, User builderUser, User owner) {
         try {
             return map(dto, builderUser, owner);
         } catch (Exception e) {
@@ -32,7 +33,7 @@ public class ProjectDtoMapper {
                 .id(dto.getId())
                 .builderUser(builderUser)
                 .owner(owner)
-                .location(ProjectLocationDtoMapper.toProjectLocation(dto.getLocationDto()))
+                .location(ProjectLocationDtoMapper.toProjectLocationEntity(dto.getLocationDto()))
                 .createdAt(UpdatableEntityDtoMapper.fromString(dto.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.fromString(dto.getLastUpdatedAt()))
                 .build();

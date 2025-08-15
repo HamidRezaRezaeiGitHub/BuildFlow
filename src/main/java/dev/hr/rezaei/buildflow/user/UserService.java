@@ -49,6 +49,10 @@ public class UserService {
         User newUser = toUser(contact, labels);
 
         Contact newContact = newUser.getContact();
+        ContactAddress address = newContact.getAddress();
+        if (address.getId() != null) {
+            throw new IllegalArgumentException("Cannot create registered user with existing address ID: " + address.getId());
+        }
         newContact = contactService.save(newContact);
 
         newUser.setRegistered(true);

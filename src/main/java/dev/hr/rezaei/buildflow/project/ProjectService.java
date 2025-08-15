@@ -1,5 +1,8 @@
 package dev.hr.rezaei.buildflow.project;
 
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;
@@ -11,6 +14,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.hr.rezaei.buildflow.project.ProjectLocationDtoMapper.toProjectLocationEntity;
+
+/**
+ * ProjectService providing business logic for project management operations.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>Project package documentation: "ProjectServices.md"</li>
+ *     <li>Base package documentation: "../Services.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @Slf4j
 @Service
 public class ProjectService {
@@ -27,23 +42,27 @@ public class ProjectService {
         this.userService = userService;
     }
 
-    public Project create(@NonNull UUID builderId,
-                          @NonNull UUID ownerId,
-                          @NonNull ProjectLocation location) {
+    public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
+        UUID builderId = request.getBuilderUserId();
         Optional<User> optionalBuilder = userService.findById(builderId);
         if (optionalBuilder.isEmpty()) {
             throw new IllegalArgumentException("Builder with ID " + builderId + " does not exist.");
         }
         User builder = optionalBuilder.get();
 
+        UUID ownerId = request.getOwnerId();
         Optional<User> optionalOwner = userService.findById(ownerId);
         if (optionalOwner.isEmpty()) {
             throw new IllegalArgumentException("Owner with ID " + ownerId + " does not exist.");
         }
         User owner = optionalOwner.get();
 
-        if (projectLocationService.isPersisted(location)) {
-            throw new IllegalArgumentException("Project location must not be already persisted.");
+        ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
+        if (location == null) {
+            throw new IllegalArgumentException("Cannot create project with null location.");
+        }
+        if (location.getId() != null) {
+            throw new IllegalArgumentException("Project location should only be cascaded, not persisted directly.");
         }
 
         Instant now = Instant.now();
@@ -56,7 +75,11 @@ public class ProjectService {
                 .build();
 
         log.info("Persisting new project for builder Id {}, owner Id {}, at location {}", builderId, ownerId, location);
-        return projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+
+        return CreateProjectResponse.builder()
+                .projectDto(ProjectDtoMapper.toProjectDto(savedProject))
+                .build();
     }
 
     public Project update(@NonNull Project project) {

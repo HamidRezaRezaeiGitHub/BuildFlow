@@ -1,11 +1,12 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.dto.DtoMappingException;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import lombok.NonNull;
 
 public class ProjectLocationDtoMapper {
 
-    public static ProjectLocationDto fromProjectLocation(ProjectLocation location) {
+    public static ProjectLocationDto toProjectLocationDto(ProjectLocation location) {
         if (location == null) return null;
         return ProjectLocationDto.builder()
                 .id(location.getId())
@@ -19,11 +20,51 @@ public class ProjectLocationDtoMapper {
                 .build();
     }
 
-    public static ProjectLocation toProjectLocation(@NonNull ProjectLocationDto dto) {
+    public static ProjectLocationDto toProjectLocationDto(ProjectLocationRequestDto dto) {
+        if (dto == null) return null;
+        return ProjectLocationDto.builder()
+                .unitNumber(dto.getUnitNumber())
+                .streetNumber(dto.getStreetNumber())
+                .streetName(dto.getStreetName())
+                .city(dto.getCity())
+                .stateOrProvince(dto.getStateOrProvince())
+                .postalOrZipCode(dto.getPostalOrZipCode())
+                .country(dto.getCountry())
+                .build();
+    }
+
+    public static ProjectLocationRequestDto toProjectLocationRequestDto(ProjectLocationDto dto) {
+        if (dto == null) return null;
+        return ProjectLocationRequestDto.builder()
+                .unitNumber(dto.getUnitNumber())
+                .streetNumber(dto.getStreetNumber())
+                .streetName(dto.getStreetName())
+                .city(dto.getCity())
+                .stateOrProvince(dto.getStateOrProvince())
+                .postalOrZipCode(dto.getPostalOrZipCode())
+                .country(dto.getCountry())
+                .build();
+    }
+
+    public static ProjectLocationRequestDto toProjectLocationRequestDto(ProjectLocation location) {
+        if (location == null) return null;
+        return toProjectLocationRequestDto(toProjectLocationDto(location));
+    }
+
+    public static ProjectLocation toProjectLocationEntity(@NonNull ProjectLocationDto dto) {
         try {
             return map(dto);
         } catch (Exception e) {
             throw new DtoMappingException("Invalid ProjectLocationDto: " + dto, e);
+        }
+    }
+
+    public static ProjectLocation toProjectLocationEntity(@NonNull ProjectLocationRequestDto dto) {
+        try {
+            ProjectLocationDto projectLocationDto = toProjectLocationDto(dto);
+            return map(projectLocationDto);
+        } catch (Exception e) {
+            throw new DtoMappingException("Invalid ProjectLocationRequestDto: " + dto, e);
         }
     }
 

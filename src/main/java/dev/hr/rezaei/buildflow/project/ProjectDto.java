@@ -9,6 +9,16 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+/**
+ * ProjectDto representing project information for API responses.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>Project package documentation: "ProjectDtos.md"</li>
+ *     <li>Base package documentation: "../Dtos.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Data
@@ -19,4 +29,3 @@ public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
     private UUID ownerId;
     private ProjectLocationDto locationDto;
 }
-

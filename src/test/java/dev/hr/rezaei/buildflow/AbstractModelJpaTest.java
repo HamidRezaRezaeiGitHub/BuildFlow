@@ -3,6 +3,7 @@ package dev.hr.rezaei.buildflow;
 import dev.hr.rezaei.buildflow.estimate.EstimateGroupRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateLineRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateRepository;
+import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectLocationRepository;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
 import dev.hr.rezaei.buildflow.user.*;
@@ -58,6 +59,20 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
 
     protected void persistWorkItemDependencies(WorkItem workItem) {
         User owner = workItem.getUser();
+        if (owner.getId() == null || !userRepository.existsById(owner.getId())) {
+            persistUserDependencies(owner);
+            userRepository.save(owner);
+        }
+    }
+
+    protected void persistProjectDependencies(Project project) {
+        User builder = project.getBuilderUser();
+        if (builder.getId() == null || !userRepository.existsById(builder.getId())) {
+            persistUserDependencies(builder);
+            userRepository.save(builder);
+        }
+
+        User owner = project.getOwner();
         if (owner.getId() == null || !userRepository.existsById(owner.getId())) {
             persistUserDependencies(owner);
             userRepository.save(owner);

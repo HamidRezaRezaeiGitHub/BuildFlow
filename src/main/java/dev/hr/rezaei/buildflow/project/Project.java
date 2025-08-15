@@ -11,6 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Project entity representing construction projects in the BuildFlow application.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>Project package documentation: "ProjectModel.md"</li>
+ *     <li>Base package documentation: "../Model.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Data
 @NoArgsConstructor

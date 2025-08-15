@@ -1,16 +1,15 @@
-package dev.hr.rezaei.buildflow.project;
+package dev.hr.rezaei.buildflow.project.dto;
 
 import dev.hr.rezaei.buildflow.base.BaseAddressDto;
-import dev.hr.rezaei.buildflow.dto.Dto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
-
 /**
- * ProjectLocationDto representing project location information for API responses.
+ * ProjectLocationRequestDto representing project location information for creation requests (without ID).
  * <p>
  * Note: Remember to update the documentation when making changes to this class.
  * <ol>
@@ -23,6 +22,8 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Data
 @SuperBuilder
-public class ProjectLocationDto extends BaseAddressDto implements Dto<ProjectLocation> {
-    private UUID id;
+@NoArgsConstructor
+@Schema(description = "Project location request information for creating new project locations")
+public class ProjectLocationRequestDto extends BaseAddressDto {
+    // No ID field - this is for creation requests only
 }

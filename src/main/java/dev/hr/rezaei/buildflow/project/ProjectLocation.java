@@ -8,6 +8,16 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+/**
+ * ProjectLocation entity representing address information for project locations.
+ * <p>
+ * Note: Remember to update the documentation when making changes to this class.
+ * <ol>
+ *     <li>Project package documentation: "ProjectModel.md"</li>
+ *     <li>Base package documentation: "../Model.md"</li>
+ * </ol>
+ * Instructions for updating the documentation: src/test/resources/instructions/*
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(callSuper = true)
 @Data
