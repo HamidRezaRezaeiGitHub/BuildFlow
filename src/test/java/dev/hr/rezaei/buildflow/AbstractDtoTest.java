@@ -5,6 +5,11 @@ import dev.hr.rezaei.buildflow.user.ContactDto;
 import dev.hr.rezaei.buildflow.user.UserDto;
 import dev.hr.rezaei.buildflow.user.UserDtoMapper;
 import dev.hr.rezaei.buildflow.user.dto.*;
+import dev.hr.rezaei.buildflow.project.ProjectDto;
+import dev.hr.rezaei.buildflow.project.ProjectLocationDto;
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
@@ -33,6 +38,13 @@ public abstract class AbstractDtoTest {
     protected CreateOwnerRequest testCreateOwnerRequest;
     protected CreateOwnerResponse testCreateOwnerResponse;
 
+    // Project DTOs
+    protected ProjectLocationRequestDto testProjectLocationRequestDto;
+    protected ProjectLocationDto testProjectLocationDto;
+    protected ProjectDto testProjectDto;
+    protected CreateProjectRequest testCreateProjectRequest;
+    protected CreateProjectResponse testCreateProjectResponse;
+
     // Invalid DTOs for validation testing (using request DTOs)
     protected ContactRequestDto testContactRequestDtoWithBlankFirstName;
     protected ContactRequestDto testContactRequestDtoWithBlankLastName;
@@ -43,6 +55,12 @@ public abstract class AbstractDtoTest {
     protected ContactAddressRequestDto testContactAddressRequestDtoWithLongStreetName;
     protected CreateBuilderRequest testCreateBuilderRequestWithNullContact;
     protected CreateOwnerRequest testCreateOwnerRequestWithNullContact;
+
+    // Invalid Project DTOs for validation testing
+    protected CreateProjectRequest testCreateProjectRequestWithNullBuilderUserId;
+    protected CreateProjectRequest testCreateProjectRequestWithNullOwnerUserId;
+    protected CreateProjectRequest testCreateProjectRequestWithNullLocation;
+    protected ProjectLocationRequestDto testProjectLocationRequestDtoWithLongStreetName;
 
     @BeforeEach
     public void setUpDtoObjects() {
@@ -114,6 +132,41 @@ public abstract class AbstractDtoTest {
                 .userDto(testOwnerUserDto)
                 .build();
 
+        // Project-specific test data
+        testProjectLocationRequestDto = ProjectLocationRequestDto.builder()
+                .streetName("789 Project Lane")
+                .city("Project City")
+                .stateOrProvince("Project State")
+                .postalOrZipCode("12345")
+                .country("Project Country")
+                .build();
+
+        testProjectLocationDto = ProjectLocationDto.builder()
+                .id(UUID.randomUUID())
+                .streetName("789 Project Lane")
+                .city("Project City")
+                .stateOrProvince("Project State")
+                .postalOrZipCode("12345")
+                .country("Project Country")
+                .build();
+
+        testProjectDto = ProjectDto.builder()
+                .id(UUID.randomUUID())
+                .builderUserId(testBuilderUserDto.getId())
+                .ownerId(testOwnerUserDto.getId())
+                .locationDto(testProjectLocationDto)
+                .build();
+
+        testCreateProjectRequest = CreateProjectRequest.builder()
+                .builderUserId(testBuilderUserDto.getId())
+                .ownerId(testOwnerUserDto.getId())
+                .locationRequestDto(testProjectLocationRequestDto)
+                .build();
+
+        testCreateProjectResponse = CreateProjectResponse.builder()
+                .projectDto(testProjectDto)
+                .build();
+
         // Invalid DTOs for validation testing (using request DTOs)
         testContactRequestDtoWithBlankFirstName = ContactRequestDto.builder()
                 .firstName("")  // Invalid: blank
@@ -176,6 +229,32 @@ public abstract class AbstractDtoTest {
         testCreateOwnerRequestWithNullContact = CreateOwnerRequest.builder()
                 .registered(false)
                 .contactRequestDto(null)  // Invalid: null
+                .build();
+
+        // Invalid Project DTOs for validation testing
+        testCreateProjectRequestWithNullBuilderUserId = CreateProjectRequest.builder()
+                .builderUserId(null)  // Invalid: null
+                .ownerId(testOwnerUserDto.getId())
+                .locationRequestDto(testProjectLocationRequestDto)
+                .build();
+
+        testCreateProjectRequestWithNullOwnerUserId = CreateProjectRequest.builder()
+                .builderUserId(testBuilderUserDto.getId())
+                .ownerId(null)  // Invalid: null
+                .locationRequestDto(testProjectLocationRequestDto)
+                .build();
+
+        testCreateProjectRequestWithNullLocation = CreateProjectRequest.builder()
+                .builderUserId(testBuilderUserDto.getId())
+                .ownerId(testOwnerUserDto.getId())
+                .locationRequestDto(null)  // Invalid: null
+                .build();
+
+        testProjectLocationRequestDtoWithLongStreetName = ProjectLocationRequestDto.builder()
+                .streetName("a".repeat(201))  // Invalid: exceeds 200-character limit
+                .city("Project City")
+                .stateOrProvince("Project State")
+                .country("Project Country")
                 .build();
     }
 }

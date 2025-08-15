@@ -3,6 +3,7 @@ package dev.hr.rezaei.buildflow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hr.rezaei.buildflow.user.UserService;
+import dev.hr.rezaei.buildflow.project.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,4 +24,7 @@ public class AbstractControllerTest extends AbstractDtoTest {
 
     @MockitoBean
     protected UserService userService;
+
+    @MockitoBean
+    protected ProjectService projectService;
 }

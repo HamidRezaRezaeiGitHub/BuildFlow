@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,14 +23,17 @@ public abstract class BaseAddressDto {
     private String streetNumber;
 
     @Schema(description = "Street name", example = "Main Street")
+    @NotBlank(message = "Street name is required")
     @Size(max = 200, message = "Street name must not exceed 200 characters")
     private String streetName;
 
     @Schema(description = "City name", example = "New York")
+    @NotBlank(message = "City is required")
     @Size(max = 100, message = "City must not exceed 100 characters")
     private String city;
 
     @Schema(description = "State or province", example = "NY")
+    @NotBlank(message = "State or province is required")
     @Size(max = 100, message = "State or province must not exceed 100 characters")
     private String stateOrProvince;
 
@@ -38,6 +42,7 @@ public abstract class BaseAddressDto {
     private String postalOrZipCode;
 
     @Schema(description = "Country", example = "United States")
+    @NotBlank(message = "Country is required")
     @Size(max = 100, message = "Country must not exceed 100 characters")
     private String country;
 }
