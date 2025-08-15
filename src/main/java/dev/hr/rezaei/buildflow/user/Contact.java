@@ -47,7 +47,7 @@ public class Contact {
     // The other column ("label") will be the labels themselves.
     @NonNull
     @Builder.Default
-    @ElementCollection(targetClass = ContactLabel.class)
+    @ElementCollection(targetClass = ContactLabel.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "contact_labels",
             joinColumns = @JoinColumn(name = "contact_id", foreignKey = @ForeignKey(name = "fk_contact_labels_contact")))

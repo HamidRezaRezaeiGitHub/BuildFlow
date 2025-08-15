@@ -12,7 +12,7 @@ ownership, builder assignment, location management, and links to cost estimates.
     - `id` (UUID, primary key)
     - `builderUser` ([User](../../user/User.java), many-to-one, not null, bidirectional)
     - `owner` ([User](../../user/User.java), many-to-one, not null, bidirectional)
-    - `location` ([ProjectLocation](ProjectLocation.java), one-to-one, not null, cascade all, orphan removal)
+    - `location` ([ProjectLocation](ProjectLocation.java), one-to-one, not null, cascade all, orphan removal, eager fetch)
     - `estimates` (List of [Estimate](../estimate/Estimate.java), one-to-many, cascade all, orphan removal)
     - `createdAt` (Instant, not null)
     - `updatedAt` (Instant, not null)
@@ -20,7 +20,7 @@ ownership, builder assignment, location management, and links to cost estimates.
     - Many-to-one with builderUser and owner ([User](../../user/User.java)), bidirectional, FKs: `builder_id`, `owner_id`
       in `projects`
     - One-to-one with location ([ProjectLocation](ProjectLocation.java)), FK: `location_id` in `projects`, cascade
-      all, orphan removal
+      all, orphan removal, eager fetch
     - One-to-many with estimates ([Estimate](../estimate/Estimate.java)), FK: `project_id` in `estimates`, cascade all,
       orphan removal
 

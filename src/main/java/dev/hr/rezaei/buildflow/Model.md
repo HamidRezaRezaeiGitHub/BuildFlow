@@ -31,13 +31,13 @@ and supplier management.
     - `id` (UUID, primary key)
     - `firstName` (String, not null, max 100)
     - `lastName` (String, not null, max 100)
-    - `labels` (List of [ContactLabel](user/ContactLabel.java), enum collection, not null)
+    - `labels` (List of [ContactLabel](user/ContactLabel.java), enum collection, not null, eager fetch)
     - `email` (String, not null, unique, max 100)
     - `phone` (String, max 30)
     - `address` ([ContactAddress](user/ContactAddress.java), one-to-one, not null, cascade all, eager fetch)
 - **Relationships:**
     - One-to-one with [ContactAddress](user/ContactAddress.java) (cascade all, eager fetch)
-    - Has a list of [ContactLabel](user/ContactLabel.java) for categorization
+    - Has a list of [ContactLabel](user/ContactLabel.java) for categorization with eager fetch
 
 ### [ContactAddress](user/ContactAddress.java)
 
@@ -55,11 +55,11 @@ and supplier management.
     - `id` (UUID, primary key)
     - `builderUser` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
     - `owner` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
-    - `location` ([ProjectLocation](project/ProjectLocation.java), one-to-one, not null, cascade all, orphan removal, lazy fetch)
+    - `location` ([ProjectLocation](project/ProjectLocation.java), one-to-one, not null, cascade all, orphan removal, eager fetch)
     - `estimates` (List of [Estimate](estimate/Estimate.java), one-to-many, cascade all, orphan removal, lazy fetch)
 - **Relationships:**
     - Many-to-one with builderUser and owner ([User](user/User.java)), bidirectional, FKs: `builder_id`, `owner_id`
-    - One-to-one with [ProjectLocation](project/ProjectLocation.java), FK: `location_id`, cascade all, orphan removal
+    - One-to-one with [ProjectLocation](project/ProjectLocation.java), FK: `location_id`, cascade all, orphan removal, eager fetch
     - One-to-many with [Estimate](estimate/Estimate.java), FK: `project_id`, cascade all, orphan removal
 - **Inheritance:**
     - Extends [UpdatableEntity](base/UpdatableEntity.java)

@@ -2,7 +2,9 @@ package dev.hr.rezaei.buildflow.user.dto;
 
 import dev.hr.rezaei.buildflow.user.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -17,6 +19,8 @@ import lombok.experimental.SuperBuilder;
  */
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Response object containing the created owner user information")
 public class CreateOwnerResponse {
     @Schema(description = "The created owner user details")

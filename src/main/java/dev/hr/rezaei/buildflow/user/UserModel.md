@@ -33,13 +33,13 @@ summary of each entity and their relationships:
     - `id` (UUID, primary key)
     - `firstName` (String, not null)
     - `lastName` (String, not null)
-    - `labels` (List of [ContactLabel](ContactLabel.java), enum collection, not null)
+    - `labels` (List of [ContactLabel](ContactLabel.java), enum collection, not null, eager fetch)
     - `email` (String, not null, unique)
     - `phone` (String)
     - `address` ([ContactAddress](ContactAddress.java), not null, one-to-one, cascade all, eager fetch)
 - **Relationships:**
     - One-to-one with [ContactAddress](ContactAddress.java) (contact address, cascade all, eager fetch)
-    - Has a list of [ContactLabel](ContactLabel.java) (enum) for categorization (e.g., SUPPLIER, OWNER, BUILDER, etc.)
+    - Has a list of [ContactLabel](ContactLabel.java) (enum) for categorization (e.g., SUPPLIER, OWNER, BUILDER, etc.) with eager fetch
 
 ### [ContactAddress](ContactAddress.java)
 

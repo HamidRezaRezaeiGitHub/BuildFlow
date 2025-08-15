@@ -1,7 +1,9 @@
 package dev.hr.rezaei.buildflow.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
@@ -18,6 +20,8 @@ import java.util.UUID;
  */
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "User information containing basic user details and contact information")
 public class UserDto {
     @Schema(description = "Unique identifier for the user", example = "123e4567-e89b-12d3-a456-426614174000")

@@ -9,12 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static dev.hr.rezaei.buildflow.user.ContactAddressDtoMapper.toContactAddressDto;
-import static dev.hr.rezaei.buildflow.user.ContactAddressDtoMapper.toContactAddressRequestDto;
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactDto;
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactRequestDto;
 import static org.junit.jupiter.api.Assertions.*;
