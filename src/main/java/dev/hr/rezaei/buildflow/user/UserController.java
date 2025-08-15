@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
@@ -108,5 +105,44 @@ public class UserController {
 
         log.info("Successfully created owner with ID: {}", response.getUserDto().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(
+            summary = "Get user by username",
+            description = "Retrieves a user by their username"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User found successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error"
+            )
+    })
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDto> getUserByUsername(
+            @Parameter(description = "Username of the user to retrieve")
+            @PathVariable String username
+    ) {
+        log.info("Getting user with username: {}", username);
+
+        try {
+            UserDto userDto = userService.getUserByUsername(username);
+            log.info("Successfully found user with username: {}", username);
+            return ResponseEntity.ok(userDto);
+        } catch (IllegalArgumentException e) {
+            log.warn("User not found with username: {}", username);
+            return ResponseEntity.notFound().build();
+        }
     }
 }

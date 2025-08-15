@@ -9,6 +9,7 @@ public class UserDtoMapper {
         if (user == null) return null;
         return UserDto.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .registered(user.isRegistered())
                 .contactDto(ContactDtoMapper.toContactDto(user.getContact()))
@@ -18,6 +19,7 @@ public class UserDtoMapper {
     public static UserDto toUserDto(ContactDto contactDto) {
         if (contactDto == null) return null;
         return UserDto.builder()
+                .username(contactDto.getEmail())
                 .email(contactDto.getEmail())
                 .registered(false)
                 .contactDto(contactDto)
@@ -35,7 +37,7 @@ public class UserDtoMapper {
     private static User map(@NonNull UserDto dto) {
         return User.builder()
                 .id(dto.getId())
-                .username(dto.getEmail())
+                .username(dto.getUsername())
                 .email(dto.getEmail())
                 .registered(dto.isRegistered())
                 .contact(ContactDtoMapper.toContactEntity(dto.getContactDto()))

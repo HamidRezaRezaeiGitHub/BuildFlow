@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -49,7 +50,7 @@ class UserControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.email").value("jane.owner@example.com"))
+                .andExpect(jsonPath("$.userDto.email").value(testOwnerUserDto.getEmail()))
                 .andExpect(jsonPath("$.userDto.registered").value(false));
     }
 
@@ -216,5 +217,51 @@ class UserControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
+    }
+
+    @Test
+    void getUserByUsername_shouldReturnOk_whenUserExists() throws Exception {
+        // Given
+        String username = testBuilderUserDto.getEmail();
+        when(userService.getUserByUsername(username)).thenReturn(testBuilderUserDto);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.username").value(username))
+                .andExpect(jsonPath("$.email").value(testBuilderUserDto.getEmail()))
+                .andExpect(jsonPath("$.registered").value(true))
+                .andExpect(jsonPath("$.contactDto").exists());
+    }
+
+    @Test
+    void getUserByUsername_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
+        // Given
+        String username = "nonexistent.user@example.com";
+        when(userService.getUserByUsername(username))
+                .thenThrow(new IllegalArgumentException("User not found with username: " + username));
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getUserByUsername_shouldReturnOk_whenOwnerExists() throws Exception {
+        // Given
+        String username = testOwnerUserDto.getEmail();
+        when(userService.getUserByUsername(username)).thenReturn(testOwnerUserDto);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.username").value(username))
+                .andExpect(jsonPath("$.email").value(testOwnerUserDto.getEmail()))
+                .andExpect(jsonPath("$.registered").value(false))
+                .andExpect(jsonPath("$.contactDto").exists());
     }
 }

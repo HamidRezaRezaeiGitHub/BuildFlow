@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactEntity;
+import static dev.hr.rezaei.buildflow.user.UserDtoMapper.toUserDto;
+
 /**
  * UserService providing business logic for user management operations.
  * <p>
@@ -61,24 +64,24 @@ public class UserService {
     }
 
     public CreateBuilderResponse createBuilder(@NonNull CreateBuilderRequest request) {
-        Contact contact = ContactDtoMapper.toContactEntity(request.getContactRequestDto());
+        Contact contact = toContactEntity(request.getContactRequestDto());
         User user = request.isRegistered() ?
                 newRegisteredUser(contact, ContactLabel.BUILDER) :
                 newUnregisteredUser(contact, ContactLabel.BUILDER);
 
-        UserDto userDto = UserDtoMapper.toUserDto(user);
+        UserDto userDto = toUserDto(user);
         return CreateBuilderResponse.builder()
                 .userDto(userDto)
                 .build();
     }
 
     public CreateOwnerResponse createOwner(@NonNull CreateOwnerRequest request) {
-        Contact contact = ContactDtoMapper.toContactEntity(request.getContactRequestDto());
+        Contact contact = toContactEntity(request.getContactRequestDto());
         User user = request.isRegistered() ?
                 newRegisteredUser(contact, ContactLabel.OWNER) :
                 newUnregisteredUser(contact, ContactLabel.OWNER);
 
-        UserDto userDto = UserDtoMapper.toUserDto(user);
+        UserDto userDto = toUserDto(user);
         return CreateOwnerResponse.builder()
                 .userDto(userDto)
                 .build();
@@ -141,5 +144,13 @@ public class UserService {
 
     public Optional<User> findByUsername(@NonNull String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public UserDto getUserByUsername(@NonNull String username) {
+        Optional<User> userOptional = findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found with username: " + username);
+        }
+        return toUserDto(userOptional.get());
     }
 }
