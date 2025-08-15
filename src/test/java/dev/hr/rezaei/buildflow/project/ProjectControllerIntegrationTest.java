@@ -30,7 +30,7 @@ class ProjectControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderUserId").value(testBuilderUserDto.getId().toString()))
+                .andExpect(jsonPath("$.projectDto.builderId").value(testBuilderUserDto.getId().toString()))
                 .andExpect(jsonPath("$.projectDto.ownerId").value(testOwnerUserDto.getId().toString()))
                 .andExpect(jsonPath("$.projectDto.locationDto").exists())
                 .andExpect(jsonPath("$.projectDto.locationDto.streetName").value("789 Project Lane"))
@@ -75,7 +75,7 @@ class ProjectControllerIntegrationTest extends AbstractControllerTest {
     void createProject_shouldReturnBadRequest_whenLocationStreetNameExceedsMaxLength() throws Exception {
         // Given
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(testOwnerUserDto.getId())
                 .locationRequestDto(testProjectLocationRequestDtoWithLongStreetName)
                 .build();
@@ -100,7 +100,7 @@ class ProjectControllerIntegrationTest extends AbstractControllerTest {
                 .build();
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(testOwnerUserDto.getId())
                 .locationRequestDto(locationWithBlankFields)
                 .build();

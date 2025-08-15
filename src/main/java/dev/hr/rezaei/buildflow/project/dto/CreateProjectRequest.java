@@ -28,7 +28,7 @@ import java.util.UUID;
 public class CreateProjectRequest {
     @Schema(description = "ID of the builder user for this project", example = "123e4567-e89b-12d3-a456-426614174000")
     @NotNull(message = "Builder user ID is required")
-    private UUID builderUserId;
+    private UUID builderId;
 
     @Schema(description = "ID of the owner user for this project", example = "123e4567-e89b-12d3-a456-426614174000")
     @NotNull(message = "Owner user ID is required")

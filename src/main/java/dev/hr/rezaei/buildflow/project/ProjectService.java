@@ -2,7 +2,6 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
-import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;
@@ -43,7 +42,7 @@ public class ProjectService {
     }
 
     public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
-        UUID builderId = request.getBuilderUserId();
+        UUID builderId = request.getBuilderId();
         Optional<User> optionalBuilder = userService.findById(builderId);
         if (optionalBuilder.isEmpty()) {
             throw new IllegalArgumentException("Builder with ID " + builderId + " does not exist.");

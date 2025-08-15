@@ -2,7 +2,6 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDtoMapper;
 import dev.hr.rezaei.buildflow.dto.DtoMappingException;
-import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.user.User;
 import lombok.NonNull;
 
@@ -12,7 +11,7 @@ public class ProjectDtoMapper {
         if (project == null) return null;
         return ProjectDto.builder()
                 .id(project.getId())
-                .builderUserId(project.getBuilderUser().getId())
+                .builderId(project.getBuilderUser().getId())
                 .ownerId(project.getOwner().getId())
                 .locationDto(ProjectLocationDtoMapper.toProjectLocationDto(project.getLocation()))
                 .createdAt(UpdatableEntityDtoMapper.toString(project.getCreatedAt()))

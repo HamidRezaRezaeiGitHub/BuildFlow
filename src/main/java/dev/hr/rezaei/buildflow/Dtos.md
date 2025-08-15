@@ -121,7 +121,7 @@ All creation operations follow the pattern:
 ## Cross-Package Relationships
 
 ### User-Project Integration
-- Projects reference Users through `builderUserId` and `ownerId`
+- Projects reference Users through `builderId` and `ownerId`
 - User validation occurs in ProjectService through UserService dependency
 - Contact information flows from User creation to Project assignment
 

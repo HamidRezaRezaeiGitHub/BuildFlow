@@ -17,7 +17,7 @@ The project package follows a clear DTO strategy:
 - **Entity Mapping:** Maps to `Project` entity via `Dto<Project>` interface
 - **Key Fields:**
   - `UUID id` - Unique project identifier
-  - `UUID builderUserId` - ID of the builder user assigned to this project
+  - `UUID builderId` - ID of the builder user assigned to this project
   - `UUID ownerId` - ID of the project owner
   - `ProjectLocationDto locationDto` - Nested location information
 - **Inheritance:** Extends `UpdatableEntityDto` (provides creation/update timestamps)
@@ -36,7 +36,7 @@ The project package follows a clear DTO strategy:
 ### [CreateProjectRequest](./dto/CreateProjectRequest.java)
 - **Purpose:** Request object for creating new projects
 - **Key Fields:**
-  - `@NotNull UUID builderUserId` - Required builder user ID
+  - `@NotNull UUID builderId` - Required builder user ID
   - `@NotNull UUID ownerId` - Required owner user ID  
   - `@Valid @NotNull ProjectLocationRequestDto locationRequestDto` - Required location information
 - **Validation:**

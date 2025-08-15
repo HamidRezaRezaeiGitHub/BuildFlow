@@ -25,7 +25,7 @@ import java.util.UUID;
 @SuperBuilder
 public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
     private UUID id;
-    private UUID builderUserId;
+    private UUID builderId;
     private UUID ownerId;
     private ProjectLocationDto locationDto;
 }

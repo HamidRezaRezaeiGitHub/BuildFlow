@@ -65,7 +65,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         User owner = testProject.getOwner();
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -78,7 +78,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         assertNotNull(response.getProjectDto());
         ProjectDto projectDto = response.getProjectDto();
         assertNotNull(projectDto.getId());
-        assertEquals(builder.getId(), projectDto.getBuilderUserId());
+        assertEquals(builder.getId(), projectDto.getBuilderId());
         assertEquals(owner.getId(), projectDto.getOwnerId());
         assertNotNull(projectDto.getLocationDto());
         assertNotNull(projectDto.getCreatedAt());
@@ -103,7 +103,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(nonExistentBuilderId)
+                .builderId(nonExistentBuilderId)
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -123,7 +123,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(nonExistentOwnerId)
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -158,7 +158,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -211,7 +211,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -239,7 +239,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -278,7 +278,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -337,7 +337,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto1 = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request1 = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner1.getId())
                 .locationRequestDto(locationRequestDto1)
                 .build();
@@ -354,7 +354,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         CreateProjectRequest request2 = CreateProjectRequest.builder()
-                .builderUserId(builder.getId())
+                .builderId(builder.getId())
                 .ownerId(owner2.getId())
                 .locationRequestDto(locationRequestDto2)
                 .build();
@@ -416,7 +416,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         ProjectLocationRequestDto locationRequestDto1 = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request1 = CreateProjectRequest.builder()
-                .builderUserId(builder1.getId())
+                .builderId(builder1.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto1)
                 .build();
@@ -433,7 +433,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         CreateProjectRequest request2 = CreateProjectRequest.builder()
-                .builderUserId(builder2.getId())
+                .builderId(builder2.getId())
                 .ownerId(owner.getId())
                 .locationRequestDto(locationRequestDto2)
                 .build();

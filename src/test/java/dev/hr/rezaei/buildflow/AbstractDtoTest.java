@@ -152,13 +152,13 @@ public abstract class AbstractDtoTest {
 
         testProjectDto = ProjectDto.builder()
                 .id(UUID.randomUUID())
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(testOwnerUserDto.getId())
                 .locationDto(testProjectLocationDto)
                 .build();
 
         testCreateProjectRequest = CreateProjectRequest.builder()
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(testOwnerUserDto.getId())
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
@@ -233,19 +233,19 @@ public abstract class AbstractDtoTest {
 
         // Invalid Project DTOs for validation testing
         testCreateProjectRequestWithNullBuilderUserId = CreateProjectRequest.builder()
-                .builderUserId(null)  // Invalid: null
+                .builderId(null)  // Invalid: null
                 .ownerId(testOwnerUserDto.getId())
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
         testCreateProjectRequestWithNullOwnerUserId = CreateProjectRequest.builder()
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(null)  // Invalid: null
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
         testCreateProjectRequestWithNullLocation = CreateProjectRequest.builder()
-                .builderUserId(testBuilderUserDto.getId())
+                .builderId(testBuilderUserDto.getId())
                 .ownerId(testOwnerUserDto.getId())
                 .locationRequestDto(null)  // Invalid: null
                 .build();
