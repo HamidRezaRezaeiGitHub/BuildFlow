@@ -8,8 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
+import java.util.List;
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -146,5 +150,115 @@ class ProjectControllerIntegrationTest extends AbstractControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnOk_whenBuilderExists() throws Exception {
+        // Given
+        List<ProjectDto> projects = List.of(testProjectDto);
+        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(projects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
+                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
+                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
+                .andExpect(jsonPath("$[0].locationDto.streetName").value("789 Project Lane"));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnEmptyList_whenBuilderHasNoProjects() throws Exception {
+        // Given
+        List<ProjectDto> emptyProjects = List.of();
+        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(emptyProjects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnOk_whenOwnerExists() throws Exception {
+        // Given
+        List<ProjectDto> projects = List.of(testProjectDto);
+        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(projects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
+                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
+                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
+                .andExpect(jsonPath("$[0].locationDto.streetName").value("789 Project Lane"));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnEmptyList_whenOwnerHasNoProjects() throws Exception {
+        // Given
+        List<ProjectDto> emptyProjects = List.of();
+        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(emptyProjects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnMultipleProjects_whenBuilderHasMultipleProjects() throws Exception {
+        // Given
+        ProjectDto secondProject = ProjectDto.builder()
+                .id(UUID.randomUUID())
+                .builderId(testBuilderUserDto.getId())
+                .ownerId(testOwnerUserDto.getId())
+                .locationDto(testProjectLocationDto)
+                .build();
+
+        List<ProjectDto> projects = List.of(testProjectDto, secondProject);
+        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(projects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
+                .andExpect(jsonPath("$[1].builderId").value(testBuilderUserDto.getId().toString()));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnMultipleProjects_whenOwnerHasMultipleProjects() throws Exception {
+        // Given
+        ProjectDto secondProject = ProjectDto.builder()
+                .id(UUID.randomUUID())
+                .builderId(testBuilderUserDto.getId())
+                .ownerId(testOwnerUserDto.getId())
+                .locationDto(testProjectLocationDto)
+                .build();
+
+        List<ProjectDto> projects = List.of(testProjectDto, secondProject);
+        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(projects);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
+                .andExpect(jsonPath("$[1].ownerId").value(testOwnerUserDto.getId().toString()));
     }
 }

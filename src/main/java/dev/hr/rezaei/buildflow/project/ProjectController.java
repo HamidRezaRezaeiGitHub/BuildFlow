@@ -15,10 +15,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -66,5 +71,67 @@ public class ProjectController {
 
         log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(
+            summary = "Get projects by builder ID",
+            description = "Retrieves all projects assigned to a specific builder"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Projects retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProjectDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error"
+            )
+    })
+    @GetMapping("/builder/{builderId}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
+            @Parameter(description = "ID of the builder whose projects to retrieve")
+            @PathVariable UUID builderId
+    ) {
+        log.info("Getting projects for builder ID: {}", builderId);
+
+        List<ProjectDto> projects = projectService.getProjectsByBuilderId(builderId);
+
+        log.info("Found {} projects for builder ID: {}", projects.size(), builderId);
+        return ResponseEntity.ok(projects);
+    }
+
+    @Operation(
+            summary = "Get projects by owner ID",
+            description = "Retrieves all projects owned by a specific property owner"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Projects retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProjectDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error"
+            )
+    })
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(
+            @Parameter(description = "ID of the owner whose projects to retrieve")
+            @PathVariable UUID ownerId
+    ) {
+        log.info("Getting projects for owner ID: {}", ownerId);
+
+        List<ProjectDto> projects = projectService.getProjectsByOwnerId(ownerId);
+
+        log.info("Found {} projects for owner ID: {}", projects.size(), ownerId);
+        return ResponseEntity.ok(projects);
     }
 }

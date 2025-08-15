@@ -113,4 +113,18 @@ public class ProjectService {
     public List<Project> findByOwnerId(@NonNull UUID ownerId) {
         return projectRepository.findByOwnerId(ownerId);
     }
+
+    public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
+        List<Project> projects = findByBuilderId(builderId);
+        return projects.stream()
+                .map(ProjectDtoMapper::toProjectDto)
+                .toList();
+    }
+
+    public List<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId) {
+        List<Project> projects = findByOwnerId(ownerId);
+        return projects.stream()
+                .map(ProjectDtoMapper::toProjectDto)
+                .toList();
+    }
 }
