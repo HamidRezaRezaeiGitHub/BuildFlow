@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.project;
 
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
@@ -15,12 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +52,10 @@ public class ProjectController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found (builder or owner)"
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error"
             )
@@ -67,10 +67,16 @@ public class ProjectController {
     ) {
         log.info("Creating project with request: {}", request);
 
-        CreateProjectResponse response = projectService.createProject(request);
-
-        log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            CreateProjectResponse response = projectService.createProject(request);
+            log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request data: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(
@@ -87,6 +93,10 @@ public class ProjectController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "Builder not found"
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error"
             )
@@ -98,10 +108,12 @@ public class ProjectController {
     ) {
         log.info("Getting projects for builder ID: {}", builderId);
 
-        List<ProjectDto> projects = projectService.getProjectsByBuilderId(builderId);
-
-        log.info("Found {} projects for builder ID: {}", projects.size(), builderId);
-        return ResponseEntity.ok(projects);
+        try {
+            List<ProjectDto> projects = projectService.getProjectsByBuilderId(builderId);
+            return ResponseEntity.ok(projects);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Operation(
@@ -118,6 +130,10 @@ public class ProjectController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "Owner not found"
+            ),
+            @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error"
             )
@@ -129,9 +145,11 @@ public class ProjectController {
     ) {
         log.info("Getting projects for owner ID: {}", ownerId);
 
-        List<ProjectDto> projects = projectService.getProjectsByOwnerId(ownerId);
-
-        log.info("Found {} projects for owner ID: {}", projects.size(), ownerId);
-        return ResponseEntity.ok(projects);
+        try {
+            List<ProjectDto> projects = projectService.getProjectsByOwnerId(ownerId);
+            return ResponseEntity.ok(projects);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

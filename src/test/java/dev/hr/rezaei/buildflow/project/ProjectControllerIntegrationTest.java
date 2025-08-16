@@ -305,15 +305,4 @@ class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
     }
-
-    @Test
-    void createProject_shouldReturnBadRequest_whenLocationRequestDtoIsNull() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullLocation)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
 }

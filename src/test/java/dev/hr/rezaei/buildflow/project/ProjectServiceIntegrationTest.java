@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
@@ -38,15 +39,9 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         }
 
         @Bean
-        public ProjectLocationService projectLocationService(ProjectLocationRepository repo) {
-            return new ProjectLocationService(repo);
-        }
-
-        @Bean
         public ProjectService projectService(ProjectRepository projectRepository,
-                                             ProjectLocationService projectLocationService,
                                              UserService userService) {
-            return new ProjectService(projectRepository, projectLocationService, userService);
+            return new ProjectService(projectRepository, userService);
         }
     }
 
@@ -109,7 +104,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UserNotFoundException.class,
                 () -> projectService.createProject(request));
     }
 
@@ -129,7 +124,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UserNotFoundException.class,
                 () -> projectService.createProject(request));
     }
 
@@ -309,8 +304,6 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
         User owner1 = userService.newRegisteredUser(testProject.getOwner().getContact());
         assertNotNull(builder.getId());
         assertNotNull(owner1.getId());
-        Contact owner1Contact = testOwnerUser.getContact();
-        ContactAddress owner1ContactAddress = owner1Contact.getAddress();
 
         // Create a second owner with different email
         ContactAddress owner2ContactAddress = ContactAddress.builder()
@@ -326,9 +319,9 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
                 .email("owner2@example.com")
                 .firstName("Owner2")
                 .lastName("User2")
-                .phone(owner1Contact.getPhone())
+                .phone(owner1.getContact().getPhone())
                 .address(owner2ContactAddress)
-                .labels(new ArrayList<>(owner1Contact.getLabels()))
+                .labels(new ArrayList<>(owner1.getContact().getLabels()))
                 .build();
         User owner2 = userService.newRegisteredUser(owner2Contact);
         assertNotNull(owner2.getId());
@@ -459,5 +452,77 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Assert
         assertTrue(ownerProjects.isEmpty());
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnProjectDtos_whenBuilderExists() {
+        // Arrange
+        User builder = userService.newRegisteredUser(testProject.getBuilderUser().getContact());
+        User owner = userService.newRegisteredUser(testProject.getOwner().getContact());
+        assertNotNull(builder.getId());
+        assertNotNull(owner.getId());
+        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(builder.getId())
+                .ownerId(owner.getId())
+                .locationRequestDto(locationRequestDto)
+                .build();
+
+        projectService.createProject(request);
+
+        // Act
+        List<ProjectDto> projectDtos = projectService.getProjectsByBuilderId(builder.getId());
+
+        // Assert
+        assertEquals(1, projectDtos.size());
+        assertEquals(builder.getId(), projectDtos.getFirst().getBuilderId());
+        assertEquals(owner.getId(), projectDtos.getFirst().getOwnerId());
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldThrowUserNotFoundException_whenBuilderNotFound() {
+        // Arrange
+        UUID nonExistentBuilderId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> projectService.getProjectsByBuilderId(nonExistentBuilderId));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnProjectDtos_whenOwnerExists() {
+        // Arrange
+        User builder = userService.newRegisteredUser(testProject.getBuilderUser().getContact());
+        User owner = userService.newRegisteredUser(testProject.getOwner().getContact());
+        assertNotNull(builder.getId());
+        assertNotNull(owner.getId());
+        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(builder.getId())
+                .ownerId(owner.getId())
+                .locationRequestDto(locationRequestDto)
+                .build();
+
+        projectService.createProject(request);
+
+        // Act
+        List<ProjectDto> projectDtos = projectService.getProjectsByOwnerId(owner.getId());
+
+        // Assert
+        assertEquals(1, projectDtos.size());
+        assertEquals(builder.getId(), projectDtos.getFirst().getBuilderId());
+        assertEquals(owner.getId(), projectDtos.getFirst().getOwnerId());
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldThrowUserNotFoundException_whenOwnerNotFound() {
+        // Arrange
+        UUID nonExistentOwnerId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> projectService.getProjectsByOwnerId(nonExistentOwnerId));
     }
 }

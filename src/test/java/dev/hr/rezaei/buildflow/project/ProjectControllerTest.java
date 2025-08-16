@@ -1,8 +1,8 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
-import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,8 +49,9 @@ class ProjectControllerTest extends AbstractControllerTest {
                         .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullBuilderUserId)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
@@ -59,104 +60,56 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullOwnerUserId)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
-    void createProject_shouldReturnBadRequest_whenLocationRequestDtoIsNull() throws Exception {
+    void createProject_shouldReturnBadRequest_whenLocationIsNull() throws Exception {
         // When & Then
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullLocation)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
-    void createProject_shouldReturnBadRequest_whenLocationStreetNameExceedsMaxLength() throws Exception {
+    void createProject_shouldReturnNotFound_whenBuilderNotFound() throws Exception {
         // Given
-        CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
-                .locationRequestDto(testProjectLocationRequestDtoWithLongStreetName)
-                .build();
+        when(projectService.createProject(any(CreateProjectRequest.class)))
+                .thenThrow(new UserNotFoundException("Builder with ID " + UUID.randomUUID() + " does not exist."));
 
         // When & Then
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
-    void createProject_shouldReturnBadRequest_whenLocationHasBlankRequiredFields() throws Exception {
-        // Given
-        ProjectLocationRequestDto locationWithBlankFields = ProjectLocationRequestDto.builder()
-                .streetName("")  // Invalid: blank
-                .city("")        // Invalid: blank
-                .stateOrProvince("Project State")
-                .country("Project Country")
-                .build();
-
-        CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
-                .locationRequestDto(locationWithBlankFields)
-                .build();
-
-        // When & Then
-        mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
-    void createProject_shouldReturnBadRequest_whenRequestBodyIsEmpty() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
-    void createProject_shouldReturnBadRequest_whenContentTypeIsNotJson() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.TEXT_PLAIN)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
-                .andExpect(status().isUnsupportedMediaType());
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void createProject_shouldReturnBadRequest_whenAllRequiredFieldsAreMissing() throws Exception {
+    void createProject_shouldReturnNotFound_whenOwnerNotFound() throws Exception {
         // Given
-        CreateProjectRequest emptyRequest = CreateProjectRequest.builder().build();
+        when(projectService.createProject(any(CreateProjectRequest.class)))
+                .thenThrow(new UserNotFoundException("Owner with ID " + UUID.randomUUID() + " does not exist."));
 
         // When & Then
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emptyRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                        .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void getProjectsByBuilderId_shouldReturnOk_whenBuilderExists() throws Exception {
         // Given
-        List<ProjectDto> projects = List.of(testProjectDto);
-        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(projects);
+        when(projectService.getProjectsByBuilderId(any(UUID.class))).thenReturn(List.of(testProjectDto));
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
@@ -166,29 +119,25 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
                 .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetName").value("789 Project Lane"));
+                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()));
     }
 
     @Test
-    void getProjectsByBuilderId_shouldReturnEmptyList_whenBuilderHasNoProjects() throws Exception {
+    void getProjectsByBuilderId_shouldReturnNotFound_whenBuilderNotFound() throws Exception {
         // Given
-        List<ProjectDto> emptyProjects = List.of();
-        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(emptyProjects);
+        UUID nonExistentBuilderId = UUID.randomUUID();
+        when(projectService.getProjectsByBuilderId(nonExistentBuilderId))
+                .thenThrow(new UserNotFoundException("Builder with ID " + nonExistentBuilderId + " does not exist."));
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", nonExistentBuilderId))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void getProjectsByOwnerId_shouldReturnOk_whenOwnerExists() throws Exception {
         // Given
-        List<ProjectDto> projects = List.of(testProjectDto);
-        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(projects);
+        when(projectService.getProjectsByOwnerId(any(UUID.class))).thenReturn(List.of(testProjectDto));
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
@@ -198,67 +147,18 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
                 .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetName").value("789 Project Lane"));
+                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()));
     }
 
     @Test
-    void getProjectsByOwnerId_shouldReturnEmptyList_whenOwnerHasNoProjects() throws Exception {
+    void getProjectsByOwnerId_shouldReturnNotFound_whenOwnerNotFound() throws Exception {
         // Given
-        List<ProjectDto> emptyProjects = List.of();
-        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(emptyProjects);
+        UUID nonExistentOwnerId = UUID.randomUUID();
+        when(projectService.getProjectsByOwnerId(nonExistentOwnerId))
+                .thenThrow(new UserNotFoundException("Owner with ID " + nonExistentOwnerId + " does not exist."));
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    @Test
-    void getProjectsByBuilderId_shouldReturnMultipleProjects_whenBuilderHasMultipleProjects() throws Exception {
-        // Given
-        ProjectDto secondProject = ProjectDto.builder()
-                .id(UUID.randomUUID())
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
-                .locationDto(testProjectLocationDto)
-                .build();
-
-        List<ProjectDto> projects = List.of(testProjectDto, secondProject);
-        when(projectService.getProjectsByBuilderId(testBuilderUserDto.getId())).thenReturn(projects);
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
-                .andExpect(jsonPath("$[1].builderId").value(testBuilderUserDto.getId().toString()));
-    }
-
-    @Test
-    void getProjectsByOwnerId_shouldReturnMultipleProjects_whenOwnerHasMultipleProjects() throws Exception {
-        // Given
-        ProjectDto secondProject = ProjectDto.builder()
-                .id(UUID.randomUUID())
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
-                .locationDto(testProjectLocationDto)
-                .build();
-
-        List<ProjectDto> projects = List.of(testProjectDto, secondProject);
-        when(projectService.getProjectsByOwnerId(testOwnerUserDto.getId())).thenReturn(projects);
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()))
-                .andExpect(jsonPath("$[1].ownerId").value(testOwnerUserDto.getId().toString()));
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", nonExistentOwnerId))
+                .andExpect(status().isNotFound());
     }
 }

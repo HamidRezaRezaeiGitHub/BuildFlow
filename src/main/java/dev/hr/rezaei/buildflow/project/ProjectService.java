@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.project;
 
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import dev.hr.rezaei.buildflow.user.User;
@@ -30,14 +31,11 @@ import static dev.hr.rezaei.buildflow.project.ProjectLocationDtoMapper.toProject
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final ProjectLocationService projectLocationService;
     private final UserService userService;
 
     public ProjectService(ProjectRepository projectRepository,
-                          ProjectLocationService projectLocationService,
                           UserService userService) {
         this.projectRepository = projectRepository;
-        this.projectLocationService = projectLocationService;
         this.userService = userService;
     }
 
@@ -45,14 +43,14 @@ public class ProjectService {
         UUID builderId = request.getBuilderId();
         Optional<User> optionalBuilder = userService.findById(builderId);
         if (optionalBuilder.isEmpty()) {
-            throw new IllegalArgumentException("Builder with ID " + builderId + " does not exist.");
+            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
         }
         User builder = optionalBuilder.get();
 
         UUID ownerId = request.getOwnerId();
         Optional<User> optionalOwner = userService.findById(ownerId);
         if (optionalOwner.isEmpty()) {
-            throw new IllegalArgumentException("Owner with ID " + ownerId + " does not exist.");
+            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
         }
         User owner = optionalOwner.get();
 
@@ -115,6 +113,12 @@ public class ProjectService {
     }
 
     public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
+        // Verify builder exists and is persisted
+        Optional<User> persistedBuilder = userService.findById(builderId);
+        if (persistedBuilder.isEmpty()) {
+            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
+        }
+
         List<Project> projects = findByBuilderId(builderId);
         return projects.stream()
                 .map(ProjectDtoMapper::toProjectDto)
@@ -122,6 +126,12 @@ public class ProjectService {
     }
 
     public List<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId) {
+        // Verify owner exists and is persisted
+        Optional<User> persistedOwner = userService.findById(ownerId);
+        if (persistedOwner.isEmpty()) {
+            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
+        }
+
         List<Project> projects = findByOwnerId(ownerId);
         return projects.stream()
                 .map(ProjectDtoMapper::toProjectDto)
