@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.workitem;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemRequest;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemResponse;
@@ -180,7 +181,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void findByUser_shouldReturnWorkItemsForSpecificUser_whenUserHasWorkItems() {
+    void getByUser_shouldReturnWorkItemsForSpecificUser_whenUserHasWorkItems() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
@@ -191,58 +192,58 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         workItemRepository.save(workItem2);
 
         // Act
-        List<WorkItem> user1WorkItems = workItemService.findByUser(testBuilderUser);
+        List<WorkItemDto> user1WorkItems = workItemService.getByUser(testBuilderUser);
 
         // Assert
         assertEquals(1, user1WorkItems.size());
         assertEquals(testWorkItem.getCode(), user1WorkItems.getFirst().getCode());
-        assertEquals(testBuilderUser.getId(), user1WorkItems.getFirst().getUser().getId());
+        assertEquals(testBuilderUser.getId(), user1WorkItems.getFirst().getUserId());
     }
 
     @Test
-    void findByUser_shouldThrowException_whenUserIdIsNull() {
+    void getByUser_shouldThrowException_whenUserIdIsNull() {
         // Arrange
         User userWithNullId = User.builder().id(null).build();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUser(userWithNullId));
+        assertThrows(UserNotFoundException.class,
+                () -> workItemService.getByUser(userWithNullId));
     }
 
     @Test
-    void findByUser_shouldThrowException_whenUserDoesNotExist() {
+    void getByUser_shouldThrowException_whenUserDoesNotExist() {
         // Arrange
         UUID nonExistentUserId = UUID.randomUUID();
         User nonExistentUser = User.builder().id(nonExistentUserId).build();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUser(nonExistentUser));
+        assertThrows(UserNotFoundException.class,
+                () -> workItemService.getByUser(nonExistentUser));
     }
 
     @Test
-    void findByUserId_shouldReturnWorkItemsForSpecificUserId_whenUserHasWorkItems() {
+    void getByUserId_shouldReturnWorkItemsForSpecificUserId_whenUserHasWorkItems() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
         // Act
-        List<WorkItem> userWorkItems = workItemService.findByUserId(testBuilderUser.getId());
+        List<WorkItemDto> userWorkItems = workItemService.getByUserId(testBuilderUser.getId());
 
         // Assert
         assertEquals(1, userWorkItems.size());
         assertEquals(testWorkItem.getCode(), userWorkItems.getFirst().getCode());
-        assertEquals(testBuilderUser.getId(), userWorkItems.getFirst().getUser().getId());
+        assertEquals(testBuilderUser.getId(), userWorkItems.getFirst().getUserId());
     }
 
     @Test
-    void findByUserId_shouldThrowException_whenUserDoesNotExist() {
+    void getByUserId_shouldThrowException_whenUserDoesNotExist() {
         // Arrange
         UUID nonExistentUserId = UUID.randomUUID();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUserId(nonExistentUserId));
+        assertThrows(UserNotFoundException.class,
+                () -> workItemService.getByUserId(nonExistentUserId));
     }
 
     @Test
@@ -275,22 +276,11 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         workItemRepository.save(testWorkItem);
 
         // Create a separate user for the second work item
-        Contact countContact = Contact.builder()
-                .email("count@example.com")
-                .firstName("Count")
-                .lastName("User")
-                .build();
-        User countUser = userService.newRegisteredUser(countContact, ContactLabel.BUILDER);
+        Contact countContact = createRandomContact();
+        User newUser = userService.newRegisteredUser(countContact, ContactLabel.BUILDER);
 
-        WorkItem workItem2 = WorkItem.builder()
-                .code("COUNT-002")
-                .name("Second Test Work Item")
-                .description("A second test work item")
-                .optional(false)
-                .user(countUser)
-                .defaultGroupName("Test Group")
-                .domain(WorkItemDomain.PUBLIC)
-                .build();
+        WorkItem workItem2 = createRandomWorkItem();
+        workItem2.setUser(newUser);
 
         workItemRepository.save(workItem2);
 
@@ -299,57 +289,59 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void findByUserIdAndCode_shouldReturnWorkItem_whenExists() {
+    void getByUserIdAndCode_shouldReturnWorkItem_whenExists() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
         // Act
-        Optional<WorkItem> foundWorkItem = workItemService.findByUserIdAndCode(testBuilderUser.getId(), testWorkItem.getCode());
+        Optional<WorkItemDto> foundWorkItem = workItemService.getByUserIdAndCode(testBuilderUser.getId(), testWorkItem.getCode());
 
         // Assert
         assertTrue(foundWorkItem.isPresent());
         assertEquals(testWorkItem.getCode(), foundWorkItem.get().getCode());
-        assertEquals(testBuilderUser.getId(), foundWorkItem.get().getUser().getId());
+        assertEquals(testBuilderUser.getId(), foundWorkItem.get().getUserId());
     }
 
     @Test
-    void findByUserIdAndCode_shouldReturnEmpty_whenNotExists() {
+    void getByUserIdAndCode_shouldReturnEmpty_whenNotExists() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
         // Act
-        Optional<WorkItem> foundWorkItem = workItemService.findByUserIdAndCode(testBuilderUser.getId(), "NON-EXISTENT");
+        Optional<WorkItemDto> foundWorkItem = workItemService.getByUserIdAndCode(testBuilderUser.getId(), "NON-EXISTENT");
 
         // Assert
         assertTrue(foundWorkItem.isEmpty());
     }
 
     @Test
-    void findByUserIdAndCode_shouldThrowException_whenCodeIsEmpty() {
+    void getByUserIdAndCode_shouldThrowException_whenCodeIsEmpty() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUserIdAndCode(testBuilderUser.getId(), "   "));
+                () -> workItemService.getByUserIdAndCode(testBuilderUser.getId(), "   "));
     }
 
     @Test
-    void findByUserIdAndCode_shouldThrowException_whenUserDoesNotExist() {
+    void getByUserIdAndCode_shouldThrowException_whenUserDoesNotExist() {
         // Arrange
         UUID nonExistentUserId = UUID.randomUUID();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUserIdAndCode(nonExistentUserId, "CODE"));
+        assertThrows(UserNotFoundException.class,
+                () -> workItemService.getByUserIdAndCode(nonExistentUserId, "CODE"));
     }
 
     @Test
-    void findByUserIdAndDomain_shouldReturnWorkItemsForUserAndDomain_whenMatches() {
+    void getByUserIdAndDomain_shouldReturnWorkItemsForUserAndDomain_whenMatches() {
         // Arrange
+        testWorkItem.setDomain(WorkItemDomain.PUBLIC);
+        testWorkItem.setUser(testBuilderUser);
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
@@ -359,36 +351,36 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         workItemRepository.save(privateWorkItem);
 
         // Act
-        List<WorkItem> publicUserWorkItems = workItemService.findByUserIdAndDomain(testBuilderUser.getId(), WorkItemDomain.PUBLIC);
+        List<WorkItemDto> publicUserWorkItems = workItemService.getByUserIdAndDomain(testBuilderUser.getId(), WorkItemDomain.PUBLIC);
 
         // Assert
         assertEquals(1, publicUserWorkItems.size());
         assertEquals(testWorkItem.getCode(), publicUserWorkItems.getFirst().getCode());
-        assertEquals(WorkItemDomain.PUBLIC, publicUserWorkItems.getFirst().getDomain());
-        assertEquals(testBuilderUser.getId(), publicUserWorkItems.getFirst().getUser().getId());
+        assertEquals(WorkItemDomain.PUBLIC.name(), publicUserWorkItems.getFirst().getDomain());
+        assertEquals(testBuilderUser.getId(), publicUserWorkItems.getFirst().getUserId());
     }
 
     @Test
-    void findByUserIdAndDomain_shouldReturnEmpty_whenNoneMatch() {
+    void getByUserIdAndDomain_shouldReturnEmpty_whenNoneMatch() {
         // Arrange
         persistWorkItemDependencies(testWorkItem);
         workItemRepository.save(testWorkItem);
 
         // Act
-        List<WorkItem> workItems = workItemService.findByUserIdAndDomain(testBuilderUser.getId(), WorkItemDomain.PRIVATE);
+        List<WorkItemDto> workItems = workItemService.getByUserIdAndDomain(testBuilderUser.getId(), WorkItemDomain.PRIVATE);
 
         // Assert
         assertTrue(workItems.isEmpty());
     }
 
     @Test
-    void findByUserIdAndDomain_shouldThrowException_whenUserDoesNotExist() {
+    void getByUserIdAndDomain_shouldThrowException_whenUserDoesNotExist() {
         // Arrange
         UUID nonExistentUserId = UUID.randomUUID();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> workItemService.findByUserIdAndDomain(nonExistentUserId, WorkItemDomain.PUBLIC));
+        assertThrows(UserNotFoundException.class,
+                () -> workItemService.getByUserIdAndDomain(nonExistentUserId, WorkItemDomain.PUBLIC));
     }
 
     @Test
@@ -420,7 +412,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         assertEquals(testWorkItem.getDomain().name(), response.getWorkItemDto().getDomain());
 
         // Verify it was persisted
-        Optional<WorkItem> savedWorkItem = workItemService.findByUserIdAndCode(testWorkItem.getUser().getId(), testWorkItem.getCode());
+        Optional<WorkItemDto> savedWorkItem = workItemService.getByUserIdAndCode(testWorkItem.getUser().getId(), testWorkItem.getCode());
         assertTrue(savedWorkItem.isPresent());
     }
 
@@ -494,7 +486,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
                 .build();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UserNotFoundException.class,
                 () -> workItemService.createWorkItem(request));
     }
 
@@ -580,7 +572,7 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         assertNotNull(response1);
         assertNotNull(response2);
 
-        List<WorkItem> userWorkItems = workItemService.findByUserId(testBuilderUser.getId());
+        List<WorkItemDto> userWorkItems = workItemService.getByUserId(testBuilderUser.getId());
         assertEquals(2, userWorkItems.size());
 
         assertTrue(userWorkItems.stream().anyMatch(wi -> "MULTI-001".equals(wi.getCode())));

@@ -2,9 +2,7 @@ package dev.hr.rezaei.buildflow.workitem;
 
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDto;
 import dev.hr.rezaei.buildflow.dto.Dto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
@@ -12,6 +10,8 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 public class WorkItemDto extends UpdatableEntityDto implements Dto<WorkItem> {
     private UUID id;
