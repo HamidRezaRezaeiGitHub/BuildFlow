@@ -2,7 +2,9 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerIntegrationTest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
-import dev.hr.rezaei.buildflow.user.dto.*;
+import dev.hr.rezaei.buildflow.user.UserControllerConsumerTest;
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -12,36 +14,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest {
+class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest implements UserControllerConsumerTest {
 
     @Test
     void createProject_shouldReturnCreated_whenValidRequest() throws Exception {
         // Given - extract inner DTOs for safer assertions
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
 
-        // Create users first by calling the API endpoints
-        var builderRequest = testCreateBuilderRequest;
-        var ownerRequest = testCreateOwnerRequest;
-
         // Create builder user via API
-        String builderResponseJson = mockMvc.perform(post("/api/v1/users/builders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(builderRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        var builderResponse = objectMapper.readValue(builderResponseJson, CreateBuilderResponse.class);
+        CreateUserResponse builderResponse = registerUser(mockMvc, objectMapper, testCreateBuilderRequest);
 
         // Create owner user via API
-        String ownerResponseJson = mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ownerRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        var ownerResponse = objectMapper.readValue(ownerResponseJson, CreateOwnerResponse.class);
+        var ownerResponse = registerUser(mockMvc, objectMapper, testCreateOwnerRequest);
 
         var projectRequest = CreateProjectRequest.builder()
                 .builderId(builderResponse.getUserDto().getId())
@@ -73,51 +57,25 @@ class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
 
         // Create users first by calling the API endpoints with unique emails
-        var builderRequest = CreateBuilderRequest.builder()
-                .registered(testCreateBuilderRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(builderContactRequestDto.getFirstName())
-                        .lastName(builderContactRequestDto.getLastName())
-                        .email("builder.with.projects@test.com") // Use unique email
-                        .phone(builderContactRequestDto.getPhone())
-                        .labels(builderContactRequestDto.getLabels())
-                        .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto builderContactRequestDto2 = ContactRequestDto.builder()
+                .firstName(builderContactRequestDto.getFirstName())
+                .lastName(builderContactRequestDto.getLastName())
+                .email("builder.with.projects@test.com") // Use unique email
+                .phone(builderContactRequestDto.getPhone())
+                .labels(builderContactRequestDto.getLabels())
+                .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
                 .build();
+        CreateUserResponse builderResponse = registerUser(mockMvc, objectMapper, builderContactRequestDto2);
 
-        var ownerRequest = CreateOwnerRequest.builder()
-                .registered(testCreateOwnerRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(ownerContactRequestDto.getFirstName())
-                        .lastName(ownerContactRequestDto.getLastName())
-                        .email("owner.for.builder@test.com") // Use unique email
-                        .phone(ownerContactRequestDto.getPhone())
-                        .labels(ownerContactRequestDto.getLabels())
-                        .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto ownerContactRequestDto2 = ContactRequestDto.builder()
+                .firstName(ownerContactRequestDto.getFirstName())
+                .lastName(ownerContactRequestDto.getLastName())
+                .email("owner.for.builder@test.com") // Use unique email
+                .phone(ownerContactRequestDto.getPhone())
+                .labels(ownerContactRequestDto.getLabels())
+                .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
                 .build();
-
-        // Create builder user via API
-        String builderResponseJson = mockMvc.perform(post("/api/v1/users/builders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(builderRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var builderResponse = objectMapper.readValue(builderResponseJson, CreateBuilderResponse.class);
-
-        // Create owner user via API
-        String ownerResponseJson = mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ownerRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var ownerResponse = objectMapper.readValue(ownerResponseJson, CreateOwnerResponse.class);
+        CreateUserResponse ownerResponse = registerUser(mockMvc, objectMapper, ownerContactRequestDto2);
 
         var projectRequest = CreateProjectRequest.builder()
                 .builderId(builderResponse.getUserDto().getId())
@@ -151,52 +109,25 @@ class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest
         var ownerContactRequestDto = testOwnerContactRequestDto;
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
 
-        // Create users first by calling the API endpoints with unique emails
-        var builderRequest = CreateBuilderRequest.builder()
-                .registered(testCreateBuilderRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(builderContactRequestDto.getFirstName())
-                        .lastName(builderContactRequestDto.getLastName())
-                        .email("builder.for.owner@test.com") // Use unique email
-                        .phone(builderContactRequestDto.getPhone())
-                        .labels(builderContactRequestDto.getLabels())
-                        .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto builderContactRequestDto2 = ContactRequestDto.builder()
+                .firstName(builderContactRequestDto.getFirstName())
+                .lastName(builderContactRequestDto.getLastName())
+                .email("builder.with.projects@test.com") // Use unique email
+                .phone(builderContactRequestDto.getPhone())
+                .labels(builderContactRequestDto.getLabels())
+                .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
                 .build();
+        CreateUserResponse builderResponse = registerUser(mockMvc, objectMapper, builderContactRequestDto2);
 
-        var ownerRequest = CreateOwnerRequest.builder()
-                .registered(testCreateOwnerRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(ownerContactRequestDto.getFirstName())
-                        .lastName(ownerContactRequestDto.getLastName())
-                        .email("owner.with.projects@test.com") // Use unique email
-                        .phone(ownerContactRequestDto.getPhone())
-                        .labels(ownerContactRequestDto.getLabels())
-                        .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto ownerContactRequestDto2 = ContactRequestDto.builder()
+                .firstName(ownerContactRequestDto.getFirstName())
+                .lastName(ownerContactRequestDto.getLastName())
+                .email("owner.for.builder@test.com") // Use unique email
+                .phone(ownerContactRequestDto.getPhone())
+                .labels(ownerContactRequestDto.getLabels())
+                .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
                 .build();
-
-        // Create builder user via API
-        String builderResponseJson = mockMvc.perform(post("/api/v1/users/builders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(builderRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var builderResponse = objectMapper.readValue(builderResponseJson, CreateBuilderResponse.class);
-
-        // Create owner user via API
-        String ownerResponseJson = mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ownerRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var ownerResponse = objectMapper.readValue(ownerResponseJson, CreateOwnerResponse.class);
+        CreateUserResponse ownerResponse = registerUser(mockMvc, objectMapper, ownerContactRequestDto2);
 
         var projectRequest = CreateProjectRequest.builder()
                 .builderId(builderResponse.getUserDto().getId())
@@ -229,27 +160,15 @@ class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest
         var builderContactRequestDto = testBuilderContactRequestDto;
 
         // Create builder user via API with unique email
-        var builderRequest = CreateBuilderRequest.builder()
-                .registered(testCreateBuilderRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(builderContactRequestDto.getFirstName())
-                        .lastName(builderContactRequestDto.getLastName())
-                        .email("builder.no.projects@test.com") // Use unique email
-                        .phone(builderContactRequestDto.getPhone())
-                        .labels(builderContactRequestDto.getLabels())
-                        .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(builderContactRequestDto.getFirstName())
+                .lastName(builderContactRequestDto.getLastName())
+                .email("builder.no.projects@test.com") // Use unique email
+                .phone(builderContactRequestDto.getPhone())
+                .labels(builderContactRequestDto.getLabels())
+                .addressRequestDto(builderContactRequestDto.getAddressRequestDto())
                 .build();
-
-        String builderResponseJson = mockMvc.perform(post("/api/v1/users/builders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(builderRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var builderResponse = objectMapper.readValue(builderResponseJson, CreateBuilderResponse.class);
+        CreateUserResponse builderResponse = registerUser(mockMvc, objectMapper, contactRequestDto);
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builderResponse.getUserDto().getId()))
@@ -265,27 +184,15 @@ class ProjectControllerIntegrationTest extends AbstractControllerIntegrationTest
         var ownerContactRequestDto = testOwnerContactRequestDto;
 
         // Create owner user via API with unique email
-        var ownerRequest = CreateOwnerRequest.builder()
-                .registered(testCreateOwnerRequest.isRegistered())
-                .contactRequestDto(ContactRequestDto.builder()
-                        .firstName(ownerContactRequestDto.getFirstName())
-                        .lastName(ownerContactRequestDto.getLastName())
-                        .email("owner.no.projects@test.com") // Use unique email
-                        .phone(ownerContactRequestDto.getPhone())
-                        .labels(ownerContactRequestDto.getLabels())
-                        .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
-                        .build())
+        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
+                .firstName(ownerContactRequestDto.getFirstName())
+                .lastName(ownerContactRequestDto.getLastName())
+                .email("owner.no.projects@test.com") // Use unique email
+                .phone(ownerContactRequestDto.getPhone())
+                .labels(ownerContactRequestDto.getLabels())
+                .addressRequestDto(ownerContactRequestDto.getAddressRequestDto())
                 .build();
-
-        String ownerResponseJson = mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ownerRequest)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        var ownerResponse = objectMapper.readValue(ownerResponseJson, CreateOwnerResponse.class);
+        CreateUserResponse ownerResponse = registerUser(mockMvc, objectMapper, contactRequestDto);
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", ownerResponse.getUserDto().getId()))

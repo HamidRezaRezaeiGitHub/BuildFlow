@@ -1,15 +1,18 @@
 package dev.hr.rezaei.buildflow;
 
-import dev.hr.rezaei.buildflow.user.ContactAddressDto;
-import dev.hr.rezaei.buildflow.user.ContactDto;
-import dev.hr.rezaei.buildflow.user.UserDto;
-import dev.hr.rezaei.buildflow.user.UserDtoMapper;
-import dev.hr.rezaei.buildflow.user.dto.*;
 import dev.hr.rezaei.buildflow.project.ProjectDto;
 import dev.hr.rezaei.buildflow.project.ProjectLocationDto;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
+import dev.hr.rezaei.buildflow.user.ContactAddressDto;
+import dev.hr.rezaei.buildflow.user.ContactDto;
+import dev.hr.rezaei.buildflow.user.UserDto;
+import dev.hr.rezaei.buildflow.user.UserDtoMapper;
+import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
@@ -33,10 +36,10 @@ public abstract class AbstractDtoTest {
     protected ContactDto testOwnerContactDto;
     protected UserDto testBuilderUserDto;
     protected UserDto testOwnerUserDto;
-    protected CreateBuilderRequest testCreateBuilderRequest;
-    protected CreateBuilderResponse testCreateBuilderResponse;
-    protected CreateOwnerRequest testCreateOwnerRequest;
-    protected CreateOwnerResponse testCreateOwnerResponse;
+    protected CreateUserRequest testCreateBuilderRequest;
+    protected CreateUserResponse testCreateBuilderResponse;
+    protected CreateUserRequest testCreateOwnerRequest;
+    protected CreateUserResponse testCreateOwnerResponse;
 
     // Project DTOs
     protected ProjectLocationRequestDto testProjectLocationRequestDto;
@@ -53,8 +56,8 @@ public abstract class AbstractDtoTest {
     protected ContactRequestDto testContactRequestDtoWithNullLabels;
     protected ContactRequestDto testContactRequestDtoWithNullAddress;
     protected ContactAddressRequestDto testContactAddressRequestDtoWithLongStreetName;
-    protected CreateBuilderRequest testCreateBuilderRequestWithNullContact;
-    protected CreateOwnerRequest testCreateOwnerRequestWithNullContact;
+    protected CreateUserRequest testCreateBuilderRequestWithNullContact;
+    protected CreateUserRequest testCreateOwnerRequestWithNullContact;
 
     // Invalid Project DTOs for validation testing
     protected CreateProjectRequest testCreateProjectRequestWithNullBuilderUserId;
@@ -114,21 +117,23 @@ public abstract class AbstractDtoTest {
         testOwnerUserDto.setRegistered(false);
         testOwnerUserDto.setId(UUID.randomUUID());
 
-        testCreateBuilderRequest = CreateBuilderRequest.builder()
+        testCreateBuilderRequest = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testBuilderContactRequestDto)
+                .username(testBuilderContactRequestDto.getEmail())
                 .build();
 
-        testCreateBuilderResponse = CreateBuilderResponse.builder()
+        testCreateBuilderResponse = CreateUserResponse.builder()
                 .userDto(testBuilderUserDto)
                 .build();
 
-        testCreateOwnerRequest = CreateOwnerRequest.builder()
+        testCreateOwnerRequest = CreateUserRequest.builder()
                 .registered(false)
                 .contactRequestDto(testOwnerContactRequestDto)
+                .username(testOwnerContactRequestDto.getEmail())
                 .build();
 
-        testCreateOwnerResponse = CreateOwnerResponse.builder()
+        testCreateOwnerResponse = CreateUserResponse.builder()
                 .userDto(testOwnerUserDto)
                 .build();
 
@@ -221,12 +226,12 @@ public abstract class AbstractDtoTest {
                 .city("Test City")
                 .build();
 
-        testCreateBuilderRequestWithNullContact = CreateBuilderRequest.builder()
+        testCreateBuilderRequestWithNullContact = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(null)  // Invalid: null
                 .build();
 
-        testCreateOwnerRequestWithNullContact = CreateOwnerRequest.builder()
+        testCreateOwnerRequestWithNullContact = CreateUserRequest.builder()
                 .registered(false)
                 .contactRequestDto(null)  // Invalid: null
                 .build();

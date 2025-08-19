@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DataJpaTest
-class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
+class WorkItemServiceIntegrationTest extends AbstractModelJpaTest implements UserServiceConsumerTest {
 
     @TestConfiguration
     static class WorkItemServiceTestConfig {
@@ -276,8 +276,8 @@ class WorkItemServiceIntegrationTest extends AbstractModelJpaTest {
         workItemRepository.save(testWorkItem);
 
         // Create a separate user for the second work item
-        Contact countContact = createRandomContact();
-        User newUser = userService.newRegisteredUser(countContact, ContactLabel.BUILDER);
+        Contact contact = createRandomContact();
+        User newUser = registerUser(userService, contact);
 
         WorkItem workItem2 = createRandomWorkItem();
         workItem2.setUser(newUser);

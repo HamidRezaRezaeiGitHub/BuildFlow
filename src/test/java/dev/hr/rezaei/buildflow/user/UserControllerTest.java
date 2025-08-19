@@ -2,8 +2,7 @@ package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,12 +22,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest extends AbstractControllerTest {
 
     @Test
-    void createBuilder_shouldReturnCreated_whenValidRequest() throws Exception {
+    void createUser_shouldReturnCreated_whenValidRequest() throws Exception {
         // Given
-        when(userService.createBuilder(any(CreateBuilderRequest.class))).thenReturn(testCreateBuilderResponse);
+        when(userService.createUser(any(CreateUserRequest.class))).thenReturn(testCreateBuilderResponse);
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
                 .andExpect(status().isCreated())
@@ -39,25 +38,9 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createOwner_shouldReturnCreated_whenValidRequest() throws Exception {
-        // Given
-        when(userService.createOwner(any(CreateOwnerRequest.class))).thenReturn(testCreateOwnerResponse);
-
+    void createUser_shouldReturnBadRequest_whenContactDtoIsNull() throws Exception {
         // When & Then
-        mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCreateOwnerRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.email").value(testOwnerUserDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.registered").value(false));
-    }
-
-    @Test
-    void createBuilder_shouldReturnBadRequest_whenContactDtoIsNull() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequestWithNullContact)))
                 .andDo(print())
@@ -67,15 +50,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenFirstNameIsBlank() throws Exception {
+    void createUser_shouldReturnBadRequest_whenFirstNameIsBlank() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithBlankFirstName)
+                .username(testContactRequestDtoWithBlankFirstName.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -84,15 +68,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenLastNameIsBlank() throws Exception {
+    void createUser_shouldReturnBadRequest_whenLastNameIsBlank() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithBlankLastName)
+                .username(testContactRequestDtoWithBlankLastName.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -101,15 +86,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
+    void createUser_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithInvalidEmail)
+                .username(testContactRequestDtoWithInvalidEmail.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -118,15 +104,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenEmailIsBlank() throws Exception {
+    void createUser_shouldReturnBadRequest_whenEmailIsBlank() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithBlankEmail)
+                .username(testContactRequestDtoWithBlankEmail.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -135,15 +122,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenLabelsIsNull() throws Exception {
+    void createUser_shouldReturnBadRequest_whenLabelsIsNull() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithNullLabels)
+                .username(testContactRequestDtoWithNullLabels.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -152,15 +140,16 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenAddressDtoIsNull() throws Exception {
+    void createUser_shouldReturnBadRequest_whenAddressDtoIsNull() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(testContactRequestDtoWithNullAddress)
+                .username(testContactRequestDtoWithNullAddress.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -169,9 +158,9 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenFieldExceedsMaxLength() throws Exception {
+    void createUser_shouldReturnBadRequest_whenFieldExceedsMaxLength() throws Exception {
         // Given
-        CreateBuilderRequest request = CreateBuilderRequest.builder()
+        CreateUserRequest request = CreateUserRequest.builder()
                 .registered(true)
                 .contactRequestDto(ContactRequestDto.builder()
                         .firstName("John")
@@ -180,38 +169,11 @@ class UserControllerTest extends AbstractControllerTest {
                         .labels(List.of("BUILDER"))
                         .addressRequestDto(testContactAddressRequestDtoWithLongStreetName)
                         .build())
+                .username("john.builder@example.com")
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
-    void createOwner_shouldReturnBadRequest_whenContactDtoIsNull() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCreateOwnerRequestWithNullContact)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
-    void createOwner_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
-        // Given
-        CreateOwnerRequest request = CreateOwnerRequest.builder()
-                .registered(false)
-                .contactRequestDto(testContactRequestDtoWithInvalidEmail)
-                .build();
-
-        // When & Then
-        mockMvc.perform(post("/api/v1/users/owners")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())

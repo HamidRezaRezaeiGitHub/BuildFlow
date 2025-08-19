@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * CreateOwnerRequest representing request object for creating owner users.
- * <p>
  * Note: Remember to update the documentation when making changes to this class.
  * <ol>
  *     <li>User package documentation: "UserDtos.md"</li>
@@ -22,13 +20,18 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request object for creating a new owner user")
-public class CreateOwnerRequest {
-    @Schema(description = "Registration status of the owner", example = "true")
+@Schema(description = "Request object for creating a new user")
+public class CreateUserRequest {
+    @Schema(description = "Registration status of the user", example = "true")
     @NotNull(message = "Registered status is required")
     private boolean registered;
 
-    @Schema(description = "Contact information for the owner")
+    @Schema(description = "Username for the user", example = "john_doe")
+    @NotNull(message = "Username is required")
+    @Valid
+    private String username;
+
+    @Schema(description = "Contact information for the user")
     @Valid
     @NotNull(message = "Contact information is required")
     private ContactRequestDto contactRequestDto;

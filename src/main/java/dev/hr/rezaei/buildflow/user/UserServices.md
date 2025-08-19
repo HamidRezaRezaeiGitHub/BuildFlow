@@ -6,39 +6,38 @@ This package contains the service layer classes for user management in the Build
 
 ### [UserService](UserService.java)
 
-- **Purpose:** Manages user creation, registration, and lifecycle operations including builders and owners
+- **Purpose:** Manages user creation, registration, and lifecycle operations
 - **Responsibilities:**
     - User creation and registration management
-    - Builder and owner user type creation
     - User-contact relationship coordination
     - User persistence validation and CRUD operations
     - Email and username uniqueness validation
 - **Dependencies:**
     - [UserRepository](UserRepository.java) - User entity persistence operations
     - [ContactService](ContactService.java) - Contact management and validation
-    - [ContactDtoMapper](ContactDtoMapper.java) - Contact DTO to entity conversions
-    - [UserDtoMapper](UserDtoMapper.java) - User entity to DTO conversions
 - **Key Methods:**
-    - `newUnregisteredUser(Contact, ContactLabel...)` - Creates unregistered user with contact labels
-    - `newRegisteredUser(Contact, ContactLabel...)` - Creates registered user with contact labels
-    - `createBuilder(CreateBuilderRequest)` - Creates builder user from request DTO
-    - `createOwner(CreateOwnerRequest)` - Creates owner user from request DTO
+    - `createUser(CreateUserRequest)` - Creates new user with contact information from request DTO
+    - `findByEmail(String)` - Retrieves user by email address
+    - `findById(UUID)` - Retrieves user by unique identifier
+    - `findByUsername(String)` - Retrieves user by username
+    - `save(User)` - Saves new or existing user
     - `update(User)` - Updates existing persisted user
     - `delete(User)` - Deletes existing persisted user
-    - `findById(UUID)` - Retrieves user by unique identifier
-    - `findByEmail(String)` - Retrieves user by email address
-    - `findByUsername(String)` - Retrieves user by username
+    - `isPersisted(User)` - Validates user persistence state
     - `existsByEmail(String)` - Checks email existence
     - `existsByUsername(String)` - Checks username existence
+    - `getUserByUsername(String)` - Retrieves user DTO by username (throws exception if not found)
 - **Transactions:**
     - Write operations: user creation, update, delete
     - Read-only operations: find methods, existence checks
 - **Validation:**
     - Ensures user is persisted before update/delete operations
     - Validates contact information through ContactService
+    - Prevents creation with existing address IDs
 - **Error Handling:**
     - IllegalArgumentException for invalid persistence state
-    - Validation errors propagated from ContactService
+    - IllegalArgumentException for existing address IDs during creation
+    - IllegalArgumentException when user not found by username
 
 ### [ContactService](ContactService.java)
 
@@ -51,13 +50,13 @@ This package contains the service layer classes for user management in the Build
 - **Dependencies:**
     - [ContactRepository](ContactRepository.java) - Contact entity persistence operations
 - **Key Methods:**
+    - `findById(UUID)` - Retrieves contact by unique identifier
     - `save(Contact)` - Saves new contact with validation
     - `update(Contact)` - Updates existing persisted contact
     - `delete(Contact)` - Deletes existing persisted contact
-    - `findById(UUID)` - Retrieves contact by unique identifier
-    - `findByEmail(String)` - Retrieves contact by email address
-    - `existsByEmail(String)` - Checks email existence
     - `isPersisted(Contact)` - Validates contact persistence state
+    - `existsByEmail(String)` - Checks email existence
+    - `findByEmail(String)` - Retrieves contact by email address
 - **Transactions:**
     - Write operations: contact save, update, delete
     - Read-only operations: find methods, existence checks
@@ -98,16 +97,5 @@ This package contains the service layer classes for user management in the Build
 - User username must be unique across the system
 - Users must have associated contact information
 - User registration status determines system access level
-
-### Contact Management Rules
-
-- Contact email must be unique across all contacts
-- Contacts cannot be saved if already persisted
-- Contact updates require existing persistence
-- Contact deletion requires existing persistence
-
-### Address Management Rules
-
-- Contact addresses are managed through cascade operations from Contact
-- Direct save/delete operations on ContactAddress should use Contact cascade
-- Address updates require existing persistence
+- Contact email addresses must be unique across all contacts
+- Address information cannot have pre-existing IDs during user creation

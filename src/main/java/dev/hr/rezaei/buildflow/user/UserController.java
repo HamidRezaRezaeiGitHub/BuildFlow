@@ -1,10 +1,8 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,16 +28,16 @@ public class UserController {
     private final UserService userService;
 
     @Operation(
-            summary = "Create a new builder",
-            description = "Creates a new builder user with contact information and registration status"
+            summary = "Create a new user",
+            description = "Creates a new user with contact information, username, and registration status"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "Builder created successfully",
+                    description = "User created successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = CreateBuilderResponse.class)
+                            schema = @Schema(implementation = CreateUserResponse.class)
                     )
             ),
             @ApiResponse(
@@ -55,55 +53,16 @@ public class UserController {
                     description = "Internal server error"
             )
     })
-    @PostMapping("/builders")
-    public ResponseEntity<CreateBuilderResponse> createBuilder(
-            @Parameter(description = "Builder creation request containing contact information and registration status")
-            @Valid @RequestBody CreateBuilderRequest request
+    @PostMapping("")
+    public ResponseEntity<CreateUserResponse> createUser(
+            @Parameter(description = "User creation request data")
+            @Valid @RequestBody CreateUserRequest request
     ) {
-        log.info("Creating builder with request: {}", request);
+        log.info("Creating user with request: {}", request);
 
-        CreateBuilderResponse response = userService.createBuilder(request);
+        CreateUserResponse response = userService.createUser(request);
 
-        log.info("Successfully created builder with ID: {}", response.getUserDto().getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @Operation(
-            summary = "Create a new owner",
-            description = "Creates a new owner user with contact information and registration status"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Owner created successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreateOwnerResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
-    })
-    @PostMapping("/owners")
-    public ResponseEntity<CreateOwnerResponse> createOwner(
-            @Parameter(description = "Owner creation request containing contact information and registration status")
-            @Valid @RequestBody CreateOwnerRequest request
-    ) {
-        log.info("Creating owner with request: {}", request);
-
-        CreateOwnerResponse response = userService.createOwner(request);
-
-        log.info("Successfully created owner with ID: {}", response.getUserDto().getId());
+        log.info("Successfully created user with ID: {}", response.getUserDto().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

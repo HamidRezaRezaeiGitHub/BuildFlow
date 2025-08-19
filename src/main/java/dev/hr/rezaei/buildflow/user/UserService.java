@@ -1,14 +1,12 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerResponse;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,85 +25,41 @@ import static dev.hr.rezaei.buildflow.user.UserDtoMapper.toUserDto;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final ContactService contactService;
 
-    public UserService(UserRepository userRepository, ContactService contactService) {
-        this.userRepository = userRepository;
-        this.contactService = contactService;
-    }
-
-    public User newUnregisteredUser(@NonNull Contact contact, ContactLabel... labels) {
-        User newUser = toUser(contact, labels);
-
-        Contact newContact = newUser.getContact();
-        newContact = contactService.save(newContact);
-
-        newUser.setRegistered(false);
-        log.info("Persisting new unregistered user with contact: {}, labels: {}", newContact, labels);
-        return userRepository.save(newUser);
-    }
-
-    public User newRegisteredUser(@NonNull Contact contact, ContactLabel... labels) {
-        User newUser = toUser(contact, labels);
-
-        Contact newContact = newUser.getContact();
-        ContactAddress address = newContact.getAddress();
-        if (address.getId() != null) {
-            throw new IllegalArgumentException("Cannot create registered user with existing address ID: " + address.getId());
-        }
-        newContact = contactService.save(newContact);
-
-        newUser.setRegistered(true);
-        log.info("Persisting new registered user with contact: {}, labels: {}", newContact, labels);
-        return userRepository.save(newUser);
-    }
-
-    public CreateBuilderResponse createBuilder(@NonNull CreateBuilderRequest request) {
+    public CreateUserResponse createUser(@NonNull CreateUserRequest request) {
         Contact contact = toContactEntity(request.getContactRequestDto());
-        User user = request.isRegistered() ?
-                newRegisteredUser(contact, ContactLabel.BUILDER) :
-                newUnregisteredUser(contact, ContactLabel.BUILDER);
+        contact = contactService.save(contact);
 
-        UserDto userDto = toUserDto(user);
-        return CreateBuilderResponse.builder()
-                .userDto(userDto)
-                .build();
-    }
-
-    public CreateOwnerResponse createOwner(@NonNull CreateOwnerRequest request) {
-        Contact contact = toContactEntity(request.getContactRequestDto());
-        User user = request.isRegistered() ?
-                newRegisteredUser(contact, ContactLabel.OWNER) :
-                newUnregisteredUser(contact, ContactLabel.OWNER);
-
-        UserDto userDto = toUserDto(user);
-        return CreateOwnerResponse.builder()
-                .userDto(userDto)
-                .build();
-    }
-
-    public static User toUser(@NonNull Contact contact, ContactLabel... labels) {
-        if (labels != null && labels.length != 0) {
-            Collection<ContactLabel> collection = contact.getLabels();
-            for (ContactLabel label : labels) {
-                if (!collection.contains(label)) {
-                    collection.add(label);
-                }
-            }
-        }
-
-        return toUser(contact);
-    }
-
-    public static User toUser(@NonNull Contact contact) {
-        return User.builder()
-                .username(contact.getEmail()) // Using email as username for simplicity
-                .email(contact.getEmail())
+        User user = User.builder()
                 .contact(contact)
+                .username(request.getUsername())
+                .email(contact.getEmail())
+                .registered(request.isRegistered())
                 .build();
+        log.info("Persisting new user with contact: {}, username: {}, registered: {}", contact, request.getUsername(), request.isRegistered());
+        user = userRepository.save(user);
+
+        UserDto userDto = toUserDto(user);
+        return CreateUserResponse.builder()
+                .userDto(userDto)
+                .build();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> findById(UUID id) {
+        return userRepository.findById(id);
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     public User update(@NonNull User user) {
@@ -132,14 +86,6 @@ public class UserService {
 
     public boolean existsByUsername(@NonNull String username) {
         return userRepository.existsByUsername(username);
-    }
-
-    public Optional<User> findById(@NonNull UUID id) {
-        return userRepository.findById(id);
-    }
-
-    public Optional<User> findByEmail(@NonNull String email) {
-        return userRepository.findByEmail(email);
     }
 
     public Optional<User> findByUsername(@NonNull String username) {

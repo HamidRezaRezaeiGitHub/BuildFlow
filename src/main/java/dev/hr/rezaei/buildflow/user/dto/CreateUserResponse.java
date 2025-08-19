@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * CreateBuilderResponse representing response object containing created builder user information.
- * <p>
  * Note: Remember to update the documentation when making changes to this class.
  * <ol>
  *     <li>User package documentation: "UserDtos.md"</li>
@@ -21,8 +19,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Response object containing the created builder user information")
-public class CreateBuilderResponse {
-    @Schema(description = "The created builder user details")
+@Schema(description = "Response object containing the created user information")
+public class CreateUserResponse {
+    @Schema(description = "The created user details")
     private UserDto userDto;
 }

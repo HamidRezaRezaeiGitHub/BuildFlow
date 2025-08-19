@@ -2,9 +2,8 @@ package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractControllerIntegrationTest;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateBuilderResponse;
-import dev.hr.rezaei.buildflow.user.dto.CreateOwnerRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -18,17 +17,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
 
     @Test
-    void createBuilder_shouldReturnCreated_whenValidRegisteredRequest() throws Exception {
+    void createUser_shouldReturnCreated_whenValidRegisteredRequest() throws Exception {
         ContactRequestDto contactRequestDto = testCreateBuilderRequest.getContactRequestDto();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.username").value(contactRequestDto.getEmail()))
+                .andExpect(jsonPath("$.userDto.username").value(testCreateBuilderRequest.getUsername()))
                 .andExpect(jsonPath("$.userDto.email").value(contactRequestDto.getEmail()))
                 .andExpect(jsonPath("$.userDto.registered").value(testCreateBuilderRequest.isRegistered()))
                 .andExpect(jsonPath("$.userDto.contactDto").exists())
@@ -39,16 +38,17 @@ class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    void createBuilder_shouldReturnCreated_whenValidUnregisteredRequest() throws Exception {
+    void createUser_shouldReturnCreated_whenValidUnregisteredRequest() throws Exception {
         // Given
         ContactRequestDto contactRequestDto = testBuilderContactRequestDto;
-        var unregisteredBuilderRequest = CreateBuilderRequest.builder()
+        var unregisteredBuilderRequest = CreateUserRequest.builder()
                 .registered(false)
                 .contactRequestDto(contactRequestDto)
+                .username(contactRequestDto.getEmail())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(unregisteredBuilderRequest)))
                 .andExpect(status().isCreated())
@@ -63,37 +63,15 @@ class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    void createOwner_shouldReturnCreated_whenValidRegisteredRequest() throws Exception {
-        // Given
-        ContactRequestDto contactRequestDto = testCreateOwnerRequest.getContactRequestDto();
-
-        // When & Then
-        mockMvc.perform(post("/api/v1/users/owners")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCreateOwnerRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.username").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.email").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.registered").value(testCreateOwnerRequest.isRegistered()))
-                .andExpect(jsonPath("$.userDto.contactDto").exists())
-                .andExpect(jsonPath("$.userDto.contactDto.firstName").value(contactRequestDto.getFirstName()))
-                .andExpect(jsonPath("$.userDto.contactDto.lastName").value(contactRequestDto.getLastName()))
-                .andExpect(jsonPath("$.userDto.contactDto.email").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.contactDto.phone").value(contactRequestDto.getPhone()));
-    }
-
-    @Test
     void getUserByUsername_shouldReturnOk_whenUserExists() throws Exception {
         // Given
-        MvcResult result = mockMvc.perform(post("/api/v1/users/builders")
+        MvcResult result = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
                 .andExpect(status().isCreated())
                 .andReturn();
         String responseContent = result.getResponse().getContentAsString();
-        CreateBuilderResponse responseDto = objectMapper.readValue(responseContent, CreateBuilderResponse.class);
+        CreateUserResponse responseDto = objectMapper.readValue(responseContent, CreateUserResponse.class);
         UserDto userDto = responseDto.getUserDto();
         ContactDto contactDto = userDto.getContactDto();
 
@@ -122,9 +100,9 @@ class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenContactDtoIsNull() throws Exception {
+    void createUser_shouldReturnBadRequest_whenContactDtoIsNull() throws Exception {
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequestWithNullContact)))
                 .andExpect(status().isBadRequest())
@@ -133,16 +111,17 @@ class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    void createBuilder_shouldReturnBadRequest_whenFirstNameIsBlank() throws Exception {
+    void createUser_shouldReturnBadRequest_whenFirstNameIsBlank() throws Exception {
         // Given
         ContactRequestDto invalidContactRequestDto = testContactRequestDtoWithBlankFirstName;
-        var requestWithBlankFirstName = CreateBuilderRequest.builder()
+        var requestWithBlankFirstName = CreateUserRequest.builder()
                 .registered(testCreateBuilderRequest.isRegistered())
                 .contactRequestDto(invalidContactRequestDto)
+                .username(testCreateBuilderRequest.getUsername())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/builders")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestWithBlankFirstName)))
                 .andExpect(status().isBadRequest())
@@ -151,16 +130,17 @@ class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    void createOwner_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
+    void createUser_shouldReturnBadRequest_whenEmailIsInvalid() throws Exception {
         // Given
         ContactRequestDto invalidContactRequestDto = testContactRequestDtoWithInvalidEmail;
-        var requestWithInvalidEmail = CreateOwnerRequest.builder()
+        var requestWithInvalidEmail = CreateUserRequest.builder()
                 .registered(testCreateOwnerRequest.isRegistered())
                 .contactRequestDto(invalidContactRequestDto)
+                .username(testCreateOwnerRequest.getUsername())
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/api/v1/users/owners")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestWithInvalidEmail)))
                 .andExpect(status().isBadRequest())

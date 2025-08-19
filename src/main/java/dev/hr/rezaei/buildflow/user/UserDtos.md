@@ -18,6 +18,7 @@ This package contains Data Transfer Objects (DTOs) for user management operation
 - **Entity**: Maps to `User` entity
 - **Fields**:
   - `UUID id` - Unique identifier for the user
+  - `String username` - Username of the user
   - `String email` - Email address of the user
   - `boolean registered` - Registration status of the user  
   - `ContactDto contactDto` - Associated contact information
@@ -44,6 +45,13 @@ This package contains Data Transfer Objects (DTOs) for user management operation
 
 ### Request DTOs
 
+#### [CreateUserRequest](./dto/CreateUserRequest.java)
+- **Purpose**: Request object for creating new users
+- **Fields**:
+  - `boolean registered` - Registration status (`@NotNull`)
+  - `String username` - Username for the user (`@NotNull`, `@Valid`)
+  - `ContactRequestDto contactRequestDto` - Contact information (`@NotNull`, `@Valid`)
+
 #### [ContactRequestDto](./dto/ContactRequestDto.java)
 - **Purpose**: Contact information for creation requests (without ID)
 - **Fields**:
@@ -52,48 +60,40 @@ This package contains Data Transfer Objects (DTOs) for user management operation
   - `List<String> labels` - Contact labels/tags (`@NotNull`)
   - `String email` - Email address (`@NotBlank`, `@Email`, `@Size(max=100)`)
   - `String phone` - Phone number (`@Size(max=30)`, optional)
-  - `ContactAddressRequestDto addressDto` - Address information (`@NotNull`, `@Valid`)
+  - `ContactAddressRequestDto addressRequestDto` - Address information (`@NotNull`, `@Valid`)
 
 #### [ContactAddressRequestDto](./dto/ContactAddressRequestDto.java)
 - **Purpose**: Address information for creation requests (without ID)
 - **Inheritance**: Extends `BaseAddressDto` for common address fields
 - **Fields**: Inherits all fields from `BaseAddressDto` with same validation constraints (no ID field)
 
-#### [CreateBuilderRequest](./dto/CreateBuilderRequest.java)
-- **Purpose**: Request object for creating builder users
-- **Fields**:
-  - `boolean registered` - Registration status (`@NotNull`)
-  - `ContactRequestDto contactDto` - Contact information (`@NotNull`, `@Valid`)
-
-#### [CreateOwnerRequest](./dto/CreateOwnerRequest.java)
-- **Purpose**: Request object for creating owner users
-- **Fields**:
-  - `boolean registered` - Registration status (`@NotNull`)
-  - `ContactRequestDto contactDto` - Contact information (`@NotNull`, `@Valid`)
-
 ### Response DTOs
 
-#### [CreateBuilderResponse](./dto/CreateBuilderResponse.java)
-- **Purpose**: Response object containing created builder user information
+#### [CreateUserResponse](./dto/CreateUserResponse.java)
+- **Purpose**: Response object containing created user information
 - **Fields**:
-  - `UserDto userDto` - The created builder user details
-
-#### [CreateOwnerResponse](./dto/CreateOwnerResponse.java)
-- **Purpose**: Response object containing created owner user information
-- **Fields**:
-  - `UserDto userDto` - The created owner user details
+  - `UserDto userDto` - The created user details
 
 ## DTO Relationships Diagram
 
 ```
 Request Flow:
-CreateBuilderRequest/CreateOwnerRequest
+CreateUserRequest
+    ├── username (String)
+    ├── registered (boolean)
     └── ContactRequestDto
         └── ContactAddressRequestDto (extends BaseAddressDto)
 
 Response Flow:
-CreateBuilderResponse/CreateOwnerResponse
+CreateUserResponse
     └── UserDto
         └── ContactDto (implements Dto<Contact>)
             └── ContactAddressDto (extends BaseAddressDto, implements Dto<ContactAddress>)
 ```
+
+## Key Changes from Previous Version
+
+- **Simplified User Creation**: Consolidated from separate `CreateBuilderRequest`/`CreateOwnerRequest` to a single `CreateUserRequest`
+- **Username Field**: Added username field to user creation process
+- **DTO Naming**: Updated field names to match current implementation (e.g., `contactRequestDto` instead of `contactDto` in requests)
+- **Response Structure**: Simplified response structure with single `CreateUserResponse` instead of separate builder/owner responses
