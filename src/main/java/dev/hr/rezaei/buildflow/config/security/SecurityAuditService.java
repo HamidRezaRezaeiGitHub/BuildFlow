@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -25,10 +25,10 @@ public class SecurityAuditService {
 
         if (successful) {
             log.info("[{}] LOGIN_SUCCESS - User: {}, IP: {}, UserAgent: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, clientIp, userAgent, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, clientIp, userAgent, Instant.now());
         } else {
             log.warn("[{}] LOGIN_FAILED - User: {}, IP: {}, UserAgent: {}, Reason: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, clientIp, userAgent, reason, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, clientIp, userAgent, reason, Instant.now());
         }
     }
 
@@ -38,10 +38,10 @@ public class SecurityAuditService {
 
         if (successful) {
             log.info("[{}] REGISTRATION_SUCCESS - User: {}, Email: {}, IP: {}, UserAgent: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, email, clientIp, userAgent, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, email, clientIp, userAgent, Instant.now());
         } else {
             log.warn("[{}] REGISTRATION_FAILED - User: {}, Email: {}, IP: {}, UserAgent: {}, Reason: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, email, clientIp, userAgent, reason, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, email, clientIp, userAgent, reason, Instant.now());
         }
     }
 
@@ -49,7 +49,7 @@ public class SecurityAuditService {
         String clientIp = getClientIpAddress();
 
         log.info("[{}] TOKEN_GENERATED - User: {}, IP: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, username, clientIp, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, username, clientIp, Instant.now());
     }
 
     public void logTokenValidationFailure(String reason, String token) {
@@ -58,7 +58,7 @@ public class SecurityAuditService {
         String tokenPrefix = token != null && token.length() > 10 ? token.substring(0, 10) + "..." : "invalid";
 
         log.warn("[{}] TOKEN_VALIDATION_FAILED - Reason: {}, TokenPrefix: {}, IP: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, reason, tokenPrefix, clientIp, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, reason, tokenPrefix, clientIp, Instant.now());
     }
 
     public void logUnauthorizedAccess(String endpoint, String method) {
@@ -66,12 +66,12 @@ public class SecurityAuditService {
         String userAgent = getUserAgent();
 
         log.warn("[{}] UNAUTHORIZED_ACCESS - Endpoint: {} {}, IP: {}, UserAgent: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, method, endpoint, clientIp, userAgent, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, method, endpoint, clientIp, userAgent, Instant.now());
     }
 
     public void logRateLimitViolation(String clientIp, String endpoint) {
         log.warn("[{}] RATE_LIMIT_VIOLATION - IP: {}, Endpoint: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, clientIp, endpoint, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, clientIp, endpoint, Instant.now());
     }
 
     public void logPasswordChangeAttempt(String username, boolean successful) {
@@ -79,10 +79,10 @@ public class SecurityAuditService {
 
         if (successful) {
             log.info("[{}] PASSWORD_CHANGED - User: {}, IP: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, clientIp, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, clientIp, Instant.now());
         } else {
             log.warn("[{}] PASSWORD_CHANGE_FAILED - User: {}, IP: {}, Timestamp: {}",
-                    SECURITY_AUDIT_LOGGER, username, clientIp, LocalDateTime.now());
+                    SECURITY_AUDIT_LOGGER, username, clientIp, Instant.now());
         }
     }
 
@@ -90,17 +90,17 @@ public class SecurityAuditService {
         String clientIp = getClientIpAddress();
 
         log.warn("[{}] ACCOUNT_LOCKED - User: {}, IP: {}, Reason: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, username, clientIp, reason, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, username, clientIp, reason, Instant.now());
     }
 
     public void logSecurityEvent(String eventType, String description, Map<String, Object> additionalData) {
         String clientIp = getClientIpAddress();
 
         log.info("[{}] {} - Description: {}, IP: {}, Data: {}, Timestamp: {}",
-                SECURITY_AUDIT_LOGGER, eventType, description, clientIp, additionalData, LocalDateTime.now());
+                SECURITY_AUDIT_LOGGER, eventType, description, clientIp, additionalData, Instant.now());
     }
 
-    private String getClientIpAddress() {
+    protected String getClientIpAddress() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs != null) {
@@ -127,7 +127,7 @@ public class SecurityAuditService {
         return "unknown";
     }
 
-    private String getUserAgent() {
+    protected String getUserAgent() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs != null) {
