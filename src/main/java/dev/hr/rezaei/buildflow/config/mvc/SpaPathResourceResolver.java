@@ -89,6 +89,7 @@ public class SpaPathResourceResolver extends PathResourceResolver {
      *   <li>REST API endpoints starting with "api/"</li>
      *   <li>H2 database console paths starting with "h2-console"</li>
      *   <li>Spring Boot Actuator management endpoints starting with "actuator/"</li>
+     *   <li>Authentication endpoints like "login" and "register"</li>
      * </ul>
      *
      * @param resourcePath the resource path to check
@@ -97,6 +98,8 @@ public class SpaPathResourceResolver extends PathResourceResolver {
     private boolean isBackendRoute(String resourcePath) {
         return resourcePath.startsWith("api/") ||
                 resourcePath.startsWith("h2-console") ||
-                resourcePath.startsWith("actuator/");
+                resourcePath.startsWith("actuator/") ||
+                resourcePath.equals("login") ||
+                resourcePath.equals("register");
     }
 }

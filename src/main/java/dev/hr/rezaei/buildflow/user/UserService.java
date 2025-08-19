@@ -58,10 +58,6 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
     public User update(@NonNull User user) {
         if (!isPersisted(user)) {
             throw new IllegalArgumentException("User must be already persisted.");

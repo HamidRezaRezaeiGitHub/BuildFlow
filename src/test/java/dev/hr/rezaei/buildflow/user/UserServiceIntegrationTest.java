@@ -70,26 +70,11 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void save_shouldSaveUser_whenValidUser() {
-        // Given
-        User user = createRandomBuilderUser();
-        persistUserDependencies(user);
-
-        // When
-        User savedUser = userService.save(user);
-
-        // Then
-        assertNotNull(savedUser.getId());
-        assertEquals(user.getUsername(), savedUser.getUsername());
-        assertEquals(user.getEmail(), savedUser.getEmail());
-    }
-
-    @Test
     void update_shouldUpdateUser_whenUserIsPersisted() {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        user = userService.save(user);
+        user = userRepository.save(user);
 
         String newUsername = "updated_username";
         user.setUsername(newUsername);
@@ -116,7 +101,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        user = userService.save(user);
+        user = userRepository.save(user);
         UUID userId = user.getId();
 
         // When
@@ -141,7 +126,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        user = userService.save(user);
+        user = userRepository.save(user);
 
         // When
         boolean isPersisted = userService.isPersisted(user);
@@ -167,7 +152,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        userService.save(user);
+        userRepository.save(user);
 
         // When
         boolean exists = userService.existsByEmail(user.getEmail());
@@ -187,7 +172,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        userService.save(user);
+        userRepository.save(user);
 
         // When
         boolean exists = userService.existsByUsername(user.getUsername());
@@ -207,7 +192,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        user = userService.save(user);
+        user = userRepository.save(user);
 
         // When
         Optional<User> foundUser = userService.findById(user.getId());
@@ -228,7 +213,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        userService.save(user);
+        userRepository.save(user);
 
         // When
         Optional<User> foundUser = userService.findByEmail(user.getEmail());
@@ -250,7 +235,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        userService.save(user);
+        userRepository.save(user);
 
         // When
         Optional<User> foundUser = userService.findByUsername(user.getUsername());
@@ -272,7 +257,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
-        userService.save(user);
+        userRepository.save(user);
 
         // When
         UserDto userDto = userService.getUserByUsername(user.getUsername());

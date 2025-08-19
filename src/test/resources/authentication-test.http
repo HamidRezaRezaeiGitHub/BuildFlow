@@ -1,0 +1,429 @@
+### Authentication Flow Tests
+
+### 1. Register a new user
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser_2025",
+  "password": "SecurePass123!",
+  "contactRequestDto": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe.2025@example.com",
+    "phone": "555-0123",
+    "labels": ["BUILDER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### 2. Login with valid credentials
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser_2025",
+  "password": "SecurePass123!"
+}
+
+### 4. Get current authenticated user information
+GET {{base_url}}/api/auth/current
+Authorization: Bearer {{auth_token}}
+
+### Security Endpoint Tests
+
+### 5. Test public security endpoint (no authentication required)
+GET {{base_url}}/api/security/public
+
+### 6. Test private security endpoint (requires authentication)
+GET {{base_url}}/api/security/private
+Authorization: Bearer {{auth_token}}
+
+### Public Route Tests
+
+### 7. Test home page (should be accessible without authentication)
+GET {{base_url}}/
+
+### 8. Test H2 Console (accessible in development profile only)
+GET {{base_url}}/h2-console
+
+### 9. Test Swagger UI (should be publicly accessible)
+GET {{base_url}}/swagger-ui/index.html
+
+### 10. Test OpenAPI documentation (should be publicly accessible)
+GET {{base_url}}/v3/api-docs
+
+### 11. Test health endpoint (should be publicly accessible)
+GET {{base_url}}/actuator/health
+
+### Enhanced Password Validation Tests
+
+### 12. Test registration with weak password (should return 400 with validation error)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "weakpassuser",
+  "password": "weak",
+  "contactRequestDto": {
+    "firstName": "Weak",
+    "lastName": "Password",
+    "email": "weak@example.com",
+    "phone": "555-0124",
+    "labels": ["OWNER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### 13. Test registration with password missing uppercase (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "nouppercase",
+  "password": "lowercase123!",
+  "contactRequestDto": {
+    "firstName": "No",
+    "lastName": "Uppercase",
+    "email": "nouppercase@example.com",
+    "phone": "555-0125",
+    "labels": ["BUILDER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### 14. Test registration with password missing special character (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "nospecialchar",
+  "password": "NoSpecial123",
+  "contactRequestDto": {
+    "firstName": "No",
+    "lastName": "Special",
+    "email": "nospecial@example.com",
+    "phone": "555-0126",
+    "labels": ["OWNER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### Authentication Error Tests
+
+### 15. Test login with invalid credentials (should return 401 and trigger audit log)
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "invaliduser",
+  "password": "WrongPassword123!"
+}
+
+### 16. Test login with non-existent user (should return 401 and trigger audit log)
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "nonexistentuser",
+  "password": "ValidPassword123!"
+}
+
+### 17. Test registration with duplicate username (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser_2025",
+  "password": "AnotherPass123!",
+  "contactRequestDto": {
+    "firstName": "Duplicate",
+    "lastName": "User",
+    "email": "duplicate@example.com",
+    "phone": "555-0127",
+    "labels": ["BUILDER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### Validation Error Tests
+
+### 18. Test registration with missing contact information (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "missingcontact",
+  "password": "ValidPass123!"
+}
+
+### 19. Test registration with invalid email format (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "invalidemail",
+  "password": "ValidPass123!",
+  "contactRequestDto": {
+    "firstName": "Invalid",
+    "lastName": "Email",
+    "email": "not-an-email",
+    "phone": "555-0128",
+    "labels": ["OWNER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### 20. Test registration with username too short (should return 400)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "ab",
+  "password": "ValidPass123!",
+  "contactRequestDto": {
+    "firstName": "Short",
+    "lastName": "Username",
+    "email": "short@example.com",
+    "phone": "555-0129",
+    "labels": ["BUILDER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### Unauthorized Access Tests
+
+### 21. Test current user without authentication (should return 401)
+GET {{base_url}}/api/auth/current
+
+### 22. Test private endpoint without authentication (should return 401)
+GET {{base_url}}/api/security/private
+
+### 23. Test with invalid JWT token (should return 401 and trigger audit log)
+GET {{base_url}}/api/auth/current
+Authorization: Bearer invalid.jwt.token
+
+### 24. Test with expired JWT token (should return 401 and trigger audit log)
+GET {{base_url}}/api/auth/current
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+### Rate Limiting Tests (Test these sequentially to trigger rate limiting)
+
+### 25. Rate Limit Test 1 - First login attempt
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser",
+  "password": "WrongPassword123!"
+}
+
+### 26. Rate Limit Test 2 - Second login attempt
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser", 
+  "password": "WrongPassword123!"
+}
+
+### 27. Rate Limit Test 3 - Third login attempt
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser",
+  "password": "WrongPassword123!"
+}
+
+### 28. Rate Limit Test 4 - Fourth login attempt
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser",
+  "password": "WrongPassword123!"
+}
+
+### 29. Rate Limit Test 5 - Fifth login attempt
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser",
+  "password": "WrongPassword123!"
+}
+
+### 30. Rate Limit Test 6 - Sixth attempt (should return 429 Too Many Requests)
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ratelimituser",
+  "password": "WrongPassword123!"
+}
+
+### Protected Resource Tests
+
+### 31. Test protected user resource (requires authentication)
+GET {{base_url}}/api/v1/users
+Authorization: Bearer {{auth_token}}
+
+### 32. Test protected user creation (requires authentication)
+POST {{base_url}}/api/v1/users
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "contactRequestDto": {
+    "firstName": "Protected",
+    "lastName": "Resource",
+    "email": "protected@example.com",
+    "phone": "555-0130",
+    "labels": ["BUILDER"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### Security Headers Test
+
+### 33. Test security headers on protected endpoint
+GET {{base_url}}/api/auth/current
+Authorization: Bearer {{auth_token}}
+
+### Additional User Registration for Testing
+
+### 34. Register another user with different labels
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "owneruser_2025",
+  "password": "OwnerPass123!",
+  "contactRequestDto": {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane.smith.2025@example.com",
+    "phone": "555-0131",
+    "labels": ["OWNER", "INVESTOR"],
+    "addressRequestDto": {
+      "streetNumber": "123",
+      "streetName": "Main St",
+      "city": "Springfield",
+      "stateOrProvince": "IL",
+      "postalOrZipCode": "62701",
+      "country": "USA"
+    }
+  }
+}
+
+### 35. Login with the second user
+# @name loginOwner
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "owneruser_2025",
+  "password": "OwnerPass123!"
+}
+
+### 36. Test current user with second user's token
+@ownerToken = {{loginOwner.response.body.accessToken}}
+GET {{base_url}}/api/auth/current
+Authorization: Bearer {{ownerToken}}
+
+### CORS and Static Resource Tests
+
+### 37. Test static CSS resource (should be publicly accessible)
+GET {{base_url}}/styles.css
+
+### 38. Test static JavaScript resource (should be publicly accessible)
+GET {{base_url}}/app.js
+
+### 39. Test favicon (should be publicly accessible)
+GET {{base_url}}/favicon.ico
+
+### JWT Token Edge Cases
+
+### 40. Test with malformed JWT token (should return 401)
+GET {{base_url}}/api/auth/current
+Authorization: Bearer malformed-token
+
+### 41. Test with empty Authorization header (should return 401)
+GET {{base_url}}/api/auth/current
+Authorization: Bearer
+
+### 42. Test with missing Bearer prefix (should return 401)
+GET {{base_url}}/api/auth/current
+Authorization: {{auth_token}}
+
+### Logout Test (if logout endpoint exists)
+
+### 43. Test logout (should invalidate session)
+POST {{base_url}}/api/auth/logout
+Authorization: Bearer {{auth_token}}
+
+### Notes:
+### - Rate limiting: 5 attempts per 15-minute window, 30-minute lockout
+### - Password requirements: 8-128 chars, uppercase, lowercase, digit, special char
+### - All security events are logged for audit purposes
+### - H2 console only accessible in development profiles
+### - Security headers (CSP, XSS protection, HSTS) are applied to all responses
+### - JWT tokens are required for all /api/auth/current and /api/security/private endpoints
+

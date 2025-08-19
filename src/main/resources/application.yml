@@ -3,7 +3,7 @@ spring:
     name: BuildFlow
   # Security disabled for development - easier testing and debugging
   security:
-    enabled: false # Custom security toggle
+    enabled: true # Custom security toggle
   # H2 file-based database for development - persistent across restarts
   datasource:
     url: jdbc:h2:file:./data/buildflow-db
@@ -21,6 +21,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+# JWT Configuration
+app:
+  jwt:
+    secret: mySecretKeyForJWTTokensInBuildFlowApplication
+    expiration: 86400000 # 24 hours in milliseconds
 
 # Management endpoints for development - expose more endpoints for debugging
 management:

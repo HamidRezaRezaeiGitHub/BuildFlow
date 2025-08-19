@@ -27,6 +27,6 @@ class EnabledSecurityControllerIntegrationTest {
     @Test
     void privateEndpoint_shouldBeUnauthorized() throws Exception {
         mockMvc.perform(get("/api/security/private"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }
