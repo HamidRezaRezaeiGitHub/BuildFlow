@@ -54,7 +54,6 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
             contactRepository.save(contact);
         }
         user.setEmail(contact.getEmail());
-        user.setUsername(contact.getEmail());
     }
 
     protected void persistWorkItemDependencies(WorkItem workItem) {
