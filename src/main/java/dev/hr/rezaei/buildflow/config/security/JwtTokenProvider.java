@@ -25,6 +25,17 @@ public class JwtTokenProvider {
     @Value("${app.jwt.expiration:86400000}") // 24 hours in milliseconds
     private int jwtExpirationInMs;
 
+    // No-arg constructor (Spring will use this and inject values via @Value)
+    public JwtTokenProvider() {
+    }
+
+    // All-args constructor (useful for testing or manual instantiation)
+    public JwtTokenProvider(String jwtSecret, int jwtExpirationInMs) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationInMs = jwtExpirationInMs;
+        validateConfiguration();
+    }
+
     @PostConstruct
     private void validateConfiguration() {
         if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
