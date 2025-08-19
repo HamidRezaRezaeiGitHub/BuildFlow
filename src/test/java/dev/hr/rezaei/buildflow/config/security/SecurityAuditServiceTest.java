@@ -10,17 +10,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class SecurityAuditServiceTest {
 
-    private SecurityAuditService securityAuditService;
     private TestableSecurityAuditService testableSecurityAuditService;
     private AutoCloseable mockitoCloseable;
 
@@ -33,7 +28,6 @@ class SecurityAuditServiceTest {
     @BeforeEach
     void setUp() {
         mockitoCloseable = MockitoAnnotations.openMocks(this);
-        securityAuditService = new SecurityAuditService();
         testableSecurityAuditService = new TestableSecurityAuditService();
     }
 
@@ -43,7 +37,7 @@ class SecurityAuditServiceTest {
     }
 
     // Test subclass to expose protected methods
-    private static class TestableSecurityAuditService extends SecurityAuditService {
+    protected static class TestableSecurityAuditService extends SecurityAuditService {
         @Override
         public String getClientIpAddress() {
             return super.getClientIpAddress();

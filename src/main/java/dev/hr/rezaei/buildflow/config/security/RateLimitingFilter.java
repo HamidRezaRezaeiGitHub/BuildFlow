@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Order(1) // Execute before other filters
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_ATTEMPTS_PER_WINDOW = 5;
-    private static final int WINDOW_SIZE_MINUTES = 15;
-    private static final int LOCKOUT_DURATION_MINUTES = 30;
+    public static final int MAX_ATTEMPTS_PER_WINDOW = 5;
+    public static final int WINDOW_SIZE_MINUTES = 15;
+    public static final int LOCKOUT_DURATION_MINUTES = 30;
 
     private final ConcurrentHashMap<String, RateLimitEntry> attemptMap = new ConcurrentHashMap<>();
     private final SecurityAuditService securityAuditService;
@@ -52,7 +52,6 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                 // Log rate limit violation
                 securityAuditService.logRateLimitViolation(clientKey, requestURI);
 
-                log.warn("Rate limit exceeded for client: {} accessing: {}", clientKey, requestURI);
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"Too many requests. Please try again later.\",\"retryAfter\":\"" + LOCKOUT_DURATION_MINUTES + " minutes\"}");
@@ -121,16 +120,13 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             // Log account lockout due to rate limiting
             securityAuditService.logAccountLockout(clientKey,
                     "Rate limit exceeded - " + MAX_ATTEMPTS_PER_WINDOW + " attempts in " + WINDOW_SIZE_MINUTES + " minutes");
-
-            log.warn("Client {} locked out for {} minutes due to rate limit violation",
-                    clientKey, LOCKOUT_DURATION_MINUTES);
         }
     }
 
     /**
      * Internal class to track rate limiting data for each client
      */
-    private static class RateLimitEntry {
+    protected static class RateLimitEntry {
         private final ConcurrentHashMap<LocalDateTime, AtomicInteger> attempts = new ConcurrentHashMap<>();
         private volatile boolean lockedOut = false;
         private volatile LocalDateTime lockoutUntil;
