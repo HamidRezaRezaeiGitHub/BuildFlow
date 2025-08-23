@@ -55,13 +55,13 @@ public class AuthService {
             log.info("Updated existing user [{}] to registered status and username [{}]", user.getId(), signUpRequest.getUsername());
         } else {
             // Create new user using UserService with proper Contact information
-            CreateUserRequest builderRequest = CreateUserRequest.builder()
+            CreateUserRequest createUserRequest = CreateUserRequest.builder()
                     .registered(true)
                     .contactRequestDto(signUpRequest.getContactRequestDto())
                     .username(signUpRequest.getUsername())
                     .build();
 
-            CreateUserResponse response = userService.createUser(builderRequest);
+            CreateUserResponse response = userService.createUser(createUserRequest);
             user = userService.findById(response.getUserDto().getId())
                     .orElseThrow(() -> new RuntimeException("Failed to create user"));
 

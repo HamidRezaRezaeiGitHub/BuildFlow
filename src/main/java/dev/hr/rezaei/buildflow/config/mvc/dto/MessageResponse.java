@@ -1,4 +1,4 @@
-package dev.hr.rezaei.buildflow.config.security.dto;
+package dev.hr.rezaei.buildflow.config.mvc.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Schema(description = "Generic API response containing operation status and message")
-public class GenericApiResponse {
+public class MessageResponse {
 
     @Schema(description = "Indicates if the operation was successful", example = "true")
     private boolean success;

@@ -1,7 +1,7 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
+import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,35 +30,16 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @Operation(
-            summary = "Create a new project",
-            description = "Creates a new construction project with builder, owner, and location information"
-    )
+    @Operation(summary = "Create a new project", description = "Creates a new construction project with builder, owner, and location information")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Project created successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreateProjectResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found (builder or owner)"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "201", description = "Project created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateProjectResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
@@ -79,27 +60,14 @@ public class ProjectController {
         }
     }
 
-    @Operation(
-            summary = "Get projects by builder ID",
-            description = "Retrieves all projects assigned to a specific builder"
-    )
+    @Operation(summary = "Get projects by builder ID", description = "Retrieves all projects assigned to a specific builder")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Projects retrieved successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProjectDto.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Builder not found"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+            @ApiResponse(responseCode = "404", description = "Builder not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/builder/{builderId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
@@ -116,27 +84,14 @@ public class ProjectController {
         }
     }
 
-    @Operation(
-            summary = "Get projects by owner ID",
-            description = "Retrieves all projects owned by a specific property owner"
-    )
+    @Operation(summary = "Get projects by owner ID", description = "Retrieves all projects owned by a specific property owner")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Projects retrieved successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProjectDto.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Owner not found"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+            @ApiResponse(responseCode = "404", description = "Owner not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(

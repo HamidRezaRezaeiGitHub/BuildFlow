@@ -1,7 +1,7 @@
 package dev.hr.rezaei.buildflow.workitem;
 
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
+import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemRequest;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,35 +31,16 @@ public class WorkItemController {
 
     private final WorkItemService workItemService;
 
-    @Operation(
-            summary = "Create a new work item",
-            description = "Creates a new work item with code, name, description, and user assignment"
-    )
+    @Operation(summary = "Create a new work item", description = "Creates a new work item with code, name, description, and user assignment")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Work item created successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreateWorkItemResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "201", description = "Work item created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateWorkItemResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
     public ResponseEntity<CreateWorkItemResponse> createWorkItem(
@@ -79,27 +60,14 @@ public class WorkItemController {
         }
     }
 
-    @Operation(
-            summary = "Get work items by user ID",
-            description = "Retrieves all work items assigned to a specific user"
-    )
+    @Operation(summary = "Get work items by user ID", description = "Retrieves all work items assigned to a specific user")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Work items retrieved successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = WorkItemDto.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "200", description = "Work items retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = WorkItemDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WorkItemDto>> getWorkItemsByUserId(
@@ -119,27 +87,14 @@ public class WorkItemController {
         }
     }
 
-    @Operation(
-            summary = "Get work items by domain",
-            description = "Retrieves all work items within a specific domain (PUBLIC or PRIVATE)"
-    )
+    @Operation(summary = "Get work items by domain", description = "Retrieves all work items within a specific domain (PUBLIC or PRIVATE)")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Work items retrieved successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = WorkItemDto.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid domain value"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "200", description = "Work items retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = WorkItemDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid domain parameter",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/domain/{domain}")
     public ResponseEntity<List<WorkItemDto>> getWorkItemsByDomain(

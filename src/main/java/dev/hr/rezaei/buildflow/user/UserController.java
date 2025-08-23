@@ -1,6 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.config.mvc.ValidationErrorResponse;
+import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,31 +27,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(
-            summary = "Create a new user",
-            description = "Creates a new user with contact information, username, and registration status"
-    )
+    @Operation(summary = "Create a new user", description = "Creates a new user with contact information, username, and registration status")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "User created successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreateUserResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid request data",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorResponse.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("")
     public ResponseEntity<CreateUserResponse> createUser(
@@ -66,27 +49,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(
-            summary = "Get user by username",
-            description = "Retrieves a user by their username"
-    )
+    @Operation(summary = "Get user by username", description = "Retrieves a user by their username")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User found successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error"
-            )
+            @ApiResponse(responseCode = "200", description = "User found successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{username}")
     public ResponseEntity<UserDto> getUserByUsername(
