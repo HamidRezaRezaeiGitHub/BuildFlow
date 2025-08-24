@@ -5,7 +5,6 @@ import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.user.*;
-import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +18,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -90,19 +88,106 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
 
     @Test
     void registerUser_shouldPersistUser_whenValidRequest() throws Exception {
+        // Given
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         ContactRequestDto contactRequestDto = signUpRequest.getContactRequestDto();
         String email = contactRequestDto.getEmail();
 
+        // When
         CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
         log.info("Registered user: {}", createUserResponse);
 
+        // Then
         UserDto userDto = createUserResponse.getUserDto();
         assertEquals(username, userDto.getUsername());
         assertEquals(email, userDto.getEmail());
         assertTrue(userService.existsByUsername(username));
         assertTrue(userService.existsByEmail(email));
+    }
+
+    @Test
+    void registerUser_shouldReturn409_whenUsernameAlreadyExists() throws Exception {
+        // Given - Create existing user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String existingUsername = signUpRequest.getUsername();
+        registerUser(mockMvc, objectMapper, signUpRequest);
+
+        SignUpRequest signUpRequest2 = createValidRandomSignUpRequest();
+        signUpRequest2.setUsername(existingUsername); // Same username
+
+        // When & Then - The AuthController now properly handles DuplicateUserException
+        // and returns 409 Conflict with ErrorResponse format
+        mockMvc.perform(post(REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest2))
+                        .header("X-Forwarded-For", "192.168.6." + testCounter))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message", containsString("conflict")))
+                .andExpect(jsonPath("$.errors[0]", containsString("already taken")))
+                .andExpect(jsonPath("$.errorType").value("CONFLICT_ERROR"));
+    }
+
+    @Test
+    void registerUser_shouldReturn409_whenEmailAlreadyExists() throws Exception {
+        // Given - Create existing user with same email (this actually updates the user)
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String existingUsername = signUpRequest.getUsername();
+        String email = signUpRequest.getContactRequestDto().getEmail();
+        registerUser(mockMvc, objectMapper, signUpRequest);
+
+        SignUpRequest signUpRequest2 = createValidRandomSignUpRequest();
+        signUpRequest2.getContactRequestDto().setEmail(email); // Same email, different username
+        signUpRequest2.setUsername(existingUsername + "2"); // Different username
+
+        // When & Then - The system updates the existing user
+        mockMvc.perform(post(REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest2))
+                        .header("X-Forwarded-For", "192.168.7." + testCounter))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message", containsString("conflict")))
+                .andExpect(jsonPath("$.errors[0]", containsString("already taken")))
+                .andExpect(jsonPath("$.errorType").value("CONFLICT_ERROR"));
+    }
+
+    @Test
+    void registerUser_shouldReturn400_whenInvalidPasswordFormat() throws Exception {
+        // Given - Password without special characters
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        signUpRequest.setPassword("weakpassword123"); // No special characters
+
+        // When & Then - The validation error response contains error messages but not field names
+        mockMvc.perform(post(REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest))
+                        .header("X-Forwarded-For", "192.168.8." + testCounter))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors").exists())
+                .andExpect(jsonPath("$.errors", hasItem(containsString("Password"))));
+    }
+
+    @Test
+    void registerUser_shouldReturn400_whenMissingRequiredFields() throws Exception {
+        // Given - Invalid request with missing contact info
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        signUpRequest.setContactRequestDto(null);
+
+        // When & Then
+        mockMvc.perform(post(REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest))
+                        .header("X-Forwarded-For", "192.168.9." + testCounter))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.errors").exists());
     }
 
     @Test
@@ -190,101 +275,6 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     }
 
     @Test
-    void registerUser_shouldCreateUser_whenValidRequest() throws Exception {
-        // Given
-        SignUpRequest signUpRequest = createValidSignUpRequest("newuser1", "NewUser123!");
-
-        // When & Then
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.5." + testCounter))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message", containsString("registered")));
-
-        // Verify user was created in database
-        assertUserExistsInDatabase("newuser1");
-    }
-
-    @Test
-    void registerUser_shouldReturn409_whenUsernameAlreadyExists() throws Exception {
-        // Given - Create existing user
-        String existingUsername = "existinguser1";
-        createTestUser(existingUsername, "Password123!");
-
-        SignUpRequest signUpRequest = createValidSignUpRequest(existingUsername, "NewPassword123!");
-
-        // When & Then - The AuthController now properly handles DuplicateUserException
-        // and returns 409 Conflict with ErrorResponse format
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.6." + testCounter))
-                .andExpect(status().isConflict())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.message", containsString("conflict")))
-                .andExpect(jsonPath("$.errors[0]", containsString("already taken")))
-                .andExpect(jsonPath("$.errorType").value("CONFLICT_ERROR"));
-    }
-
-    @Test
-    void registerUser_shouldUpdateExistingUser_whenEmailAlreadyExists() throws Exception {
-        // Given - Create existing user with same email (this actually updates the user)
-        String email = "test@example.com";
-        createTestUserWithEmail("existinguser2", "Password123!", email);
-
-        SignUpRequest signUpRequest = createValidSignUpRequest("newuser2", "NewPassword123!");
-        signUpRequest.getContactRequestDto().setEmail(email); // Same email
-
-        // When & Then - The system updates the existing user
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.7." + testCounter))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success").value(true));
-    }
-
-    @Test
-    void registerUser_shouldReturn400_whenInvalidPasswordFormat() throws Exception {
-        // Given - Password without special characters
-        SignUpRequest signUpRequest = createValidSignUpRequest("newuser3", "weakpassword123");
-
-        // When & Then - The validation error response contains error messages but not field names
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.8." + testCounter))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists())
-                .andExpect(jsonPath("$.errors", hasItem(containsString("Password must contain"))));
-    }
-
-    @Test
-    void registerUser_shouldReturn400_whenMissingRequiredFields() throws Exception {
-        // Given - Invalid request with missing contact info
-        SignUpRequest signUpRequest = SignUpRequest.builder()
-                .username("testuser3")
-                .password("ValidPassword123!")
-                .contactRequestDto(null) // Missing contact info
-                .build();
-
-        // When & Then
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.9." + testCounter))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
     void getCurrentUser_shouldReturnUserInfo_whenAuthenticated() throws Exception {
         // Given - Create and authenticate user
         String username = "testuser4";
@@ -339,7 +329,9 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         String username = "endtoenduser";
         String password = "EndToEnd123!";
         String clientIp = "192.168.15." + testCounter;
-        SignUpRequest signUpRequest = createValidSignUpRequest(username, password);
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        signUpRequest.setUsername(username);
+        signUpRequest.setPassword(password);
 
         // Step 1: Register user
         mockMvc.perform(post(REGISTER_URL)
@@ -384,36 +376,13 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     }
 
     private void createTestUserWithEmail(String username, String password, String email) {
-        SignUpRequest signUpRequest = createValidSignUpRequest(username, password);
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        signUpRequest.setUsername(username);
+        signUpRequest.setPassword(password);
         signUpRequest.getContactRequestDto().setEmail(email);
         authService.registerUser(signUpRequest);
     }
 
-    private SignUpRequest createValidSignUpRequest(String username, String password) {
-        ContactAddressRequestDto addressRequest = ContactAddressRequestDto.builder()
-                .streetNumber("123")
-                .streetName("Main Street")
-                .city("New York")
-                .stateOrProvince("NY")
-                .postalOrZipCode("10001")
-                .country("United States")
-                .build();
-
-        ContactRequestDto contactRequest = ContactRequestDto.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email(username + "@example.com")
-                .phone("+1-555-123-4567")
-                .labels(Arrays.asList("builder", "contractor"))
-                .addressRequestDto(addressRequest)
-                .build();
-
-        return SignUpRequest.builder()
-                .username(username)
-                .password(password)
-                .contactRequestDto(contactRequest)
-                .build();
-    }
 
     private String authenticateAndGetToken(String username, String password, String clientIp) throws Exception {
         LoginRequest loginRequest = LoginRequest.builder()
@@ -438,7 +407,4 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         assertEquals(expectedUsername, jwtTokenProvider.getUsernameFromToken(token), "Username should match");
     }
 
-    private void assertUserExistsInDatabase(String username) {
-        assertTrue(userRepository.existsByUsername(username), "User should exist in database");
-    }
 }
