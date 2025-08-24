@@ -126,6 +126,8 @@ class JwtAuthenticationFilterTest extends AbstractModelJpaTest {
         when(mockAuth.getPrincipal()).thenReturn(testUserPrincipal);
         validToken = jwtTokenProvider.generateToken(mockAuth);
 
+        when(mockRequest.getRequestURI()).thenReturn("/api/v1/auth/token");
+
         // Setup SecurityContextHolder mock
         SecurityContextHolder.setContext(mockSecurityContext);
     }

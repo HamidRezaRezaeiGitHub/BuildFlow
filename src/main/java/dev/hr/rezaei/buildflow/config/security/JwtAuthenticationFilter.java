@@ -16,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static dev.hr.rezaei.buildflow.config.security.SecurityConfig.isPublicUrl;
+
 /**
  * JWT authentication filter that validates JWT tokens and sets the authentication context.
  */
@@ -58,6 +60,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
+            String url = request.getRequestURI();
+            log.debug("URL: {}", url);
+            if (isPublicUrl(url)) {
+                log.debug("URL {} is public, skipping JWT authentication", url);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String jwt = getJwtFromRequest(request);
 
             if (jwt != null && !jwt.isBlank() && tokenProvider.validateToken(jwt)) {

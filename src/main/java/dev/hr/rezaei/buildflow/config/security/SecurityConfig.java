@@ -15,6 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Set;
+
 @Configuration
 public class SecurityConfig {
 
@@ -51,6 +55,17 @@ public class SecurityConfig {
                 .build();
     }
 
+    public static Set<String> PUBLIC_URLS = Set.of(
+            "/", "/home",
+            "/api/auth/**",
+            "/api/public/**", "/api/*/public/**",
+            "/actuator/health",
+            // Swagger UI and OpenAPI documentation
+            "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
+            // Static resources - CSS, JS, images, etc.
+            "/assets/**", "/static/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg", "/*.svg"
+    );
+
     @Bean
     @ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "true", matchIfMissing = true)
     public SecurityFilterChain secureFilterChain(HttpSecurity http) throws Exception {
@@ -58,17 +73,9 @@ public class SecurityConfig {
         boolean isDevelopment = environment.acceptsProfiles(Profiles.of("dev", "development", "test", "default")) ||
                 !environment.acceptsProfiles(Profiles.of("production", "prod", "uat"));
 
-        http
-                .authorizeHttpRequests(auth -> {
+        http.authorizeHttpRequests(auth -> {
                     // Public routes - accessible without authentication
-                    auth.requestMatchers("/", "/home", "/register").permitAll()
-                            .requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers("/api/public/**", "/api/*/public/**").permitAll()
-                            .requestMatchers("/actuator/health").permitAll()
-                            // Swagger UI and OpenAPI documentation
-                            .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                            // Static resources - CSS, JS, images, etc.
-                            .requestMatchers("/assets/**", "/static/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg", "/*.svg").permitAll();
+                    auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
 
                     // H2 console only in development
                     if (isDevelopment) {
@@ -111,7 +118,7 @@ public class SecurityConfig {
                         .contentTypeOptions(contentTypeOptions -> {
                         })
                         .httpStrictTransportSecurity(hstsConfig -> hstsConfig
-                                .maxAgeInSeconds(31536000)
+                                .maxAgeInSeconds(31536000) // 1 year
                                 .includeSubDomains(true)
                         )
                         .addHeaderWriter((request, response) -> {
@@ -132,6 +139,46 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    public static boolean isPublicUrl(String url) {
+        return PUBLIC_URLS.stream().anyMatch(pattern -> matches(pattern, url));
+    }
+
+    public static boolean matches(String pattern, String url) {
+        try {
+            new URI(url);
+        } catch (URISyntaxException e) {
+            return false;
+        }
+
+        if (!pattern.startsWith("/") || !url.startsWith("/")) {
+            return false;
+        }
+
+        boolean endsWithWildcard = false;
+        String trimmedPattern = pattern;
+        if (pattern.endsWith("/**")) {
+            endsWithWildcard = true;
+            trimmedPattern = pattern.substring(0, pattern.length() - 3);
+        }
+
+        // patterns with double wildcard in the middle are not supported
+        if (trimmedPattern.contains("/**/")) {
+            return false;
+        }
+
+        String regex = trimmedPattern;
+        if (trimmedPattern.contains("*")) {
+            regex = trimmedPattern.replace("*", "[^/]*");
+        }
+
+        if (endsWithWildcard) {
+            regex = regex + "(/.*)?";
+        }
+        regex = "^" + regex + "$";
+
+        return url.matches(regex);
     }
 
 }

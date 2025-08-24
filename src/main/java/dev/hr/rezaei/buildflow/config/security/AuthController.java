@@ -2,8 +2,12 @@ package dev.hr.rezaei.buildflow.config.security;
 
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.config.mvc.dto.MessageResponse;
-import dev.hr.rezaei.buildflow.config.security.dto.*;
+import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
+import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
+import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.config.security.dto.UserSummary;
 import dev.hr.rezaei.buildflow.user.User;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +40,30 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
     private final SecurityAuditService securityAuditService;
+
+    @Operation(summary = "Register new user", description = "Registers a new user account with complete contact information and authentication credentials")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User registered successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Username already taken",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/register")
+    public ResponseEntity<CreateUserResponse> registerUser(
+            @Parameter(description = "User registration information including username, password and complete contact details")
+            @Valid @RequestBody SignUpRequest signUpRequest
+    ) {
+        log.info("Registration attempt with SingUpRequest: {}", signUpRequest);
+
+        CreateUserResponse response = authService.registerUser(signUpRequest);
+
+        log.info("User registration successful for username: {}", response.getUserDto().getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     @Operation(summary = "Authenticate user", description = "Authenticates user credentials and returns a JWT token for subsequent API calls")
     @ApiResponses(value = {
@@ -71,41 +99,6 @@ public class AuthController {
 
         log.info("Authentication successful for username: {}", loginRequest.getUsername());
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
-    }
-
-    @Operation(summary = "Register new user", description = "Registers a new user account with complete contact information and authentication credentials")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User registered successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Username already taken",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping("/register")
-    public ResponseEntity<MessageResponse> registerUser(
-            @Parameter(description = "User registration information including username, password and complete contact details")
-            @Valid @RequestBody SignUpRequest signUpRequest
-    ) {
-        log.info("Registration attempt for username: {} and email: {}",
-                signUpRequest.getUsername(),
-                signUpRequest.getContactRequestDto().getEmail());
-
-        authService.registerUser(signUpRequest);
-
-        // Log successful registration
-        securityAuditService.logRegistrationAttempt(
-                signUpRequest.getUsername(),
-                signUpRequest.getContactRequestDto().getEmail(),
-                true,
-                "Registration completed successfully"
-        );
-
-        log.info("User registration successful for username: {}", signUpRequest.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new MessageResponse(true, "User registered successfully"));
     }
 
     @Operation(summary = "Get current user information", description = "Returns information about the currently authenticated user")

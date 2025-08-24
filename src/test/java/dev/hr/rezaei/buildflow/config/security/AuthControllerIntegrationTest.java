@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
-import dev.hr.rezaei.buildflow.user.ContactAddressRepository;
-import dev.hr.rezaei.buildflow.user.ContactRepository;
-import dev.hr.rezaei.buildflow.user.UserRepository;
+import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "app.jwt.expiration-ms=86400000"
 })
 @Slf4j
-class AuthControllerIntegrationTest {
+class AuthControllerIntegrationTest implements AuthServiceConsumer {
 
     @Autowired
     private MockMvc mockMvc;
@@ -76,6 +75,8 @@ class AuthControllerIntegrationTest {
     private static final String CURRENT_USER_URL = AUTH_BASE_URL + "/current";
 
     private int testCounter = 0;
+    @Autowired
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -85,6 +86,23 @@ class AuthControllerIntegrationTest {
         contactRepository.deleteAll();
         contactAddressRepository.deleteAll();
         testCounter++;
+    }
+
+    @Test
+    void registerUser_shouldPersistUser_whenValidRequest() throws Exception {
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        ContactRequestDto contactRequestDto = signUpRequest.getContactRequestDto();
+        String email = contactRequestDto.getEmail();
+
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        log.info("Registered user: {}", createUserResponse);
+
+        UserDto userDto = createUserResponse.getUserDto();
+        assertEquals(username, userDto.getUsername());
+        assertEquals(email, userDto.getEmail());
+        assertTrue(userService.existsByUsername(username));
+        assertTrue(userService.existsByEmail(email));
     }
 
     @Test

@@ -30,10 +30,11 @@ public class SignUpRequest {
     @Schema(description = "Password for the new account", example = "SecurePassword123!")
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-        message = "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character"
-    )
+    @Pattern(regexp = ".*[a-z].*", message = "Password must contain at least one lowercase letter")
+    @Pattern(regexp = ".*[A-Z].*", message = "Password must contain at least one uppercase letter")
+    @Pattern(regexp = ".*\\d.*", message = "Password must contain at least one digit")
+    @Pattern(regexp = ".*[@$!%*?&_].*", message = "Password must contain at least one special character (@$!%*?&_)")
+    @Pattern(regexp = "^[A-Za-z\\d@$!%*?&_]{8,}$", message = "Password can only contain letters, digits, and special characters (@$!%*?&_)")
     private String password;
 
     @Schema(description = "Contact information for the new user")

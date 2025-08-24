@@ -4,6 +4,7 @@ import dev.hr.rezaei.buildflow.base.DuplicateUserException;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthService {
     private final UserService userService;
     private final UserAuthenticationRepository userAuthenticationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityAuditService securityAuditService;
 
     /**
      * Registers a new user with complete contact information and authentication credentials.
@@ -35,50 +37,45 @@ public class AuthService {
      * @return The created User entity
      */
     @Transactional
-    public User registerUser(SignUpRequest signUpRequest) {
+    public CreateUserResponse registerUser(SignUpRequest signUpRequest) {
+        String username = signUpRequest.getUsername();
+        ContactRequestDto contactRequestDto = signUpRequest.getContactRequestDto();
+        String email = contactRequestDto.getEmail();
+
         // Check if username already exists
-        if (userAuthenticationRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new DuplicateUserException("Username is already taken: " + signUpRequest.getUsername());
+        if (userAuthenticationRepository.existsByUsername(username)) {
+            securityAuditService.logRegistrationAttempt(username, email, false, "Username already taken");
+            throw new DuplicateUserException("Username is already taken: " + username);
         }
 
         // Check if user with email already exists
-        String email = signUpRequest.getContactRequestDto().getEmail();
-        Optional<User> existingUser = userService.findByEmail(email);
-        User user;
-
-        if (existingUser.isPresent()) {
-            user = existingUser.get();
-            // Update existing user to registered with username
-            user.setUsername(signUpRequest.getUsername());
-            user.setRegistered(true);
-            user = userService.update(user);
-            log.info("Updated existing user [{}] to registered status and username [{}]", user.getId(), signUpRequest.getUsername());
-        } else {
-            // Create new user using UserService with proper Contact information
-            CreateUserRequest createUserRequest = CreateUserRequest.builder()
-                    .registered(true)
-                    .contactRequestDto(signUpRequest.getContactRequestDto())
-                    .username(signUpRequest.getUsername())
-                    .build();
-
-            CreateUserResponse response = userService.createUser(createUserRequest);
-            user = userService.findById(response.getUserDto().getId())
-                    .orElseThrow(() -> new RuntimeException("Failed to create user"));
-
-            log.info("Created new user: {}", user.getId());
+        if (userService.existsByEmail(email)) {
+            securityAuditService.logRegistrationAttempt(username, email, false, "Email already in use");
+            throw new DuplicateUserException("There is already a user with the email: " + email);
         }
+
+        // Create new user using UserService with proper Contact information
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .registered(true)
+                .contactRequestDto(contactRequestDto)
+                .username(username)
+                .build();
+
+        CreateUserResponse response = userService.createUser(createUserRequest);
+        User user = userService.findById(response.getUserDto().getId())
+                .orElseThrow(() -> new RuntimeException("Failed to create user"));
+        log.info("Created new user: {}", user.getId());
 
         // Create authentication entry
         UserAuthentication userAuth = UserAuthentication.builder()
-                .username(signUpRequest.getUsername())
+                .username(username)
                 .passwordHash(passwordEncoder.encode(signUpRequest.getPassword()))
                 .enabled(true)
                 .build();
-
         userAuthenticationRepository.save(userAuth);
 
-        log.info("User registration successful for username: {}", signUpRequest.getUsername());
-        return user;
+        securityAuditService.logRegistrationAttempt(username, email, true, "User registered successfully");
+        return response;
     }
 
     public Optional<User> findUserByUsername(String username) {
