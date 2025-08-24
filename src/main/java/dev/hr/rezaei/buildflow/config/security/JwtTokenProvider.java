@@ -52,6 +52,13 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Generates a JWT token for the authenticated user. The token includes the username as the subject and has an
+     * expiration time.
+     *
+     * @param authentication the authentication object containing user details
+     * @return a signed JWT token as a String
+     */
     public String generateToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 

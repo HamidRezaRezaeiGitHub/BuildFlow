@@ -18,6 +18,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -193,43 +195,39 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     @Test
     void authenticateUser_shouldReturnJwtToken_whenValidCredentials() throws Exception {
         // Given - Create a test user
-        String username = "testuser1";
-        String password = "TestPassword123!";
-        createTestUser(username, password);
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
 
         LoginRequest loginRequest = LoginRequest.builder()
                 .username(username)
                 .password(password)
                 .build();
 
-        // When & Then
-        MvcResult result = mockMvc.perform(post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", "192.168.1." + testCounter))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.tokenType").value("Bearer"))
-                .andReturn();
+        // When
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest);
 
-        // Verify the token is valid
-        String responseJson = result.getResponse().getContentAsString();
-        JwtAuthenticationResponse response = objectMapper.readValue(responseJson, JwtAuthenticationResponse.class);
-
-        String token = response.getAccessToken();
+        // Then
+        assertEquals("Bearer", jwtAuthenticationResponse.getTokenType());
+        String token = jwtAuthenticationResponse.getAccessToken();
         assertTokenIsValid(token, username);
     }
 
     @Test
     void authenticateUser_shouldReturn403_whenInvalidCredentials() throws Exception {
         // Given - Create a test user with different password
-        String username = "testuser2";
-        createTestUser(username, "CorrectPassword123!");
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
 
         LoginRequest loginRequest = LoginRequest.builder()
                 .username(username)
-                .password("WrongPassword123!")
+                .password("WrongPassword123!") // Incorrect password
                 .build();
 
         // When & Then - Spring Security returns 403 for bad credentials by default

@@ -1,6 +1,8 @@
 package dev.hr.rezaei.buildflow.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
+import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
@@ -59,5 +61,17 @@ public interface AuthServiceConsumer {
 
         String responseContent = mvcResult.getResponse().getContentAsString();
         return objectMapper.readValue(responseContent, CreateUserResponse.class);
+    }
+
+    default JwtAuthenticationResponse login(@NonNull MockMvc mockMvc, @NonNull ObjectMapper objectMapper,
+                                            LoginRequest loginRequest) throws Exception {
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andReturn();
+
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        return objectMapper.readValue(responseContent, JwtAuthenticationResponse.class);
     }
 }
