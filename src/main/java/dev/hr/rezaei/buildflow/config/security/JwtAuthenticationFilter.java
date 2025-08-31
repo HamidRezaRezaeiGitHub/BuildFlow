@@ -1,5 +1,8 @@
 package dev.hr.rezaei.buildflow.config.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,36 +63,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        try {
-            String url = request.getRequestURI();
-            log.debug("URL: {}", url);
-            if (isPublicUrl(url)) {
-                log.debug("URL {} is public, skipping JWT authentication", url);
-                filterChain.doFilter(request, response);
-                return;
-            }
+        String url = request.getRequestURI();
+        if (isPublicUrl(url)) {
+            log.debug("URL {} is public, skipping JWT authentication", url);
+            filterChain.doFilter(request, response); // Continue filter chain for public URLs
+            return;
+        }
 
-            String jwt = getJwtFromRequest(request);
+        String jwt = getJwtFromRequest(request);
+        if (jwt == null || jwt.isBlank()) {
+            securityAuditService.logTokenValidationFailure("Missing token", null);
+            filterChain.doFilter(request, response); // Continue filter chain to let Spring Security handle 401
+            return;
+        }
 
-            if (jwt != null && !jwt.isBlank() && tokenProvider.validateToken(jwt)) {
+        if (tokenProvider.isValid(jwt)) {
+            try {
                 String username = tokenProvider.getUsernameFromToken(jwt);
-
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                // Log token validation failure
-                securityAuditService.logTokenValidationFailure("Invalid or expired token", jwt);
+            } catch (Exception e) {
+                log.debug("Failed to set user authentication: {}", e.getMessage());
+                securityAuditService.logTokenValidationFailure("Failed to load user details", jwt);
             }
-
-        } catch (Exception ex) {
-            // Log token validation exception
-            securityAuditService.logTokenValidationFailure("Token validation exception: " + ex.getMessage(),
-                    getJwtFromRequest(request));
-            logger.error("Could not set user authentication in security context", ex);
+        } else {
+            securityAuditService.logTokenValidationFailure("Invalid or expired token", jwt);
         }
 
         filterChain.doFilter(request, response);

@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.config.mvc.dto;
 
+import dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class ErrorResponse {
     private Instant timestamp;
 
     @Schema(description = "HTTP status code")
-    private int status;
+    private String status;
 
     @Schema(description = "Error message describing the failure")
     private String message;
@@ -35,5 +36,5 @@ public class ErrorResponse {
     private String method;
 
     @Schema(description = "Type of error that occurred")
-    private String errorType;
+    private ResponseErrorType errorType;
 }

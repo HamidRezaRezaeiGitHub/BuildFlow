@@ -5,7 +5,7 @@ import dev.hr.rezaei.buildflow.config.mvc.dto.MessageResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
-import dev.hr.rezaei.buildflow.config.security.dto.UserSummary;
+import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -104,7 +104,7 @@ public class AuthController {
     @Operation(summary = "Get current user information", description = "Returns information about the currently authenticated user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User information retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSummary.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSummaryResponse.class))),
             @ApiResponse(responseCode = "401", description = "User not authenticated",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
@@ -121,22 +121,16 @@ public class AuthController {
                     .body(new MessageResponse(false, "User not authenticated"));
         }
 
-        try {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            User user = authService.findUserByUsername(userPrincipal.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = authService.findUserByUsername(userPrincipal.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            log.info("Retrieved current user information for: {}", user.getUsername());
-            return ResponseEntity.ok(new UserSummary(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getEmail()
-            ));
-        } catch (Exception e) {
-            log.error("Error retrieving current user", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse(false, "Failed to retrieve user information"));
-        }
+        log.info("Retrieved current user information for: {}", user.getUsername());
+        return ResponseEntity.ok(new UserSummaryResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail()
+        ));
     }
 
     @Operation(summary = "Refresh JWT token", description = "Refreshes an existing JWT token if it's still valid")
@@ -156,19 +150,13 @@ public class AuthController {
                     .body(new MessageResponse(false, "Invalid authentication"));
         }
 
-        try {
-            String newJwt = tokenProvider.generateToken(authentication);
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        String newJwt = tokenProvider.generateToken(authentication);
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-            securityAuditService.logTokenGeneration(userPrincipal.getUsername());
-            log.info("Token refreshed for username: {}", userPrincipal.getUsername());
+        securityAuditService.logTokenGeneration(userPrincipal.getUsername());
+        log.info("Token refreshed for username: {}", userPrincipal.getUsername());
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(newJwt));
-        } catch (Exception e) {
-            log.error("Token refresh failed", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse(false, "Token refresh failed"));
-        }
+        return ResponseEntity.ok(new JwtAuthenticationResponse(newJwt));
     }
 
     @Operation(summary = "Logout user", description = "Invalidates the current user session (client-side logout for stateless JWT)")

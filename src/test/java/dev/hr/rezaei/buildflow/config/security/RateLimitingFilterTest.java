@@ -1,5 +1,8 @@
 package dev.hr.rezaei.buildflow.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +45,10 @@ class RateLimitingFilterTest {
     void setUp() throws IOException {
         mockitoCloseable = MockitoAnnotations.openMocks(this);
         mockSecurityAuditService = spy(new SecurityAuditServiceTest.TestableSecurityAuditService());
-        rateLimitingFilter = new RateLimitingFilter(mockSecurityAuditService);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        rateLimitingFilter = new RateLimitingFilter(mockSecurityAuditService, objectMapper);
 
         when(mockResponse.getWriter()).thenReturn(mockPrintWriter);
     }

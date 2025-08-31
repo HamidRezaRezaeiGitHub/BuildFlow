@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
@@ -16,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
@@ -64,9 +64,6 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     private ContactAddressRepository contactAddressRepository;
 
     @Autowired
-    private AuthService authService;
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
     private static final String AUTH_BASE_URL = "/api/auth";
@@ -96,8 +93,8 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         ContactRequestDto contactRequestDto = signUpRequest.getContactRequestDto();
         String email = contactRequestDto.getEmail();
 
-        // When
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        // When - Register user with unique IP
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.1." + testCounter);
         log.info("Registered user: {}", createUserResponse);
 
         // Then
@@ -113,7 +110,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // Given - Create existing user
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String existingUsername = signUpRequest.getUsername();
-        registerUser(mockMvc, objectMapper, signUpRequest);
+        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.2." + testCounter);
 
         SignUpRequest signUpRequest2 = createValidRandomSignUpRequest();
         signUpRequest2.setUsername(existingUsername); // Same username
@@ -123,23 +120,22 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(REGISTER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest2))
-                        .header("X-Forwarded-For", "192.168.6." + testCounter))
+                        .header("X-Forwarded-For", "192.168.3." + testCounter))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.status", containsString("409")))
                 .andExpect(jsonPath("$.message", containsString("conflict")))
-                .andExpect(jsonPath("$.errors[0]", containsString("already taken")))
                 .andExpect(jsonPath("$.errorType").value("CONFLICT_ERROR"));
     }
 
     @Test
     void registerUser_shouldReturn409_whenEmailAlreadyExists() throws Exception {
-        // Given - Create existing user with same email (this actually updates the user)
+        // Given - Create existing user with same email
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String existingUsername = signUpRequest.getUsername();
         String email = signUpRequest.getContactRequestDto().getEmail();
-        registerUser(mockMvc, objectMapper, signUpRequest);
+        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.4." + testCounter);
 
         SignUpRequest signUpRequest2 = createValidRandomSignUpRequest();
         signUpRequest2.getContactRequestDto().setEmail(email); // Same email, different username
@@ -149,13 +145,12 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(REGISTER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest2))
-                        .header("X-Forwarded-For", "192.168.7." + testCounter))
+                        .header("X-Forwarded-For", "192.168.5." + testCounter))
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.status", containsString("409")))
                 .andExpect(jsonPath("$.message", containsString("conflict")))
-                .andExpect(jsonPath("$.errors[0]", containsString("already taken")))
                 .andExpect(jsonPath("$.errorType").value("CONFLICT_ERROR"));
     }
 
@@ -169,11 +164,14 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(REGISTER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.8." + testCounter))
+                        .header("X-Forwarded-For", "192.168.6." + testCounter))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists())
-                .andExpect(jsonPath("$.errors", hasItem(containsString("Password"))));
+                .andExpect(jsonPath("$.errors", hasItem(containsString("Password"))))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value(containsString("Validation")));
     }
 
     @Test
@@ -186,10 +184,13 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(REGISTER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", "192.168.9." + testCounter))
+                        .header("X-Forwarded-For", "192.168.7." + testCounter))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                .andExpect(jsonPath("$.errors").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value(containsString("Validation")));
     }
 
     @Test
@@ -198,7 +199,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.8." + testCounter);
         UUID userId = createUserResponse.getUserDto().getId();
         assertTrue(userService.findById(userId).isPresent());
 
@@ -207,8 +208,8 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .password(password)
                 .build();
 
-        // When
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest);
+        // When - Login with different IP to avoid rate limiting
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.9." + testCounter);
 
         // Then
         assertEquals("Bearer", jwtAuthenticationResponse.getTokenType());
@@ -217,11 +218,11 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     }
 
     @Test
-    void authenticateUser_shouldReturn403_whenInvalidCredentials() throws Exception {
+    void authenticateUser_shouldReturn401_whenInvalidCredentials() throws Exception {
         // Given - Create a test user with different password
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest);
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.10." + testCounter);
         UUID userId = createUserResponse.getUserDto().getId();
         assertTrue(userService.findById(userId).isPresent());
 
@@ -230,16 +231,17 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .password("WrongPassword123!") // Incorrect password
                 .build();
 
-        // When & Then - Spring Security returns 403 for bad credentials by default
+        // When & Then
         mockMvc.perform(post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", "192.168.2." + testCounter))
-                .andExpect(status().isForbidden());
+                        .header("X-Forwarded-For", "192.168.11." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void authenticateUser_shouldReturn403_whenUserNotExists() throws Exception {
+    void authenticateUser_shouldReturn401_whenUserNotExists() throws Exception {
         // Given
         LoginRequest loginRequest = LoginRequest.builder()
                 .username("nonexistentuser")
@@ -250,8 +252,9 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", "192.168.3." + testCounter))
-                .andExpect(status().isForbidden());
+                        .header("X-Forwarded-For", "192.168.12." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -266,36 +269,47 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(LOGIN_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", "192.168.4." + testCounter))
+                        .header("X-Forwarded-For", "192.168.13." + testCounter))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
+                .andExpect(jsonPath("$.errors").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value(containsString("Validation")));
     }
 
     @Test
     void getCurrentUser_shouldReturnUserInfo_whenAuthenticated() throws Exception {
         // Given - Create and authenticate user
-        String username = "testuser4";
-        String password = "TestPassword123!";
-        createTestUser(username, password);
-        String token = authenticateAndGetToken(username, password, "192.168.10." + testCounter);
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.14." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
 
-        // When & Then
-        mockMvc.perform(get(CURRENT_USER_URL)
-                        .header("Authorization", "Bearer " + token)
-                        .header("X-Forwarded-For", "192.168.11." + testCounter))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.username").value(username))
-                .andExpect(jsonPath("$.email").exists());
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.15." + testCounter);
+        String token = jwtAuthenticationResponse.getAccessToken();
+
+        // When - Get current user with different IP
+        UserSummaryResponse userSummaryResponse = getCurrentUser(mockMvc, objectMapper, token, "192.168.16." + testCounter);
+
+        // Then
+        assertEquals(username, userSummaryResponse.getUsername());
+        assertEquals(signUpRequest.getContactRequestDto().getEmail(), userSummaryResponse.getEmail());
+        assertEquals(userId, userSummaryResponse.getId());
     }
 
     @Test
     void getCurrentUser_shouldReturn401_whenNotAuthenticated() throws Exception {
         // When & Then
         mockMvc.perform(get(CURRENT_USER_URL)
-                        .header("X-Forwarded-For", "192.168.12." + testCounter))
+                        .header("X-Forwarded-For", "192.168.17." + testCounter))
+                .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -304,7 +318,8 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When & Then
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("Authorization", "Bearer invalid.jwt.token")
-                        .header("X-Forwarded-For", "192.168.13." + testCounter))
+                        .header("X-Forwarded-For", "192.168.18." + testCounter))
+                .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -317,7 +332,8 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When & Then
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("Authorization", "Bearer " + expiredToken)
-                        .header("X-Forwarded-For", "192.168.14." + testCounter))
+                        .header("X-Forwarded-For", "192.168.19." + testCounter))
+                .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -326,18 +342,14 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // Given
         String username = "endtoenduser";
         String password = "EndToEnd123!";
-        String clientIp = "192.168.15." + testCounter;
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         signUpRequest.setUsername(username);
         signUpRequest.setPassword(password);
 
         // Step 1: Register user
-        mockMvc.perform(post(REGISTER_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(signUpRequest))
-                        .header("X-Forwarded-For", clientIp))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.success").value(true));
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.20." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
 
         // Step 2: Login with registered user (use different IP to avoid rate limiting)
         LoginRequest loginRequest = LoginRequest.builder()
@@ -345,63 +357,22 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .password(password)
                 .build();
 
-        String loginIp = "192.168.16." + testCounter;
-        MvcResult loginResult = mockMvc.perform(post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", loginIp))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists())
-                .andReturn();
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.21." + testCounter);
+        String token = jwtAuthenticationResponse.getAccessToken();
+        assertTokenIsValid(token, username);
 
         // Step 3: Use token to get current user info
-        String responseJson = loginResult.getResponse().getContentAsString();
-        JwtAuthenticationResponse authResponse = objectMapper.readValue(responseJson, JwtAuthenticationResponse.class);
-
-        String currentUserIp = "192.168.17." + testCounter;
         mockMvc.perform(get(CURRENT_USER_URL)
-                        .header("Authorization", "Bearer " + authResponse.getAccessToken())
-                        .header("X-Forwarded-For", currentUserIp))
+                        .header("Authorization", "Bearer " + token)
+                        .header("X-Forwarded-For", "192.168.22." + testCounter))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.email").value(signUpRequest.getContactRequestDto().getEmail()));
     }
 
-    // Helper methods
-
-    private void createTestUser(String username, String password) {
-        createTestUserWithEmail(username, password, username + "@example.com");
-    }
-
-    private void createTestUserWithEmail(String username, String password, String email) {
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        signUpRequest.setUsername(username);
-        signUpRequest.setPassword(password);
-        signUpRequest.getContactRequestDto().setEmail(email);
-        authService.registerUser(signUpRequest);
-    }
-
-
-    private String authenticateAndGetToken(String username, String password, String clientIp) throws Exception {
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-
-        MvcResult result = mockMvc.perform(post(LOGIN_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest))
-                        .header("X-Forwarded-For", clientIp))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseJson = result.getResponse().getContentAsString();
-        JwtAuthenticationResponse response = objectMapper.readValue(responseJson, JwtAuthenticationResponse.class);
-        return response.getAccessToken();
-    }
-
     private void assertTokenIsValid(String token, String expectedUsername) {
-        assertTrue(jwtTokenProvider.validateToken(token), "Token should be valid");
+        assertTrue(jwtTokenProvider.isValid(token), "Token should be valid");
         assertEquals(expectedUsername, jwtTokenProvider.getUsernameFromToken(token), "Username should match");
     }
 

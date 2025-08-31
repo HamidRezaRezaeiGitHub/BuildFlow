@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,7 +51,7 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.status").value(containsString("400")))
                 .andExpect(jsonPath("$.message").exists());
     }
 
@@ -63,7 +64,7 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.status").value(containsString("400")))
                 .andExpect(jsonPath("$.message").exists());
     }
 
@@ -76,7 +77,7 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.status").value(containsString("400")))
                 .andExpect(jsonPath("$.message").exists());
     }
 

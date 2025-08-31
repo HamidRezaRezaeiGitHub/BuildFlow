@@ -82,7 +82,8 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateToken(String authToken) {
+    @SuppressWarnings("deprecation")
+    public boolean isValid(String authToken) {
         try {
             Jwts.parser()
                     .verifyWith(getSigningKey())
@@ -90,13 +91,18 @@ public class JwtTokenProvider {
                     .parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token");
+            log.debug("Invalid JWT token - {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.debug("Expired JWT token - {}", ex.getMessage());
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.debug("Unsupported JWT token - {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty");
+            log.debug("JWT claims string is empty - {}", ex.getMessage());
+        } catch (SignatureException ex) {
+            log.debug("JWT claims string is not valid - {}", ex.getMessage());
+        }
+        catch (Exception ex) {
+            log.error("Error validating JWT token: {}", ex.getMessage());
         }
         return false;
     }

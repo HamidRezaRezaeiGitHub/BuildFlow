@@ -1,5 +1,7 @@
 package dev.hr.rezaei.buildflow.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,15 +9,20 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType.RATE_LIMIT_EXCEEDED;
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 /**
  * Rate limiting filter to prevent brute force attacks on authentication endpoints.
@@ -32,9 +39,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final ConcurrentHashMap<String, RateLimitEntry> attemptMap = new ConcurrentHashMap<>();
     private final SecurityAuditService securityAuditService;
+    private final ObjectMapper objectMapper;
 
-    public RateLimitingFilter(SecurityAuditService securityAuditService) {
+    public RateLimitingFilter(SecurityAuditService securityAuditService, ObjectMapper objectMapper) {
         this.securityAuditService = securityAuditService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -44,17 +53,28 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
 
-        // Only apply rate limiting to authentication endpoints
         if (shouldApplyRateLimit(requestURI)) {
             String clientKey = getClientKey(request);
 
             if (isRateLimited(clientKey)) {
-                // Log rate limit violation
                 securityAuditService.logRateLimitViolation(clientKey, requestURI);
 
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\":\"Too many requests. Please try again later.\",\"retryAfter\":\"" + LOCKOUT_DURATION_MINUTES + " minutes\"}");
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(Instant.now())
+                        .status(TOO_MANY_REQUESTS.toString())
+                        .message(RATE_LIMIT_EXCEEDED.getDefaultMessage())
+                        .errors(List.of("Rate limit exceeded. Please try again in " + LOCKOUT_DURATION_MINUTES + " minutes."))
+                        .path(requestURI)
+                        .method(request.getMethod())
+                        .errorType(RATE_LIMIT_EXCEEDED)
+                        .build();
+
+                response.setStatus(TOO_MANY_REQUESTS.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+
+                String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+                response.getWriter().write(jsonResponse);
                 return;
             }
 
@@ -67,7 +87,9 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private boolean shouldApplyRateLimit(String requestURI) {
         return requestURI.startsWith("/api/auth/login") ||
-                requestURI.startsWith("/api/auth/register");
+                requestURI.startsWith("/api/auth/register") ||
+                requestURI.startsWith("/api/auth/refresh") ||
+                requestURI.startsWith("/api/auth/validate");
     }
 
     private String getClientKey(HttpServletRequest request) {

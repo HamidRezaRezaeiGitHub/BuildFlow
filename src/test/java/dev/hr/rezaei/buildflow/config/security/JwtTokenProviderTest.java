@@ -55,42 +55,42 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    void validateToken_shouldReturnTrue_whenValidTokenProvided() {
+    void isValid_shouldReturnTrue_whenValidTokenProvided() {
         String token = jwtTokenProvider.generateToken(mockAuthentication);
 
-        boolean isValid = jwtTokenProvider.validateToken(token);
+        boolean isValid = jwtTokenProvider.isValid(token);
 
         assertTrue(isValid);
     }
 
     @Test
-    void validateToken_shouldReturnFalse_whenInvalidTokenProvided() {
+    void isValid_shouldReturnFalse_whenInvalidTokenProvided() {
         String invalidToken = "invalid.jwt.token";
 
-        boolean isValid = jwtTokenProvider.validateToken(invalidToken);
+        boolean isValid = jwtTokenProvider.isValid(invalidToken);
 
         assertFalse(isValid);
     }
 
     @Test
-    void validateToken_shouldReturnFalse_whenMalformedTokenProvided() {
+    void isValid_shouldReturnFalse_whenMalformedTokenProvided() {
         String malformedToken = "malformed-token";
 
-        boolean isValid = jwtTokenProvider.validateToken(malformedToken);
+        boolean isValid = jwtTokenProvider.isValid(malformedToken);
 
         assertFalse(isValid);
     }
 
     @Test
-    void validateToken_shouldReturnFalse_whenEmptyTokenProvided() {
-        boolean isValid = jwtTokenProvider.validateToken("");
+    void isValid_shouldReturnFalse_whenEmptyTokenProvided() {
+        boolean isValid = jwtTokenProvider.isValid("");
 
         assertFalse(isValid);
     }
 
     @Test
-    void validateToken_shouldReturnFalse_whenNullTokenProvided() {
-        boolean isValid = jwtTokenProvider.validateToken(null);
+    void isValid_shouldReturnFalse_whenNullTokenProvided() {
+        boolean isValid = jwtTokenProvider.isValid(null);
 
         assertFalse(isValid);
     }

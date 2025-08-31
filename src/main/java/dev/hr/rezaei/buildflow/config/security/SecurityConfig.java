@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,13 +25,16 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RateLimitingFilter rateLimitingFilter;
+    private final SecurityExceptionHandler securityExceptionHandler;
     private final Environment environment;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           RateLimitingFilter rateLimitingFilter,
+                          SecurityExceptionHandler securityExceptionHandler,
                           Environment environment) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.rateLimitingFilter = rateLimitingFilter;
+        this.securityExceptionHandler = securityExceptionHandler;
         this.environment = environment;
     }
 
@@ -57,7 +61,7 @@ public class SecurityConfig {
 
     public static Set<String> PUBLIC_URLS = Set.of(
             "/", "/home",
-            "/api/auth/**",
+            "/api/auth/register", "/api/auth/login",
             "/api/public/**", "/api/*/public/**",
             "/actuator/health",
             // Swagger UI and OpenAPI documentation
@@ -73,15 +77,17 @@ public class SecurityConfig {
         boolean isDevelopment = environment.acceptsProfiles(Profiles.of("dev", "development", "test", "default")) ||
                 !environment.acceptsProfiles(Profiles.of("production", "prod", "uat"));
 
+        if (isDevelopment) {
+            return getDevelopmentFilterChain(http);
+        } else {
+            return getProductionFilterChain(http);
+        }
+    }
+
+    private SecurityFilterChain getProductionFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> {
                     // Public routes - accessible without authentication
                     auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
-
-                    // H2 console only in development
-                    if (isDevelopment) {
-                        auth.requestMatchers("/h2-console/**").permitAll();
-                    }
-
                     // All other requests require authentication
                     auth.anyRequest().authenticated();
                 })
@@ -98,40 +104,17 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 // Disable CSRF for API endpoints (required for JWT)
-                .csrf(csrf -> {
-                    if (isDevelopment) {
-                        csrf.ignoringRequestMatchers("/api/**", "/h2-console/**");
-                    } else {
-                        csrf.ignoringRequestMatchers("/api/**");
-                    }
-                })
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 // Configure security headers with modern Spring Security 6.x syntax
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> {
-                            // Allow frames only for H2 console in development
-                            if (isDevelopment) {
-                                frameOptions.sameOrigin();
-                            } else {
-                                frameOptions.deny();
-                            }
-                        })
-                        .contentTypeOptions(contentTypeOptions -> {
-                        })
-                        .httpStrictTransportSecurity(hstsConfig -> hstsConfig
-                                .maxAgeInSeconds(31536000) // 1 year
-                                .includeSubDomains(true)
-                        )
-                        .addHeaderWriter((request, response) -> {
-                            // Add Content Security Policy
-                            response.setHeader("Content-Security-Policy",
-                                    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
-                            // Add X-XSS-Protection header
-                            response.setHeader("X-XSS-Protection", "1; mode=block");
-                            // Add Referrer Policy
-                            response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-                            // Add X-Content-Type-Options
-                            response.setHeader("X-Content-Type-Options", "nosniff");
-                        })
+                .headers(headers -> {
+                            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny);
+                            configureCommonHeaders(headers);
+                        }
+                )
+                // Configure exception handling for authentication and authorization failures
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(securityExceptionHandler)
+                        .accessDeniedHandler(securityExceptionHandler)
                 )
                 // Add rate limiting filter before authentication processing
                 .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
@@ -139,6 +122,57 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private SecurityFilterChain getDevelopmentFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
+                    auth.requestMatchers("/h2-console/**").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll()
+                )
+                .csrf(csrf -> {
+                    csrf.ignoringRequestMatchers("/api/**", "/h2-console/**");
+                })
+                .headers(headers -> {
+                    headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                    configureCommonHeaders(headers);
+                        }
+                )
+                // Configure exception handling for authentication and authorization failures
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(securityExceptionHandler)
+                        .accessDeniedHandler(securityExceptionHandler)
+                )
+                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    public static void configureCommonHeaders(HeadersConfigurer<HttpSecurity> headers) {
+        headers
+            .contentTypeOptions(contentTypeOptions -> {})
+            .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                .maxAgeInSeconds(31536000) // 1 year
+                .includeSubDomains(true)
+            )
+            .addHeaderWriter((request, response) -> {
+                response.setHeader("Content-Security-Policy",
+                        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
+                response.setHeader("X-XSS-Protection", "1; mode=block");
+                response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+                response.setHeader("X-Content-Type-Options", "nosniff");
+            });
     }
 
     public static boolean isPublicUrl(String url) {
