@@ -4,6 +4,7 @@ import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemRequest;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/work-items")
 @RequiredArgsConstructor
 @Tag(name = "Work Item Management", description = "API endpoints for managing construction work items")
+@Hidden
 public class WorkItemController {
 
     private final WorkItemService workItemService;

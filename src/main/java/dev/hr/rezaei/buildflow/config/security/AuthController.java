@@ -9,12 +9,14 @@ import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +101,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User information retrieved successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSummaryResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
     public ResponseEntity<UserSummaryResponse> getCurrentUser(
             @Parameter(description = "Current authentication context", hidden = true)
@@ -122,6 +125,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(Authentication authentication) {
         String newJwt = tokenProvider.generateToken(authentication);
@@ -136,6 +140,7 @@ public class AuthController {
     @Operation(summary = "Logout user", description = "Invalidates the current user session (client-side logout for stateless JWT)")
     @ApiResponse(responseCode = "200", description = "Logout successful",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class)))
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<MessageResponse> logout(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
@@ -159,6 +164,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Token is invalid",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/validate")
     public ResponseEntity<MessageResponse> validateToken(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
@@ -174,8 +180,10 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
     })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
+    @Hidden
     public ResponseEntity<CreateUserResponse> createAdminUser(
             @Parameter(description = "Admin user registration information")
             @Valid @RequestBody SignUpRequest signUpRequest,
