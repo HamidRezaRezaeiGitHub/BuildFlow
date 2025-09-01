@@ -1,11 +1,7 @@
 package dev.hr.rezaei.buildflow.quote;
 
-import dev.hr.rezaei.buildflow.quote.Quote;
-import dev.hr.rezaei.buildflow.quote.QuoteDomain;
-import dev.hr.rezaei.buildflow.quote.QuoteLocation;
-import dev.hr.rezaei.buildflow.quote.QuoteUnit;
-import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import dev.hr.rezaei.buildflow.user.User;
+import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

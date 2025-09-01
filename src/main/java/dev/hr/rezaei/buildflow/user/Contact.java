@@ -61,7 +61,6 @@ public class Contact {
     @Column(length = 30)
     private String phone;
 
-    @NonNull
     @Builder.Default
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "fk_contacts_address"))
@@ -76,7 +75,7 @@ public class Contact {
                 ", labels.size=" + labels.size() +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
-                ", address.id=" + address.getId() +
+                ", address.id=" + (address != null ? address.getId() : null) +
                 '}';
     }
 }

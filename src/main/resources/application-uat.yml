@@ -59,3 +59,13 @@ management:
 # UAT server port - same as production
 server:
   port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:#{null}} # Force environment variable
+    expiration: 43200000 # 12 hours in milliseconds
+  admin:
+    initialize: true
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:#{null}}  # Force environment variable
+    email: ${ADMIN_EMAIL:#{null}}      # Force environment variable

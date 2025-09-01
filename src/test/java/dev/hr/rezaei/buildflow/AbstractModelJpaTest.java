@@ -9,6 +9,7 @@ import dev.hr.rezaei.buildflow.project.ProjectRepository;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import dev.hr.rezaei.buildflow.workitem.WorkItemRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -36,6 +37,7 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
     protected WorkItemRepository workItemRepository;
 
     @BeforeEach
+    @AfterEach
     public void clearDatabase() {
         estimateLineRepository.deleteAll();
         estimateGroupRepository.deleteAll();

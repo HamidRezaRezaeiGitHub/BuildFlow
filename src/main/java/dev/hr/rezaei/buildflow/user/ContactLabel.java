@@ -17,5 +17,6 @@ public enum ContactLabel {
     PERMIT_AUTHORITY,
     OTHER,
     BUILDER,
-    OWNER
+    OWNER,
+    ADMINISTRATOR
 }

@@ -9,6 +9,7 @@ import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,17 +74,22 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     private static final String CURRENT_USER_URL = AUTH_BASE_URL + "/current";
 
     private int testCounter = 0;
+
     @Autowired
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        // Clean up all data before each test
+        clearDatabase();
+        testCounter++;
+    }
+
+    @AfterEach
+    void clearDatabase() {
         userAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
         contactRepository.deleteAll();
         contactAddressRepository.deleteAll();
-        testCounter++;
     }
 
     @Test

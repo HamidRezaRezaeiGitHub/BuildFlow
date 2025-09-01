@@ -11,6 +11,7 @@ import dev.hr.rezaei.buildflow.quote.QuoteRepository;
 import dev.hr.rezaei.buildflow.user.ContactAddressRepository;
 import dev.hr.rezaei.buildflow.user.ContactRepository;
 import dev.hr.rezaei.buildflow.user.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -59,8 +60,8 @@ public class AbstractControllerIntegrationTest extends AbstractDtoTest {
     @Autowired
     private ContactAddressRepository contactAddressRepository;
 
-
     @BeforeEach
+    @AfterEach
     void setUp() {
         estimateRepository.deleteAll();
         estimateGroupRepository.deleteAll();

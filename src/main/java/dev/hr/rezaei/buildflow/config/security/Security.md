@@ -150,6 +150,26 @@ The complete authentication flow works as follows:
   - Integration with business domain via UserService
   - Security audit trail for all operations including role changes
 
+### [AdminUserInitializer](AdminUserInitializer.java)
+- **Purpose:** Spring Boot ApplicationRunner that automatically creates an initial admin user on application startup.
+- **Conditional Activation:** Only runs when `app.admin.initialize=true` is configured
+- **Configuration Properties:**
+  - `app.admin.username` - Username for the initial admin user
+  - `app.admin.password` - Password for the initial admin user  
+  - `app.admin.email` - Email address for the initial admin user
+- **Initialization Logic:**
+  1. Validates all required properties are provided
+  2. Checks if username is available for new admin creation
+  3. If username exists, verifies it has ADMIN role (prevents role conflicts)
+  4. Creates admin user with predefined contact information (Administrator label)
+  5. Uses AuthService.createAdminUser() for consistent admin creation flow
+- **Features:**
+  - **Bootstrap Safety:** Prevents duplicate admin creation and role conflicts
+  - **Configuration Validation:** Ensures all required admin properties are provided
+  - **Startup Integration:** Runs automatically during application startup
+  - **Audit Compliance:** Uses standard AuthService methods for proper audit trails
+- **Use Case:** Essential for initial system setup when no admin users exist
+
 ### [CustomUserDetailsService](CustomUserDetailsService.java)
 - **Purpose:** Spring Security bridge between authentication and business domains with role integration.
 - **Integration Strategy:**

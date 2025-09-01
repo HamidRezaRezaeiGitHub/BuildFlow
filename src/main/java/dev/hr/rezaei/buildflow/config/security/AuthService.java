@@ -56,13 +56,13 @@ public class AuthService {
         String email = contactRequestDto.getEmail();
 
         // Check if username already exists
-        if (userAuthenticationRepository.existsByUsername(username)) {
+        if (userAuthExistsByUsername(username) || userExistsByUsername(username)) {
             securityAuditService.logRegistrationAttempt(username, email, false, "Username already taken");
             throw new DuplicateUserException("Username is already taken: " + username);
         }
 
         // Check if user with email already exists
-        if (userService.existsByEmail(email)) {
+        if (userExistsByEmail(email)) {
             securityAuditService.logRegistrationAttempt(username, email, false, "Email already in use");
             throw new DuplicateUserException("There is already a user with the email: " + email);
         }
@@ -106,5 +106,25 @@ public class AuthService {
 
     public Optional<User> findUserByUsername(String username) {
         return userService.findByUsername(username);
+    }
+
+    public boolean userExistsByUsername(String username) {
+        return userAuthenticationRepository.existsByUsername(username);
+    }
+
+    public boolean userExistsByEmail(String email) {
+        return userService.existsByEmail(email);
+    }
+
+    public Optional<UserAuthentication> findUserAuthByUsername(String username) {
+        return userAuthenticationRepository.findByUsername(username);
+    }
+
+    public boolean userAuthExistsByUsername(String username) {
+        return userAuthenticationRepository.existsByUsername(username);
+    }
+
+    public boolean isValidNewUsername(String username) {
+        return !userAuthExistsByUsername(username) && !userExistsByUsername(username);
     }
 }

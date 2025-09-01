@@ -3,6 +3,7 @@ package dev.hr.rezaei.buildflow.user;
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -122,24 +123,7 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createUser_shouldReturnBadRequest_whenLabelsIsNull() throws Exception {
-        // Given
-        CreateUserRequest request = CreateUserRequest.builder()
-                .registered(true)
-                .contactRequestDto(testContactRequestDtoWithNullLabels)
-                .username(testContactRequestDtoWithNullLabels.getEmail())
-                .build();
-
-        // When & Then
-        mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.errors").exists());
-    }
-
-    @Test
+    @Disabled("UI can force user to enter address details, but it's not mandatory in backend")
     void createUser_shouldReturnBadRequest_whenAddressDtoIsNull() throws Exception {
         // Given
         CreateUserRequest request = CreateUserRequest.builder()

@@ -3,22 +3,19 @@ spring:
     name: BuildFlow
   security:
     enabled: true # Custom security toggle
-  # H2 file-based database for development - persistent across restarts
   datasource:
-    url: jdbc:h2:file:./data/buildflow-db
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
-  # H2 console enabled for development - database inspection and queries
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: false
   # JPA settings for development - auto-update schema
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
 # Management endpoints for development - expose more endpoints for debugging
@@ -40,7 +37,4 @@ app:
     secret: mySecretKeyForJWTTokensInBuildFlowApplication
     expiration: 86400000 # 24 hours in milliseconds
   admin:
-    initialize: true
-    username: ${ADMIN_USERNAME:admin}
-    password: ${ADMIN_PASSWORD:BuildFlow_1st_AdminPassword}
-    email: ${ADMIN_EMAIL:hamidreza74hrr@yahoo.com}
+    initialize: false

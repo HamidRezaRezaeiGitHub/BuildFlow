@@ -74,7 +74,7 @@ public class ContactDtoMapper {
                 .labels(new ArrayList<>(fromUniqStrings(ContactLabel.class, dto.getLabels())))
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
-                .address(toContactAddressEntity(dto.getAddressDto()))
+                .address(dto.getAddressDto() == null ? null : toContactAddressEntity(dto.getAddressDto()))
                 .build();
     }
 }

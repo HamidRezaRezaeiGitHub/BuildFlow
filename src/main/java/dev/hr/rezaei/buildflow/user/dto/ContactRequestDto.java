@@ -7,10 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,8 +42,8 @@ public class ContactRequestDto {
     private String lastName;
 
     @Schema(description = "List of labels/tags associated with the contact", example = "[\"builder\", \"contractor\"]")
-    @NotNull(message = "Labels are required")
-    private List<String> labels;
+    @Builder.Default
+    private List<String> labels = new ArrayList<>();
 
     @Schema(description = "Email address of the contact", example = "john.doe@example.com")
     @NotBlank(message = "Email is required")
@@ -55,6 +57,5 @@ public class ContactRequestDto {
 
     @Schema(description = "Address information for the contact")
     @Valid
-    @NotNull(message = "Address information is required")
     private ContactAddressRequestDto addressRequestDto;
 }
