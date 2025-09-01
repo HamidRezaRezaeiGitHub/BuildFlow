@@ -107,7 +107,7 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
         assertEquals(testUser.getUsername(), userPrincipal.getUsername());
         assertEquals(testUser.getEmail(), userPrincipal.getEmail());
         assertEquals(testUserAuth.getPasswordHash(), userPrincipal.getPassword());
-        assertEquals(testUser.isRegistered(), userPrincipal.isEnabled());
+        assertEquals(testUserAuth.isEnabled(), userPrincipal.isEnabled());
     }
 
     @Test
@@ -163,8 +163,7 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
         // Then
         assertNotNull(userDetails);
         assertEquals(disabledUsername, userDetails.getUsername());
-        // UserPrincipal.isEnabled() should reflect the User.isRegistered(), not UserAuthentication.enabled
-        assertEquals(disabledUser.isRegistered(), userDetails.isEnabled());
+        assertEquals(disabledAuth.isEnabled(), userDetails.isEnabled());
     }
 
     @Test
@@ -192,7 +191,7 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
         // Then
         assertNotNull(userDetails);
         assertEquals(unregisteredUsername, userDetails.getUsername());
-        assertFalse(userDetails.isEnabled()); // Should be false because user is not registered
+        assertTrue(userDetails.isEnabled());
     }
 
     @Test
@@ -270,7 +269,7 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
 
     @Test
     void loadUserByUsername_shouldHandleCaseVariations_whenUsernameCase() {
-        // This test verifies exact username matching (case sensitive)
+        // This test verifies exact username matching (case-sensitive)
         String mixedCaseUsername = "TestUser@Example.Com";
         User mixedCaseUser = createRandomBuilderUser();
         mixedCaseUser.setUsername(mixedCaseUsername);

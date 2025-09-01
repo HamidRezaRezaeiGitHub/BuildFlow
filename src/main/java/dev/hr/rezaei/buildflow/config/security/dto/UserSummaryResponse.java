@@ -26,4 +26,7 @@ public class UserSummaryResponse {
 
     @Schema(description = "Email address of the user", example = "john.doe@example.com")
     private String email;
+
+    @Schema(description = "Role of the user", example = "ADMIN")
+    private String role;
 }

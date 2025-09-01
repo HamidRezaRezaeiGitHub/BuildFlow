@@ -35,6 +35,11 @@ public class UserAuthentication {
     private String passwordHash;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private Role role = Role.USER;
+
+    @Builder.Default
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 

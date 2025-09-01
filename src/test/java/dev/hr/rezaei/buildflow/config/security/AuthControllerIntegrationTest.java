@@ -1,7 +1,6 @@
 package dev.hr.rezaei.buildflow.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
@@ -21,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType.AUTHENTICATION_REQUIRED;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -197,17 +197,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     @Test
     void authenticateUser_shouldReturnJwtToken_whenValidCredentials() throws Exception {
         // Given - Create a test user
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.8." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
+        LoginRequest loginRequest = registerUserAndCreateLoginRequest(mockMvc, objectMapper, "192.168.8." + testCounter, userService);
 
         // When - Login with different IP to avoid rate limiting
         JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.9." + testCounter);
@@ -215,22 +205,14 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // Then
         assertEquals("Bearer", jwtAuthenticationResponse.getTokenType());
         String token = jwtAuthenticationResponse.getAccessToken();
-        assertTokenIsValid(token, username);
+        assertTokenIsValid(token, loginRequest.getUsername());
     }
 
     @Test
     void authenticateUser_shouldReturn401_whenInvalidCredentials() throws Exception {
         // Given - Create a test user with different password
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.10." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password("WrongPassword123!") // Incorrect password
-                .build();
+        LoginRequest loginRequest = registerUserAndCreateLoginRequest(mockMvc, objectMapper, "192.168.10." + testCounter, userService);
+        loginRequest.setPassword("WrongPassword123"); // Incorrect password
 
         // When & Then
         mockMvc.perform(post(LOGIN_URL)
@@ -283,26 +265,15 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     void getCurrentUser_shouldReturnUserInfo_whenAuthenticated() throws Exception {
         // Given - Create and authenticate user
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.14." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.15." + testCounter);
-        String token = jwtAuthenticationResponse.getAccessToken();
+        String token = registerUserAndLoginAndGetToken(mockMvc, objectMapper, signUpRequest, "192.168.15." + testCounter, userService);
 
         // When - Get current user with different IP
         UserSummaryResponse userSummaryResponse = getCurrentUser(mockMvc, objectMapper, token, "192.168.16." + testCounter);
 
         // Then
-        assertEquals(username, userSummaryResponse.getUsername());
+        assertEquals(signUpRequest.getUsername(), userSummaryResponse.getUsername());
         assertEquals(signUpRequest.getContactRequestDto().getEmail(), userSummaryResponse.getEmail());
-        assertEquals(userId, userSummaryResponse.getId());
+        assertEquals(Role.USER.name(), userSummaryResponse.getRole());
     }
 
     @Test
@@ -376,19 +347,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     @Test
     void refreshToken_shouldReturnNewToken_whenValidAuthentication() throws Exception {
         // Given - Create and authenticate user
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.23." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse initialAuth = login(mockMvc, objectMapper, loginRequest, "192.168.24." + testCounter);
-        String initialToken = initialAuth.getAccessToken();
+        String initialToken = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.24." + testCounter, userService);
 
         // When - Refresh token
         mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
@@ -412,7 +371,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .header("X-Forwarded-For", "192.168.26." + testCounter))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorType").value(ResponseErrorType.AUTHENTICATION_REQUIRED.name()));
+                .andExpect(jsonPath("$.errorType").value(AUTHENTICATION_REQUIRED.name()));
     }
 
     @Test
@@ -423,26 +382,14 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.errorType").value(ResponseErrorType.AUTHENTICATION_REQUIRED.name()));
+                .andExpect(jsonPath("$.errorType").value(AUTHENTICATION_REQUIRED.name()));
     }
 
     // /logout endpoint tests
     @Test
     void logout_shouldReturnSuccess_whenAuthenticated() throws Exception {
         // Given - Create and authenticate user
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.28." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.29." + testCounter);
-        String token = authResponse.getAccessToken();
+        String token = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.29." + testCounter, userService);
 
         // When - Logout with valid token
         mockMvc.perform(post(AUTH_BASE_URL + "/logout")
@@ -470,19 +417,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     @Test
     void logout_shouldClearSecurityContext_whenAuthenticated() throws Exception {
         // Given - Create and authenticate user
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.32." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.33." + testCounter);
-        String token = authResponse.getAccessToken();
+        String token = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.34." + testCounter, userService);
 
         // When - Logout
         mockMvc.perform(post(AUTH_BASE_URL + "/logout")
@@ -504,19 +439,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     @Test
     void validateToken_shouldReturnValid_whenAuthenticatedWithValidToken() throws Exception {
         // Given - Create and authenticate user
-        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.35." + testCounter);
-        UUID userId = createUserResponse.getUserDto().getId();
-        assertTrue(userService.findById(userId).isPresent());
-
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.36." + testCounter);
-        String token = authResponse.getAccessToken();
+        String token = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.36." + testCounter, userService);
 
         // When - Validate token
         mockMvc.perform(get(AUTH_BASE_URL + "/validate")
@@ -554,6 +477,87 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     private void assertTokenIsValid(String token, String expectedUsername) {
         assertTrue(jwtTokenProvider.isValid(token), "Token should be valid");
         assertEquals(expectedUsername, jwtTokenProvider.getUsernameFromToken(token), "Username should match");
+    }
+
+    // Admin role tests
+    @Test
+    void createAdminUser_shouldReturn403_whenRegularUser() throws Exception {
+        // Given - Create and authenticate regular user
+        String token = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.41." + testCounter, userService);
+
+        // Create admin request
+        SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
+        adminSignUpRequest.setUsername("newadmin" + testCounter);
+
+        // When & Then - Regular user should not be able to create admin
+        mockMvc.perform(post(AUTH_BASE_URL + "/admin")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(adminSignUpRequest))
+                        .header("X-Forwarded-For", "192.168.42." + testCounter))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", containsString("403")))
+                .andExpect(jsonPath("$.errorType").value("ACCESS_DENIED"));
+    }
+
+    @Test
+    void createAdminUser_shouldReturn401_whenNotAuthenticated() throws Exception {
+        // Given - Admin creation request without authentication
+        SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
+        adminSignUpRequest.setUsername("newadmin" + testCounter);
+
+        // When & Then - Unauthenticated request should be rejected
+        mockMvc.perform(post(AUTH_BASE_URL + "/admin/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(adminSignUpRequest))
+                        .header("X-Forwarded-For", "192.168.43." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void createAdminUser_shouldCreateAdmin_whenAuthenticatedAsAdmin() throws Exception {
+        // 1. Create and authenticate an admin user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.40." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
+        assertTrue(userAuthenticationRepository.findByUsername(username).isPresent());
+        UserAuthentication userAuthentication = userAuthenticationRepository.findByUsername(username).get();
+        userAuthentication.setRole(Role.ADMIN);
+        userAuthenticationRepository.save(userAuthentication);
+        assertEquals(Role.ADMIN, userAuthenticationRepository.findByUsername(username).get().getRole());
+
+        // 2. Authenticate as admin
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.44." + testCounter);
+        String adminToken = jwtAuthenticationResponse.getAccessToken();
+        assertTokenIsValid(adminToken, username);
+
+        // 3. Create new admin user via /api/auth/admin/create
+        SignUpRequest newAdminSignUpRequest = createValidRandomSignUpRequest();
+        String newAdminUsername = "newadmin" + testCounter;
+        newAdminSignUpRequest.setUsername(newAdminUsername);
+
+        mockMvc.perform(post(AUTH_BASE_URL + "/admin")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newAdminSignUpRequest))
+                        .header("X-Forwarded-For", "192.168.45." + testCounter))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userDto.username").value(newAdminUsername));
+
+        // 4. Verify new admin user exists with ADMIN role
+        assertTrue(userAuthenticationRepository.findByUsername(newAdminUsername).isPresent());
+        assertEquals(Role.ADMIN, userAuthenticationRepository.findByUsername(newAdminUsername).get().getRole());
     }
 
 }

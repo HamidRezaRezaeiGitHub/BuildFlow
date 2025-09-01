@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -108,11 +109,12 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         log.info("Retrieved current user information for: {}", user.getUsername());
-        return ResponseEntity.ok(new UserSummaryResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail()
-        ));
+        return ResponseEntity.ok(UserSummaryResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(userPrincipal.getRole().name())
+                .build());
     }
 
     @Operation(summary = "Refresh JWT token", description = "Refreshes an existing JWT token if it's still valid")
@@ -164,5 +166,35 @@ public class AuthController {
         } else {
             return responseFacilitator.message(HttpStatus.UNAUTHORIZED, "Token is invalid");
         }
+    }
+
+    @Operation(summary = "Create admin user", description = "Creates a new user with admin privileges. Requires admin role.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Admin user created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
+    })
+    @PostMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CreateUserResponse> createAdminUser(
+            @Parameter(description = "Admin user registration information")
+            @Valid @RequestBody SignUpRequest signUpRequest,
+            Authentication authentication
+    ) {
+        UserPrincipal currentUser = (UserPrincipal) authentication.getPrincipal();
+        String currentUserUsername = currentUser.getUsername();
+        String newAdminUsername = signUpRequest.getUsername();
+        log.info("Admin user creation attempt by: {} for new user: {}", currentUserUsername, newAdminUsername);
+
+        CreateUserResponse response = authService.createAdminUser(signUpRequest);
+
+        securityAuditService.logSecurityEvent("ADMIN_USER_CREATED", "Admin user created",
+                Map.of(
+                        "createdBy", currentUserUsername,
+                        "newAdminUser", response.getUserDto().getUsername()
+                ));
+
+        log.info("Admin user creation successful for username: {} by admin: {}", response.getUserDto().getUsername(), currentUserUsername);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

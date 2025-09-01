@@ -38,6 +38,19 @@ public class AuthService {
      */
     @Transactional
     public CreateUserResponse registerUser(SignUpRequest signUpRequest) {
+        return registerUserWithRole(signUpRequest, Role.USER);
+    }
+
+    /**
+     * Registers a new user with a specific role.
+     * Used for creating admin users or when role needs to be explicitly set.
+     *
+     * @param signUpRequest Registration request containing username, password, and contact info
+     * @param role          The role to assign to the new user
+     * @return The created User entity
+     */
+    @Transactional
+    public CreateUserResponse registerUserWithRole(SignUpRequest signUpRequest, Role role) {
         String username = signUpRequest.getUsername();
         ContactRequestDto contactRequestDto = signUpRequest.getContactRequestDto();
         String email = contactRequestDto.getEmail();
@@ -64,18 +77,31 @@ public class AuthService {
         CreateUserResponse response = userService.createUser(createUserRequest);
         User user = userService.findById(response.getUserDto().getId())
                 .orElseThrow(() -> new RuntimeException("Failed to create user"));
-        log.info("Created new user: {}", user.getId());
+        log.info("Created new user: {} with role: {}", user.getId(), role);
 
-        // Create authentication entry
+        // Create authentication entry with specified role
         UserAuthentication userAuth = UserAuthentication.builder()
                 .username(username)
                 .passwordHash(passwordEncoder.encode(signUpRequest.getPassword()))
+                .role(role)
                 .enabled(true)
                 .build();
         userAuthenticationRepository.save(userAuth);
 
         securityAuditService.logRegistrationAttempt(username, email, true, "User registered successfully");
         return response;
+    }
+
+    /**
+     * Creates an admin user with elevated privileges.
+     * This method should be used carefully and typically only during system setup.
+     *
+     * @param signUpRequest Registration request containing username, password, and contact info
+     * @return The created User entity with admin role
+     */
+    @Transactional
+    public CreateUserResponse createAdminUser(SignUpRequest signUpRequest) {
+        return registerUserWithRole(signUpRequest, Role.ADMIN);
     }
 
     public Optional<User> findUserByUsername(String username) {

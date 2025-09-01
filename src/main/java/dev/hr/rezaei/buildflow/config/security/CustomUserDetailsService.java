@@ -31,6 +31,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User data not found for: " + username));
 
-        return UserPrincipal.create(user, userAuth.getPasswordHash());
+        return UserPrincipal.create(user, userAuth, userAuth.getRole());
     }
 }

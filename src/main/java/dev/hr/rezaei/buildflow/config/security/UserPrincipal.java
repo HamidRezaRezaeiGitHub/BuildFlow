@@ -24,20 +24,27 @@ public class UserPrincipal implements UserDetails {
     private final String email;
     private final String password;
     private final boolean enabled;
+    private final Role role;
 
-    public static UserPrincipal create(User user, String encodedPassword) {
+    public static UserPrincipal create(User user, UserAuthentication userAuth) {
+        return create(user, userAuth, Role.USER);
+    }
+
+    public static UserPrincipal create(User user, UserAuthentication userAuth, Role role) {
         return builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .password(encodedPassword)
-                .enabled(user.isRegistered())
+                .password(userAuth.getPasswordHash())
+                .enabled(userAuth.isEnabled())
+                .role(role)
                 .build();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // For now, all users have USER role. You can extend this later for authorization
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        // Convert role to Spring Security authority format
+        String authority = "ROLE_" + role.name();
+        return Collections.singletonList(new SimpleGrantedAuthority(authority));
     }
 
     @Override
