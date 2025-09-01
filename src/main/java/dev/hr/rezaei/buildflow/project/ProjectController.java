@@ -2,6 +2,7 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
+import dev.hr.rezaei.buildflow.project.auth.RequireProjectCreationAccess;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,31 +37,19 @@ public class ProjectController {
     @Operation(summary = "Create a new project", description = "Creates a new construction project with builder, owner, and location information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Project created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateProjectResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateProjectResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @RequireProjectCreationAccess
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
             @Parameter(description = "Project creation request containing builder, owner, and location information")
             @Valid @RequestBody CreateProjectRequest request
     ) {
         log.info("Creating project with request: {}", request);
-
-        try {
-            CreateProjectResponse response = projectService.createProject(request);
-            log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid request data: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        CreateProjectResponse response = projectService.createProject(request);
+        log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Get projects by builder ID", description = "Retrieves all projects assigned to a specific builder")

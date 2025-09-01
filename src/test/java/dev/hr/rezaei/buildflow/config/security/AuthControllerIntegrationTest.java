@@ -405,7 +405,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+                .andExpect(jsonPath("$.message").value("Logout successful"));
     }
 
     @Test
@@ -417,7 +417,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+                .andExpect(jsonPath("$.message").value("Logout successful"));
     }
 
     @Test
@@ -433,7 +433,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+                .andExpect(jsonPath("$.message").value("Logout successful"));
 
         // Then - Security context should be cleared (token should still work for subsequent requests
         // since JWT is stateless, but the logout event should be logged)
@@ -455,7 +455,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.messages", hasItem("Token is valid")));
+                .andExpect(jsonPath("$.message").value("Token is valid"));
     }
 
     @Test

@@ -84,6 +84,10 @@ public class UserService {
         return userRepository.existsByUsername(username);
     }
 
+    public boolean existsById(@NonNull UUID id) {
+        return userRepository.existsById(id);
+    }
+
     public Optional<User> findByUsername(@NonNull String username) {
         return userRepository.findByUsername(username);
     }

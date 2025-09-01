@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * Generic API response DTO.
@@ -28,6 +27,6 @@ public class MessageResponse {
     @Schema(description = "HTTP status code of the response", example = "200")
     private String status;
 
-    @Schema(description = "List of messages related to the response")
-    private List<String> messages;
+    @Schema(description = "Message related to the response")
+    private String message;
 }

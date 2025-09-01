@@ -1,5 +1,7 @@
 package dev.hr.rezaei.buildflow.config.security;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,22 +25,15 @@ import java.util.Set;
 
 @Configuration
 @EnableMethodSecurity()
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Nullable // can be null if security is disabled via properties in the yaml file
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Nullable // can be null if security is disabled via properties in the yaml file
     private final RateLimitingFilter rateLimitingFilter;
     private final SecurityExceptionHandler securityExceptionHandler;
     private final Environment environment;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          RateLimitingFilter rateLimitingFilter,
-                          SecurityExceptionHandler securityExceptionHandler,
-                          Environment environment) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.rateLimitingFilter = rateLimitingFilter;
-        this.securityExceptionHandler = securityExceptionHandler;
-        this.environment = environment;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -146,8 +141,8 @@ public class SecurityConfig {
                     csrf.ignoringRequestMatchers("/api/**", "/h2-console/**");
                 })
                 .headers(headers -> {
-                    headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
-                    configureCommonHeaders(headers);
+                            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                            configureCommonHeaders(headers);
                         }
                 )
                 // Configure exception handling for authentication and authorization failures
@@ -163,18 +158,19 @@ public class SecurityConfig {
 
     public static void configureCommonHeaders(HeadersConfigurer<HttpSecurity> headers) {
         headers
-            .contentTypeOptions(contentTypeOptions -> {})
-            .httpStrictTransportSecurity(hstsConfig -> hstsConfig
-                .maxAgeInSeconds(31536000) // 1 year
-                .includeSubDomains(true)
-            )
-            .addHeaderWriter((request, response) -> {
-                response.setHeader("Content-Security-Policy",
-                        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
-                response.setHeader("X-XSS-Protection", "1; mode=block");
-                response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-                response.setHeader("X-Content-Type-Options", "nosniff");
-            });
+                .contentTypeOptions(contentTypeOptions -> {
+                })
+                .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                        .maxAgeInSeconds(31536000) // 1 year
+                        .includeSubDomains(true)
+                )
+                .addHeaderWriter((request, response) -> {
+                    response.setHeader("Content-Security-Policy",
+                            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'");
+                    response.setHeader("X-XSS-Protection", "1; mode=block");
+                    response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+                    response.setHeader("X-Content-Type-Options", "nosniff");
+                });
     }
 
     public static boolean isPublicUrl(String url) {

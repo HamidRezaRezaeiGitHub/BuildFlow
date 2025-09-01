@@ -15,6 +15,7 @@ public enum ResponseErrorType {
     CONFLICT_ERROR("Conflict Error", "Resource conflict occurred"),
     BAD_REQUEST_ERROR("Bad Request Error", "Bad request"),
     RATE_LIMIT_EXCEEDED("Rate Limit Exceeded", "Too many requests. Please try again later."),
+    NOT_FOUND_ERROR("Not Found Error", "Resource not found"),
     INTERNAL_ERROR("Internal Error", "Internal server error occurred");
 
     private final String description;

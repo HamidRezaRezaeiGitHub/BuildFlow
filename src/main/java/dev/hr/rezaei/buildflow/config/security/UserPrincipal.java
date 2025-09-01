@@ -66,4 +66,8 @@ public class UserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     }
+
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
+    }
 }

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
  */
 @Slf4j
 @Component
+@ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Order(1) // Execute before other filters
 public class RateLimitingFilter extends OncePerRequestFilter {
 

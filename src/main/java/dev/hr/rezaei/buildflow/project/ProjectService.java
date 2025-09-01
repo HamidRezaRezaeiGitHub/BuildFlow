@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static dev.hr.rezaei.buildflow.project.ProjectDtoMapper.toProjectDto;
 import static dev.hr.rezaei.buildflow.project.ProjectLocationDtoMapper.toProjectLocationEntity;
 
 /**
@@ -39,21 +40,20 @@ public class ProjectService {
         this.userService = userService;
     }
 
-    public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
+    public void validate(CreateProjectRequest request) {
         UUID builderId = request.getBuilderId();
-        Optional<User> optionalBuilder = userService.findById(builderId);
-        if (optionalBuilder.isEmpty()) {
+        if (!userService.existsById(builderId)) {
             throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
         }
-        User builder = optionalBuilder.get();
 
         UUID ownerId = request.getOwnerId();
-        Optional<User> optionalOwner = userService.findById(ownerId);
-        if (optionalOwner.isEmpty()) {
+        if (!userService.existsById(ownerId)) {
             throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
         }
-        User owner = optionalOwner.get();
 
+        if (request.getLocationRequestDto() == null) {
+            throw new IllegalArgumentException("Cannot create project with null location.");
+        }
         ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
         if (location == null) {
             throw new IllegalArgumentException("Cannot create project with null location.");
@@ -61,6 +61,16 @@ public class ProjectService {
         if (location.getId() != null) {
             throw new IllegalArgumentException("Project location should only be cascaded, not persisted directly.");
         }
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
+        validate(request);
+        UUID builderId = request.getBuilderId();
+        User builder = userService.findById(builderId).get();
+        UUID ownerId = request.getOwnerId();
+        User owner = userService.findById(ownerId).get();
+        ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
 
         Instant now = Instant.now();
         Project project = Project.builder()
@@ -75,7 +85,7 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
 
         return CreateProjectResponse.builder()
-                .projectDto(ProjectDtoMapper.toProjectDto(savedProject))
+                .projectDto(toProjectDto(savedProject))
                 .build();
     }
 

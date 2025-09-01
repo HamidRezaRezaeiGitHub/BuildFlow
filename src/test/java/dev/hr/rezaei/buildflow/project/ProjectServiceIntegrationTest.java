@@ -52,6 +52,80 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     private UserService userService;
 
     @Test
+    void validate_shouldPass_whenValidCreateProjectRequest() {
+        // Arrange
+        persistProjectDependencies(testProject);
+        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
+        User builder = testProject.getBuilderUser();
+        User owner = testProject.getOwner();
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(builder.getId())
+                .ownerId(owner.getId())
+                .locationRequestDto(locationRequestDto)
+                .build();
+
+        // Act & Assert - should not throw any exception
+        assertDoesNotThrow(() -> projectService.validate(request));
+    }
+
+    @Test
+    void validate_shouldThrow_whenBuilderNotFound() {
+        // Arrange
+        User owner = registerUser(userService, testProject.getOwner());
+        assertNotNull(owner.getId());
+        UUID nonExistentBuilderId = UUID.randomUUID();
+        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(nonExistentBuilderId)
+                .ownerId(owner.getId())
+                .locationRequestDto(locationRequestDto)
+                .build();
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> projectService.validate(request));
+    }
+
+    @Test
+    void validate_shouldThrow_whenOwnerNotFound() {
+        // Arrange
+        User builder = registerUser(userService, testProject.getBuilderUser());
+        assertNotNull(builder.getId());
+        UUID nonExistentOwnerId = UUID.randomUUID();
+        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(builder.getId())
+                .ownerId(nonExistentOwnerId)
+                .locationRequestDto(locationRequestDto)
+                .build();
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> projectService.validate(request));
+    }
+
+    @Test
+    void validate_shouldThrow_whenLocationIsNull() {
+        // Arrange
+        persistProjectDependencies(testProject);
+        User builder = testProject.getBuilderUser();
+        User owner = testProject.getOwner();
+
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .builderId(builder.getId())
+                .ownerId(owner.getId())
+                .locationRequestDto(null)
+                .build();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> projectService.validate(request));
+    }
+
+    @Test
     void createProject_shouldPersistProject_whenValidRequest() {
         // Arrange
         persistProjectDependencies(testProject);
@@ -89,34 +163,14 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     }
 
     @Test
-    void createProject_shouldThrow_whenBuilderNotFound() {
+    void createProject_shouldThrow_whenValidationFails() {
         // Arrange
-        User owner = registerUser(userService, testProject.getOwner());
-        assertNotNull(owner.getId());
         UUID nonExistentBuilderId = UUID.randomUUID();
-        ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
-
-        CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(nonExistentBuilderId)
-                .ownerId(owner.getId())
-                .locationRequestDto(locationRequestDto)
-                .build();
-
-        // Act & Assert
-        assertThrows(UserNotFoundException.class,
-                () -> projectService.createProject(request));
-    }
-
-    @Test
-    void createProject_shouldThrow_whenOwnerNotFound() {
-        // Arrange
-        User builder = registerUser(userService, testProject.getBuilderUser());
-        assertNotNull(builder.getId());
         UUID nonExistentOwnerId = UUID.randomUUID();
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
+                .builderId(nonExistentBuilderId)
                 .ownerId(nonExistentOwnerId)
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -218,7 +272,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         projectService.delete(project);
 
         // Assert
-        assertFalse(projectRepository.existsById(project.getId()));
+        assertFalse(projectService.findById(project.getId()).isPresent());
         assertTrue(projectService.findById(project.getId()).isEmpty());
     }
 

@@ -71,6 +71,11 @@ public class ResponseFacilitator {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    public ResponseEntity<ErrorResponse> notFound(HttpServletRequest request, List<String> errors) {
+        ErrorResponse errorResponse = createErrorResponse(NOT_FOUND, NOT_FOUND_ERROR, errors, request);
+        return ResponseEntity.status(NOT_FOUND).body(errorResponse);
+    }
+
     public ResponseEntity<ErrorResponse> internalServerError(HttpServletRequest request, List<String> errors) {
         ErrorResponse errorResponse = createErrorResponse(INTERNAL_SERVER_ERROR, INTERNAL_ERROR, errors, request);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -124,28 +129,18 @@ public class ResponseFacilitator {
     // Message Response Builders
     // =========================
 
-    public ResponseEntity<MessageResponse> message(HttpStatus status, List<String> messages) {
+    public ResponseEntity<MessageResponse> message(HttpStatus status, String message) {
         MessageResponse messageResponse = MessageResponse.builder()
                 .timestamp(Instant.now())
                 .success(status.is2xxSuccessful())
                 .status(status.toString())
-                .messages(messages)
+                .message(message)
                 .build();
 
         return ResponseEntity.status(status).body(messageResponse);
     }
 
-    public ResponseEntity<MessageResponse> message(HttpStatus status, String message) {
-        return message(status, List.of(message));
-    }
-
-    public ResponseEntity<MessageResponse> ok(List<String> messages) {
-        return message(HttpStatus.OK, messages);
-    }
-
     public ResponseEntity<MessageResponse> ok(String message) {
-        return message(HttpStatus.OK, List.of(message));
+        return message(HttpStatus.OK, message);
     }
-
-
 }

@@ -1,6 +1,8 @@
 package dev.hr.rezaei.buildflow.config.mvc;
 
 import dev.hr.rezaei.buildflow.base.DuplicateUserException;
+import dev.hr.rezaei.buildflow.base.UserNotAuthorizedException;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +47,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
+        log.warn("Validation errors: {}", errors);
         return responseFacilitator.badRequest(request, VALIDATION_ERROR, errors);
     }
 
@@ -88,6 +91,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
         log.warn("Authorization denied exception: {}", ex.getMessage());
         return responseFacilitator.forbidden(request, List.of("You don't have permission to access this resource"));
+    }
+
+    @ExceptionHandler(UserNotAuthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotAuthorizedException(UserNotAuthorizedException ex, HttpServletRequest request) {
+        log.warn("User not authorized exception: {}", ex.getMessage());
+        return responseFacilitator.forbidden(request, List.of(ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex, HttpServletRequest request) {
+        log.warn("User not found exception: {}", ex.getMessage());
+        return responseFacilitator.notFound(request, List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
