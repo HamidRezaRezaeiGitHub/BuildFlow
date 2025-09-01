@@ -89,7 +89,8 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         return requestURI.startsWith("/api/auth/login") ||
                 requestURI.startsWith("/api/auth/register") ||
                 requestURI.startsWith("/api/auth/refresh") ||
-                requestURI.startsWith("/api/auth/validate");
+                requestURI.startsWith("/api/auth/validate") ||
+                requestURI.startsWith("/api/auth/logout");
     }
 
     private String getClientKey(HttpServletRequest request) {

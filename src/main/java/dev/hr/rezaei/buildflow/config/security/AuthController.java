@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.config.security;
 
+import dev.hr.rezaei.buildflow.config.mvc.ResponseFacilitator;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.config.mvc.dto.MessageResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
@@ -26,6 +27,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * Authentication controller that handles login, registration, and JWT token management.
  */
@@ -40,17 +43,12 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider tokenProvider;
     private final SecurityAuditService securityAuditService;
+    private final ResponseFacilitator responseFacilitator;
 
     @Operation(summary = "Register new user", description = "Registers a new user account with complete contact information and authentication credentials")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User registered successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Username already taken",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class)))
     })
     @PostMapping("/register")
     public ResponseEntity<CreateUserResponse> registerUser(
@@ -68,13 +66,7 @@ public class AuthController {
     @Operation(summary = "Authenticate user", description = "Authenticates user credentials and returns a JWT token for subsequent API calls")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(
@@ -104,23 +96,13 @@ public class AuthController {
     @Operation(summary = "Get current user information", description = "Returns information about the currently authenticated user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User information retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSummaryResponse.class))),
-            @ApiResponse(responseCode = "401", description = "User not authenticated",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserSummaryResponse.class)))
     })
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentUser(
+    public ResponseEntity<UserSummaryResponse> getCurrentUser(
             @Parameter(description = "Current authentication context", hidden = true)
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            log.warn("Attempt to get current user without authentication");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse(false, "User not authenticated"));
-        }
-
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User user = authService.findUserByUsername(userPrincipal.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -136,20 +118,10 @@ public class AuthController {
     @Operation(summary = "Refresh JWT token", description = "Refreshes an existing JWT token if it's still valid")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid or expired token",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            log.warn("Attempt to refresh token without valid authentication");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse(false, "Invalid authentication"));
-        }
-
         String newJwt = tokenProvider.generateToken(authentication);
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
@@ -169,13 +141,13 @@ public class AuthController {
             log.info("User logout: {}", userPrincipal.getUsername());
             securityAuditService.logSecurityEvent("LOGOUT",
                     "User logged out",
-                    java.util.Map.of("username", userPrincipal.getUsername()));
+                    Map.of("username", userPrincipal.getUsername()));
         }
 
         // Clear security context
         SecurityContextHolder.clearContext();
 
-        return ResponseEntity.ok(new MessageResponse(true, "Logout successful"));
+        return responseFacilitator.ok("Logout successful");
     }
 
     @Operation(summary = "Validate JWT token", description = "Validates if the provided JWT token is still valid")
@@ -188,10 +160,9 @@ public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<MessageResponse> validateToken(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return ResponseEntity.ok(new MessageResponse(true, "Token is valid"));
+            return responseFacilitator.ok("Token is valid");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new MessageResponse(false, "Token is invalid"));
+            return responseFacilitator.message(HttpStatus.UNAUTHORIZED, "Token is invalid");
         }
     }
 }

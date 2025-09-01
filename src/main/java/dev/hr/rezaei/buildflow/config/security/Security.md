@@ -2,229 +2,241 @@
 
 This package contains all security-related components for the BuildFlow application, implementing JWT-based authentication with Spring Security. The security system maintains separation of concerns by keeping authentication data decoupled from the business domain models and follows proper layered architecture patterns with comprehensive security enhancements including rate limiting, audit logging, and advanced threat protection.
 
-## Core Security Components
+## Security Architecture Overview
+
+The security system follows a layered approach with clear separation of concerns:
+
+1. **Request Layer** - Controllers and DTOs handle HTTP requests/responses
+2. **Filter Layer** - Rate limiting and JWT authentication filters 
+3. **Service Layer** - Authentication services and business logic
+4. **Data Layer** - Entities and repositories for authentication data
+5. **Security Layer** - Spring Security configuration and utilities
+6. **Audit Layer** - Security event logging and monitoring
+
+## Authentication Flow
+
+The complete authentication flow works as follows:
+
+1. **Registration**: User submits credentials → AuthController → AuthService → Creates User + UserAuthentication entities
+2. **Login**: User credentials → AuthController → AuthenticationManager → CustomUserDetailsService → UserPrincipal → JWT token generated
+3. **Request Authentication**: Bearer token → RateLimitingFilter → JwtAuthenticationFilter → SecurityContext set
+4. **Authorization**: Protected endpoint → Spring Security → UserPrincipal authorities checked
+
+## Core Configuration
 
 ### [SecurityConfig](SecurityConfig.java)
-- **Purpose:** Main Spring Security configuration class that sets up authentication and authorization rules.
-- **Enhanced Features:**
-  - **Environment-aware security:** Profile-based configuration for development vs production
-  - **H2 console protection:** Only accessible in development profiles, completely disabled in production
-  - **Enhanced security headers:** CSP, XSS protection, referrer policy, HSTS with subdomain inclusion
-  - **Rate limiting integration:** Ordered filter chain with rate limiting before JWT authentication
-  - **Modern Spring Security 6.x:** Updated syntax removing deprecated methods
-  - Conditional security configuration based on `spring.security.enabled` property
-  - JWT-based stateless authentication with custom JWT filter integration
-  - Comprehensive public route configuration for home page, authentication endpoints, API documentation, and static resources
-  - BCrypt password encoding
-  - CSRF protection disabled for API endpoints but enabled for web pages
-  - Custom logout configuration with success URL redirection
-  - Swagger UI and OpenAPI documentation access
-- **Security Filters:**
-  - `publicFilterChain()` - Disables all security when `spring.security.enabled=false`
-  - `secureFilterChain()` - Full JWT-based security configuration with rate limiting and enhanced headers (default)
-- **Public Routes:** `/`, `/home`, `/register`, `/api/auth/**`, `/api/public/**`, `/h2-console/**` (dev only), `/actuator/health`, Swagger UI, static resources
-- **Security Headers:**
+- **Purpose:** Main Spring Security configuration class that orchestrates the entire security setup.
+- **Environment-Aware Security:**
+  - **Development Mode:** H2 console access, relaxed CSRF, same-origin frame options
+  - **Production Mode:** Strict security headers, no H2 access, enhanced protection
+- **Filter Chain Configuration:**
+  - `Order 1`: RateLimitingFilter (brute force protection)
+  - `Order 2`: JwtAuthenticationFilter (token validation)
+  - Standard Spring Security filters follow
+- **Security Headers (Production):**
   - Content Security Policy (CSP) with strict source policies
+  - HTTP Strict Transport Security (HSTS) with 1-year max age and subdomain inclusion
   - X-XSS-Protection with block mode
   - Referrer-Policy with strict-origin-when-cross-origin
   - X-Content-Type-Options with nosniff
-  - HTTP Strict Transport Security (HSTS) with 1-year max age and subdomain inclusion
+- **Public Routes:** `/`, `/home`, `/api/auth/**`, `/api/public/**`, `/actuator/health`, Swagger UI, static resources
+- **Conditional Security:** Can be disabled via `spring.security.enabled=false` for testing
 
-### [UserAuthentication](UserAuthentication.java)
-- **Purpose:** JPA entity to store user credentials separately from the business User entity.
-- **Fields:**
-  - `id` (UUID, primary key, generated)
-  - `username` (String, length 100, not null, unique constraint)
-  - `passwordHash` (String, not null, BCrypt encoded password)
-  - `enabled` (boolean, not null, default true)
-  - `createdAt` (Instant, not null, default now)
-  - `lastLogin` (Instant, nullable, tracks last successful login)
-- **Design Philosophy:** Maintains separation of concerns by keeping authentication data separate from business domain User entity
+## Request Processing Layer
 
-### [JwtTokenProvider](JwtTokenProvider.java)
-- **Purpose:** JWT utility class for generating and validating JWT tokens with enhanced security features.
-- **Key Features:**
-  - **Configurable JWT settings:** Secret key and expiration time via application properties
-  - **Strong key validation:** Validates JWT secret strength (minimum 256 bits recommended)
-  - **Secure key generation:** Uses HMAC-SHA with proper key derivation
-  - **Comprehensive token validation:** Handles malformed, expired, unsupported, and invalid signature cases
-  - **Structured error handling:** Detailed logging for different JWT validation failures
-- **Configuration:**
-  - `app.jwt.secret` - JWT signing secret (must be configured)
-  - `app.jwt.expiration` - Token expiration time in milliseconds (default: 24 hours)
-- **Methods:**
-  - `generateToken()` - Creates JWT with username as subject and expiration
-  - `getUsernameFromToken()` - Extracts username from valid JWT
-  - `isValid()` - Validates JWT signature and expiration
+### [AuthController](AuthController.java)
+- **Purpose:** Main REST controller handling authentication endpoints with comprehensive API documentation.
+- **Key Endpoints:**
+  - `POST /api/auth/register` - User registration with contact information
+  - `POST /api/auth/login` - User authentication and JWT token generation
+  - `GET /api/auth/current` - Get current authenticated user information
+  - `POST /api/auth/refresh` - Refresh JWT token for authenticated users
+  - `POST /api/auth/logout` - Logout and clear security context
+  - `GET /api/auth/validate` - Validate JWT token
+- **Features:**
+  - Comprehensive Swagger/OpenAPI documentation
+  - Validation integration with Bean Validation
+  - Consistent error handling via ResponseFacilitator
+  - Security audit logging integration
 
-### [JwtAuthenticationFilter](JwtAuthenticationFilter.java)
-- **Purpose:** Custom filter that validates JWT tokens and sets authentication context.
-- **Key Features:**
-  - **Order 2 execution:** Runs after rate limiting but before other authentication filters
-  - **Public URL bypass:** Skips JWT validation for public endpoints
-  - **Security audit integration:** Logs token validation failures for monitoring
-  - **Graceful error handling:** Continues filter chain even on authentication failures
-  - **User details integration:** Loads full user details from CustomUserDetailsService
-- **Process Flow:**
-  1. Check if URL is public (skip JWT validation)
-  2. Extract JWT from Authorization header (Bearer token)
-  3. Validate JWT token
-  4. Load user details and set authentication context
-  5. Continue filter chain
-
-### [CustomUserDetailsService](CustomUserDetailsService.java)
-- **Purpose:** Spring Security UserDetailsService implementation that bridges authentication and business domains.
-- **Key Features:**
-  - **Dual entity integration:** Loads from both UserAuthentication (credentials) and User (business data)
-  - **Transactional safety:** Read-only transaction for data consistency
-  - **Domain separation:** Maintains clean separation between auth and business concerns
-- **Process:**
-  1. Load authentication credentials from UserAuthentication entity
-  2. Load business user data via UserService
-  3. Create UserPrincipal combining both data sources
-
-### [UserPrincipal](UserPrincipal.java)
-- **Purpose:** Custom UserDetails implementation that wraps User entity for Spring Security.
-- **Key Features:**
-  - **Domain model protection:** Prevents pollution of business User entity with security concerns
-  - **Flexible authority management:** Currently assigns ROLE_USER, extensible for future role-based access
-  - **Complete user representation:** Includes username, email, password hash, and enabled status
-- **Fields:**
-  - `username` - User's login identifier
-  - `email` - User's email address
-  - `password` - BCrypt encoded password hash
-  - `enabled` - Account activation status
-- **Factory Method:** `create()` method constructs UserPrincipal from User and encoded password
-
-### [AuthService](AuthService.java)
-- **Purpose:** High-level authentication service that orchestrates user registration and authentication operations.
-- **Key Features:**
-  - **Layered architecture compliance:** Uses UserService for business operations
-  - **Duplicate prevention:** Checks for existing username and email
-  - **Security audit integration:** Logs all registration attempts
-  - **Transactional safety:** Ensures data consistency during registration
-  - **Password security:** BCrypt encoding for all stored passwords
-- **Registration Process:**
-  1. Validate username and email uniqueness
-  2. Create business User entity via UserService
-  3. Create UserAuthentication entity with encoded password
-  4. Log registration attempt for audit trail
-
-### [RateLimitingFilter](RateLimitingFilter.java)
-- **Purpose:** Advanced rate limiting filter to prevent brute force attacks on authentication endpoints.
-- **Key Features:**
-  - **Order 1 execution:** Runs before all other security filters
-  - **Sliding window algorithm:** 5 attempts per 15-minute window
-  - **Automatic lockout:** 30-minute lockout after exceeding rate limit
-  - **IP-based tracking:** Uses X-Forwarded-For for proxy environments
-  - **Automatic cleanup:** Removes expired attempt records
-  - **Comprehensive error responses:** Structured JSON error responses
-- **Configuration:**
-  - `MAX_ATTEMPTS_PER_WINDOW`: 5 attempts
-  - `WINDOW_SIZE_MINUTES`: 15 minutes
-  - `LOCKOUT_DURATION_MINUTES`: 30 minutes
-- **Protected Endpoints:** `/api/auth/login`, `/api/auth/register`, `/api/auth/refresh`, `/api/auth/validate`
-
-### [SecurityAuditService](SecurityAuditService.java)
-- **Purpose:** Comprehensive security event logging service for monitoring and compliance.
-- **Key Features:**
-  - **Comprehensive event tracking:** Login attempts, registrations, token operations, unauthorized access
-  - **Client identification:** IP address detection with proxy support (X-Forwarded-For, X-Real-IP)
-  - **User agent logging:** Browser/client identification for forensic analysis
-  - **Structured logging:** Consistent log format with timestamps and categorization
-  - **Security-focused:** Masks sensitive data (token prefixes only)
-- **Logged Events:**
-  - Authentication attempts (success/failure)
-  - User registration attempts
-  - JWT token generation and validation failures
-  - Unauthorized access attempts
-  - Rate limit violations
-  - Password change attempts
-  - Account lockouts
-  - Custom security events
-
-### [SecurityExceptionHandler](SecurityExceptionHandler.java)
-- **Purpose:** Centralized security exception handling for consistent error responses.
-- **Key Features:**
-  - **Consistent error handling:** Delegates to GlobalExceptionHandler for uniform responses
-  - **Authentication entry point:** Handles unauthorized access (401 errors)
-  - **Access denied handler:** Handles forbidden access (403 errors)
-  - **Integration with audit logging:** Security events are logged through the audit service
-
-### [UserAuthenticationRepository](UserAuthenticationRepository.java)
-- **Purpose:** JPA repository for UserAuthentication entity operations.
-- **Key Methods:**
-  - `findByUsername()` - Retrieves authentication data by username
-  - `existsByUsername()` - Checks username existence for validation
+### [SecurityController](SecurityController.java)
+- **Purpose:** Additional security-related endpoints and operations for administrative functions.
 
 ## Data Transfer Objects (DTOs)
 
-### [LoginRequest](dto/LoginRequest.java)
-- **Purpose:** Request DTO for user authentication.
-- **Fields:**
-  - `username` - 3-50 characters, required
-  - `password` - 6-40 characters, required
-- **Validation:** Bean Validation annotations for input validation
-
 ### [SignUpRequest](dto/SignUpRequest.java)
-- **Purpose:** Request DTO for user registration with comprehensive validation.
+- **Purpose:** Registration request with comprehensive validation rules.
 - **Fields:**
-  - `username` - 3-50 characters, required
-  - `password` - 8-128 characters with complexity requirements
-  - `contactRequestDto` - Complete contact information
-- **Password Requirements:**
+  - `username` (3-50 characters, required)
+  - `password` (8-128 characters with complexity requirements)
+  - `contactRequestDto` (complete contact information)
+- **Password Security Requirements:**
   - At least one lowercase letter
-  - At least one uppercase letter
+  - At least one uppercase letter  
   - At least one digit
   - At least one special character (@$!%*?&_)
   - 8-128 characters total length
 
+### [LoginRequest](dto/LoginRequest.java)
+- **Purpose:** Authentication request with input validation.
+- **Fields:**
+  - `username` (3-50 characters, required)
+  - `password` (6-40 characters, required)
+
 ### [JwtAuthenticationResponse](dto/JwtAuthenticationResponse.java)
-- **Purpose:** Response DTO containing JWT token and user information after successful authentication.
+- **Purpose:** Successful authentication response containing JWT token and user information.
 
 ### [UserSummaryResponse](dto/UserSummaryResponse.java)
-- **Purpose:** Response DTO for user information summary.
+- **Purpose:** User information summary for authenticated user endpoints.
 
-## Controllers
+## Filter Layer (Security Pipeline)
 
-### [AuthController](AuthController.java)
-- **Purpose:** REST controller handling authentication endpoints.
-- **Endpoints:**
-  - `POST /api/auth/login` - User authentication
-  - `POST /api/auth/register` - User registration
-  - Additional authentication-related endpoints
+### [RateLimitingFilter](RateLimitingFilter.java) - Order 1
+- **Purpose:** Advanced brute force protection using sliding window algorithm.
+- **Protection Strategy:**
+  - 5 attempts per 15-minute sliding window
+  - 30-minute automatic lockout after exceeding limits
+  - IP-based tracking with proxy support (X-Forwarded-For, X-Real-IP)
+  - Automatic cleanup of expired attempt records
+- **Protected Endpoints:** `/api/auth/login`, `/api/auth/register`, `/api/auth/refresh`, `/api/auth/validate`
+- **Response:** Structured JSON error responses with retry guidance
+- **Integration:** Comprehensive audit logging for security monitoring
 
-### [SecurityController](SecurityController.java)
-- **Purpose:** Additional security-related endpoints and operations.
+### [JwtAuthenticationFilter](JwtAuthenticationFilter.java) - Order 2
+- **Purpose:** JWT token validation and security context establishment.
+- **Processing Flow:**
+  1. Check if URL is public (bypass validation for open endpoints)
+  2. Extract Bearer token from Authorization header
+  3. Validate JWT token signature and expiration
+  4. Load user details via CustomUserDetailsService
+  5. Set SecurityContext with authenticated user
+  6. Continue filter chain (graceful handling of failures)
+- **Features:**
+  - Public URL bypass for performance
+  - Comprehensive error logging with audit integration
+  - User details loading with business domain integration
 
-## Security Architecture Highlights
+## Service Layer
 
-### Layered Security Approach
-1. **Rate Limiting Layer** - Prevents brute force attacks
-2. **JWT Authentication Layer** - Validates tokens and sets security context
-3. **Authorization Layer** - Enforces access control rules
-4. **Audit Layer** - Logs all security events
+### [AuthService](AuthService.java)
+- **Purpose:** High-level authentication orchestration maintaining clean architecture.
+- **Registration Process:**
+  1. Validate username and email uniqueness across both auth and business domains
+  2. Create business User entity via UserService (domain separation)
+  3. Create UserAuthentication entity with BCrypt-encoded password
+  4. Comprehensive audit logging for compliance
+- **Features:**
+  - Transactional safety for data consistency
+  - Duplicate prevention with meaningful error messages
+  - Integration with business domain via UserService
+  - Security audit trail for all operations
 
-### Separation of Concerns
-- **Authentication Data:** Stored in UserAuthentication entity (security package)
-- **Business Data:** Stored in User entity (business domain)
-- **Security Operations:** Handled by security package services
-- **Business Operations:** Delegated to domain services
+### [CustomUserDetailsService](CustomUserDetailsService.java)
+- **Purpose:** Spring Security bridge between authentication and business domains.
+- **Integration Strategy:**
+  1. Load authentication credentials from UserAuthentication entity
+  2. Load business user data via UserService (maintains domain boundaries)
+  3. Create UserPrincipal combining both data sources
+- **Features:**
+  - Read-only transactions for performance and safety
+  - Clean separation of authentication and business concerns
+  - Exception handling with meaningful error messages
 
-### Security Best Practices
-- **Password Security:** BCrypt encoding with configurable strength
-- **Token Security:** HMAC-SHA256 with configurable secrets and expiration
-- **Rate Limiting:** Sliding window algorithm with automatic cleanup
-- **Audit Logging:** Comprehensive security event tracking
-- **Error Handling:** Consistent, secure error responses
-- **Header Security:** Comprehensive security headers (CSP, HSTS, XSS protection)
-- **Environment Awareness:** Different security configurations for dev/prod
+## Data Layer
+
+### [UserAuthentication](UserAuthentication.java)
+- **Purpose:** JPA entity storing authentication credentials separate from business User entity.
+- **Schema Design:**
+  - `id` (UUID, primary key, auto-generated)
+  - `username` (String, 100 chars, unique constraint, not null)
+  - `passwordHash` (String, BCrypt-encoded, not null)
+  - `enabled` (boolean, account status, default true)
+  - `createdAt` (Instant, registration timestamp, auto-set)
+  - `lastLogin` (Instant, nullable, tracks authentication events)
+- **Design Philosophy:** Complete separation from business domain User entity
+
+### [UserAuthenticationRepository](UserAuthenticationRepository.java)
+- **Purpose:** JPA repository for authentication data operations.
+- **Key Methods:**
+  - `findByUsername()` - Retrieve authentication data by username
+  - `existsByUsername()` - Username uniqueness validation
+
+### [UserPrincipal](UserPrincipal.java)
+- **Purpose:** Spring Security UserDetails implementation protecting domain model integrity.
+- **Design Benefits:**
+  - Prevents pollution of business User entity with security concerns
+  - Flexible authority management (currently ROLE_USER, extensible)
+  - Complete user representation for security context
+- **Factory Pattern:** `create()` method constructs UserPrincipal from User and password hash
+
+## Security Utilities
+
+### [JwtTokenProvider](JwtTokenProvider.java)
+- **Purpose:** JWT token lifecycle management with enhanced security.
+- **Security Features:**
+  - Configurable JWT secret validation (minimum 256 bits recommended)
+  - HMAC-SHA256 signing with proper key derivation
+  - Comprehensive token validation (malformed, expired, signature, claims)
+  - Structured error handling with detailed logging
+- **Configuration:**
+  - `app.jwt.secret` - Signing secret (required, validated at startup)
+  - `app.jwt.expiration` - Token TTL in milliseconds (default: 24 hours)
+- **Core Methods:**
+  - `generateToken()` - Create signed JWT with username and expiration
+  - `getUsernameFromToken()` - Extract username from validated token
+  - `isValid()` - Comprehensive token validation with error categorization
+
+## Security Monitoring & Audit
+
+### [SecurityAuditService](SecurityAuditService.java)
+- **Purpose:** Comprehensive security event logging for compliance and monitoring.
+- **Event Categories:**
+  - Authentication events (login success/failure, token operations)
+  - Registration attempts (success/failure with reasons)
+  - Authorization failures (unauthorized access, invalid tokens)
+  - Security violations (rate limiting, suspicious activity)
+  - Administrative actions (password changes, account lockouts)
+- **Client Identification:**
+  - IP address detection with proxy support (X-Forwarded-For, X-Real-IP)
+  - User agent logging for forensic analysis
+  - Request context preservation
+- **Security-First Logging:**
+  - Structured log format with consistent categorization
+  - Sensitive data masking (token prefixes only)
+  - Timestamp precision for correlation
+
+### [SecurityExceptionHandler](SecurityExceptionHandler.java)
+- **Purpose:** Centralized security exception handling ensuring consistent error responses.
+- **Integration Points:**
+  - Authentication entry point (401 unauthorized)
+  - Access denied handler (403 forbidden)
+  - Delegates to GlobalExceptionHandler for response consistency
+  - Automatic audit logging integration
+
+## Security Best Practices Implementation
+
+### Layered Defense Strategy
+1. **Rate Limiting**: Prevents automated attacks at the network level
+2. **Token Security**: HMAC-SHA256 with configurable secrets and expiration
+3. **Password Security**: BCrypt with configurable rounds and complexity requirements  
+4. **Header Security**: Comprehensive security headers (CSP, HSTS, XSS protection)
+5. **Audit Logging**: Complete security event tracking for compliance
+
+### Clean Architecture Principles
+- **Domain Separation**: Authentication data isolated from business entities
+- **Dependency Direction**: Security layer depends on domain, not vice versa
+- **Interface Segregation**: Focused interfaces for specific security concerns
+- **Single Responsibility**: Each component has a clear, focused purpose
+
+### Environment-Aware Security
+- **Development**: H2 console access, relaxed settings for productivity
+- **Production**: Strict security headers, enhanced protection, no dev tools
+- **Testing**: Configurable security disable for integration testing
 
 ### Compliance and Monitoring
-- **Audit Logging:** All security events logged with timestamps and context
-- **Rate Limiting:** Prevents automated attacks
-- **Client Identification:** IP address and user agent tracking
-- **Token Security:** Secure token generation and validation
-- **Error Logging:** Detailed logging for security analysis
+- **Audit Trail**: All security events logged with context and timestamps
+- **Threat Detection**: Rate limiting and suspicious activity monitoring
+- **Forensic Capability**: Client identification and request correlation
+- **Error Security**: Structured error responses without information leakage
 
-This security package provides enterprise-grade security features while maintaining clean architecture principles and comprehensive audit capabilities for compliance and monitoring requirements.
+This security package provides enterprise-grade security features while maintaining clean architecture principles, comprehensive audit capabilities, and environment-appropriate configuration for both development productivity and production security.

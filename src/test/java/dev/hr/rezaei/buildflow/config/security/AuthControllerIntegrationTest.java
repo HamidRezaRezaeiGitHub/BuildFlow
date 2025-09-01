@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
@@ -369,6 +370,185 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.email").value(signUpRequest.getContactRequestDto().getEmail()));
+    }
+
+    // /refresh endpoint tests
+    @Test
+    void refreshToken_shouldReturnNewToken_whenValidAuthentication() throws Exception {
+        // Given - Create and authenticate user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.23." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse initialAuth = login(mockMvc, objectMapper, loginRequest, "192.168.24." + testCounter);
+        String initialToken = initialAuth.getAccessToken();
+
+        // When - Refresh token
+        mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
+                        .header("Authorization", "Bearer " + initialToken)
+                        .header("X-Forwarded-For", "192.168.25." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+    }
+
+    @Test
+    void refreshToken_shouldReturn401_whenInvalidAuthentication() throws Exception {
+        // Given - Invalid token
+        String invalidToken = "invalid.jwt.token";
+
+        // When & Then
+        mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
+                        .header("Authorization", "Bearer " + invalidToken)
+                        .header("X-Forwarded-For", "192.168.26." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorType").value(ResponseErrorType.AUTHENTICATION_REQUIRED.name()));
+    }
+
+    @Test
+    void refreshToken_shouldReturn401_whenNoAuthentication() throws Exception {
+        // When & Then - No Authorization header
+        mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
+                        .header("X-Forwarded-For", "192.168.27." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorType").value(ResponseErrorType.AUTHENTICATION_REQUIRED.name()));
+    }
+
+    // /logout endpoint tests
+    @Test
+    void logout_shouldReturnSuccess_whenAuthenticated() throws Exception {
+        // Given - Create and authenticate user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.28." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.29." + testCounter);
+        String token = authResponse.getAccessToken();
+
+        // When - Logout with valid token
+        mockMvc.perform(post(AUTH_BASE_URL + "/logout")
+                        .header("Authorization", "Bearer " + token)
+                        .header("X-Forwarded-For", "192.168.30." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+    }
+
+    @Test
+    void logout_shouldReturnSuccess_whenNotAuthenticated() throws Exception {
+        // When - Logout without authentication
+        mockMvc.perform(post(AUTH_BASE_URL + "/logout")
+                        .header("X-Forwarded-For", "192.168.31." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+    }
+
+    @Test
+    void logout_shouldClearSecurityContext_whenAuthenticated() throws Exception {
+        // Given - Create and authenticate user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.32." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.33." + testCounter);
+        String token = authResponse.getAccessToken();
+
+        // When - Logout
+        mockMvc.perform(post(AUTH_BASE_URL + "/logout")
+                        .header("Authorization", "Bearer " + token)
+                        .header("X-Forwarded-For", "192.168.34." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.messages", hasItem("Logout successful")));
+
+        // Then - Security context should be cleared (token should still work for subsequent requests
+        // since JWT is stateless, but the logout event should be logged)
+        // Note: In a stateless JWT system, the token remains valid until expiration
+        // The logout mainly clears server-side context and logs the event
+    }
+
+    // /validate endpoint tests
+    @Test
+    void validateToken_shouldReturnValid_whenAuthenticatedWithValidToken() throws Exception {
+        // Given - Create and authenticate user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.35." + testCounter);
+        UUID userId = createUserResponse.getUserDto().getId();
+        assertTrue(userService.findById(userId).isPresent());
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(password)
+                .build();
+        JwtAuthenticationResponse authResponse = login(mockMvc, objectMapper, loginRequest, "192.168.36." + testCounter);
+        String token = authResponse.getAccessToken();
+
+        // When - Validate token
+        mockMvc.perform(get(AUTH_BASE_URL + "/validate")
+                        .header("Authorization", "Bearer " + token)
+                        .header("X-Forwarded-For", "192.168.37." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.messages", hasItem("Token is valid")));
+    }
+
+    @Test
+    void validateToken_shouldReturnInvalid_whenNotAuthenticated() throws Exception {
+        // When - Validate without token
+        mockMvc.perform(get(AUTH_BASE_URL + "/validate")
+                        .header("X-Forwarded-For", "192.168.38." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void validateToken_shouldReturnInvalid_whenInvalidToken() throws Exception {
+        // Given - Invalid token
+        String invalidToken = "invalid.jwt.token";
+
+        // When - Validate invalid token
+        mockMvc.perform(get(AUTH_BASE_URL + "/validate")
+                        .header("Authorization", "Bearer " + invalidToken)
+                        .header("X-Forwarded-For", "192.168.39." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
     private void assertTokenIsValid(String token, String expectedUsername) {

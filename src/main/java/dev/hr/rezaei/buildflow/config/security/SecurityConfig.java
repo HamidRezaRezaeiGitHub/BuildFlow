@@ -61,7 +61,7 @@ public class SecurityConfig {
 
     public static Set<String> PUBLIC_URLS = Set.of(
             "/", "/home",
-            "/api/auth/register", "/api/auth/login",
+            "/api/auth/register", "/api/auth/login", "/api/auth/logout",
             "/api/public/**", "/api/*/public/**",
             "/actuator/health",
             // Swagger UI and OpenAPI documentation
@@ -99,7 +99,7 @@ public class SecurityConfig {
                 // Keep HTTP Basic disabled for API endpoints
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
                 )
@@ -136,7 +136,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
                 )
