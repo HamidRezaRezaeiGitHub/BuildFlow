@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
@@ -260,7 +261,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         userRepository.save(user);
 
         // When
-        UserDto userDto = userService.getUserByUsername(user.getUsername());
+        UserDto userDto = userService.getUserDtoByUsername(user.getUsername());
 
         // Then
         assertNotNull(userDto);
@@ -275,7 +276,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         String nonExistentUsername = "nonexistent_user";
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> userService.getUserByUsername(nonExistentUsername));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserDtoByUsername(nonExistentUsername));
     }
 
     private CreateUserRequest createValidCreateUserRequest() {

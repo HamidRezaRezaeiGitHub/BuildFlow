@@ -1,7 +1,9 @@
 package dev.hr.rezaei.buildflow.user;
 
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ContactService contactService;
 
+    @Transactional
     public CreateUserResponse createUser(@NonNull CreateUserRequest request) {
         Contact contact = toContactEntity(request.getContactRequestDto());
         contact = contactService.save(contact);
@@ -50,14 +53,7 @@ public class UserService {
                 .build();
     }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public Optional<User> findById(UUID id) {
-        return userRepository.findById(id);
-    }
-
+    @Transactional
     public User update(@NonNull User user) {
         if (!isPersisted(user)) {
             throw new IllegalArgumentException("User must be already persisted.");
@@ -65,6 +61,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public void delete(@NonNull User user) {
         if (!isPersisted(user)) {
             throw new IllegalArgumentException("User must be already persisted.");
@@ -74,6 +71,28 @@ public class UserService {
 
     public boolean isPersisted(@NonNull User user) {
         return user.getId() != null && userRepository.existsById(user.getId());
+    }
+
+    public UserDto getUserDtoByUsername(@NonNull String username) {
+        Optional<User> userOptional = findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException("User not found with username: " + username);
+        }
+        return toUserDto(userOptional.get());
+    }
+
+    // Existence check methods
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> findById(UUID id) {
+        return userRepository.findById(id);
+    }
+
+    public Optional<User> findByUsername(@NonNull String username) {
+        return userRepository.findByUsername(username);
     }
 
     public boolean existsByEmail(@NonNull String email) {
@@ -86,17 +105,5 @@ public class UserService {
 
     public boolean existsById(@NonNull UUID id) {
         return userRepository.existsById(id);
-    }
-
-    public Optional<User> findByUsername(@NonNull String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public UserDto getUserByUsername(@NonNull String username) {
-        Optional<User> userOptional = findByUsername(username);
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User not found with username: " + username);
-        }
-        return toUserDto(userOptional.get());
     }
 }

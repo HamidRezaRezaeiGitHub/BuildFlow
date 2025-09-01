@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class ContactAddressService {
      * Update an already persisted ContactAddress.
      * Throws IllegalArgumentException if the address is not persisted.
      */
+    @Transactional
     public ContactAddress update(@NonNull ContactAddress address) {
         if (address.getId() == null || !contactAddressRepository.existsById(address.getId())) {
             throw new IllegalArgumentException("ContactAddress must be already persisted.");

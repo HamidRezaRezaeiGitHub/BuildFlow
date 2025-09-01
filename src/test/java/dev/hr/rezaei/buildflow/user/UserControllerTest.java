@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
+import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import org.junit.jupiter.api.Disabled;
@@ -31,6 +32,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userDto.id").exists())
@@ -63,6 +65,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -81,6 +84,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -99,6 +103,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -117,6 +122,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -136,6 +142,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -160,6 +167,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -169,10 +177,11 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnOk_whenUserExists() throws Exception {
         // Given
         String username = testBuilderUserDto.getEmail();
-        when(userService.getUserByUsername(username)).thenReturn(testBuilderUserDto);
+        when(userService.getUserDtoByUsername(username)).thenReturn(testBuilderUserDto);
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists())
@@ -186,11 +195,12 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
         // Given
         String username = "nonexistent.user@example.com";
-        when(userService.getUserByUsername(username))
-                .thenThrow(new IllegalArgumentException("User not found with username: " + username));
+        when(userService.getUserDtoByUsername(username))
+                .thenThrow(new UserNotFoundException("User not found with username: " + username));
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -198,10 +208,11 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnOk_whenOwnerExists() throws Exception {
         // Given
         String username = testOwnerUserDto.getEmail();
-        when(userService.getUserByUsername(username)).thenReturn(testOwnerUserDto);
+        when(userService.getUserDtoByUsername(username)).thenReturn(testOwnerUserDto);
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists())

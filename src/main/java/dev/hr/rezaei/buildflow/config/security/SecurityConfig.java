@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.config.security;
 
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -24,37 +23,8 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 @Configuration
-@EnableMethodSecurity()
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    @Nullable // can be null if security is disabled via properties in the yaml file
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Nullable // can be null if security is disabled via properties in the yaml file
-    private final RateLimitingFilter rateLimitingFilter;
-    private final SecurityExceptionHandler securityExceptionHandler;
-    private final Environment environment;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "false")
-    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .build();
-    }
 
     public static Set<String> PUBLIC_URLS = Set.of(
             "/", "/home",
@@ -68,92 +38,127 @@ public class SecurityConfig {
     );
 
     @Bean
-    @ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public SecurityFilterChain secureFilterChain(HttpSecurity http) throws Exception {
-        // Check if we're in development profile for H2 console access
-        boolean isDevelopment = environment.acceptsProfiles(Profiles.of("dev", "development", "test", "default")) ||
-                !environment.acceptsProfiles(Profiles.of("production", "prod", "uat"));
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-        if (isDevelopment) {
-            return getDevelopmentFilterChain(http);
-        } else {
-            return getProductionFilterChain(http);
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Configuration
+    @ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "false")
+    public static class DisabledSecurityConfig {
+        @Bean
+        public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+            return http
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .httpBasic(AbstractHttpConfigurer::disable)
+                    .formLogin(AbstractHttpConfigurer::disable)
+                    .build();
         }
     }
 
-    private SecurityFilterChain getProductionFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> {
-                    // Public routes - accessible without authentication
-                    auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
-                    // All other requests require authentication
-                    auth.anyRequest().authenticated();
-                })
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Disable form login for API-first approach
-                .formLogin(AbstractHttpConfigurer::disable)
-                // Keep HTTP Basic disabled for API endpoints
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .permitAll()
-                )
-                // Disable CSRF for API endpoints (required for JWT)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
-                // Configure security headers with modern Spring Security 6.x syntax
-                .headers(headers -> {
-                            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny);
-                            configureCommonHeaders(headers);
-                        }
-                )
-                // Configure exception handling for authentication and authorization failures
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(securityExceptionHandler)
-                        .accessDeniedHandler(securityExceptionHandler)
-                )
-                // Add rate limiting filter before authentication processing
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-                // Add JWT authentication filter before Spring's username/password filter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    @Configuration
+    @ConditionalOnProperty(prefix = "spring.security", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @EnableMethodSecurity()
+    @RequiredArgsConstructor
+    public static class EnableSecurityConfig {
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final RateLimitingFilter rateLimitingFilter;
+        private final SecurityExceptionHandler securityExceptionHandler;
+        private final Environment environment;
 
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain secureFilterChain(HttpSecurity http) throws Exception {
+            // Check if we're in development profile for H2 console access
+            boolean isDevelopment = environment.acceptsProfiles(Profiles.of("dev", "development", "test", "default")) ||
+                    !environment.acceptsProfiles(Profiles.of("production", "prod", "uat"));
 
-    private SecurityFilterChain getDevelopmentFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
-                    auth.requestMatchers("/h2-console/**").permitAll();
-                    auth.anyRequest().authenticated();
-                })
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .permitAll()
-                )
-                .csrf(csrf -> {
-                    csrf.ignoringRequestMatchers("/api/**", "/h2-console/**");
-                })
-                .headers(headers -> {
-                            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
-                            configureCommonHeaders(headers);
-                        }
-                )
-                // Configure exception handling for authentication and authorization failures
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(securityExceptionHandler)
-                        .accessDeniedHandler(securityExceptionHandler)
-                )
-                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            if (isDevelopment) {
+                return getDevelopmentFilterChain(http);
+            } else {
+                return getProductionFilterChain(http);
+            }
+        }
 
-        return http.build();
+        private SecurityFilterChain getProductionFilterChain(HttpSecurity http) throws Exception {
+            http.authorizeHttpRequests(auth -> {
+                        // Public routes - accessible without authentication
+                        auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
+                        // All other requests require authentication
+                        auth.anyRequest().authenticated();
+                    })
+                    .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    )
+                    // Disable form login for API-first approach
+                    .formLogin(AbstractHttpConfigurer::disable)
+                    // Keep HTTP Basic disabled for API endpoints
+                    .httpBasic(AbstractHttpConfigurer::disable)
+                    .logout(logout -> logout
+                            .logoutUrl("/logout")
+                            .logoutSuccessUrl("/")
+                            .permitAll()
+                    )
+                    // Disable CSRF for API endpoints (required for JWT)
+                    .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+                    // Configure security headers with modern Spring Security 6.x syntax
+                    .headers(headers -> {
+                                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny);
+                                configureCommonHeaders(headers);
+                            }
+                    )
+                    // Configure exception handling for authentication and authorization failures
+                    .exceptionHandling(exceptions -> exceptions
+                            .authenticationEntryPoint(securityExceptionHandler)
+                            .accessDeniedHandler(securityExceptionHandler)
+                    )
+                    // Add rate limiting filter before authentication processing
+                    .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                    // Add JWT authentication filter before Spring's username/password filter
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+            return http.build();
+        }
+
+        private SecurityFilterChain getDevelopmentFilterChain(HttpSecurity http) throws Exception {
+            http.authorizeHttpRequests(auth -> {
+                        auth.requestMatchers(PUBLIC_URLS.toArray(new String[0])).permitAll();
+                        auth.requestMatchers("/h2-console/**").permitAll();
+                        auth.anyRequest().authenticated();
+                    })
+                    .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    )
+                    .formLogin(AbstractHttpConfigurer::disable)
+                    .httpBasic(AbstractHttpConfigurer::disable)
+                    .logout(logout -> logout
+                            .logoutUrl("/logout")
+                            .logoutSuccessUrl("/")
+                            .permitAll()
+                    )
+                    .csrf(csrf -> {
+                        csrf.ignoringRequestMatchers("/api/**", "/h2-console/**");
+                    })
+                    .headers(headers -> {
+                                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
+                                configureCommonHeaders(headers);
+                            }
+                    )
+                    // Configure exception handling for authentication and authorization failures
+                    .exceptionHandling(exceptions -> exceptions
+                            .authenticationEntryPoint(securityExceptionHandler)
+                            .accessDeniedHandler(securityExceptionHandler)
+                    )
+                    .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+            return http.build();
+        }
+
     }
 
     public static void configureCommonHeaders(HeadersConfigurer<HttpSecurity> headers) {

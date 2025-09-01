@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ public class ContactService {
      * Save a new Contact.
      * Throws IllegalArgumentException if the contact is already persisted or if a contact with the same email exists.
      */
+    @Transactional
     public Contact save(@NonNull Contact contact) {
         if (contact.getId() != null && contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact is already persisted.");
@@ -53,6 +55,7 @@ public class ContactService {
      * Update an already persisted Contact.
      * Throws IllegalArgumentException if the contact is not persisted.
      */
+    @Transactional
     public Contact update(@NonNull Contact contact) {
         if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact must be already persisted.");
@@ -64,6 +67,7 @@ public class ContactService {
      * Delete an already persisted Contact.
      * Throws IllegalArgumentException if the contact is not persisted.
      */
+    @Transactional
     public void delete(@NonNull Contact contact) {
         if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
             throw new IllegalArgumentException("Contact must be already persisted.");

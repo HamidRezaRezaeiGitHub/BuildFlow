@@ -10,12 +10,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -32,12 +34,10 @@ public class UserController {
     @Operation(summary = "Create a new user", description = "Creates a new user with contact information, username, and registration status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<CreateUserResponse> createUser(
             @Parameter(description = "User creation request data")
@@ -56,10 +56,10 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User found successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{username}")
     public ResponseEntity<UserDto> getUserByUsername(
             @Parameter(description = "Username of the user to retrieve")
@@ -67,13 +67,9 @@ public class UserController {
     ) {
         log.info("Getting user with username: {}", username);
 
-        try {
-            UserDto userDto = userService.getUserByUsername(username);
-            log.info("Successfully found user with username: {}", username);
-            return ResponseEntity.ok(userDto);
-        } catch (IllegalArgumentException e) {
-            log.warn("User not found with username: {}", username);
-            return ResponseEntity.notFound().build();
-        }
+        UserDto userDto = userService.getUserDtoByUsername(username);
+
+        log.info("Successfully found user with username: {}", username);
+        return ResponseEntity.ok(userDto);
     }
 }
