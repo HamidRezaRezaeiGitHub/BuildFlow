@@ -1,13 +1,10 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
-import dev.hr.rezaei.buildflow.project.auth.RequireProjectCreationAccess;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,9 +27,9 @@ import java.util.UUID;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 @Tag(name = "Project Management", description = "API endpoints for managing construction projects")
-@Hidden
 public class ProjectController {
 
+    private final ProjectAuthService authorizationHandler;
     private final ProjectService projectService;
 
     @Operation(summary = "Create a new project", description = "Creates a new construction project with builder, owner, and location information")
@@ -40,7 +38,7 @@ public class ProjectController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateProjectResponse.class)))
     })
     @SecurityRequirement(name = "bearerAuth")
-    @RequireProjectCreationAccess
+    @PreAuthorize("hasAuthority('CREATE_PROJECT') and @projectAuthService.canCreateProject(#request)")
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
             @Parameter(description = "Project creation request containing builder, owner, and location information")
@@ -55,11 +53,7 @@ public class ProjectController {
     @Operation(summary = "Get projects by builder ID", description = "Retrieves all projects assigned to a specific builder")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
-            @ApiResponse(responseCode = "404", description = "Builder not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
     @GetMapping("/builder/{builderId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
@@ -67,23 +61,14 @@ public class ProjectController {
             @PathVariable UUID builderId
     ) {
         log.info("Getting projects for builder ID: {}", builderId);
-
-        try {
-            List<ProjectDto> projects = projectService.getProjectsByBuilderId(builderId);
-            return ResponseEntity.ok(projects);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        List<ProjectDto> projects = projectService.getProjectsByBuilderId(builderId);
+        return ResponseEntity.ok(projects);
     }
 
     @Operation(summary = "Get projects by owner ID", description = "Retrieves all projects owned by a specific property owner")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
-            @ApiResponse(responseCode = "404", description = "Owner not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(
@@ -91,12 +76,7 @@ public class ProjectController {
             @PathVariable UUID ownerId
     ) {
         log.info("Getting projects for owner ID: {}", ownerId);
-
-        try {
-            List<ProjectDto> projects = projectService.getProjectsByOwnerId(ownerId);
-            return ResponseEntity.ok(projects);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        List<ProjectDto> projects = projectService.getProjectsByOwnerId(ownerId);
+        return ResponseEntity.ok(projects);
     }
 }

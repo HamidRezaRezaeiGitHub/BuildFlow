@@ -21,9 +21,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
-    @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
-    @UniqueConstraint(name = "uk_users_contact_id", columnNames = "contact_id")
+        @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
+        @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_users_contact_id", columnNames = "contact_id")
 })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
@@ -57,28 +57,28 @@ public class User {
     // Table: projects, Foreign Key: builder_id
     @NonNull
     @Builder.Default
-    @OneToMany(mappedBy = "builderUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "builderUser", fetch = FetchType.EAGER)
     private List<Project> builtProjects = new ArrayList<>();
 
     // Bidirectional relationship: One User (as owner) can have many Projects.
     // Table: projects, Foreign Key: owner_id
     @NonNull
     @Builder.Default
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private List<Project> ownedProjects = new ArrayList<>();
 
     // Bidirectional relationship: One User (as creator) can have many Quotes.
     // Table: quotes, Foreign Key: created_by_id
     @NonNull
     @Builder.Default
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
     private List<Quote> createdQuotes = new ArrayList<>();
 
     // Bidirectional relationship: One User (as supplier) can have many Quotes.
     // Table: quotes, Foreign Key: supplier_id
     @NonNull
     @Builder.Default
-    @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "supplier", fetch = FetchType.EAGER)
     private List<Quote> suppliedQuotes = new ArrayList<>();
 
     @Override

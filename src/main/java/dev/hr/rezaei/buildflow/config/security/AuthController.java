@@ -182,7 +182,7 @@ public class AuthController {
     })
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('CREATE_ADMIN')")
     @Hidden
     public ResponseEntity<CreateUserResponse> createAdminUser(
             @Parameter(description = "Admin user registration information")

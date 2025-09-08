@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Custom UserDetails implementation that wraps our User entity
@@ -42,9 +43,9 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Convert role to Spring Security authority format
-        String authority = "ROLE_" + role.name();
-        return Collections.singletonList(new SimpleGrantedAuthority(authority));
+        return role.getAllAuthorities().stream()
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
     }
 
     @Override

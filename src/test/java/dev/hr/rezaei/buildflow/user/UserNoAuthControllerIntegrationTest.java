@@ -1,6 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.AbstractControllerIntegrationTest;
+import dev.hr.rezaei.buildflow.AbstractNoAuthControllerIntegrationTest;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-class UserControllerIntegrationTest extends AbstractControllerIntegrationTest {
+class UserNoAuthControllerIntegrationTest extends AbstractNoAuthControllerIntegrationTest {
 
     @Test
     void createUser_shouldReturnCreated_whenValidRegisteredRequest() throws Exception {
