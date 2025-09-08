@@ -122,7 +122,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.21." + testCounter);
+        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.21." + testCounter);
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -144,7 +144,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .username(username)
                 .password(password)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.22." + testCounter);
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.22." + testCounter);
         String token = jwtAuthenticationResponse.getAccessToken();
         return new UserToken(user, token);
     }
@@ -154,7 +154,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.23." + testCounter);
+        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.23." + testCounter);
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -176,7 +176,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .username(username)
                 .password(password)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.24." + testCounter);
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.24." + testCounter);
         String token = jwtAuthenticationResponse.getAccessToken();
         return new UserToken(user, token);
     }
@@ -186,7 +186,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.25." + testCounter);
+        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.25." + testCounter);
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -208,7 +208,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .username(username)
                 .password(password)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.26." + testCounter);
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.26." + testCounter);
         String token = jwtAuthenticationResponse.getAccessToken();
         return new UserToken(user, token);
     }
@@ -218,7 +218,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
         String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "192.168.27." + testCounter);
+        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.27." + testCounter);
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -239,7 +239,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .username(username)
                 .password(password)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.28." + testCounter);
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.28." + testCounter);
         String token = jwtAuthenticationResponse.getAccessToken();
         return new UserToken(user, token);
     }

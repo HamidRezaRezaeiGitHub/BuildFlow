@@ -355,6 +355,9 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // Given - Create and authenticate user
         String initialToken = registerUserAndLoginAndGetToken(mockMvc, objectMapper, "192.168.24." + testCounter, userService);
 
+        // wait 2 seconds to ensure new token has different iat
+        Thread.sleep(2000);
+
         // When - Refresh token
         mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
                         .header("Authorization", "Bearer " + initialToken)
