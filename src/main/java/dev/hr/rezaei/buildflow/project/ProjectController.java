@@ -55,6 +55,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#builderId)")
     @GetMapping("/builder/{builderId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
@@ -71,6 +72,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#ownerId)")
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(
