@@ -19,7 +19,10 @@ public enum Role {
 
     public static Set<String> getUserAuthorities() {
         return Set.of(
-                "CREATE_PROJECT"
+                "CREATE_PROJECT",
+                "VIEW_PROJECT",
+                "UPDATE_PROJECT",
+                "DELETE_PROJECT"
         );
     }
 

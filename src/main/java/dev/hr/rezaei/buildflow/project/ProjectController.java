@@ -38,7 +38,7 @@ public class ProjectController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateProjectResponse.class)))
     })
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAuthority('CREATE_PROJECT') and @projectAuthService.canCreateProject(#request)")
+    @PreAuthorize("hasAuthority('CREATE_PROJECT') and @projectAuthService.isCreateRequestAuthorized(#request)")
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
             @Parameter(description = "Project creation request containing builder, owner, and location information")
@@ -55,6 +55,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
+    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#builderId)")
     @GetMapping("/builder/{builderId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
             @Parameter(description = "ID of the builder whose projects to retrieve")
@@ -70,6 +71,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
+    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#ownerId)")
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(
             @Parameter(description = "ID of the owner whose projects to retrieve")

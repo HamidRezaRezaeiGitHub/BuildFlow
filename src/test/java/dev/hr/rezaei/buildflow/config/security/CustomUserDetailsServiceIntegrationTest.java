@@ -201,7 +201,6 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
 
         // Then
         assertNotNull(userDetails.getAuthorities());
-        assertEquals(1, userDetails.getAuthorities().size());
     }
 
     @Test

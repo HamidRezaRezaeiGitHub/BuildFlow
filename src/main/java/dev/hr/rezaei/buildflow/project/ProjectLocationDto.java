@@ -2,9 +2,7 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.BaseAddressDto;
 import dev.hr.rezaei.buildflow.dto.Dto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
@@ -23,6 +21,8 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectLocationDto extends BaseAddressDto implements Dto<ProjectLocation> {
     private UUID id;
 }

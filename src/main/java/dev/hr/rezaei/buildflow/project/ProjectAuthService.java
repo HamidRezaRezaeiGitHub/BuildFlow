@@ -19,7 +19,7 @@ public class ProjectAuthService extends AbstractAuthorizationHandler {
         super(userService);
     }
 
-    public boolean canCreateProject(CreateProjectRequest request) {
+    public boolean isCreateRequestAuthorized(CreateProjectRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (isAdmin(authentication)) {
             return true;
@@ -31,6 +31,22 @@ public class ProjectAuthService extends AbstractAuthorizationHandler {
         UUID ownerId = request.getOwnerId();
         if (!requestorId.equals(builderId) && !requestorId.equals(ownerId)) {
             log.debug("User [{}] is not authorized to create project for builder [{}] and owner [{}].", requestorId, builderId, ownerId);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isViewProjectsAuthorized(UUID requestedId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (isAdmin(authentication)) {
+            return true;
+        }
+
+        User user = getAuthenticatedUser(authentication, "view builder/owner projects");
+        UUID requestorId = user.getId();
+
+        if (!requestorId.equals(requestedId)) {
+            log.debug("User [{}] is not authorized to view projects for another builder/owner [{}].", requestorId, requestedId);
             return false;
         }
         return true;

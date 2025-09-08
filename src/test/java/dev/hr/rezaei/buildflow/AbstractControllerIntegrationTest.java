@@ -11,27 +11,36 @@ import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.estimate.EstimateGroupRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateLineRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateRepository;
+import dev.hr.rezaei.buildflow.project.ProjectDto;
 import dev.hr.rezaei.buildflow.project.ProjectLocationRepository;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
+import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.quote.QuoteLocationRepository;
 import dev.hr.rezaei.buildflow.quote.QuoteRepository;
 import dev.hr.rezaei.buildflow.user.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -86,11 +95,15 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
     @Autowired
     private ContactAddressRepository contactAddressRepository;
 
+    private final Random random = new Random();
+
     protected int testCounter = 0;
+    private final Map<User, SignUpRequest> registeredUsersSignUpRequests = new HashMap<>();
 
     @BeforeEach
     void setUp() {
         clearDatabase();
+        registeredUsersSignUpRequests.clear();
         testCounter++;
     }
 
@@ -107,60 +120,67 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         userRepository.deleteAll();
         contactRepository.deleteAll();
         contactAddressRepository.deleteAll();
+        registeredUsersSignUpRequests.clear();
     }
 
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    protected static class UserToken {
-        public User user;
-        public String token;
-    }
-
-    protected UserToken getAdmin() throws Exception {
-        // register
+    protected User registerAdmin() throws Exception {
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.21." + testCounter);
+        String username = "Admin" + signUpRequest.getUsername();
+        signUpRequest.setUsername(username);
+        String clientIp = "193.168.21." + (100 + random.nextInt(10000));
+        registerUser(mockMvc, objectMapper, signUpRequest, clientIp);
+
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
         user.getContact().getLabels().add(ContactLabel.ADMINISTRATOR);
-        userService.update(user);
+        user = userService.update(user);
         log.debug("Admin user registered: {}", user);
 
         // set role to ADMIN in the repository
         var userAuthOpt = userAuthenticationRepository.findByUsername(username);
         assertTrue(userAuthOpt.isPresent());
-        UserAuthentication userAuth = userAuthOpt.get();
+        var userAuth = userAuthOpt.get();
         userAuth.setRole(Role.ADMIN);
-        userAuthenticationRepository.save(userAuth);
+        userAuth = userAuthenticationRepository.save(userAuth);
         assertEquals(Role.ADMIN, userAuthenticationRepository.findByUsername(username).get().getRole());
         log.debug("Admin user role set to ADMIN in repository: {}", userAuth);
 
+        registeredUsersSignUpRequests.put(user, signUpRequest);
+
+        return user;
+    }
+
+    protected String login(User user) throws Exception {
+        SignUpRequest signUpRequest = registeredUsersSignUpRequests.get(user);
+        if (signUpRequest == null) {
+            throw new IllegalStateException("User not registered via this utility class: " + user.getUsername());
+        }
+        String username = signUpRequest.getUsername();
+        String password = signUpRequest.getPassword();
+        String clientIp = "193.168.22." + (100 + random.nextInt(10000));
         // login
         LoginRequest loginRequest = LoginRequest.builder()
                 .username(username)
                 .password(password)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.22." + testCounter);
-        String token = jwtAuthenticationResponse.getAccessToken();
-        return new UserToken(user, token);
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, clientIp);
+        return jwtAuthenticationResponse.getAccessToken();
     }
 
-    protected UserToken getBuilder() throws Exception {
-        // register
+    protected User registerBuilder() throws Exception {
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.23." + testCounter);
+        String username = "Builder" + signUpRequest.getUsername();
+        signUpRequest.setUsername(username);
+        String clientIp = "193.168.23." + (100 + random.nextInt(10000));
+        registerUser(mockMvc, objectMapper, signUpRequest, clientIp);
+
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
         user.getContact().getLabels().add(ContactLabel.BUILDER);
         user = userService.update(user);
-        log.debug("User registered: {}", user);
+        log.debug("Builder user registered: {}", user);
 
         // set role to USER in the repository
         var userAuthOpt = userAuthenticationRepository.findByUsername(username);
@@ -171,22 +191,18 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         assertEquals(Role.USER, userAuthenticationRepository.findByUsername(username).get().getRole());
         log.debug("User role set to USER in repository: {}", userAuth);
 
-        // login
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.24." + testCounter);
-        String token = jwtAuthenticationResponse.getAccessToken();
-        return new UserToken(user, token);
+        registeredUsersSignUpRequests.put(user, signUpRequest);
+
+        return user;
     }
 
-    protected UserToken getOwner() throws Exception {
-        // register
+    protected User registerOwner() throws Exception {
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
-        String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.25." + testCounter);
+        String username = "Owner" + signUpRequest.getUsername();
+        signUpRequest.setUsername(username);
+        String clientIp = "193.168.25." + (100 + random.nextInt(10000));
+        registerUser(mockMvc, objectMapper, signUpRequest, clientIp);
+
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -203,22 +219,17 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         assertEquals(Role.USER, userAuthenticationRepository.findByUsername(username).get().getRole());
         log.debug("Owner user role set to USER in repository: {}", userAuth);
 
-        // login
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
-                .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.26." + testCounter);
-        String token = jwtAuthenticationResponse.getAccessToken();
-        return new UserToken(user, token);
+        registeredUsersSignUpRequests.put(user, signUpRequest);
+
+        return user;
     }
 
-    protected UserToken getViewer() throws Exception {
-        // register
+    protected User registerViewer() throws Exception {
         SignUpRequest signUpRequest = createValidRandomSignUpRequest();
         String username = signUpRequest.getUsername();
-        String password = signUpRequest.getPassword();
-        registerUser(mockMvc, objectMapper, signUpRequest, "193.168.27." + testCounter);
+        String clientIp = "193.168.27." + (100 + random.nextInt(10000));
+        registerUser(mockMvc, objectMapper, signUpRequest, clientIp);
+
         Optional<User> optionalUser = userService.findByUsername(username);
         assertTrue(optionalUser.isPresent());
         User user = optionalUser.get();
@@ -234,14 +245,30 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         assertEquals(Role.VIEWER, userAuthenticationRepository.findByUsername(username).get().getRole());
         log.debug("Viewer user role set to VIEWER in repository: {}", userAuth);
 
-        // login
-        LoginRequest loginRequest = LoginRequest.builder()
-                .username(username)
-                .password(password)
+        registeredUsersSignUpRequests.put(user, signUpRequest);
+
+        return user;
+    }
+
+    protected ProjectDto createProject(String token, UUID builderId, UUID ownerId, ProjectLocationRequestDto locationRequestDto) throws Exception {
+        CreateProjectRequest projectRequest = CreateProjectRequest.builder()
+                .builderId(builderId)
+                .ownerId(ownerId)
+                .locationRequestDto(locationRequestDto)
                 .build();
-        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "193.168.28." + testCounter);
-        String token = jwtAuthenticationResponse.getAccessToken();
-        return new UserToken(user, token);
+
+        ResultActions result = mockMvc.perform(post("/api/v1/projects")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(projectRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.projectDto.id").exists())
+                .andExpect(jsonPath("$.projectDto.builderId").value(builderId.toString()))
+                .andExpect(jsonPath("$.projectDto.ownerId").value(ownerId.toString()));
+        String responseContent = result.andReturn().getResponse().getContentAsString();
+        CreateProjectResponse responseDto = objectMapper.readValue(responseContent, CreateProjectResponse.class);
+        return responseDto.getProjectDto();
     }
 
 }

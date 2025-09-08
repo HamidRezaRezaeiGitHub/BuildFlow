@@ -2,9 +2,7 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDto;
 import dev.hr.rezaei.buildflow.dto.Dto;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
@@ -23,6 +21,8 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
     private UUID id;
     private UUID builderId;
