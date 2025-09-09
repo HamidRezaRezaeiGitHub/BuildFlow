@@ -18,7 +18,7 @@ The security system follows a layered approach with clear separation of concerns
 
 The complete authentication flow works as follows:
 
-1. **Registration**: User submits credentials → AuthController → AuthService → Creates User + UserAuthentication entities (with default USER role)
+1. **Registration**: User submits credentials → AuthController → AuthService → Creates User + UserAuthentication entities (with default USER role or specified role)
 2. **Login**: User credentials → AuthController → AuthenticationManager → CustomUserDetailsService → UserPrincipal (with role-based authorities) → JWT token generated
 3. **Request Authentication**: Bearer token → RateLimitingFilter → JwtAuthenticationFilter → SecurityContext set with role authorities
 4. **Authorization**: Protected endpoint → Spring Security → UserPrincipal authorities checked → @PreAuthorize evaluates role permissions
@@ -28,15 +28,17 @@ The complete authentication flow works as follows:
 ### [Role](Role.java)
 - **Purpose:** Enumeration defining user roles in the BuildFlow system.
 - **Available Roles:**
-  - `USER` - Standard user role with basic access to the system
-  - `ADMIN` - Administrator role with elevated privileges and administrative functions
-- **Design:** Simple enum for type safety and easy extensibility for future roles
+  - `VIEWER` - Minimal access, no authorities
+  - `USER` - Standard user role with project CRUD authorities
+  - `PREMIUM_USER` - All USER authorities plus premium-only authorities (currently none defined)
+  - `ADMIN` - All USER and PREMIUM_USER authorities plus admin-only authorities (e.g., `CREATE_ADMIN`)
+- **Design:** Enum with authority sets for each role, supporting easy extensibility and fine-grained permissions.
 
 ## Core Configuration
 
 ### [SecurityConfig](SecurityConfig.java)
 - **Purpose:** Main Spring Security configuration class that orchestrates the entire security setup.
-- **Method-Level Security:** Enabled with `@EnableMethodSecurity(prePostEnabled = true)` for @PreAuthorize annotations
+- **Method-Level Security:** Enabled with `@EnableMethodSecurity()` for @PreAuthorize annotations
 - **Environment-Aware Security:**
   - **Development Mode:** H2 console access, relaxed CSRF, same-origin frame options
   - **Production Mode:** Strict security headers, no H2 access, enhanced protection
@@ -50,15 +52,16 @@ The complete authentication flow works as follows:
   - X-XSS-Protection with block mode
   - Referrer-Policy with strict-origin-when-cross-origin
   - X-Content-Type-Options with nosniff
-- **Public Routes:** `/`, `/home`, `/api/auth/**`, `/api/public/**`, `/actuator/health`, Swagger UI, static resources
-- **Conditional Security:** Can be disabled via `spring.security.enabled=false` for testing
+- **Public Routes:** `/`, `/home`, `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, `/api/public/**`, `/api/*/public/**`, `/actuator/health`, Swagger UI, static resources
+- **Conditional Security:** Can be disabled via `spring.security.enabled=false` for testing; dual configuration for enabled/disabled modes.
+- **Public URL Utility:** Uses a utility method to check if a URL is public for filter bypass.
 
 ## Request Processing Layer
 
 ### [AuthController](AuthController.java)
 - **Purpose:** Main REST controller handling authentication endpoints with comprehensive API documentation and role-based admin functions.
 - **Standard Endpoints:**
-  - `POST /api/auth/register` - User registration with contact information (creates USER role)
+  - `POST /api/auth/register` - User registration with contact information (creates USER or specified role)
   - `POST /api/auth/login` - User authentication and JWT token generation
   - `GET /api/auth/current` - Get current authenticated user information
   - `POST /api/auth/refresh` - Refresh JWT token for authenticated users
@@ -70,11 +73,14 @@ The complete authentication flow works as follows:
   - Comprehensive Swagger/OpenAPI documentation
   - Validation integration with Bean Validation
   - Consistent error handling via ResponseFacilitator
-  - Security audit logging integration
+  - Security audit logging integration for all authentication events
   - Role-based endpoint protection with method-level security
 
 ### [SecurityController](SecurityController.java)
-- **Purpose:** Additional security-related endpoints and operations for administrative functions.
+- **Purpose:** Additional security-related endpoints and operations for administrative functions and security testing.
+- **Endpoints:**
+  - `GET /api/security/public` - Public endpoint (no authentication required)
+  - `GET /api/security/private` - Private endpoint (authentication required)
 
 ## Data Transfer Objects (DTOs)
 
@@ -82,14 +88,13 @@ The complete authentication flow works as follows:
 - **Purpose:** Registration request with comprehensive validation rules.
 - **Fields:**
   - `username` (3-50 characters, required)
-  - `password` (8-128 characters with complexity requirements)
-  - `contactRequestDto` (complete contact information)
-- **Password Security Requirements:**
-  - At least one lowercase letter
-  - At least one uppercase letter  
-  - At least one digit
-  - At least one special character (@$!%*?&_)
-  - 8-128 characters total length
+  - `password` (8-128 characters, required)
+    - At least one lowercase letter
+    - At least one uppercase letter
+    - At least one digit
+    - At least one special character (@$!%*?&_)
+    - Only allowed characters (letters, digits, @$!%*?&_)
+  - `contactRequestDto` (complete contact information, required)
 
 ### [LoginRequest](dto/LoginRequest.java)
 - **Purpose:** Authentication request with input validation.
@@ -99,9 +104,17 @@ The complete authentication flow works as follows:
 
 ### [JwtAuthenticationResponse](dto/JwtAuthenticationResponse.java)
 - **Purpose:** Successful authentication response containing JWT token and user information.
+- **Fields:**
+  - `accessToken` (JWT string)
+  - `tokenType` (always "Bearer")
 
 ### [UserSummaryResponse](dto/UserSummaryResponse.java)
-- **Purpose:** User information summary for authenticated user endpoints, now includes role information.
+- **Purpose:** User information summary for authenticated user endpoints, includes role information.
+- **Fields:**
+  - `id` (UUID)
+  - `username`
+  - `email`
+  - `role`
 
 ## Filter Layer (Security Pipeline)
 
@@ -112,7 +125,7 @@ The complete authentication flow works as follows:
   - 30-minute automatic lockout after exceeding limits
   - IP-based tracking with proxy support (X-Forwarded-For, X-Real-IP)
   - Automatic cleanup of expired attempt records
-- **Protected Endpoints:** `/api/auth/login`, `/api/auth/register`, `/api/auth/refresh`, `/api/auth/validate`
+- **Protected Endpoints:** `/api/auth/login`, `/api/auth/register`, `/api/auth/refresh`, `/api/auth/validate`, `/api/auth/logout`
 - **Response:** Structured JSON error responses with retry guidance
 - **Integration:** Comprehensive audit logging for security monitoring
 
@@ -129,7 +142,7 @@ The complete authentication flow works as follows:
   - Public URL bypass for performance
   - Comprehensive error logging with audit integration
   - User details loading with business domain integration
-  - Role-based authority assignment (ROLE_USER, ROLE_ADMIN)
+  - Role-based authority assignment (all authorities from Role)
 
 ## Service Layer
 
@@ -149,6 +162,7 @@ The complete authentication flow works as follows:
   - Duplicate prevention with meaningful error messages
   - Integration with business domain via UserService
   - Security audit trail for all operations including role changes
+  - Flexible role assignment (not limited to USER/ADMIN)
 
 ### [AdminUserInitializer](AdminUserInitializer.java)
 - **Purpose:** Spring Boot ApplicationRunner that automatically creates an initial admin user on application startup.
@@ -206,7 +220,7 @@ The complete authentication flow works as follows:
 - **Purpose:** Spring Security UserDetails implementation with role-based authority management.
 - **Role Integration:**
   - Stores user role information
-  - Converts role to Spring Security authorities (ROLE_USER, ROLE_ADMIN)
+  - Converts role to Spring Security authorities (all authorities from Role)
   - Provides flexible authority management for @PreAuthorize annotations
 - **Design Benefits:**
   - Prevents pollution of business User entity with security concerns
@@ -219,8 +233,8 @@ The complete authentication flow works as follows:
 ### [JwtTokenProvider](JwtTokenProvider.java)
 - **Purpose:** JWT token lifecycle management with enhanced security.
 - **Security Features:**
-  - Configurable JWT secret validation (minimum 256 bits recommended)
-  - HMAC-SHA256 signing with proper key derivation
+  - Configurable JWT secret validation (minimum 256 bits recommended, warning if shorter)
+  - HMAC-SHA256 signing with proper key derivation (using io.jsonwebtoken)
   - Comprehensive token validation (malformed, expired, signature, claims)
   - Structured error handling with detailed logging
 - **Configuration:**
@@ -265,12 +279,13 @@ The complete authentication flow works as follows:
 ### Method-Level Security
 - **@PreAuthorize Annotations:** Enabled for fine-grained access control
 - **Admin Endpoint Protection:** `@PreAuthorize("hasRole('ADMIN')")` protects admin-only endpoints
-- **Authority Format:** Spring Security standard format (ROLE_USER, ROLE_ADMIN)
+- **Authority Format:** Spring Security standard format (ROLE_USER, ROLE_ADMIN, plus custom authorities)
 
 ### Role Assignment Strategy
 - **Default Registration:** All new users receive USER role automatically
 - **Admin Creation:** Only existing admin users can create new admin users
 - **Role Persistence:** Roles stored in UserAuthentication entity, separate from business domain
+- **Flexible Assignment:** Service layer supports assignment of any defined role
 
 ### Admin Capabilities
 - **Admin User Creation:** Create other admin users via protected endpoint

@@ -1,60 +1,59 @@
-# Project Model Package Overview
+# Project Domain Model Overview
 
-This package defines the core entities and repositories for managing projects in BuildFlow. It supports project
-ownership, builder assignment, location management, and links to cost estimates.
+This package defines the core project-related entities, their relationships, and persistence rules for the BuildFlow application. The model is designed for strong data integrity, clear separation of concerns, and support for complex business operations.
 
-## Entities
+## Entities & Relationships
 
-### [Project](Project.java)
-
+### Project
 - **Purpose:** Represents a construction project.
+- **Table:** `projects` (unique constraint: location_id)
 - **Fields:**
-    - `id` (UUID, primary key)
-    - `builderUser` ([User](../../user/User.java), many-to-one, not null, bidirectional)
-    - `owner` ([User](../../user/User.java), many-to-one, not null, bidirectional)
-    - `location` ([ProjectLocation](ProjectLocation.java), one-to-one, not null, cascade all, orphan removal, eager fetch)
-    - `estimates` (List of [Estimate](../estimate/Estimate.java), one-to-many, cascade all, orphan removal)
-    - `createdAt` (Instant, not null)
-    - `updatedAt` (Instant, not null)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `builderUser` (User, many-to-one, not null, FK: builder_id)
+    - `owner` (User, many-to-one, not null, FK: owner_id)
+    - `location` (ProjectLocation, one-to-one, not null, cascade all, orphan removal, FK: location_id)
+    - `estimates` (List<Estimate>, one-to-many, cascade all, orphan removal)
+    - Inherits: createdAt, lastUpdatedAt (from UpdatableEntity)
 - **Relationships:**
-    - Many-to-one with builderUser and owner ([User](../../user/User.java)), bidirectional, FKs: `builder_id`, `owner_id`
-      in `projects`
-    - One-to-one with location ([ProjectLocation](ProjectLocation.java)), FK: `location_id` in `projects`, cascade
-      all, orphan removal, eager fetch
-    - One-to-many with estimates ([Estimate](../estimate/Estimate.java)), FK: `project_id` in `estimates`, cascade all,
-      orphan removal
+    - Many-to-one with User (as builder and owner)
+    - One-to-one with ProjectLocation (required, cascade all)
+    - One-to-many with Estimate (cascade all)
+- **Constraints:**
+    - Unique: location_id
+    - Foreign keys: builder_id, owner_id, location_id
 
-### [ProjectLocation](ProjectLocation.java)
-
+### ProjectLocation
 - **Purpose:** Represents the address/location of a project.
+- **Table:** `project_locations`
 - **Fields:**
-    - `id` (UUID, primary key)
-    - `unitNumber` (String)
-    - `streetNumber` (String)
-    - `streetName` (String)
-    - `city` (String)
-    - `stateOrProvince` (String)
-    - `postalOrZipCode` (String)
-    - `country` (String)
-- **Relationships:**
-    - One-to-one with project ([Project](Project.java)), referenced by `location_id` in `projects`
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - Inherits all address fields from BaseAddress: unitNumber, streetNumber, streetName, city, stateOrProvince, postalOrZipCode, country
+- **Inheritance:** Extends BaseAddress
 
-## Repositories
+## Entity Lifecycle & Cascade Rules
+- **Project creation:** Requires a new ProjectLocation (cascade all, managed via Project).
+- **Location save/delete:** Always performed via Project (never directly).
+- **All entity IDs:** Auto-generated UUIDs, immutable after creation.
 
-- [ProjectRepository](ProjectRepository.java): JPA repository for `Project` entity.
-- [ProjectLocationRepository](ProjectLocationRepository.java): JPA repository for `ProjectLocation` entity.
+## Business & Data Integrity Rules
+- Each project must have a unique location.
+- Each project must have a builder and an owner (both users must exist).
+- Project locations are uniquely associated with projects (one-to-one constraint).
+- Address information cannot have pre-existing IDs during project creation.
+- All persistence operations validate entity state before proceeding.
 
 ## Relationships Diagram
 
-- [Project](Project.java) 1---1 [ProjectLocation](ProjectLocation.java)
-- [Project](Project.java) *---1 [User](../../user/User.java) (builder, owner, bidirectional)
-- [Project](Project.java) 1---* [Estimate](../estimate/Estimate.java)
+- Project *---1 User (as builder)
+- Project *---1 User (as owner)
+- Project 1---1 ProjectLocation
+- Project 1---* Estimate
 
-## Entity Lifecycle & User Stories
+## Database Schema Notes
+- **Table Names:** Plural (projects, project_locations)
+- **Foreign Key Naming:** `fk_{table}_{referenced_table}`
+- **Unique Constraint Naming:** `uk_{table}_{column}`
+- **Column Lengths:** Explicit for all String fields (in BaseAddress)
+- **Cascade Behavior:** Only Project → ProjectLocation and Project → Estimate use cascade operations
 
-- When a new [Project](Project.java) is created, it must have a builderUser, an owner, and a location. Location is
-  created and persisted with the project (cascade all, orphan removal).
-- Each project can have multiple estimates associated with it. Estimates are created and persisted with the project (
-  cascade all, orphan removal).
-- Each project has a unique location.
-- Each user can be a builderUser or owner for multiple projects (bidirectional navigation).
+This model ensures strong referential integrity, clear separation of project and location data, and supports complex business operations and queries.

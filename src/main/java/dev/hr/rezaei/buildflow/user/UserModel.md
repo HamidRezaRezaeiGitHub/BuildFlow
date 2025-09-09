@@ -1,100 +1,88 @@
-# User Model Package Overview
+# User Domain Model Overview
 
-This package contains the core user-related entities and their repositories for the BuildFlow application. Below is a summary of each entity and their relationships:
+This package defines the core user-related entities, their relationships, and persistence rules for the BuildFlow application. The model is designed for strong data integrity, clear separation of concerns, and support for complex business operations.
 
-## Entities
+## Entities & Relationships
 
-### [User](User.java)
-
-- **Purpose:** Represents an application user.
-- **Table:** `users` with unique constraints on username, email, and contact_id
+### User
+- **Purpose:** Represents an application user (builder, owner, etc.).
+- **Table:** `users` (unique constraints: username, email, contact_id)
 - **Fields:**
-    - `id` (UUID, primary key, auto-generated, non-updatable)
-    - `username` (String, length 100, not null, unique)
-    - `email` (String, length 100, not null, unique)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `username` (String, 100, not null, unique)
+    - `email` (String, 100, not null, unique)
     - `registered` (boolean, not null, default false)
-    - `contact` ([Contact](Contact.java), not null, one-to-one, eager fetch, foreign key: contact_id)
-    - `builtProjects` (List of [Project](../project/Project.java), one-to-many, lazy fetch, mapped by builderUser)
-    - `ownedProjects` (List of [Project](../project/Project.java), one-to-many, lazy fetch, mapped by owner)
-    - `createdQuotes` (List of [Quote](../quote/Quote.java), one-to-many, lazy fetch, mapped by createdBy)
-    - `suppliedQuotes` (List of [Quote](../quote/Quote.java), one-to-many, lazy fetch, mapped by supplier)
+    - `contact` (Contact, not null, one-to-one, eager fetch, FK: contact_id)
+    - `builtProjects` (List<Project>, one-to-many, mapped by builderUser)
+    - `ownedProjects` (List<Project>, one-to-many, mapped by owner)
+    - `createdQuotes` (List<Quote>, one-to-many, mapped by createdBy)
+    - `suppliedQuotes` (List<Quote>, one-to-many, mapped by supplier)
 - **Relationships:**
-    - One-to-one with [Contact](Contact.java) (each user has a contact profile, eager fetch, no cascade)
-    - Bidirectional one-to-many with [Project](../project/Project.java) as builder (user.builtProjects, project.builderUser)
-    - Bidirectional one-to-many with [Project](../project/Project.java) as owner (user.ownedProjects, project.owner)
-    - Bidirectional one-to-many with [Quote](../quote/Quote.java) as creator (user.createdQuotes, quote.createdBy)
-    - Bidirectional one-to-many with [Quote](../quote/Quote.java) as supplier (user.suppliedQuotes, quote.supplier)
-- **Unique Constraints:**
-    - `uk_users_username` on username column
-    - `uk_users_email` on email column
-    - `uk_users_contact_id` on contact_id column
-- **Foreign Keys:**
-    - `fk_users_contact` references contact_id
+    - One-to-one with Contact (required, eager fetch, no cascade)
+    - One-to-many with Project (as builder and owner)
+    - One-to-many with Quote (as creator and supplier)
+- **Constraints:**
+    - Unique: username, email, contact_id
+    - Foreign key: contact_id → contacts.id
 
-### [Contact](Contact.java)
-
+### Contact
 - **Purpose:** Represents a user's contact profile.
-- **Table:** `contacts` with unique constraints on email and address_id
+- **Table:** `contacts` (unique constraints: email, address_id)
 - **Fields:**
-    - `id` (UUID, primary key, auto-generated, non-updatable)
-    - `firstName` (String, length 100, not null)
-    - `lastName` (String, length 100, not null)
-    - `labels` (List of [ContactLabel](ContactLabel.java), enum collection, not null, eager fetch, stored in contact_labels table)
-    - `email` (String, length 100, not null, unique)
-    - `phone` (String, length 30, optional)
-    - `address` ([ContactAddress](ContactAddress.java), not null, one-to-one, cascade all, eager fetch, foreign key: address_id)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `firstName` (String, 100, not null)
+    - `lastName` (String, 100, not null)
+    - `labels` (List<ContactLabel>, not null, eager fetch, stored in `contact_labels` table)
+    - `email` (String, 100, not null, unique)
+    - `phone` (String, 30, optional)
+    - `address` (ContactAddress, not null, one-to-one, cascade all, eager fetch, FK: address_id)
 - **Relationships:**
-    - One-to-one with [ContactAddress](ContactAddress.java) (contact address, cascade all, eager fetch)
-    - Has a collection of [ContactLabel](ContactLabel.java) (enum) for categorization stored in separate table `contact_labels`
-- **Unique Constraints:**
-    - `uk_contacts_email` on email column
-    - `uk_contacts_address_id` on address_id column
-- **Foreign Keys:**
-    - `fk_contacts_address` references address_id
-    - `fk_contact_labels_contact` in contact_labels table references contact_id
+    - One-to-one with ContactAddress (required, cascade all, eager fetch)
+    - Collection of ContactLabel (enum, stored in `contact_labels` table)
+- **Constraints:**
+    - Unique: email, address_id
+    - Foreign key: address_id → contact_addresses.id
+    - Foreign key: contact_labels.contact_id → contacts.id
 
-### [ContactAddress](ContactAddress.java)
-
+### ContactAddress
 - **Purpose:** Represents a physical address for a contact.
 - **Table:** `contact_addresses`
 - **Fields:**
-    - `id` (UUID, primary key, auto-generated, non-updatable)
-    - Inherits all address fields from [BaseAddress](../base/BaseAddress.java): `unitNumber`, `streetNumber`, `streetName`, `city`, `stateOrProvince`, `postalOrZipCode`, `country`
-- **Inheritance:** Extends [BaseAddress](../base/BaseAddress.java) using `@SuperBuilder`
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - Inherits all address fields from BaseAddress: unitNumber, streetNumber, streetName, city, stateOrProvince, postalOrZipCode, country
+- **Inheritance:** Extends BaseAddress
 
-### [ContactLabel](ContactLabel.java)
+### ContactLabel
+- **Purpose:** Enum for categorizing contacts (e.g., SUPPLIER, OWNER, LENDER, BUILDER, SUBCONTRACTOR, PERMIT_AUTHORITY, OTHER, ADMINISTRATOR).
+- **Storage:** Element collection in `contact_labels` table, eager fetch, mapped to contacts by FK.
 
-- **Purpose:** Enum for categorizing contacts (e.g., SUPPLIER, OWNER, LENDER, BUILDER, SUBCONTRACTOR, PERMIT_AUTHORITY, OTHER).
-- **Usage:** Used as a collection in [Contact](Contact.java), stored as strings in the `contact_labels` table.
-- **Storage:** Element collection with eager fetch, mapped to separate table with foreign key constraint
+## Entity Lifecycle & Cascade Rules
+- **User creation:** Requires a new Contact (no cascade, must be managed independently).
+- **Contact creation:** Requires a new ContactAddress (cascade all, address is managed via Contact).
+- **Address save/delete:** Always performed via Contact (never directly).
+- **All entity IDs:** Auto-generated UUIDs, immutable after creation.
 
-## Repositories
-
-- [UserRepository](UserRepository.java): JPA repository for `User` entity with custom queries for email and username lookup
-- [ContactRepository](ContactRepository.java): JPA repository for `Contact` entity with email-based queries
-- [ContactAddressRepository](ContactAddressRepository.java): JPA repository for `ContactAddress` entity
+## Business & Data Integrity Rules
+- User email and username must be unique across the system.
+- Each user must have associated contact information.
+- Contact email addresses must be unique across all contacts.
+- Contact addresses are uniquely associated with contacts (one-to-one constraint).
+- Contact labels are stored in a separate join table for normalization and query performance.
+- Address information cannot have pre-existing IDs during user creation.
+- Registration status determines user access level.
 
 ## Relationships Diagram
 
-- [User](User.java) 1---1 [Contact](Contact.java) 1---1 [ContactAddress](ContactAddress.java)
-- [Contact](Contact.java) 1---* [ContactLabel](ContactLabel.java) (enum collection in separate table)
-- [User](User.java) 1---* [Project](../project/Project.java) (builtProjects, ownedProjects)
-- [User](User.java) 1---* [Quote](../quote/Quote.java) (createdQuotes, suppliedQuotes)
-
-## Entity Lifecycle & Business Rules
-
-- When a new [User](User.java) is created, a [Contact](Contact.java) must be associated. The `contact` field in `User` is never null. The association does not cascade - contacts are managed independently.
-- When a new [Contact](Contact.java) is created, a [ContactAddress](ContactAddress.java) is also created and associated. The `address` field in `Contact` is never null and cascades all operations (save, update, delete).
-- All entity IDs are auto-generated UUIDs that cannot be updated after creation.
-- Email addresses must be unique across all users and contacts.
-- Usernames must be unique across all users.
-- Contact addresses are uniquely associated with contacts (one-to-one constraint).
-- Contact labels are stored in a separate join table for normalization and better query performance.
+- User 1---1 Contact 1---1 ContactAddress
+- Contact 1---* ContactLabel (enum collection in separate table)
+- User 1---* Project (builtProjects, ownedProjects)
+- User 1---* Quote (createdQuotes, suppliedQuotes)
 
 ## Database Schema Notes
+- **Table Names:** Plural (users, contacts, contact_addresses, contact_labels)
+- **Foreign Key Naming:** `fk_{table}_{referenced_table}`
+- **Unique Constraint Naming:** `uk_{table}_{column}`
+- **Column Lengths:** Explicit for all String fields
+- **Cascade Behavior:** Only Contact → ContactAddress uses cascade operations
 
-- **Table Names:** Uses plural form (users, contacts, contact_addresses, contact_labels)
-- **Foreign Key Naming:** Follows pattern `fk_{table}_{referenced_table}` 
-- **Unique Constraint Naming:** Follows pattern `uk_{table}_{column}`
-- **Column Lengths:** String fields have explicit length constraints for database optimization
-- **Cascade Behavior:** Only Contact → ContactAddress relationship uses cascade operations
+This model ensures strong referential integrity, clear separation of user and contact data, and supports complex business operations and queries.

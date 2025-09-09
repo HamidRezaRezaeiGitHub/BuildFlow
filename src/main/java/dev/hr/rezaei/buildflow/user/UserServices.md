@@ -1,101 +1,62 @@
 # User Services Overview
 
-This package contains the service layer classes for user management in the BuildFlow application. The services handle business logic, coordinate between repositories and DTOs, and provide transactional boundaries for user, contact, and contact address operations.
+This package contains the service layer classes for user management in the BuildFlow application. Services are grouped by domain responsibility and business rules, with transactional boundaries and validation at each layer.
 
-## Services
+## Service Layer Responsibilities
 
-### [UserService](UserService.java)
-
-- **Purpose:** Manages user creation, registration, and lifecycle operations
-- **Responsibilities:**
-    - User creation and registration management
-    - User-contact relationship coordination
-    - User persistence validation and CRUD operations
-    - Email and username uniqueness validation
-- **Dependencies:**
-    - [UserRepository](UserRepository.java) - User entity persistence operations
-    - [ContactService](ContactService.java) - Contact management and validation
-- **Key Methods:**
-    - `createUser(CreateUserRequest)` - Creates new user with contact information from request DTO
-    - `findByEmail(String)` - Retrieves user by email address
-    - `findById(UUID)` - Retrieves user by unique identifier
-    - `findByUsername(String)` - Retrieves user by username
-    - `save(User)` - Saves new or existing user
-    - `update(User)` - Updates existing persisted user
-    - `delete(User)` - Deletes existing persisted user
-    - `isPersisted(User)` - Validates user persistence state
-    - `existsByEmail(String)` - Checks email existence
-    - `existsByUsername(String)` - Checks username existence
-    - `getUserByUsername(String)` - Retrieves user DTO by username (throws exception if not found)
+### UserService
+- **Purpose:** Manages user creation, registration, update, deletion, and retrieval.
+- **Key Operations:**
+    - `createUser(CreateUserRequest)`: Transactional user creation with contact info, username, and registration status. Returns `CreateUserResponse`.
+    - `update(User)`: Updates an existing user (must be persisted).
+    - `delete(User)`: Deletes an existing user (must be persisted).
+    - `getUserDtoByUsername(String)`: Retrieves user DTO by username (throws if not found).
+    - Existence checks: by email, username, or ID.
+- **Validation & Error Handling:**
+    - Throws `IllegalArgumentException` for invalid persistence state or duplicate creation.
+    - Throws `UserNotFoundException` for missing users.
+    - Validates contact info through `ContactService`.
 - **Transactions:**
-    - Write operations: user creation, update, delete
-    - Read-only operations: find methods, existence checks
-- **Validation:**
-    - Ensures user is persisted before update/delete operations
-    - Validates contact information through ContactService
-    - Prevents creation with existing address IDs
-- **Error Handling:**
-    - IllegalArgumentException for invalid persistence state
-    - IllegalArgumentException for existing address IDs during creation
-    - IllegalArgumentException when user not found by username
+    - Write operations (create, update, delete) are transactional.
+    - Read operations are non-transactional.
 
-### [ContactService](ContactService.java)
-
-- **Purpose:** Manages contact information persistence and validation for users
-- **Responsibilities:**
-    - Contact entity CRUD operations
-    - Email uniqueness validation
-    - Contact persistence state management
-    - Contact lifecycle validation
-- **Dependencies:**
-    - [ContactRepository](ContactRepository.java) - Contact entity persistence operations
-- **Key Methods:**
-    - `findById(UUID)` - Retrieves contact by unique identifier
-    - `save(Contact)` - Saves new contact with validation
-    - `update(Contact)` - Updates existing persisted contact
-    - `delete(Contact)` - Deletes existing persisted contact
-    - `isPersisted(Contact)` - Validates contact persistence state
-    - `existsByEmail(String)` - Checks email existence
-    - `findByEmail(String)` - Retrieves contact by email address
+### ContactService
+- **Purpose:** Manages contact entity lifecycle and validation.
+- **Key Operations:**
+    - `save(Contact)`: Saves a new contact (must not be persisted, email must be unique).
+    - `update(Contact)`: Updates an existing contact (must be persisted).
+    - `delete(Contact)`: Deletes an existing contact (must be persisted).
+    - `findById(UUID)`, `findByEmail(String)`: Retrieval by ID or email.
+    - `existsByEmail(String)`: Email uniqueness check.
+- **Validation & Error Handling:**
+    - Throws `IllegalArgumentException` for duplicate or invalid persistence state.
 - **Transactions:**
-    - Write operations: contact save, update, delete
-    - Read-only operations: find methods, existence checks
-- **Validation:**
-    - Email uniqueness across all contacts
-    - Contact persistence state before update/delete
-    - Prevents duplicate contact persistence
-- **Error Handling:**
-    - IllegalArgumentException for persistence state violations
-    - IllegalArgumentException for duplicate email addresses
+    - Write operations are transactional.
+    - Read operations are non-transactional.
 
-### [ContactAddressService](ContactAddressService.java)
-
-- **Purpose:** Manages contact address information with cascade operations from Contact
-- **Responsibilities:**
-    - Contact address retrieval operations
-    - Contact address updates for existing addresses
-    - Address persistence state validation
-- **Dependencies:**
-    - [ContactAddressRepository](ContactAddressRepository.java) - Contact address entity persistence operations
-- **Key Methods:**
-    - `findById(UUID)` - Retrieves contact address by unique identifier
-    - `update(ContactAddress)` - Updates existing persisted contact address
+### ContactAddressService
+- **Purpose:** Manages contact address updates and retrieval. Save/delete are always via cascade from `Contact`.
+- **Key Operations:**
+    - `findById(UUID)`: Retrieves address by ID.
+    - `update(ContactAddress)`: Updates an existing address (must be persisted).
+- **Validation & Error Handling:**
+    - Throws `IllegalArgumentException` for invalid persistence state.
 - **Transactions:**
-    - Write operations: address updates
-    - Read-only operations: find methods
-- **Validation:**
-    - Address persistence state before updates
-- **Error Handling:**
-    - IllegalArgumentException for invalid persistence state
-- **Note:** Save and delete operations are handled through cascade from Contact entity
+    - Write operations are transactional.
+    - Read operations are non-transactional.
 
-## Business Rules
+## Business Rules & Validation
+- User email and username must be unique across the system.
+- Each user must have associated contact information.
+- Contact email addresses must be unique across all contacts.
+- Address save/delete is always performed via `Contact` (never directly).
+- Registration status determines user access level.
+- Address information cannot have pre-existing IDs during user creation.
+- All persistence operations validate entity state before proceeding.
 
-### User Management Rules
+## Error Handling
+- All service methods throw `IllegalArgumentException` for invalid state or duplicate data.
+- `UserNotFoundException` is thrown for missing users.
+- API returns structured error responses for validation and business rule violations.
 
-- User email must be unique across the system
-- User username must be unique across the system
-- Users must have associated contact information
-- User registration status determines system access level
-- Contact email addresses must be unique across all contacts
-- Address information cannot have pre-existing IDs during user creation
+This service layer ensures robust business logic, transactional safety, and strict validation for all user management operations, with clear API contracts and security enforcement.

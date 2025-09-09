@@ -1,128 +1,216 @@
-# BuildFlow Model Package Overview
+# Domain Model Overview
 
-This package contains all core domain entities, enums, and repositories for the BuildFlow application. It models users,
-contacts, projects, estimates, work items, quotes, and their relationships, supporting business logic for construction
-and supplier management.
+This document consolidates the core domain/entity models for the BuildFlow application, including users, projects, estimates, quotes, work items, and their relationships. It is organized by domain and covers entities, relationships, constraints, lifecycle/cascade rules, and schema notes.
 
-## Entities
+---
 
-### [User](user/User.java)
+## User Domain Model
 
-- **Purpose:** Represents an application user.
+### User
+- **Purpose:** Represents an application user (builder, owner, etc.).
+- **Table:** `users` (unique constraints: username, email, contact_id)
 - **Fields:**
-    - `id` (UUID, primary key)
-    - `username` (String, not null, unique, max 100)
-    - `email` (String, not null, unique, max 100)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `username` (String, 100, not null, unique)
+    - `email` (String, 100, not null, unique)
     - `registered` (boolean, not null, default false)
-    - `contact` ([Contact](user/Contact.java), one-to-one, not null, eager fetch)
-    - `builtProjects` (List of [Project](project/Project.java), one-to-many, mapped by builderUser, lazy fetch)
-    - `ownedProjects` (List of [Project](project/Project.java), one-to-many, mapped by owner, lazy fetch)
-    - `createdQuotes` (List of [Quote](quote/Quote.java), one-to-many, mapped by createdBy, lazy fetch)
-    - `suppliedQuotes` (List of [Quote](quote/Quote.java), one-to-many, mapped by supplier, lazy fetch)
+    - `contact` (Contact, not null, one-to-one, eager fetch, FK: contact_id)
+    - `builtProjects` (List<Project>, one-to-many, mapped by builderUser)
+    - `ownedProjects` (List<Project>, one-to-many, mapped by owner)
+    - `createdQuotes` (List<Quote>, one-to-many, mapped by createdBy)
+    - `suppliedQuotes` (List<Quote>, one-to-many, mapped by supplier)
 - **Relationships:**
-    - One-to-one with [Contact](user/Contact.java) (eager fetch, no cascade)
-    - Bidirectional one-to-many with [Project](project/Project.java) as builder and owner
-    - Bidirectional one-to-many with [Quote](quote/Quote.java) as creator and supplier
+    - One-to-one with Contact (required, eager fetch, no cascade)
+    - One-to-many with Project (as builder and owner)
+    - One-to-many with Quote (as creator and supplier)
+- **Constraints:**
+    - Unique: username, email, contact_id
+    - Foreign key: contact_id → contacts.id
 
-### [Contact](user/Contact.java)
-
+### Contact
 - **Purpose:** Represents a user's contact profile.
+- **Table:** `contacts` (unique constraints: email, address_id)
 - **Fields:**
-    - `id` (UUID, primary key)
-    - `firstName` (String, not null, max 100)
-    - `lastName` (String, not null, max 100)
-    - `labels` (List of [ContactLabel](user/ContactLabel.java), enum collection, not null, eager fetch)
-    - `email` (String, not null, unique, max 100)
-    - `phone` (String, max 30)
-    - `address` ([ContactAddress](user/ContactAddress.java), one-to-one, not null, cascade all, eager fetch)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `firstName` (String, 100, not null)
+    - `lastName` (String, 100, not null)
+    - `labels` (List<ContactLabel>, not null, eager fetch, stored in `contact_labels` table)
+    - `email` (String, 100, not null, unique)
+    - `phone` (String, 30, optional)
+    - `address` (ContactAddress, not null, one-to-one, cascade all, eager fetch, FK: address_id)
 - **Relationships:**
-    - One-to-one with [ContactAddress](user/ContactAddress.java) (cascade all, eager fetch)
-    - Has a list of [ContactLabel](user/ContactLabel.java) for categorization with eager fetch
+    - One-to-one with ContactAddress (required, cascade all, eager fetch)
+    - Collection of ContactLabel (enum, stored in `contact_labels` table)
+- **Constraints:**
+    - Unique: email, address_id
+    - Foreign key: address_id → contact_addresses.id
+    - Foreign key: contact_labels.contact_id → contacts.id
 
-### [ContactAddress](user/ContactAddress.java)
-
+### ContactAddress
 - **Purpose:** Represents a physical address for a contact.
+- **Table:** `contact_addresses`
 - **Fields:**
-    - `id` (UUID, primary key)
-    - Inherits address fields from [BaseAddress](base/BaseAddress.java)
-- **Inheritance:**
-    - Extends [BaseAddress](base/BaseAddress.java)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - Inherits all address fields from BaseAddress: unitNumber, streetNumber, streetName, city, stateOrProvince, postalOrZipCode, country
+- **Inheritance:** Extends BaseAddress
 
-### [Project](project/Project.java)
+### ContactLabel
+- **Purpose:** Enum for categorizing contacts (e.g., SUPPLIER, OWNER, LENDER, BUILDER, SUBCONTRACTOR, PERMIT_AUTHORITY, OTHER, ADMINISTRATOR).
+- **Storage:** Element collection in `contact_labels` table, eager fetch, mapped to contacts by FK.
 
+#### User Model Lifecycle & Integrity
+- User creation requires a new Contact (no cascade, must be managed independently).
+- Contact creation requires a new ContactAddress (cascade all, address is managed via Contact).
+- Address save/delete is always performed via Contact (never directly).
+- All entity IDs are auto-generated UUIDs, immutable after creation.
+- User email and username must be unique across the system.
+- Each user must have associated contact information.
+- Contact email addresses must be unique across all contacts.
+- Contact addresses are uniquely associated with contacts (one-to-one constraint).
+- Contact labels are stored in a separate join table for normalization and query performance.
+- Address information cannot have pre-existing IDs during user creation.
+- Registration status determines user access level.
+
+---
+
+## Project Domain Model
+
+### Project
 - **Purpose:** Represents a construction project.
+- **Table:** `projects` (unique constraint: location_id)
 - **Fields:**
-    - `id` (UUID, primary key)
-    - `builderUser` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
-    - `owner` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
-    - `location` ([ProjectLocation](project/ProjectLocation.java), one-to-one, not null, cascade all, orphan removal, eager fetch)
-    - `estimates` (List of [Estimate](estimate/Estimate.java), one-to-many, cascade all, orphan removal, lazy fetch)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - `builderUser` (User, many-to-one, not null, FK: builder_id)
+    - `owner` (User, many-to-one, not null, FK: owner_id)
+    - `location` (ProjectLocation, one-to-one, not null, cascade all, orphan removal, FK: location_id)
+    - `estimates` (List<Estimate>, one-to-many, cascade all, orphan removal)
+    - Inherits: createdAt, lastUpdatedAt (from UpdatableEntity)
 - **Relationships:**
-    - Many-to-one with builderUser and owner ([User](user/User.java)), bidirectional, FKs: `builder_id`, `owner_id`
-    - One-to-one with [ProjectLocation](project/ProjectLocation.java), FK: `location_id`, cascade all, orphan removal, eager fetch
-    - One-to-many with [Estimate](estimate/Estimate.java), FK: `project_id`, cascade all, orphan removal
-- **Inheritance:**
-    - Extends [UpdatableEntity](base/UpdatableEntity.java)
+    - Many-to-one with User (as builder and owner)
+    - One-to-one with ProjectLocation (required, cascade all)
+    - One-to-many with Estimate (cascade all)
+- **Constraints:**
+    - Unique: location_id
+    - Foreign keys: builder_id, owner_id, location_id
 
-### [ProjectLocation](project/ProjectLocation.java)
-
+### ProjectLocation
 - **Purpose:** Represents the address/location of a project.
+- **Table:** `project_locations`
 - **Fields:**
-    - `id` (UUID, primary key)
-    - Inherits address fields from [BaseAddress](base/BaseAddress.java)
-- **Inheritance:**
-    - Extends [BaseAddress](base/BaseAddress.java)
+    - `id` (UUID, PK, auto-generated, non-updatable)
+    - Inherits all address fields from BaseAddress: unitNumber, streetNumber, streetName, city, stateOrProvince, postalOrZipCode, country
+- **Inheritance:** Extends BaseAddress
 
-### [Estimate](estimate/Estimate.java)
+#### Project Model Lifecycle & Integrity
+- Project creation requires a new ProjectLocation (cascade all, managed via Project).
+- Location save/delete is always performed via Project (never directly).
+- All entity IDs are auto-generated UUIDs, immutable after creation.
+- Each project must have a unique location.
+- Each project must have a builder and an owner (both users must exist).
+- Project locations are uniquely associated with projects (one-to-one constraint).
+- Address information cannot have pre-existing IDs during project creation.
+- All persistence operations validate entity state before proceeding.
 
+---
+
+## Estimate Domain Model
+
+### Estimate
 - **Purpose:** Represents a cost estimate for a project.
 - **Fields:**
     - `id` (UUID, primary key)
-    - `project` ([Project](project/Project.java), many-to-one, not null, lazy fetch)
-    - `overallMultiplier` (double, not null, default 1.0)
-    - `groups` (Set of [EstimateGroup](estimate/EstimateGroup.java), one-to-many, cascade all, orphan removal, lazy fetch)
+    - `project` (Project, many-to-one, not null)
+    - `overallMultiplier` (double, not null)
+    - `groups` (Set of EstimateGroup, one-to-many, persisted)
 - **Relationships:**
-    - Many-to-one with [Project](project/Project.java), FK: `project_id`
-    - One-to-many with [EstimateGroup](estimate/EstimateGroup.java), FK: `estimate_id`, cascade all, orphan removal
-- **Inheritance:**
-    - Extends [UpdatableEntity](base/UpdatableEntity.java)
+    - Linked to a project (many-to-one).
+    - Has many estimate groups (one-to-many, bidirectional, FK: `estimate_id` in `estimate_groups`).
 
-### [EstimateGroup](estimate/EstimateGroup.java)
-
-- **Purpose:** Represents a grouping of estimate lines for organizational purposes.
+### EstimateGroup
+- **Purpose:** Grouping of estimate lines for organizational purposes.
 - **Fields:**
     - `id` (UUID, primary key)
-    - `name` (String, not null, max 100)
-    - `description` (String, max 500)
-    - `estimate` ([Estimate](estimate/Estimate.java), many-to-one, not null, lazy fetch)
-    - `estimateLines` (Set of [EstimateLine](estimate/EstimateLine.java), one-to-many, cascade all, orphan removal, lazy fetch)
+    - `name` (String, not null)
+    - `description` (String)
+    - `estimate` (Estimate, many-to-one, not null)
+    - `estimateLines` (Set of EstimateLine, one-to-many, persisted)
 - **Relationships:**
-    - Many-to-one with [Estimate](estimate/Estimate.java), FK: `estimate_id`
-    - One-to-many with [EstimateLine](estimate/EstimateLine.java), FK: `group_id`, cascade all, orphan removal
+    - Belongs to an estimate (many-to-one, FK: `estimate_id` in `estimate_groups`).
+    - Has many estimate lines (one-to-many, bidirectional, FK: `group_id` in `estimate_lines`).
 
-### [EstimateLine](estimate/EstimateLine.java)
-
-- **Purpose:** Represents a single line item in an estimate.
+### EstimateLine
+- **Purpose:** Single line item in an estimate.
 - **Fields:**
     - `id` (UUID, primary key)
-    - `estimate` ([Estimate](estimate/Estimate.java), many-to-one, not null, lazy fetch)
-    - `workItem` ([WorkItem](workitem/WorkItem.java), many-to-one, not null, lazy fetch)
+    - `estimate` (Estimate, many-to-one, not null)
+    - `workItem` (WorkItem, many-to-one, not null)
     - `quantity` (double, not null)
-    - `estimateStrategy` ([EstimateLineStrategy](estimate/EstimateLineStrategy.java), enum, not null)
-    - `multiplier` (double, not null, default 1.0)
-    - `computedCost` (BigDecimal, precision 17, scale 2)
-    - `group` ([EstimateGroup](estimate/EstimateGroup.java), many-to-one, lazy fetch)
+    - `estimateStrategy` (EstimateLineStrategy, enum, not null)
+    - `multiplier` (double, not null)
+    - `computedCost` (BigDecimal)
+    - `group` (EstimateGroup, many-to-one)
 - **Relationships:**
-    - Many-to-one with [Estimate](estimate/Estimate.java), FK: `estimate_id`
-    - Many-to-one with [WorkItem](workitem/WorkItem.java), FK: `work_item_id`
-    - Many-to-one with [EstimateGroup](estimate/EstimateGroup.java), FK: `group_id`
-- **Inheritance:**
-    - Extends [UpdatableEntity](base/UpdatableEntity.java)
-- **Validation:**
-    - Quantity must be >= 0
+    - Belongs to an estimate (many-to-one, FK: `estimate_id` in `estimate_lines`).
+    - Belongs to a work item (many-to-one, FK: `work_item_id` in `estimate_lines`).
+    - Belongs to an estimate group (many-to-one, FK: `group_id` in `estimate_lines`).
 
-### [WorkItem](workitem/WorkItem.java)
+### EstimateLineStrategy (Enum)
+- **Purpose:** Specifies the strategy for an estimate line.
+- **Values:** `AVERAGE`, `LATEST`, `LOWEST`
 
+#### Estimate Model Lifecycle & Integrity
+- When a new Estimate is created, it is linked to a project and can have multiple estimate groups.
+- When a new EstimateGroup is created, it must be associated with an estimate and can have multiple estimate lines.
+- When a new EstimateLine is created, it must be associated with both an estimate (through an estimate group) and a work item.
+
+---
+
+## Quote Domain Model
+
+### Quote
+- **Purpose:** Represents a supplier quote for a work item.
+- **Fields:**
+    - `id` (UUID, primary key)
+    - `workItem` (WorkItem, many-to-one, not null)
+    - `createdBy` (User, many-to-one, not null, bidirectional)
+    - `supplier` (User, many-to-one, not null, bidirectional)
+    - `unit` (QuoteUnit, enum, not null)
+    - `unitPrice` (BigDecimal, not null)
+    - `currency` (Currency, not null)
+    - `domain` (QuoteDomain, enum, not null)
+    - `location` (QuoteLocation, many-to-one, not null, cascade all)
+    - `valid` (boolean, not null)
+- **Relationships:**
+    - Many-to-one with WorkItem (FK: work_item_id in quotes)
+    - Many-to-one with User (createdBy, FK: created_by_id in quotes, bidirectional)
+    - Many-to-one with User (supplier, FK: supplier_id in quotes, bidirectional)
+    - Many-to-one with QuoteLocation (FK: location_id in quotes, cascade all)
+
+### QuoteLocation
+- **Purpose:** Represents the address/location for a quote.
+- **Fields:**
+    - `id` (UUID, primary key)
+    - Inherits address fields from BaseAddress
+- **Relationships:**
+    - Referenced by Quote entities (FK: location_id in quotes)
+
+### QuoteUnit (Enum)
+- **Purpose:** Specifies the unit for the quote (e.g., SQFT, LUMP_SUM).
+
+### QuoteDomain (Enum)
+- **Purpose:** Specifies the domain of the quote (e.g., PUBLIC, PRIVATE).
+
+#### Quote Model Lifecycle & Integrity
+- When a new Quote is created, it must be associated with a work item, a creator, a supplier, and a location.
+- Each quote must specify its unit, price, currency, domain, and validity.
+- Locations can be reused across multiple quotes.
+- Users can navigate to their created and supplied quotes (bidirectional).
+
+---
+
+## Work Item Domain Model
+
+### WorkItem
 - **Purpose:** Represents a unit of work or cost item in an estimate.
 - **Fields:**
     - `id` (UUID, primary key)
@@ -130,137 +218,51 @@ and supplier management.
     - `name` (String, not null, max 250)
     - `description` (String, max 1000)
     - `optional` (boolean, not null)
-    - `user` ([User](user/User.java), many-to-one, not null, lazy fetch)
-    - `defaultGroupName` (String, not null, default "Unassigned")
-    - `domain` ([WorkItemDomain](workitem/WorkItemDomain.java), enum, not null, default PUBLIC)
+    - `user` (User, many-to-one, not null, FK: user_id)
+    - `defaultGroupName` (String, not null, default: "Unassigned")
+    - `domain` (WorkItemDomain, enum, not null, default: PUBLIC)
 - **Relationships:**
-    - Many-to-one with [User](user/User.java) (owner), FK: `user_id`
-- **Inheritance:**
-    - Extends [UpdatableEntity](base/UpdatableEntity.java)
+    - Has an owner (many-to-one, not optional, FK: user_id in work_items).
 - **Validation:**
-    - Code cannot be blank
-    - Name cannot be blank
-    - defaultGroupName defaults to "Unassigned" if null/blank
+    - `name` cannot be blank.
+    - `defaultGroupName` is set to "Unassigned" if blank or null.
 
-### [Quote](quote/Quote.java)
+### WorkItemDomain (Enum)
+- **Purpose:** Specifies the domain of a work item.
+- **Values:** `PUBLIC`, `PRIVATE`
 
-- **Purpose:** Represents a supplier quote for a work item.
-- **Fields:**
-    - `id` (UUID, primary key)
-    - `workItem` ([WorkItem](workitem/WorkItem.java), many-to-one, not null, lazy fetch)
-    - `createdBy` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
-    - `supplier` ([User](user/User.java), many-to-one, not null, bidirectional, lazy fetch)
-    - `unit` ([QuoteUnit](quote/QuoteUnit.java), enum, not null)
-    - `unitPrice` (BigDecimal, not null, precision 17, scale 2)
-    - `currency` (Currency, not null)
-    - `domain` ([QuoteDomain](quote/QuoteDomain.java), enum, not null)
-    - `location` ([QuoteLocation](quote/QuoteLocation.java), many-to-one, not null, cascade all, lazy fetch)
-    - `valid` (boolean, not null, default true)
-- **Relationships:**
-    - Many-to-one with [WorkItem](workitem/WorkItem.java), FK: `work_item_id`
-    - Many-to-one with [User](user/User.java) (createdBy), FK: `created_by_id`, bidirectional
-    - Many-to-one with [User](user/User.java) (supplier), FK: `supplier_id`, bidirectional
-    - Many-to-one with [QuoteLocation](quote/QuoteLocation.java), FK: `location_id`, cascade all
-- **Inheritance:**
-    - Extends [UpdatableEntity](base/UpdatableEntity.java)
+#### WorkItem Model Lifecycle & Integrity
+- Work items can be marked as optional and must have an owner.
 
-### [QuoteLocation](quote/QuoteLocation.java)
+---
 
-- **Purpose:** Represents the address/location for a quote.
-- **Fields:**
-    - `id` (UUID, primary key)
-    - Inherits address fields from [BaseAddress](base/BaseAddress.java)
-- **Inheritance:**
-    - Extends [BaseAddress](base/BaseAddress.java)
+## Relationships Diagrams
 
-## Enums
+- User 1---1 Contact 1---1 ContactAddress
+- Contact 1---* ContactLabel (enum collection in separate table)
+- User 1---* Project (builtProjects, ownedProjects)
+- User 1---* Quote (createdQuotes, suppliedQuotes)
+- Project *---1 User (as builder)
+- Project *---1 User (as owner)
+- Project 1---1 ProjectLocation
+- Project 1---* Estimate
+- Estimate 1---* EstimateGroup 1---* EstimateLine *---1 WorkItem
+- EstimateGroup 1---* EstimateLine
+- Quote *---1 WorkItem
+- Quote *---1 User (createdBy, supplier, bidirectional)
+- Quote *---1 QuoteLocation
+- WorkItem *---1 User (owner)
 
-### [ContactLabel](user/ContactLabel.java)
-- **Purpose:** Used for categorizing contacts.
-- **Values:** SUPPLIER, OWNER, LENDER, BUILDER, SUBCONTRACTOR, PERMIT_AUTHORITY, OTHER
+---
 
-### [EstimateLineStrategy](estimate/EstimateLineStrategy.java)
-- **Purpose:** Used to specify the strategy for an estimate line.
-- **Values:** AVERAGE, LATEST, LOWEST
+## Database Schema Notes
+- **Table Names:** Plural (users, contacts, contact_addresses, contact_labels, projects, project_locations)
+- **Foreign Key Naming:** `fk_{table}_{referenced_table}`
+- **Unique Constraint Naming:** `uk_{table}_{column}`
+- **Column Lengths:** Explicit for all String fields (in BaseAddress)
+- **Cascade Behavior:**
+    - Contact → ContactAddress uses cascade operations
+    - Project → ProjectLocation and Project → Estimate use cascade operations
+- Estimate, Quote, and WorkItem tables follow the same naming, FK, and constraint conventions as other domains.
 
-### [WorkItemDomain](workitem/WorkItemDomain.java)
-- **Purpose:** Used to specify the domain/scope of a work item.
-- **Values:** PUBLIC, PRIVATE
-
-### [QuoteUnit](quote/QuoteUnit.java)
-- **Purpose:** Used to specify the unit of measurement for quotes.
-
-### [QuoteDomain](quote/QuoteDomain.java)
-- **Purpose:** Used to specify the domain/scope of a quote.
-
-## Base Classes
-
-### [UpdatableEntity](base/UpdatableEntity.java)
-- **Purpose:** Base class for entities that track creation and update timestamps.
-- **Fields:**
-    - `createdAt` (Instant, not null)
-    - `lastUpdatedAt` (Instant, not null)
-
-### [BaseAddress](base/BaseAddress.java)
-- **Purpose:** Base class for address-related entities.
-- **Fields:**
-    - `unitNumber` (String, max 20)
-    - `streetNumber` (String, max 20)
-    - `streetName` (String, max 200)
-    - `city` (String, max 100)
-    - `stateOrProvince` (String, max 100)
-    - `postalOrZipCode` (String, max 20)
-    - `country` (String, max 100)
-
-## Repositories
-
-### User Package
-- [UserRepository](user/UserRepository.java): JPA repository for User entity
-- [ContactRepository](user/ContactRepository.java): JPA repository for Contact entity
-- [ContactAddressRepository](user/ContactAddressRepository.java): JPA repository for ContactAddress entity
-
-### Project Package
-- [ProjectRepository](project/ProjectRepository.java): JPA repository for Project entity
-- [ProjectLocationRepository](project/ProjectLocationRepository.java): JPA repository for ProjectLocation entity
-
-### Estimate Package
-- [EstimateRepository](estimate/EstimateRepository.java): JPA repository for Estimate entity
-- [EstimateLineRepository](estimate/EstimateLineRepository.java): JPA repository for EstimateLine entity
-- [EstimateGroupRepository](estimate/EstimateGroupRepository.java): JPA repository for EstimateGroup entity
-
-### WorkItem Package
-- [WorkItemRepository](workitem/WorkItemRepository.java): JPA repository for WorkItem entity
-
-### Quote Package
-- [QuoteRepository](quote/QuoteRepository.java): JPA repository for Quote entity
-- [QuoteLocationRepository](quote/QuoteLocationRepository.java): JPA repository for QuoteLocation entity
-
-## Relationships Diagram
-
-```
-User 1---1 Contact 1---1 ContactAddress
-User 1---* Project (as builder, owner)
-User 1---* Quote (as creator, supplier)
-User 1---* WorkItem (as owner)
-
-Project 1---1 ProjectLocation
-Project 1---* Estimate
-
-Estimate 1---* EstimateGroup 1---* EstimateLine
-EstimateLine *---1 WorkItem
-
-Quote *---1 WorkItem
-Quote *---1 QuoteLocation
-```
-
-## Key Package Organization
-
-- **user/**: User management and contact information
-- **project/**: Project entities and locations
-- **estimate/**: Cost estimation system
-- **workitem/**: Work item management
-- **quote/**: Supplier quotation system
-- **base/**: Shared base classes and utilities
-- **dto/**: Data transfer objects and mapping utilities
-- **util/**: Utility classes
-- **config/**: Configuration and security
+This model ensures strong referential integrity, clear separation of user, contact, project, estimate, quote, and work item data, and supports complex business operations and queries.
