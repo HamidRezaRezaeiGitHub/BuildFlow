@@ -1,15 +1,29 @@
-import React from 'react';
-import './App.css';
+import { useState } from 'react'
+import './App.css'
 
 function App() {
+  const [count, setCount] = useState(0)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to BuildFlow</h1>
-        <p>Your clean React project is ready!</p>
-      </header>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">
+          Welcome to BuildFlow
+        </h1>
+        <div className="space-y-4">
+          <button
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => setCount((count) => count + 1)}
+          >
+            count is {count}
+          </button>
+          <p className="text-gray-600">
+            Edit <code className="bg-gray-200 px-2 py-1 rounded">src/App.tsx</code> and save to test HMR
+          </p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
