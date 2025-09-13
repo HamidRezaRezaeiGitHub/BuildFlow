@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button"
+import './App.css'
+import { ThemeShowcase } from './components/theme'
 import { AppProviders } from './contexts/AppProviders'
 import { useAuth } from './contexts/AuthContext'
-import './App.css'
 
 function AppContent() {
     const { user, isAuthenticated, isLoading } = useAuth();
@@ -9,23 +10,39 @@ function AppContent() {
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-                <div>Loading...</div>
+                <div className="animate-pulse">Loading...</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-            <div className="text-center space-y-4">
-                <Button>Click me</Button>
-                <div className="text-sm text-muted-foreground">
-                    {isAuthenticated ? (
-                        <p>Welcome, {user?.username}!</p>
-                    ) : (
-                        <p>Not authenticated</p>
-                    )}
+        <div className="min-h-screen bg-background text-foreground">
+            {/* App header with auth info */}
+            <header className="border-b border-border bg-card">
+                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-primary">BuildFlow</h1>
+                    <div className="flex items-center gap-4">
+                        {/* Authentication status */}
+                        <div className="text-sm">
+                            {isAuthenticated ? (
+                                <span className="text-primary font-medium">
+                                    Welcome, {user?.username}!
+                                </span>
+                            ) : (
+                                <span className="text-muted-foreground">
+                                    Not authenticated
+                                </span>
+                            )}
+                        </div>
+                        {!isAuthenticated && (
+                            <Button size="sm">Login</Button>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </header>
+
+            {/* Theme showcase component */}
+            <ThemeShowcase showHeader={false} />
         </div>
     )
 }
