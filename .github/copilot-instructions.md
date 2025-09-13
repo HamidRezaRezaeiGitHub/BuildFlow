@@ -35,7 +35,7 @@ Execute these commands in order for complete setup:
 3. **Complete Full-Stack Build** (8-18 seconds) - NEVER CANCEL:
    ```bash
    ./mvnw clean package -DskipTests
-   # Timeout recommendation: 60+ minutes (actual: ~18 seconds)
+   # Timeout recommendation: 5-10 minutes (actual: ~18 seconds)
    # Creates target/BuildFlow-0.0.1-SNAPSHOT.jar with integrated frontend
    ```
 
