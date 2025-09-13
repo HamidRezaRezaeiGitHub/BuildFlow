@@ -1,12 +1,15 @@
 import React from 'react';
+import HomeLayout from '@/components/layouts/HomeLayout';
+import HomeNavbar from '@/components/HomeNavbar';
 
 /**
  * Home page - public page accessible to all users
  */
 export const Home: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <HomeLayout>
+      <HomeNavbar />
+      <div className="container mx-auto px-4 py-16">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-primary mb-6">
             Welcome to BuildFlow
@@ -21,7 +24,7 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </HomeLayout>
   );
 };
 
