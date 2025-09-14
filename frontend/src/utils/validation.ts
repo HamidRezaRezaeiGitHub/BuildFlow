@@ -15,7 +15,7 @@ export interface SignUpFormData {
   password: string;
   confirmPassword: string;
   phone: string;
-  labels: string;
+  labels: string[];
   unitNumber: string;
   streetNumber: string;
   streetName: string;

@@ -11,8 +11,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { contactLabelOptions } from '@/services/dtos/UserDtos';
 import { validateSignUpForm, type SignUpFormData } from '@/utils/validation';
 import { ChevronDown, ChevronUp, Phone, Tag, User } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -75,7 +77,7 @@ const SignUp: React.FC<SignUpProps> = ({
             confirmPassword: '',
             // Optional fields
             phone: '',
-            labels: '',
+            labels: [] as string[],
             // Address fields with empty values (Toronto values will be placeholders)
             unitNumber: emptyAddress.unitNumber,
             streetNumber: emptyAddress.streetNumber,
@@ -272,18 +274,62 @@ const SignUp: React.FC<SignUpProps> = ({
                             {/* Labels/Tags Field */}
                             <div className="space-y-2">
                                 <Label htmlFor="labels">Professional Tags</Label>
-                                <div className="relative">
-                                    <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="labels"
-                                        type="text"
-                                        placeholder="e.g., builder, contractor, architect"
-                                        className="pl-10"
-                                        value={signUpForm.labels}
-                                        onChange={(e) => setSignUpForm(prev => ({ ...prev, labels: e.target.value }))}
-                                    />
-                                </div>
-                                <p className="text-xs text-muted-foreground">Separate multiple tags with commas</p>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-between"
+                                            type="button"
+                                        >
+                                            <div className="flex items-center">
+                                                <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
+                                                <span className="text-left">
+                                                    {signUpForm.labels.length > 0
+                                                        ? `${signUpForm.labels.length} selected`
+                                                        : "Select professional tags"
+                                                    }
+                                                </span>
+                                            </div>
+                                            <ChevronDown className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-full">
+                                        {contactLabelOptions.map((option) => (
+                                            <DropdownMenuCheckboxItem
+                                                key={option}
+                                                checked={signUpForm.labels.includes(option)}
+                                                onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                        setSignUpForm(prev => ({
+                                                            ...prev,
+                                                            labels: [...prev.labels, option]
+                                                        }));
+                                                    } else {
+                                                        setSignUpForm(prev => ({
+                                                            ...prev,
+                                                            labels: prev.labels.filter(label => label !== option)
+                                                        }));
+                                                    }
+                                                }}
+                                            >
+                                                {option}
+                                            </DropdownMenuCheckboxItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                {signUpForm.labels.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {signUpForm.labels.map((label) => (
+                                            <span
+                                                key={label}
+                                                className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-primary/10 text-primary"
+                                            >
+                                                {label}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                <p className="text-xs text-muted-foreground">Select one or more professional tags that describe your role</p>
                             </div>
 
                             {/* Address Section */}

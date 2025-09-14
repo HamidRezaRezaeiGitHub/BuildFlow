@@ -1,5 +1,18 @@
 import { BaseAddressDto } from "./AddressDtos";
 
+/**
+ * Contact label options derived from ContactLabel enum
+ * Ordered by priority: Builder, Owner, Lender, Supplier, Subcontractor, Other, Administrator
+ */
+export const contactLabelOptions = [
+    'Builder',
+    'Owner', 
+    'Lender',
+    'Supplier',
+    'Subcontractor',
+    'Other',
+    'Administrator'
+] as const;
 
 /**
  * Contact address DTO for API responses
