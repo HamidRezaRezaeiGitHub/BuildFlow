@@ -4,39 +4,81 @@ A Spring Boot REST API for construction project management with comprehensive es
 
 ## 🚀 Quick Start
 
-```bash
-# Build the backend only (frontend must be built separately)
-./mvnw clean package
+### Prerequisites
+- **Java 21** (required) - Install with: `sudo apt install -y openjdk-21-jdk`
+- **Node.js & npm** (for frontend development) - Version 18+ recommended
 
-# For complete full-stack build, first build frontend:
+### Running the Application Locally
+
+#### Option 1: Full-Stack Integrated Mode (Single JAR - Recommended)
+```bash
+# 1. Build the frontend first
 cd frontend
 npm install
 npm run build
 cd ..
-./mvnw clean package
 
-# Run in different environments:
-# Development mode (default) - H2 console enabled, security disabled
+# 2. Build the complete application
+./mvnw clean package -DskipTests
+
+# 3. Run the application
 java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 
-# UAT mode - production-like with testing features enabled
-java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=uat
+# ✅ Application available at: http://localhost:8080/
+```
 
-# Production mode - full security, optimized configuration
-java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=production
+#### Option 2: Development Mode with Hot Reload
+```bash
+# 1. Build frontend for integration
+cd frontend && npm install && npm run build && cd ..
 
-# Alternative: Run in development mode with hot reload
+# 2. Run backend with hot reload
 ./mvnw spring-boot:run
 
-# Run tests only
+# ✅ Application available at: http://localhost:8080/
+```
+
+#### Option 3: Separate Frontend & Backend Development
+```bash
+# Terminal 1: Start the backend
+./mvnw spring-boot:run
+
+# Terminal 2: Start the frontend dev server
+cd frontend
+npm install
+npm run dev
+
+# ✅ Frontend dev server: http://localhost:5173/
+# ✅ Backend API: http://localhost:8080/api/*
+```
+
+### Application URLs
+- **🌐 Home Page**: http://localhost:8080/
+- **🎨 Theme Showcase**: http://localhost:8080/theme
+- **📊 Dashboard**: http://localhost:8080/dashboard (requires authentication)
+- **🔗 Public API**: http://localhost:8080/api/security/public
+- **💾 H2 Console**: http://localhost:8080/h2-console (dev only)
+- **❤️ Health Check**: http://localhost:8080/actuator/health
+
+### Environment Profiles
+```bash
+# Development (default) - Full access, H2 console enabled
+java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
+
+# UAT - Production-like with testing features
+java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=uat
+
+# Production - Full security, optimized configuration
+java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=production
+```
+
+### Running Tests
+```bash
+# Run complete test suite (294 tests)
 ./mvnw test
 
-# Access the complete application:
-# - Frontend (React App): http://localhost:8080/
-# - Backend API: http://localhost:8080/api/*
-# - H2 Database Console (dev/uat): http://localhost:8080/h2-console
-# - Actuator endpoints: http://localhost:8080/actuator/*
-# - Management endpoints (uat/production): http://localhost:8081/actuator/*
+# Run only backend compilation
+./mvnw clean compile
 ```
 
 ## 📋 Available Maven Commands
