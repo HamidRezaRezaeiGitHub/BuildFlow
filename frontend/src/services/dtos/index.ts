@@ -3,20 +3,9 @@
  * This file provides a single import point for all DTOs used across the application
  */
 
-// Export all MVC-related DTOs (generic response types)
-export * from './MvcDtos';
-
-// Export all User Domain DTOs
-export * from './UserDtos';
-
-// Export all Authentication-related DTOs
-export * from './AuthDtos';
-
-// Re-export commonly used types with aliases for convenience
 export type {
     ErrorResponse as ApiErrorResponse, 
-    MessageResponse as ApiMessageResponse, 
-    ResponseErrorType as ApiResponseErrorType
+    MessageResponse as ApiMessageResponse
 } from './MvcDtos';
 
 export type {
@@ -27,5 +16,11 @@ export type {
 
 export type {
     LoginRequest as LoginCredentials, 
-    SignUpRequest as SignUpData
+    SignUpRequest as SignUpData,
+    AuthResponse as AuthResponse,
+    ValidationResponse as ValidationResponse
 } from './AuthDtos';
+
+export type {
+    BaseAddressDto as AddressData
+} from './AddressDtos';

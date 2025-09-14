@@ -1,4 +1,5 @@
-import { ApiMessageResponse, ApiErrorResponse, ApiResponseErrorType, ResponseErrorType } from './dtos';
+import { ApiMessageResponse, ApiErrorResponse } from './dtos';
+import { ResponseErrorType } from './dtos/MvcDtos';
 
 /**
  * Custom error class for API errors
@@ -37,11 +38,11 @@ export class StructuredApiError extends ApiError {
     /**
      * Check if this is a specific type of error
      */
-    isErrorType(type: ApiResponseErrorType): boolean {
+    isErrorType(type: ResponseErrorType): boolean {
         return this.apiErrorResponse?.errorType === type;
     }
 
-    getErrorType(): ApiResponseErrorType | undefined {
+    getErrorType(): ResponseErrorType | undefined {
         return this.apiErrorResponse?.errorType;
     }
 }

@@ -3,12 +3,12 @@ import { ApiError, authService, StructuredApiError } from '../services';
 import type {
     LoginCredentials,
     SignUpData,
-    UserDto
+    DomainUser
 } from '../services/dtos';
 
 interface AuthContextType {
   // State
-  user: UserDto | null;
+  user: DomainUser | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -37,7 +37,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<UserDto | null>(null);
+  const [user, setUser] = useState<DomainUser | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('jwt_token'));
   const [isLoading, setIsLoading] = useState(true);
 

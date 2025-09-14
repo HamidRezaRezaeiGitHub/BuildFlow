@@ -3,9 +3,12 @@ export * from './theme';
 
 // Layout components
 export * from './layouts';
-export { default as HomeNavbar } from './HomeNavbar';
+
+// Home page components
+export * from './home';
 
 // UI components
 export * from './ui/button';
+export * from './ui/card';
 export * from './ui/switch';
 export * from './ui/toggle';

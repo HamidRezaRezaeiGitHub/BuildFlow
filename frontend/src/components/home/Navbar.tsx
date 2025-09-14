@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Menu, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigation } from './NavigationProvider';
 
 interface HomeNavbarProps {
     className?: string;
@@ -10,7 +11,7 @@ interface HomeNavbarProps {
 }
 
 // Simple BuildFlow logo component
-const BuildFlowLogo = (props: React.SVGAttributes<SVGElement>) => {
+const Logo = (props: React.SVGAttributes<SVGElement>) => {
     return (
         <svg
             width='1em'
@@ -51,19 +52,20 @@ const BuildFlowLogo = (props: React.SVGAttributes<SVGElement>) => {
  * - Sign In and Get Started call-to-action buttons
  * - BuildFlow branding and logo
  */
-const HomeNavbar: React.FC<HomeNavbarProps> = ({
+const Navbar: React.FC<HomeNavbarProps> = ({
     className,
     onSignInClick,
     onGetStartedClick
 }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { navigateToAuth, scrollToSection } = useNavigation();
 
     const handleSignIn = () => {
         if (onSignInClick) {
             onSignInClick();
         } else {
-            // Default behavior - redirect to login
-            window.location.href = '/login';
+            // Navigate to auth section with login tab
+            navigateToAuth('login');
         }
     };
 
@@ -71,8 +73,8 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
         if (onGetStartedClick) {
             onGetStartedClick();
         } else {
-            // Default behavior - redirect to registration
-            window.location.href = '/register';
+            // Navigate to auth section with signup tab
+            navigateToAuth('signup');
         }
     };
 
@@ -82,11 +84,15 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
 
     // Navigation links for public pages
     const navigationLinks = [
-        { label: 'Features', href: '#features' },
-        { label: 'Pricing', href: '#pricing' },
-        { label: 'About', href: '#about' },
-        { label: 'Contact', href: '#contact' },
+        { label: 'Features', href: 'features' },
+        { label: 'About', href: 'brands' }, // Brands section serves as "About"
+        { label: 'Contact', href: 'contact' },
     ];
+
+    const handleNavClick = (href: string) => {
+        scrollToSection(href);
+        setIsMobileMenuOpen(false);
+    };
 
     return (
         <header className={cn(
@@ -98,7 +104,7 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
                 {/* Logo and Brand */}
                 <div className="flex items-center space-x-3">
                     <div className="text-3xl text-primary">
-                        <BuildFlowLogo />
+                        <Logo />
                     </div>
                     <span className="text-xl font-bold text-foreground">BuildFlow</span>
                 </div>
@@ -106,13 +112,13 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center space-x-8">
                     {navigationLinks.map((link) => (
-                        <a
+                        <button
                             key={link.label}
-                            href={link.href}
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => handleNavClick(link.href)}
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
                             {link.label}
-                        </a>
+                        </button>
                     ))}
                 </nav>
 
@@ -158,14 +164,13 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
                         {/* Mobile Navigation Links */}
                         <nav className="space-y-3">
                             {navigationLinks.map((link) => (
-                                <a
+                                <button
                                     key={link.label}
-                                    href={link.href}
-                                    className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    onClick={() => handleNavClick(link.href)}
+                                    className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     {link.label}
-                                </a>
+                                </button>
                             ))}
                         </nav>
 
@@ -200,4 +205,4 @@ const HomeNavbar: React.FC<HomeNavbarProps> = ({
     );
 };
 
-export default HomeNavbar;
+export default Navbar;

@@ -1,6 +1,7 @@
 // Example usage of the backend-compatible response types
 import { apiService, StructuredApiError } from './ApiService';
-import { MessageResponse, ResponseErrorType } from './dtos';
+import { ApiMessageResponse } from './dtos';
+import { ResponseErrorType } from './dtos/MvcDtos';
 
 /**
  * Example utility functions showing how to work with backend response types
@@ -9,7 +10,7 @@ import { MessageResponse, ResponseErrorType } from './dtos';
 /**
  * Helper function to safely handle API responses that might be MessageResponse
  */
-export function handleMessageResponse(response: MessageResponse | any): string {
+export function handleMessageResponse(response: ApiMessageResponse | any): string {
   if (apiService.isMessageResponse(response)) {
     return response.success ? response.message : `Error: ${response.message}`;
   }
@@ -101,7 +102,7 @@ export function useApiErrorHandler() {
  */
 export async function exampleApiCall(endpoint: string, token?: string): Promise<string> {
   try {
-    const response = await apiService.get<MessageResponse>(endpoint, token);
+    const response = await apiService.get<ApiMessageResponse>(endpoint, token);
     
     if (apiService.isMessageResponse(response)) {
       if (!response.success) {
