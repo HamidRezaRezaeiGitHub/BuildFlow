@@ -3,6 +3,8 @@ import React, { createContext, useCallback, useContext } from 'react';
 interface NavigationContextType {
     scrollToSection: (sectionId: string, tabId?: string) => void;
     navigateToAuth: (tab: 'signup' | 'login') => void;
+    navigateToSignup: () => void;
+    navigateToLogin: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ interface NavigationProviderProps {
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children }) => {
     const scrollToSection = useCallback((sectionId: string, tabId?: string) => {
         const element = document.getElementById(sectionId);
+
         if (element) {
             // Smooth scroll to the section
             element.scrollIntoView({
@@ -35,14 +38,16 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
 
             // If it's the auth section and we need to switch tabs
             if (sectionId === 'auth' && tabId) {
-                // Small delay to ensure the element is in view first
+                // Dispatch custom event for tab navigation
                 setTimeout(() => {
-                    const tabTrigger = document.querySelector(`[data-tab="${tabId}"]`) as HTMLButtonElement;
-                    if (tabTrigger) {
-                        tabTrigger.click();
-                    }
-                }, 300);
+                    const event = new CustomEvent('navigate-to-tab', {
+                        detail: { tab: tabId }
+                    });
+                    window.dispatchEvent(event);
+                }, 100); // Shorter delay since we're using events
             }
+        } else {
+            console.warn(`Element with ID "${sectionId}" not found`);
         }
     }, []);
 
@@ -50,9 +55,19 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
         scrollToSection('auth', tab);
     }, [scrollToSection]);
 
+    const navigateToSignup = useCallback(() => {
+        scrollToSection('auth', 'signup');
+    }, [scrollToSection]);
+
+    const navigateToLogin = useCallback(() => {
+        scrollToSection('auth', 'login');
+    }, [scrollToSection]);
+
     const value = {
         scrollToSection,
-        navigateToAuth
+        navigateToAuth,
+        navigateToSignup,
+        navigateToLogin
     };
 
     return (

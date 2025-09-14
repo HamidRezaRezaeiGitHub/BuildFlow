@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Play } from 'lucide-react';
 import React from 'react';
+import { useNavigation } from './NavigationProvider';
 
 interface HeroSectionProps {
   className?: string;
@@ -16,14 +17,11 @@ interface HeroSectionProps {
  * - Responsive design
  */
 const Hero: React.FC<HeroSectionProps> = ({ className = '' }) => {
+  const { navigateToSignup } = useNavigation();
+
   const handleGetStarted = () => {
-    // Scroll to auth section
-    const authSection = document.getElementById('auth');
-    if (authSection) {
-      authSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.href = '/register';
-    }
+    // Navigate to auth section with signup tab
+    navigateToSignup();
   };
 
   const handleWatchDemo = () => {

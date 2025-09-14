@@ -1,5 +1,6 @@
 import { Quote, Star } from 'lucide-react';
 import React from 'react';
+import { useNavigation } from './NavigationProvider';
 
 interface BrandsSectionProps {
   className?: string;
@@ -30,6 +31,7 @@ interface Brand {
  * - Social proof metrics
  */
 const Brands: React.FC<BrandsSectionProps> = ({ className = '' }) => {
+  const { navigateToSignup } = useNavigation();
   const testimonials: Testimonial[] = [
     {
       id: 1,
@@ -219,12 +221,7 @@ const Brands: React.FC<BrandsSectionProps> = ({ className = '' }) => {
             </p>
             <button
               className="text-primary hover:text-primary/80 font-medium underline underline-offset-4"
-              onClick={() => {
-                const authSection = document.getElementById('auth');
-                if (authSection) {
-                  authSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
+              onClick={navigateToSignup}
             >
               Get started for free
             </button>

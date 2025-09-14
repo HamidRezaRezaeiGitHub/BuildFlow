@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SignUp from './SignUp';
 import Login from './Login';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface AuthSectionProps {
   className?: string;
@@ -19,6 +19,37 @@ interface AuthSectionProps {
 const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState('signup');
+
+  // Listen for URL hash changes and navigation events
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#auth') {
+        // Check for stored tab preference or default to signup
+        const preferredTab = sessionStorage.getItem('auth-tab') || 'signup';
+        setActiveTab(preferredTab);
+      }
+    };
+
+    // Custom event listener for tab navigation
+    const handleTabNavigation = (event: CustomEvent) => {
+      const { tab } = event.detail;
+      setActiveTab(tab);
+      sessionStorage.setItem('auth-tab', tab);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('navigate-to-tab' as any, handleTabNavigation);
+
+    // Initial check
+    handleHashChange();
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('navigate-to-tab' as any, handleTabNavigation);
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
@@ -39,7 +70,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
 
         {/* Authentication Forms */}
         <div className="max-w-md mx-auto">
-          <Tabs defaultValue="signup" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger
                 value="signup"
@@ -58,7 +89,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
             </TabsList>
 
             {/* Sign Up Tab */}
-            <TabsContent value="signup" className="space-y-6">
+            <TabsContent value="signup" className="space-y-6" id="auth-signup">
               <SignUp
                 showPassword={showPassword}
                 showConfirmPassword={showConfirmPassword}
@@ -68,7 +99,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
             </TabsContent>
 
             {/* Login Tab */}
-            <TabsContent value="login" className="space-y-6">
+            <TabsContent value="login" className="space-y-6" id="auth-login">
               <Login
                 showPassword={showPassword}
                 onTogglePassword={togglePasswordVisibility}

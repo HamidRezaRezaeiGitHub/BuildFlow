@@ -58,14 +58,14 @@ const Navbar: React.FC<HomeNavbarProps> = ({
     onGetStartedClick
 }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { navigateToAuth, scrollToSection } = useNavigation();
+    const { navigateToSignup, navigateToLogin, scrollToSection } = useNavigation();
 
     const handleSignIn = () => {
         if (onSignInClick) {
             onSignInClick();
         } else {
             // Navigate to auth section with login tab
-            navigateToAuth('login');
+            navigateToLogin();
         }
     };
 
@@ -74,7 +74,7 @@ const Navbar: React.FC<HomeNavbarProps> = ({
             onGetStartedClick();
         } else {
             // Navigate to auth section with signup tab
-            navigateToAuth('signup');
+            navigateToSignup();
         }
     };
 
