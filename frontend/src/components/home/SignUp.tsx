@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { contactLabelOptions } from '@/services/dtos/UserDtos';
 import { validateSignUpForm, type SignUpFormData } from '@/utils/validation';
+import { useAuth } from '@/contexts/AuthContext';
 import { ChevronDown, ChevronUp, Phone, Tag, User } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { EmailField, PasswordField } from './Credentials';
@@ -25,15 +26,21 @@ interface SignUpProps {
     showConfirmPassword: boolean;
     onTogglePassword: () => void;
     onToggleConfirmPassword: () => void;
+    onSignUpSuccess?: () => void; // Callback to switch to login tab
 }
 
 const SignUp: React.FC<SignUpProps> = ({
     showPassword,
     showConfirmPassword,
     onTogglePassword,
-    onToggleConfirmPassword
+    onToggleConfirmPassword,
+    onSignUpSuccess
 }) => {
     const [isOptionalSectionOpen, setIsOptionalSectionOpen] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const { register } = useAuth();
 
     // Utility function to parse street number with alphabetic parts
     const parseStreetNumber = (input: string): { streetNumber: string; streetName: string } => {
@@ -91,6 +98,11 @@ const SignUp: React.FC<SignUpProps> = ({
 
     // Auto-parse street number when it contains alphabetic parts and street name is empty
     const parsedStreetData = useMemo(() => {
+        // Clear errors when user modifies the form
+        if (submitError) {
+            setSubmitError(null);
+        }
+        
         if (signUpForm.streetNumber && !signUpForm.streetName.trim()) {
             const parsed = parseStreetNumber(signUpForm.streetNumber);
             
@@ -100,7 +112,7 @@ const SignUp: React.FC<SignUpProps> = ({
             }
         }
         return null;
-    }, [signUpForm.streetNumber, signUpForm.streetName]);
+    }, [signUpForm.streetNumber, signUpForm.streetName, submitError]);
 
     // Apply parsed street data to form values
     const effectiveFormData = useMemo(() => {
@@ -114,11 +126,54 @@ const SignUp: React.FC<SignUpProps> = ({
         return signUpForm;
     }, [signUpForm, parsedStreetData]);
 
-    const handleSignUp = (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement actual sign up logic
-        console.log('Sign up:', effectiveFormData);
-        alert('Sign up functionality will be implemented with backend integration');
+        
+        if (!formValidation.isFormValid) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitError(null);
+        setSubmitSuccess(false);
+
+        try {
+            // Transform form data to match SignUpData DTO structure
+            const signUpData = {
+                username: effectiveFormData.email, // Use email as username
+                password: effectiveFormData.password,
+                contactRequestDto: {
+                    firstName: effectiveFormData.firstName,
+                    lastName: effectiveFormData.lastName,
+                    email: effectiveFormData.email,
+                    phone: effectiveFormData.phone || undefined,
+                    labels: effectiveFormData.labels,
+                    addressRequestDto: {
+                        unitNumber: effectiveFormData.unitNumber?.trim() || undefined,
+                        streetNumber: effectiveFormData.streetNumber?.trim() || undefined,
+                        streetName: effectiveFormData.streetName?.trim() || '',
+                        city: effectiveFormData.city?.trim() || '',
+                        stateOrProvince: effectiveFormData.stateOrProvince?.trim() || '',
+                        postalOrZipCode: effectiveFormData.postalOrZipCode?.trim() || undefined,
+                        country: effectiveFormData.country?.trim() || ''
+                    }
+                }
+            };
+
+            await register(signUpData);
+            
+            setSubmitSuccess(true);
+            
+            // Show success message and switch to login tab
+            setTimeout(() => {
+                onSignUpSuccess?.();
+            }, 1500);
+            
+        } catch (error) {
+            setSubmitError(error instanceof Error ? error.message : 'Registration failed. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Real-time form validation
@@ -394,13 +449,29 @@ const SignUp: React.FC<SignUpProps> = ({
                         </CollapsibleContent>
                     </Collapsible>
 
+                    {/* Error Message */}
+                    {submitError && (
+                        <div className="p-4 rounded-md bg-red-50 border border-red-200">
+                            <p className="text-sm text-red-600">{submitError}</p>
+                        </div>
+                    )}
+
+                    {/* Success Message */}
+                    {submitSuccess && (
+                        <div className="p-4 rounded-md bg-green-50 border border-green-200">
+                            <p className="text-sm text-green-600">
+                                Account created successfully! Redirecting to login...
+                            </p>
+                        </div>
+                    )}
+
                     <Button
                         type="submit"
                         className="w-full"
                         size="lg"
-                        disabled={!formValidation.isFormValid}
+                        disabled={!formValidation.isFormValid || isSubmitting}
                     >
-                        Create Account
+                        {isSubmitting ? 'Creating Account...' : 'Create Account'}
                     </Button>
 
                     <p className="text-xs text-muted-foreground text-center">

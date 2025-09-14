@@ -95,6 +95,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
                 showConfirmPassword={showConfirmPassword}
                 onTogglePassword={togglePasswordVisibility}
                 onToggleConfirmPassword={toggleConfirmPasswordVisibility}
+                onSignUpSuccess={() => setActiveTab('login')}
               />
             </TabsContent>
 
