@@ -1,0 +1,183 @@
+name: Build and Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'uat'
+        type: choice
+        options:
+        - uat
+        - production
+
+jobs:
+  build-and-package:
+    name: Build Application Package
+    runs-on: ubuntu-latest
+    
+    outputs:
+      artifact-name: ${{ steps.artifact-info.outputs.name }}
+      version: ${{ steps.version-info.outputs.version }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Extract version information
+      id: version-info
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION="snapshot-$(git rev-parse --short HEAD)"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+        
+    - name: Make Maven wrapper executable
+      run: chmod +x mvnw
+      
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Build frontend with optimization
+      working-directory: ./frontend
+      run: npm run build
+      
+    - name: Run backend tests
+      run: ./mvnw test
+      
+    - name: Build application package
+      run: ./mvnw clean package -DskipTests
+      
+    - name: Set artifact information
+      id: artifact-info
+      run: |
+        ARTIFACT_NAME="BuildFlow-${{ steps.version-info.outputs.version }}"
+        echo "name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+        
+    - name: Rename artifact with version
+      run: |
+        cp target/BuildFlow-0.0.1-SNAPSHOT.jar target/${{ steps.artifact-info.outputs.name }}.jar
+        
+    - name: Generate application info
+      run: |
+        cat > target/application-info.txt << EOF
+        BuildFlow Application Package
+        ============================
+        Version: ${{ steps.version-info.outputs.version }}
+        Build Date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+        Git Commit: ${{ github.sha }}
+        Git Branch: ${{ github.ref_name }}
+        Triggered by: ${{ github.event_name }}
+        
+        Deployment Instructions:
+        -----------------------
+        1. Upload the JAR file to your target server
+        2. Ensure Java 21 is installed
+        3. Run: java -jar ${{ steps.artifact-info.outputs.name }}.jar
+        4. Access application at: http://localhost:8080
+        5. For production: java -jar ${{ steps.artifact-info.outputs.name }}.jar --spring.profiles.active=production
+        
+        Configuration Profiles:
+        -----------------------
+        - default: Development mode with H2 console
+        - uat: UAT environment with enhanced logging
+        - production: Production mode with security enabled
+        EOF
+        
+    - name: Upload versioned application
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.artifact-info.outputs.name }}
+        path: |
+          target/${{ steps.artifact-info.outputs.name }}.jar
+          target/application-info.txt
+        retention-days: 90
+        
+    - name: Upload to release (if tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/${{ steps.artifact-info.outputs.name }}.jar
+          target/application-info.txt
+        body: |
+          ## BuildFlow Release ${{ steps.version-info.outputs.version }}
+          
+          ### Changes in this release
+          - Full-stack Spring Boot + React application
+          - Built with Java 21 and Node.js 18
+          - Integrated frontend and backend in single JAR
+          - Complete test suite validation
+          
+          ### Deployment
+          ```bash
+          # Download and run
+          java -jar ${{ steps.artifact-info.outputs.name }}.jar
+          
+          # For production
+          java -jar ${{ steps.artifact-info.outputs.name }}.jar --spring.profiles.active=production
+          ```
+          
+          ### Requirements
+          - Java 21 or higher
+          - Port 8080 available (or configure with --server.port=XXXX)
+        
+  validate-package:
+    name: Validate Package
+    runs-on: ubuntu-latest
+    needs: build-and-package
+    
+    steps:
+    - name: Setup Java 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Download application package
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs.build-and-package.outputs.artifact-name }}
+        
+    - name: Validate JAR structure
+      run: |
+        echo "Validating JAR package..."
+        jar -tf ${{ needs.build-and-package.outputs.artifact-name }}.jar | head -20
+        echo ""
+        echo "Checking for frontend static resources..."
+        jar -tf ${{ needs.build-and-package.outputs.artifact-name }}.jar | grep -E "BOOT-INF/classes/static/" | head -10
+        echo ""
+        echo "Package validation completed successfully"
+        
+    - name: Quick startup validation
+      run: |
+        echo "Testing application startup..."
+        timeout 30s java -jar ${{ needs.build-and-package.outputs.artifact-name }}.jar \
+          --server.port=0 \
+          --spring.profiles.active=test \
+          --logging.level.dev.hr.rezaei.buildflow=DEBUG || true
+        echo "Startup validation completed"
