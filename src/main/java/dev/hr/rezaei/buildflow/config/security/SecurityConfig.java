@@ -27,14 +27,14 @@ import java.util.Set;
 public class SecurityConfig {
 
     public static Set<String> PUBLIC_URLS = Set.of(
-            "/", "/home",
+            "/", "/home", "/index.html", "/theme", "/dashboard",
             "/api/auth/register", "/api/auth/login", "/api/auth/logout",
             "/api/public/**", "/api/*/public/**",
             "/actuator/health",
             // Swagger UI and OpenAPI documentation
             "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
             // Static resources - CSS, JS, images, etc.
-            "/assets/**", "/static/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg", "/*.svg"
+            "/assets/**", "/static/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg", "/*.svg", "/*.html"
     );
 
     @Bean
