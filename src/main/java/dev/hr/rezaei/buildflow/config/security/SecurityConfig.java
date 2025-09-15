@@ -27,7 +27,7 @@ import java.util.Set;
 public class SecurityConfig {
 
     public static Set<String> PUBLIC_URLS = Set.of(
-            "/", "/home", "/index.html", "/theme", "/dashboard",
+            "/", "/home", "/index.html", "/theme", "/dashboard", "/admin",
             "/api/auth/register", "/api/auth/login", "/api/auth/logout",
             "/api/public/**", "/api/*/public/**",
             "/actuator/health",
