@@ -66,17 +66,17 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Authenticate user", description = "Authenticates user credentials and returns a JWT token for subsequent API calls")
+    @Operation(summary = "Authenticate user", description = "Authenticates user credentials using either username or email and returns a JWT token for subsequent API calls")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtAuthenticationResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationResponse> authenticateUser(
-            @Parameter(description = "User login credentials")
+            @Parameter(description = "User login credentials (username or email)")
             @Valid @RequestBody LoginRequest loginRequest
     ) {
-        log.info("Authentication attempt for username: {}", loginRequest.getUsername());
+        log.info("Authentication attempt for username or email: {}", loginRequest.getUsername());
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -92,7 +92,7 @@ public class AuthController {
         securityAuditService.logLoginAttempt(loginRequest.getUsername(), true, "Valid credentials");
         securityAuditService.logTokenGeneration(loginRequest.getUsername());
 
-        log.info("Authentication successful for username: {}", loginRequest.getUsername());
+        log.info("Authentication successful for username or email: {}", loginRequest.getUsername());
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 

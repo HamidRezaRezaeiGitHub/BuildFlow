@@ -214,8 +214,13 @@ public abstract class AbstractModelTest {
     protected User createRandomBuilderUser() {
         Contact contact = createRandomContact();
         contact.getLabels().add(ContactLabel.BUILDER);
+        
+        // Generate a single email to use for both user and contact to ensure consistency
+        String email = "builder" + (int) (Math.random() * 1000) + "@example.com";
+        contact.setEmail(email);
+        
         User builder = User.builder()
-                .email("builder" + (int) (Math.random() * 1000) + "@example.com")
+                .email(email)
                 .registered(true)
                 .contact(contact)
                 .builtProjects(new ArrayList<>())
@@ -230,8 +235,13 @@ public abstract class AbstractModelTest {
     protected User createRandomOwnerUser() {
         Contact contact = createRandomContact();
         contact.getLabels().add(ContactLabel.OWNER);
+        
+        // Generate a single email to use for both user and contact to ensure consistency
+        String email = "owner" + (int) (Math.random() * 1000) + "@example.com";
+        contact.setEmail(email);
+        
         User owner = User.builder()
-                .email("owner" + (int) (Math.random() * 1000) + "@example.com")
+                .email(email)
                 .registered(true)
                 .contact(contact)
                 .builtProjects(new ArrayList<>())

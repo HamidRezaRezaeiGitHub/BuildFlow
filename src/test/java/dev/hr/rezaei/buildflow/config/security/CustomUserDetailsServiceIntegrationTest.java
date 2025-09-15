@@ -271,6 +271,7 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
         User mixedCaseUser = createRandomBuilderUser();
         mixedCaseUser.setUsername(mixedCaseUsername);
         mixedCaseUser.setEmail(mixedCaseUsername);
+        mixedCaseUser.getContact().setEmail(mixedCaseUsername); // Ensure contact email matches user email
         persistUserDependencies(mixedCaseUser);
         mixedCaseUser = userRepository.save(mixedCaseUser);
 
