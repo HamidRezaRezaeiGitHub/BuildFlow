@@ -40,7 +40,8 @@ public enum Role {
 
     public static Set<String> getAdminOnlyAuthorities() {
         return Set.of(
-                "CREATE_ADMIN"
+                "CREATE_ADMIN",
+                "ADMIN_USERS"
         );
     }
 

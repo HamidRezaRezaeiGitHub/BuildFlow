@@ -205,4 +205,37 @@ public class AuthController {
         log.info("Admin user creation successful for username: {} by admin: {}", response.getUserDto().getUsername(), currentUserUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @Operation(summary = "Get user authentication by username", description = "Retrieves UserAuthentication entity by username. Admin access only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User authentication found successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAuthentication.class))),
+            @ApiResponse(responseCode = "404", description = "User authentication not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/user-auth/{username}")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
+    @Hidden
+    public ResponseEntity<UserAuthentication> getUserAuthenticationByUsername(
+            @Parameter(description = "Username to retrieve authentication for")
+            @PathVariable String username,
+            Authentication authentication
+    ) {
+        UserPrincipal currentUser = (UserPrincipal) authentication.getPrincipal();
+        String currentUserUsername = currentUser.getUsername();
+        log.info("Admin user authentication retrieval attempt by: {} for user: {}", currentUserUsername, username);
+
+        UserAuthentication userAuth = authService.findUserAuthByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User authentication not found for username: " + username));
+
+        securityAuditService.logSecurityEvent("USER_AUTH_RETRIEVED", "User authentication retrieved",
+                Map.of(
+                        "retrievedBy", currentUserUsername,
+                        "targetUser", username
+                ));
+
+        log.info("User authentication retrieval successful for username: {} by admin: {}", username, currentUserUsername);
+        return ResponseEntity.ok(userAuth);
+    }
 }
