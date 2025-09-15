@@ -185,7 +185,7 @@ Each package contains comprehensive documentation:
 ### Domain Packages
 - **[user/](user/)**: Complete user management with contacts and addresses
 - **[project/](project/)**: Project lifecycle management with authorization
-- **workitem/](workitem/)**: Work breakdown structure with domain classification
+- **[workitem/](workitem/)**: Work breakdown structure with domain classification
 - **[estimate/](estimate/)**: Hierarchical cost estimation with strategy patterns
 - **[quote/](quote/)**: Supplier quote management with competitive pricing
 
