@@ -131,6 +131,38 @@ class AuthService {
 
         return new Date() >= expiration;
     }
+
+    /**
+     * Store JWT token in localStorage
+     * @param token - JWT token to store
+     */
+    setToken(token: string): void {
+        localStorage.setItem('jwt_token', token);
+    }
+
+    /**
+     * Retrieve JWT token from localStorage
+     * @returns JWT token or null if not found
+     */
+    getToken(): string | null {
+        return localStorage.getItem('jwt_token');
+    }
+
+    /**
+     * Remove JWT token from localStorage
+     */
+    removeToken(): void {
+        localStorage.removeItem('jwt_token');
+    }
+
+    /**
+     * Check if user is currently authenticated (has valid token)
+     * @returns boolean indicating if user appears to be authenticated
+     */
+    isAuthenticated(): boolean {
+        const token = this.getToken();
+        return this.isTokenFormatValid(token) && !this.isTokenExpired(token);
+    }
 }
 
 // Create and export a singleton instance

@@ -17,6 +17,8 @@ export type {
 export type {
     LoginRequest as LoginCredentials, 
     SignUpRequest as SignUpData,
+    CreateUserRequest,
+    CreateUserResponse,
     AuthResponse as AuthResponse,
     ValidationResponse as ValidationResponse
 } from './AuthDtos';

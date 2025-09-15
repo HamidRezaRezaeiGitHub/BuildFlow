@@ -15,6 +15,21 @@ export interface SignUpRequest {
   contactRequestDto: ContactRequestDto;
 }
 
+/**
+ * User creation request DTO for admin operations
+ * Matches backend CreateUserRequest.java
+ */
+export interface CreateUserRequest {
+  /** Registration status of the user */
+  registered: boolean;
+
+  /** Username for the user */
+  username: string;
+
+  /** Contact information for the user */
+  contactRequestDto: ContactRequestDto;
+}
+
 export interface CreateUserResponse {
     userDto: UserDto;
 }

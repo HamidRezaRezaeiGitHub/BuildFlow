@@ -118,3 +118,28 @@ export interface UserRequestDto {
     /** Complete contact information for the user */
     contactDto: ContactRequestDto;
 }
+
+/**
+ * User authentication DTO for admin access
+ * Matches backend UserAuthenticationDto structure
+ * Contains authentication-related information without sensitive data
+ */
+export interface UserAuthenticationDto {
+    /** Unique identifier of the user authentication */
+    id: string;
+
+    /** Username */
+    username: string;
+
+    /** User role (ADMIN, USER, PREMIUM_USER, VIEWER) */
+    role: string;
+
+    /** Whether the user account is enabled */
+    enabled: boolean;
+
+    /** Timestamp when the user was created */
+    createdAt: string;
+
+    /** Timestamp of the user's last login */
+    lastLogin?: string;
+}
