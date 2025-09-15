@@ -18,9 +18,9 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Request object for user authentication")
 public class LoginRequest {
 
-    @Schema(description = "Username for authentication", example = "john_doe")
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Schema(description = "Username or email for authentication", example = "john_doe or john@example.com")
+    @NotBlank(message = "Username or email is required")
+    @Size(min = 3, max = 100, message = "Username or email must be between 3 and 100 characters")
     private String username;
 
     @Schema(description = "Password for authentication", example = "password123")

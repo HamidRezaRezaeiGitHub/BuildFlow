@@ -215,6 +215,29 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
     }
 
     @Test
+    void authenticateUser_shouldReturnJwtToken_whenValidEmailCredentials() throws Exception {
+        // Given - Register a test user
+        SignUpRequest signUpRequest = createValidRandomSignUpRequest();
+        CreateUserResponse createUserResponse = registerUser(mockMvc, objectMapper, signUpRequest, "192.168.8." + testCounter);
+        String email = createUserResponse.getUserDto().getEmail();
+        
+        // Create login request with email instead of username
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(email)  // Using email as the username field
+                .password(signUpRequest.getPassword())
+                .build();
+
+        // When - Login with email using different IP to avoid rate limiting
+        JwtAuthenticationResponse jwtAuthenticationResponse = login(mockMvc, objectMapper, loginRequest, "192.168.9." + testCounter);
+
+        // Then
+        assertEquals("Bearer", jwtAuthenticationResponse.getTokenType());
+        String token = jwtAuthenticationResponse.getAccessToken();
+        // Validate the token with the actual username (not email)
+        assertTokenIsValid(token, signUpRequest.getUsername());
+    }
+
+    @Test
     void authenticateUser_shouldReturn401_whenInvalidCredentials() throws Exception {
         // Given - Create a test user with different password
         LoginRequest loginRequest = registerUserAndCreateLoginRequest(mockMvc, objectMapper, "192.168.10." + testCounter, userService);
