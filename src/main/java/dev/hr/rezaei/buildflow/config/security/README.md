@@ -14,14 +14,36 @@ This package provides comprehensive security functionality for the BuildFlow app
 
 | File | Description |
 |------|-------------|
-| [AuthController.java](AuthController.java) | REST API controller for authentication operations (login, register, logout) |
+| [AuthController.java](AuthController.java) | REST API controller for authentication operations (login, register, logout) and admin user management |
 | [SecurityController.java](SecurityController.java) | Additional security-related endpoint controllers |
+
+#### AuthController Endpoints
+
+**Public Endpoints:**
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User authentication
+
+**Authenticated Endpoints:**
+- `GET /api/auth/current` - Get current user information
+- `POST /api/auth/refresh` - Refresh JWT token
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/validate` - Validate JWT token
+
+**Admin-Only Endpoints (requires ADMIN_USERS authority):**
+- `POST /api/auth/admin` - Create admin user (requires CREATE_ADMIN authority)
+- `GET /api/auth/user-auth/{username}` - Get user authentication by username (returns UserAuthenticationDto)
+- `GET /api/auth/user-auth` - Get all user authentications (returns List<UserAuthenticationDto>)
+
+**Security Features:**
+- All admin endpoints require proper authorization with `@PreAuthorize` annotations
+- User authentication data returned via secure DTOs that exclude password information
+- Comprehensive security audit logging for all admin operations
 
 ### Service Classes
 
 | File | Description |
 |------|-------------|
-| [AuthService.java](AuthService.java) | Core authentication business logic and user management |
+| [AuthService.java](AuthService.java) | Core authentication business logic, user management, and admin operations |
 | [CustomUserDetailsService.java](CustomUserDetailsService.java) | Spring Security UserDetailsService implementation |
 | [SecurityAuditService.java](SecurityAuditService.java) | Security event logging and monitoring service |
 
@@ -125,7 +147,7 @@ Hierarchical role system with granular authority management.
 VIEWER: []
 USER: [CREATE_PROJECT, VIEW_PROJECT, UPDATE_PROJECT, DELETE_PROJECT]
 PREMIUM_USER: [USER authorities + premium-only authorities]
-ADMIN: [PREMIUM_USER authorities + CREATE_ADMIN]
+ADMIN: [PREMIUM_USER authorities + CREATE_ADMIN, ADMIN_USERS]
 ```
 
 ### Authentication Flow
@@ -230,6 +252,13 @@ Core authentication business logic service.
 - **Login Processing**: Validates credentials and generates tokens
 - **Password Management**: Secure password handling and validation
 - **Role Assignment**: Manages user role assignments
+- **Admin Operations**: Provides admin-only user management capabilities
+- **User Authentication Retrieval**: Secure access to user authentication data via DTOs
+
+**Admin-Specific Operations:**
+- `findAllUserAuthentications()`: Retrieves all user authentication records for admin overview
+- `findUserAuthByUsername()`: Secure user authentication lookup for admin operations
+- Integration with UserAuthenticationDto for password-free data transmission
 
 #### SecurityAuditService
 Comprehensive security event logging and monitoring.

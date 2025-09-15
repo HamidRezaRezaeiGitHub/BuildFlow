@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -126,5 +127,9 @@ public class AuthService {
 
     public boolean isValidNewUsername(String username) {
         return !userAuthExistsByUsername(username) && !userExistsByUsername(username);
+    }
+
+    public List<UserAuthentication> findAllUserAuthentications() {
+        return userAuthenticationRepository.findAll();
     }
 }

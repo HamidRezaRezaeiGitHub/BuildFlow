@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.config.security.dto.UserAuthenticationDto;
 import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.UUID;
 
 import static dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType.AUTHENTICATION_REQUIRED;
@@ -592,4 +594,193 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         assertEquals(Role.ADMIN, userAuthenticationRepository.findByUsername(newAdminUsername).get().getRole());
     }
 
+    @Test
+    void getUserAuthenticationByUsername_shouldReturnUserAuth_whenAdminUser() throws Exception {
+        // 1. Create a regular user
+        SignUpRequest userSignUpRequest = createValidRandomSignUpRequest();
+        String targetUsername = "targetuser" + testCounter;
+        userSignUpRequest.setUsername(targetUsername);
+        CreateUserResponse userResponse = registerUser(mockMvc, objectMapper, userSignUpRequest, "192.168.46." + testCounter);
+        assertTrue(userAuthenticationRepository.findByUsername(targetUsername).isPresent());
+
+        // 2. Create and authenticate an admin user
+        SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
+        String adminUsername = "admin" + testCounter;
+        adminSignUpRequest.setUsername(adminUsername);
+        CreateUserResponse adminResponse = registerUser(mockMvc, objectMapper, adminSignUpRequest, "192.168.47." + testCounter);
+        UserAuthentication adminAuth = userAuthenticationRepository.findByUsername(adminUsername).get();
+        adminAuth.setRole(Role.ADMIN);
+        userAuthenticationRepository.save(adminAuth);
+
+        // 3. Login as admin
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(adminUsername)
+                .password(adminSignUpRequest.getPassword())
+                .build();
+        JwtAuthenticationResponse jwtResponse = login(mockMvc, objectMapper, loginRequest, "192.168.48." + testCounter);
+        String adminToken = jwtResponse.getAccessToken();
+
+        // 4. Get user authentication as admin
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Forwarded-For", "192.168.49." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username").value(targetUsername))
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.enabled").value(true));
+    }
+
+    @Test
+    void getUserAuthenticationByUsername_shouldReturnForbidden_whenUserLacksAdminAuthority() throws Exception {
+        // 1. Create target user
+        SignUpRequest targetSignUpRequest = createValidRandomSignUpRequest();
+        String targetUsername = "targetuser" + testCounter;
+        targetSignUpRequest.setUsername(targetUsername);
+        registerUser(mockMvc, objectMapper, targetSignUpRequest, "192.168.50." + testCounter);
+
+        // 2. Create regular user (not admin)
+        SignUpRequest userSignUpRequest = createValidRandomSignUpRequest();
+        String username = "user" + testCounter;
+        userSignUpRequest.setUsername(username);
+        registerUser(mockMvc, objectMapper, userSignUpRequest, "192.168.51." + testCounter);
+
+        // 3. Login as regular user
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(userSignUpRequest.getPassword())
+                .build();
+        JwtAuthenticationResponse jwtResponse = login(mockMvc, objectMapper, loginRequest, "192.168.52." + testCounter);
+        String userToken = jwtResponse.getAccessToken();
+
+        // 4. Attempt to get user authentication (should be forbidden)
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
+                        .header("Authorization", "Bearer " + userToken)
+                        .header("X-Forwarded-For", "192.168.53." + testCounter))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getUserAuthenticationByUsername_shouldReturnUnauthorized_whenNoJwt() throws Exception {
+        // 1. Create target user
+        SignUpRequest targetSignUpRequest = createValidRandomSignUpRequest();
+        String targetUsername = "targetuser" + testCounter;
+        targetSignUpRequest.setUsername(targetUsername);
+        registerUser(mockMvc, objectMapper, targetSignUpRequest, "192.168.54." + testCounter);
+
+        // 2. Attempt to get user authentication without JWT
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
+                        .header("X-Forwarded-For", "192.168.55." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getUserAuthenticationByUsername_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
+        // 1. Create and authenticate admin user
+        SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
+        String adminUsername = "admin" + testCounter;
+        adminSignUpRequest.setUsername(adminUsername);
+        registerUser(mockMvc, objectMapper, adminSignUpRequest, "192.168.56." + testCounter);
+        UserAuthentication adminAuth = userAuthenticationRepository.findByUsername(adminUsername).get();
+        adminAuth.setRole(Role.ADMIN);
+        userAuthenticationRepository.save(adminAuth);
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(adminUsername)
+                .password(adminSignUpRequest.getPassword())
+                .build();
+        JwtAuthenticationResponse jwtResponse = login(mockMvc, objectMapper, loginRequest, "192.168.57." + testCounter);
+        String adminToken = jwtResponse.getAccessToken();
+
+        // 2. Attempt to get non-existent user authentication
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", "nonexistent.user@example.com")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Forwarded-For", "192.168.58." + testCounter))
+                .andDo(print())
+                .andExpect(status().isNotFound()); // Should return 404 Not Found when user does not exist
+    }
+
+    @Test
+    void getAllUserAuthentications_shouldReturnAllUserAuthentications_whenAdminUser() throws Exception {
+        // 1. Create multiple users
+        SignUpRequest user1SignUpRequest = createValidRandomSignUpRequest();
+        String user1Username = "user1_" + testCounter;
+        user1SignUpRequest.setUsername(user1Username);
+        registerUser(mockMvc, objectMapper, user1SignUpRequest, "192.168.59." + testCounter);
+
+        SignUpRequest user2SignUpRequest = createValidRandomSignUpRequest();
+        String user2Username = "user2_" + testCounter;
+        user2SignUpRequest.setUsername(user2Username);
+        registerUser(mockMvc, objectMapper, user2SignUpRequest, "192.168.60." + testCounter);
+
+        // 2. Create and authenticate admin user
+        SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
+        String adminUsername = "admin" + testCounter;
+        adminSignUpRequest.setUsername(adminUsername);
+        registerUser(mockMvc, objectMapper, adminSignUpRequest, "192.168.61." + testCounter);
+        UserAuthentication adminAuth = userAuthenticationRepository.findByUsername(adminUsername).get();
+        adminAuth.setRole(Role.ADMIN);
+        userAuthenticationRepository.save(adminAuth);
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(adminUsername)
+                .password(adminSignUpRequest.getPassword())
+                .build();
+        JwtAuthenticationResponse jwtResponse = login(mockMvc, objectMapper, loginRequest, "192.168.62." + testCounter);
+        String adminToken = jwtResponse.getAccessToken();
+
+        // 3. Get all user authentications as admin
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Forwarded-For", "192.168.63." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3)) // Should have 3 users
+                .andExpect(jsonPath("$[*].username").value(hasItem(user1Username)))
+                .andExpect(jsonPath("$[*].username").value(hasItem(user2Username)))
+                .andExpect(jsonPath("$[*].username").value(hasItem(adminUsername)))
+                .andExpect(jsonPath("$[0].passwordHash").doesNotExist()) // Should not expose password
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].role").exists())
+                .andExpect(jsonPath("$[0].enabled").exists())
+                .andExpect(jsonPath("$[0].createdAt").exists());
+    }
+
+    @Test
+    void getAllUserAuthentications_shouldReturnForbidden_whenUserLacksAdminAuthority() throws Exception {
+        // 1. Create regular user (not admin)
+        SignUpRequest userSignUpRequest = createValidRandomSignUpRequest();
+        String username = "user" + testCounter;
+        userSignUpRequest.setUsername(username);
+        registerUser(mockMvc, objectMapper, userSignUpRequest, "192.168.64." + testCounter);
+
+        // 2. Login as regular user
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username(username)
+                .password(userSignUpRequest.getPassword())
+                .build();
+        JwtAuthenticationResponse jwtResponse = login(mockMvc, objectMapper, loginRequest, "192.168.65." + testCounter);
+        String userToken = jwtResponse.getAccessToken();
+
+        // 3. Attempt to get all user authentications (should be forbidden)
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
+                        .header("Authorization", "Bearer " + userToken)
+                        .header("X-Forwarded-For", "192.168.66." + testCounter))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getAllUserAuthentications_shouldReturnUnauthorized_whenNoJwt() throws Exception {
+        // Attempt to get all user authentications without JWT
+        mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
+                        .header("X-Forwarded-For", "192.168.67." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
 }

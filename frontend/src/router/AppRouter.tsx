@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Dashboard, Home, Theme } from '../pages';
+import { Dashboard, Home, Theme, Admin } from '../pages';
 
 // Protected Route component
 interface ProtectedRouteProps {
@@ -26,6 +26,31 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <>{children}</>;
 };
 
+// Admin Route component - for now just checks authentication, role check will be enhanced later
+interface AdminRouteProps {
+    children: React.ReactNode;
+}
+
+const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-pulse">Loading...</div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+
+    // TODO: Add role-based checking here once role information is available in auth context
+    // For now, all authenticated users can access admin (will be restricted in backend)
+    return <>{children}</>;
+};
+
 /**
  * AppRouter component that defines all application routes.
  * 
@@ -33,6 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
  * - / -> Home page (public)
  * - /theme -> Theme showcase page (public)
  * - /dashboard -> Dashboard (protected, requires authentication)
+ * - /admin -> Admin panel (protected, requires admin role - backend enforced)
  * - * -> redirects to Home (catch-all for undefined paths)
  */
 export const AppRouter: React.FC = () => {
@@ -49,6 +75,16 @@ export const AppRouter: React.FC = () => {
                     <ProtectedRoute>
                         <Dashboard />
                     </ProtectedRoute>
+                }
+            />
+
+            {/* Admin routes */}
+            <Route
+                path="/admin"
+                element={
+                    <AdminRoute>
+                        <Admin />
+                    </AdminRoute>
                 }
             />
 

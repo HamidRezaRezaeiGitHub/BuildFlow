@@ -11,6 +11,7 @@ This package contains Data Transfer Objects (DTOs) for authentication and securi
 | [JwtAuthenticationResponse.java](JwtAuthenticationResponse.java) | Response containing JWT token and user information after successful authentication |
 | [LoginRequest.java](LoginRequest.java) | Request object for user authentication with username/email and password |
 | [SignUpRequest.java](SignUpRequest.java) | Request object for user registration with complete user details |
+| [UserAuthenticationDto.java](UserAuthenticationDto.java) | DTO for UserAuthentication entity without password-related fields for safe admin access |
 | [UserSummaryResponse.java](UserSummaryResponse.java) | Summary response containing basic user information |
 
 ## Technical Overview
@@ -81,6 +82,28 @@ Lightweight user information response DTO.
 - `firstName` (String): First name
 - `lastName` (String): Last name
 
+### UserAuthenticationDto
+Secure authentication data transfer object for admin operations.
+
+**Key Features:**
+- **Password-Free Security**: Excludes sensitive password information from transmission
+- **Admin Access**: Designed for admin-only user management operations
+- **Complete Authentication Data**: Includes all non-sensitive authentication fields
+- **Audit Support**: Provides data for security auditing and user management
+
+**Structure:**
+- `id` (UUID): User authentication unique identifier
+- `username` (String): Username
+- `role` (Role): User role (USER/ADMIN)
+- `enabled` (boolean): Account enabled status
+- `createdAt` (Instant): Account creation timestamp
+- `lastLogin` (Instant): Last login timestamp
+
+**Security Considerations:**
+- Excludes `passwordHash` field for secure transmission
+- Used exclusively for admin-only endpoints
+- Supports comprehensive user management without exposing credentials
+
 ## Authentication Flow
 
 ```
@@ -93,10 +116,11 @@ Lightweight user information response DTO.
 ## Integration Points
 
 This package integrates with:
-- **AuthController**: Uses all DTOs for authentication endpoints
+- **AuthController**: Uses all DTOs for authentication endpoints and admin user management
 - **AuthService**: Processes authentication requests and generates responses
 - **JwtTokenProvider**: Works with JwtAuthenticationResponse for token management
 - **UserService**: Integrates with user management for registration and profile data
+- **UserAuthenticationRepository**: Provides data for UserAuthenticationDto in admin operations
 
 ## Security Features
 

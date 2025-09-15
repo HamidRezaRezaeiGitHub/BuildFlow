@@ -6,6 +6,7 @@ import dev.hr.rezaei.buildflow.config.mvc.dto.MessageResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.config.security.dto.UserAuthenticationDto;
 import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
@@ -30,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -204,5 +206,90 @@ public class AuthController {
 
         log.info("Admin user creation successful for username: {} by admin: {}", response.getUserDto().getUsername(), currentUserUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Get user authentication by username", description = "Retrieves UserAuthentication entity by username. Admin access only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User authentication found successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAuthenticationDto.class))),
+            @ApiResponse(responseCode = "404", description = "User authentication not found"),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/user-auth/{username}")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
+    @Hidden
+    public ResponseEntity<UserAuthenticationDto> getUserAuthenticationByUsername(
+            @Parameter(description = "Username to retrieve authentication for")
+            @PathVariable String username,
+            Authentication authentication
+    ) {
+        UserPrincipal currentUser = (UserPrincipal) authentication.getPrincipal();
+        String currentUserUsername = currentUser.getUsername();
+        log.info("Admin user authentication retrieval attempt by: {} for user: {}", currentUserUsername, username);
+
+        return authService.findUserAuthByUsername(username)
+                .map(userAuth -> {
+                    securityAuditService.logSecurityEvent("USER_AUTH_RETRIEVED", "User authentication retrieved",
+                            Map.of(
+                                    "retrievedBy", currentUserUsername,
+                                    "targetUser", username
+                            ));
+                    log.info("User authentication retrieval successful for username: {} by admin: {}", username, currentUserUsername);
+                    
+                    // Convert to DTO
+                    UserAuthenticationDto dto = UserAuthenticationDto.builder()
+                            .id(userAuth.getId())
+                            .username(userAuth.getUsername())
+                            .role(userAuth.getRole())
+                            .enabled(userAuth.isEnabled())
+                            .createdAt(userAuth.getCreatedAt())
+                            .lastLogin(userAuth.getLastLogin())
+                            .build();
+                    
+                    return ResponseEntity.ok(dto);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Get all user authentications", description = "Retrieves all UserAuthentication entities. Admin access only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User authentications retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAuthenticationDto.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/user-auth")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
+    @Hidden
+    public ResponseEntity<List<UserAuthenticationDto>> getAllUserAuthentications(
+            Authentication authentication
+    ) {
+        UserPrincipal currentUser = (UserPrincipal) authentication.getPrincipal();
+        String currentUserUsername = currentUser.getUsername();
+        log.info("Admin all user authentications retrieval attempt by: {}", currentUserUsername);
+
+        List<UserAuthentication> userAuths = authService.findAllUserAuthentications();
+        
+        // Convert to DTOs
+        List<UserAuthenticationDto> dtos = userAuths.stream()
+                .map(userAuth -> UserAuthenticationDto.builder()
+                        .id(userAuth.getId())
+                        .username(userAuth.getUsername())
+                        .role(userAuth.getRole())
+                        .enabled(userAuth.isEnabled())
+                        .createdAt(userAuth.getCreatedAt())
+                        .lastLogin(userAuth.getLastLogin())
+                        .build())
+                .toList();
+
+        securityAuditService.logSecurityEvent("ALL_USER_AUTH_RETRIEVED", "All user authentications retrieved",
+                Map.of(
+                        "retrievedBy", currentUserUsername,
+                        "count", dtos.size()
+                ));
+        log.info("All user authentications retrieval successful by admin: {}, count: {}", currentUserUsername, dtos.size());
+        
+        return ResponseEntity.ok(dtos);
     }
 }

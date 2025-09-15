@@ -37,7 +37,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class)))
     })
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
     @PostMapping("")
     public ResponseEntity<CreateUserResponse> createUser(
             @Parameter(description = "User creation request data")
@@ -59,7 +59,7 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
     @GetMapping("/{username}")
     public ResponseEntity<UserDto> getUserByUsername(
             @Parameter(description = "Username of the user to retrieve")
