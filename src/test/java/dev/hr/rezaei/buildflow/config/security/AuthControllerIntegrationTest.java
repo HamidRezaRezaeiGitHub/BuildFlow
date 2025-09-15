@@ -698,7 +698,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.58." + testCounter))
                 .andDo(print())
-                .andExpect(status().isInternalServerError()); // Will throw RuntimeException which becomes 500
+                .andExpect(status().isNotFound()); // Should return 404 Not Found when user does not exist
     }
 
 }
