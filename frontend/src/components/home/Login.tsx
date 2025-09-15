@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { EmailField, PasswordField } from './Credentials';
+import { UsernameEmailField, PasswordField } from './Credentials';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
@@ -16,7 +16,7 @@ const Login: React.FC<LoginProps> = ({
   onTogglePassword
 }) => {
   const [loginForm, setLoginForm] = useState({
-    email: '',
+    usernameOrEmail: '',
     password: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,7 +28,7 @@ const Login: React.FC<LoginProps> = ({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!loginForm.email || !loginForm.password) {
+    if (!loginForm.usernameOrEmail || !loginForm.password) {
       setSubmitError('Please fill in all fields.');
       return;
     }
@@ -37,9 +37,9 @@ const Login: React.FC<LoginProps> = ({
     setSubmitError(null);
 
     try {
-      // Use email as username for login
+      // Use the flexible username/email field for login
       await login({
-        username: loginForm.email,
+        username: loginForm.usernameOrEmail,
         password: loginForm.password
       });
       
@@ -63,12 +63,12 @@ const Login: React.FC<LoginProps> = ({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
-          {/* Email Field */}
-          <EmailField
-            id="loginEmail"
-            value={loginForm.email}
+          {/* Username or Email Field */}
+          <UsernameEmailField
+            id="loginUsernameEmail"
+            value={loginForm.usernameOrEmail}
             onChange={(e) => {
-              setLoginForm(prev => ({ ...prev, email: e.target.value }));
+              setLoginForm(prev => ({ ...prev, usernameOrEmail: e.target.value }));
               if (submitError) setSubmitError(null);
             }}
           />

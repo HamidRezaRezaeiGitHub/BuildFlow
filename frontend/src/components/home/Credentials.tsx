@@ -1,9 +1,18 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import React from 'react';
 
 interface EmailFieldProps {
+  id: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  errors?: string[];
+  hasError?: boolean;
+}
+
+interface UsernameEmailFieldProps {
   id: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -55,6 +64,46 @@ export const EmailField: React.FC<EmailFieldProps> = ({
     )}
   </div>
 );
+
+// Reusable Username/Email Field Component
+export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({ 
+  id, 
+  value, 
+  onChange, 
+  placeholder = "username or email@company.com", 
+  errors = [],
+  hasError = false
+}) => {
+  // Detect if current value looks like an email
+  const isEmail = value.includes('@');
+  const icon = isEmail ? Mail : User;
+  const IconComponent = icon;
+  
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>Username or Email</Label>
+      <div className="relative">
+        <IconComponent className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          id={id}
+          type="text"
+          placeholder={placeholder}
+          className={`pl-10 ${hasError || errors.length > 0 ? 'border-red-500 focus:border-red-500' : ''}`}
+          value={value}
+          onChange={onChange}
+          required
+        />
+      </div>
+      {errors.length > 0 && (
+        <div className="space-y-1">
+          {errors.map((error, index) => (
+            <p key={index} className="text-xs text-red-500">{error}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Reusable Password Field Component
 export const PasswordField: React.FC<PasswordFieldProps> = ({ 
