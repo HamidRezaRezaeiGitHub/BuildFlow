@@ -53,6 +53,7 @@ jobs:
     - name: Run npm audit
       working-directory: ./frontend
       run: |
+        npm audit --audit-level=high --json > npm-audit.json || echo "npm audit completed with warnings"
         npm audit --audit-level=high || echo "npm audit completed with warnings"
         
     - name: Upload dependency check reports
