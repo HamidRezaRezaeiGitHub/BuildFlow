@@ -162,11 +162,19 @@ After making changes, always verify:
 ## 🛠️ Development Guidelines
 
 ### Package Documentation
-Each domain package contains detailed `.md` files:
-- `{Domain}Model.md` - Entity documentation
-- `{Domain}Services.md` - Business logic documentation  
-- `{Domain}Dtos.md` - Data transfer object documentation
-- `{Domain}Controllers.md` - REST endpoint documentation
+Each package contains a comprehensive `README.md` file with:
+- **Technical Overview**: Complete package functionality and architecture
+- **File Descriptions**: Table of all classes with descriptions and links
+- **Integration Points**: How the package integrates with other packages
+- **Business Logic**: Domain-specific business rules and workflows
+- **Design Principles**: Architectural patterns and design decisions
+
+**README Maintenance Requirements**:
+- When ANY file is added, modified, or deleted in a package, the package's README.md MUST be updated
+- Changes to sub-package READMEs MUST propagate to parent package READMEs
+- File links in README.md must remain accurate and functional
+- Technical details should be comprehensive without repeating code syntax
+- Business context and integration patterns must be clearly documented
 
 ### Database Profiles
 - **Development** (default): H2 console enabled, security customizable, schema auto-update
