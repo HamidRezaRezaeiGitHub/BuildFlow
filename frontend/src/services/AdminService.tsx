@@ -265,4 +265,4 @@ export class AdminServiceWithAuth {
 export const adminService = new AdminService();
 
 // Also export the class for testing or custom instances
-export default AdminService;
+// export default AdminService; // Removed to avoid confusion; use named export if needed
