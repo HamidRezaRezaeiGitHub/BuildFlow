@@ -2,11 +2,7 @@ package dev.hr.rezaei.buildflow.config.security;
 
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserMockDataInitializer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
@@ -16,26 +12,23 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 @ConditionalOnBean(UserMockDataInitializer.class)
 @DependsOn("userMockDataInitializer")
-public class MockDataInitializer implements ApplicationRunner {
+public class MockDataInitializer {
 
-    @Autowired(required = false)
-    private UserMockDataInitializer userMockDataInitializer;
+    private final UserMockDataInitializer userMockDataInitializer;
 
-    @Override
-    public void run(ApplicationArguments args) {
-        if (userMockDataInitializer == null) {
-            log.info("UserMockDataInitializer bean not available, skipping mock data initialization.");
-            return;
-        }
+    public MockDataInitializer(UserMockDataInitializer userMockDataInitializer) {
+        this.userMockDataInitializer = userMockDataInitializer;
+        initializeMockDataCoordination();
+    }
 
-        log.info("Starting mock data initialization process...");
+    private void initializeMockDataCoordination() {
+        log.info("Starting mock data initialization coordination...");
         
         try {
-            // The UserMockDataInitializer will run automatically via ApplicationRunner
-            // but we can access the results here for additional coordination
+            // At this point, UserMockDataInitializer has already run because
+            // it's a constructor dependency, so we can safely access the results
             Map<String, List<User>> mockUsers = userMockDataInitializer.getMockUsers();
             
             if (mockUsers.isEmpty()) {
@@ -44,7 +37,7 @@ public class MockDataInitializer implements ApplicationRunner {
                 int totalUsers = mockUsers.values().stream()
                     .mapToInt(List::size)
                     .sum();
-                log.info("Mock data initialization completed successfully. Created {} users across {} roles.",
+                log.info("Mock data coordination completed successfully. Found {} users across {} roles.",
                     totalUsers, mockUsers.size());
                 
                 // Log summary by role
@@ -54,7 +47,7 @@ public class MockDataInitializer implements ApplicationRunner {
             }
             
         } catch (Exception e) {
-            log.error("Error occurred during mock data initialization coordination: {}", e.getMessage(), e);
+            log.error("Error occurred during mock data coordination: {}", e.getMessage(), e);
             // Don't rethrow - this is just a coordinator, the actual initialization should proceed
         }
     }

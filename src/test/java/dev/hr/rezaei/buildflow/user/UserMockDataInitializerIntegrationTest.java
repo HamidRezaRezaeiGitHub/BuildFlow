@@ -85,7 +85,7 @@ class UserMockDataInitializerIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void run_shouldCreateMockUsers_whenEnabled() throws Exception {
+    void initializeMockUsers_shouldCreateMockUsers_whenEnabled() throws Exception {
         // Given - create a fresh initializer with isolated properties
         UserMockDataProperties testProperties = new UserMockDataProperties();
         testProperties.setEnabled(true);
@@ -102,12 +102,11 @@ class UserMockDataInitializerIntegrationTest extends AbstractModelJpaTest {
         
         ContactService contactService = new ContactService(contactRepository);
         UserService userService = new UserService(userRepository, contactService);
-        UserMockDataInitializer testInitializer = new UserMockDataInitializer(testProperties, userService);
         
         long initialUserCount = userRepository.count();
         
-        // When
-        testInitializer.run(null);
+        // When - initialization happens in constructor
+        UserMockDataInitializer testInitializer = new UserMockDataInitializer(testProperties, userService);
         
         // Then
         long finalUserCount = userRepository.count();
@@ -144,15 +143,14 @@ class UserMockDataInitializerIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void run_shouldDoNothing_whenDisabled() throws Exception {
+    void initializeMockUsers_shouldDoNothing_whenDisabled() throws Exception {
         // Given
         UserMockDataProperties disabledProperties = new UserMockDataProperties();
         disabledProperties.setEnabled(false);
-        UserMockDataInitializer disabledInitializer = new UserMockDataInitializer(disabledProperties, null);
         long initialUserCount = userRepository.count();
         
-        // When
-        disabledInitializer.run(null);
+        // When - initialization happens in constructor
+        UserMockDataInitializer disabledInitializer = new UserMockDataInitializer(disabledProperties, null);
         
         // Then
         long finalUserCount = userRepository.count();
@@ -161,7 +159,7 @@ class UserMockDataInitializerIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void run_shouldDoNothing_whenNoRolesConfigured() throws Exception {
+    void initializeMockUsers_shouldDoNothing_whenNoRolesConfigured() throws Exception {
         // Given
         UserMockDataProperties emptyProperties = new UserMockDataProperties();
         emptyProperties.setEnabled(true);
@@ -171,11 +169,10 @@ class UserMockDataInitializerIntegrationTest extends AbstractModelJpaTest {
         ContactService contactService = new ContactService(contactRepository);
         UserService userService = new UserService(userRepository, contactService);
         
-        UserMockDataInitializer emptyInitializer = new UserMockDataInitializer(emptyProperties, userService);
         long initialUserCount = userRepository.count();
         
-        // When
-        emptyInitializer.run(null);
+        // When - initialization happens in constructor
+        UserMockDataInitializer emptyInitializer = new UserMockDataInitializer(emptyProperties, userService);
         
         // Then
         long finalUserCount = userRepository.count();

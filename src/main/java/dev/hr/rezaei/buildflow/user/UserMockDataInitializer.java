@@ -3,10 +3,7 @@ package dev.hr.rezaei.buildflow.user;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
@@ -15,16 +12,22 @@ import java.util.*;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 @ConditionalOnProperty(value = "app.users.mock.enabled", havingValue = "true")
 @DependsOn("adminUserInitializer")
-public class UserMockDataInitializer implements ApplicationRunner {
+public class UserMockDataInitializer {
 
     private final UserMockDataProperties properties;
     private final UserService userService;
     
     private final Map<String, List<User>> mockUsers = new HashMap<>();
     private final Random random = new Random();
+
+    // Constructor that triggers initialization
+    public UserMockDataInitializer(UserMockDataProperties properties, UserService userService) {
+        this.properties = properties;
+        this.userService = userService;
+        initializeMockUsers();
+    }
 
     // Arrays for generating random data - Updated with Canadian data
     private static final String[] FIRST_NAMES = {
@@ -50,8 +53,7 @@ public class UserMockDataInitializer implements ApplicationRunner {
             "Canada"
     };
 
-    @Override
-    public void run(ApplicationArguments args) {
+    private void initializeMockUsers() {
         if (!properties.isEnabled()) {
             log.info("Mock user initialization is disabled.");
             return;
