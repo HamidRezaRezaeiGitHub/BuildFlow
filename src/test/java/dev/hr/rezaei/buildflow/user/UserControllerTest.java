@@ -221,4 +221,36 @@ class UserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.registered").value(false))
                 .andExpect(jsonPath("$.contactDto").exists());
     }
+
+    @Test
+    void getAllUsers_shouldReturnOk_withAllUsers() throws Exception {
+        // Given
+        when(userService.getAllUserDtos()).thenReturn(List.of(testBuilderUserDto, testOwnerUserDto));
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/users"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].username").exists())
+                .andExpect(jsonPath("$[1].id").exists())
+                .andExpect(jsonPath("$[1].username").exists());
+    }
+
+    @Test
+    void getAllUsers_shouldReturnOk_withEmptyList() throws Exception {
+        // Given
+        when(userService.getAllUserDtos()).thenReturn(List.of());
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/users"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
 }

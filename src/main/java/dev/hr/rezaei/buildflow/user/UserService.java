@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactEntity;
 import static dev.hr.rezaei.buildflow.user.UserDtoMapper.toUserDto;
@@ -79,6 +81,13 @@ public class UserService {
             throw new UserNotFoundException("User not found with username: " + username);
         }
         return toUserDto(userOptional.get());
+    }
+
+    public List<UserDto> getAllUserDtos() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(UserDtoMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     // Existence check methods

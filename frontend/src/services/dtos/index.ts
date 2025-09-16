@@ -9,9 +9,13 @@ export type {
 } from './MvcDtos';
 
 export type {
-    ContactDto as DomainContact,
-    ContactAddressDto as DomainContactAddress, 
-    UserDto as DomainUser
+    ContactDto as Contact,
+    ContactAddressDto as ContactAddress,
+    ContactRequestDto as ContactRequest,
+    ContactAddressRequestDto as ContactAddressRequest,
+    UserDto as User,
+    UserRequestDto as UserRequest,
+    UserAuthenticationDto as UserAuthentication
 } from './UserDtos';
 
 export type {

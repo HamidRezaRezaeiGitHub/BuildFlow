@@ -14,12 +14,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Badge } from '@/components/ui/badge';
 import { Loader2, ChevronDown, ChevronRight, Users as UsersIcon, UserCheck, UserX, Shield, Eye, Star } from 'lucide-react';
 import { adminService } from '@/services/AdminService';
-import { authService } from '@/services/AuthService';
-import { UserDto, UserAuthenticationDto } from '@/services/dtos/UserDtos';
+import { useAuth } from '@/contexts';
+import { User, UserAuthentication } from '@/services/dtos';
 
 interface CombinedUserData {
-  user: UserDto | null;
-  authentication: UserAuthenticationDto;
+  user: User | null;
+  authentication: UserAuthentication;
 }
 
 interface UserStats {
@@ -28,7 +28,6 @@ interface UserStats {
   inactiveUsers: number;
   adminUsers: number;
   regularUsers: number;
-  viewerUsers: number;
   premiumUsers: number;
   recentLogins: number;
 }
@@ -36,7 +35,7 @@ interface UserStats {
 /**
  * Users component for the admin panel.
  * This component displays and manages all system users with real API integration.
- * Shows user statistics and detailed user information combining UserDto and UserAuthenticationDto.
+ * Shows user statistics and detailed user information combining User and UserAuthentication.
  */
 const Users: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -44,6 +43,7 @@ const Users: React.FC = () => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   // Load user data on component mount
   useEffect(() => {
@@ -55,7 +55,6 @@ const Users: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const token = authService.getToken();
       if (!token) {
         throw new Error('Authentication token not found');
       }
@@ -168,7 +167,7 @@ const Users: React.FC = () => {
 
       {/* User Statistics */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -226,16 +225,6 @@ const Users: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{stats.regularUsers}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Viewers</CardTitle>
-              <Eye className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-600">{stats.viewerUsers}</div>
             </CardContent>
           </Card>
           

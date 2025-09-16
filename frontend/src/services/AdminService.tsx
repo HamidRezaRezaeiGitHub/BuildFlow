@@ -1,6 +1,5 @@
 import { apiService } from './ApiService';
-import { UserDto, UserAuthenticationDto } from './dtos/UserDtos';
-import { CreateUserRequest, CreateUserResponse } from './dtos';
+import { User, UserAuthentication, CreateUserRequest, CreateUserResponse } from './dtos';
 
 /**
  * AdminService - Service for administrative operations
@@ -18,10 +17,10 @@ class AdminService {
      * Requires ADMIN_USERS authority
      * 
      * @param token - JWT authentication token
-     * @returns Promise<UserAuthenticationDto[]> - Array of user authentication data
+     * @returns Promise<UserAuthentication[]> - Array of user authentication data
      */
-    async getAllUserAuthentications(token: string): Promise<UserAuthenticationDto[]> {
-        return apiService.get<UserAuthenticationDto[]>('/auth/user-auth', token);
+    async getAllUserAuthentications(token: string): Promise<UserAuthentication[]> {
+        return apiService.get<UserAuthentication[]>('/auth/user-auth', token);
     }
 
     /**
@@ -30,10 +29,10 @@ class AdminService {
      * 
      * @param username - Username to retrieve authentication for
      * @param token - JWT authentication token
-     * @returns Promise<UserAuthenticationDto> - User authentication data
+     * @returns Promise<UserAuthentication> - User authentication data
      */
-    async getUserAuthenticationByUsername(username: string, token: string): Promise<UserAuthenticationDto> {
-        return apiService.get<UserAuthenticationDto>(`/auth/user-auth/${encodeURIComponent(username)}`, token);
+    async getUserAuthenticationByUsername(username: string, token: string): Promise<UserAuthentication> {
+        return apiService.get<UserAuthentication>(`/auth/user-auth/${encodeURIComponent(username)}`, token);
     }
 
     /**
@@ -42,10 +41,21 @@ class AdminService {
      * 
      * @param username - Username to retrieve user data for
      * @param token - JWT authentication token
-     * @returns Promise<UserDto> - Complete user information
+     * @returns Promise<User> - Complete user information
      */
-    async getUserByUsername(username: string, token: string): Promise<UserDto> {
-        return apiService.get<UserDto>(`/v1/users/${encodeURIComponent(username)}`, token);
+    async getUserByUsername(username: string, token: string): Promise<User> {
+        return apiService.get<User>(`/v1/users/${encodeURIComponent(username)}`, token);
+    }
+
+    /**
+     * Get all users
+     * Requires ADMIN_USERS authority
+     * 
+     * @param token - JWT authentication token
+     * @returns Promise<User[]> - Array of all users
+     */
+    async getAllUsers(token: string): Promise<User[]> {
+        return apiService.get<User[]>('/v1/users', token);
     }
 
     /**
@@ -73,7 +83,7 @@ class AdminService {
     }
 
     /**
-     * Get combined user data (UserDto + UserAuthenticationDto)
+     * Get combined user data (User + UserAuthentication)
      * This method combines user profile data with authentication data
      * 
      * @param username - Username to get combined data for
@@ -81,8 +91,8 @@ class AdminService {
      * @returns Promise with combined user data
      */
     async getCombinedUserData(username: string, token: string): Promise<{
-        user: UserDto;
-        authentication: UserAuthenticationDto;
+        user: User;
+        authentication: UserAuthentication;
     }> {
         const [user, authentication] = await Promise.all([
             this.getUserByUsername(username, token),
@@ -95,37 +105,32 @@ class AdminService {
     /**
      * Get all users with their authentication data
      * Useful for admin dashboard with complete user overview
+     * Uses bulk fetch APIs and joins data by username
      * 
      * @param token - JWT authentication token
      * @returns Promise with array of combined user data
      */
     async getAllUsersWithAuth(token: string): Promise<Array<{
-        user: UserDto | null;
-        authentication: UserAuthenticationDto;
+        user: User | null;
+        authentication: UserAuthentication;
     }>> {
-        // First get all authentication records
-        const authentications = await this.getAllUserAuthentications(token);
+        // Fetch both datasets in parallel using bulk APIs
+        const [authentications, users] = await Promise.all([
+            this.getAllUserAuthentications(token),
+            this.getAllUsers(token)
+        ]);
 
-        // Then get user data for each authentication record
-        const combinedData = await Promise.allSettled(
-            authentications.map(async (auth) => {
-                try {
-                    const user = await this.getUserByUsername(auth.username, token);
-                    return { user, authentication: auth };
-                } catch (error) {
-                    // User might not have a profile record, just authentication
-                    console.warn(`Could not fetch user data for ${auth.username}:`, error);
-                    return { user: null, authentication: auth };
-                }
-            })
-        );
+        // Create a map of users by username for efficient lookup
+        const userMap = new Map<string, User>();
+        users.forEach(user => {
+            userMap.set(user.username, user);
+        });
 
-        // Return successful results, log failures
-        return combinedData
-            .filter((result): result is PromiseFulfilledResult<{ user: UserDto | null; authentication: UserAuthenticationDto }> => 
-                result.status === 'fulfilled'
-            )
-            .map(result => result.value);
+        // Join authentication data with user data using username
+        return authentications.map(authentication => ({
+            user: userMap.get(authentication.username) || null,
+            authentication
+        }));
     }
 
     /**
@@ -140,7 +145,6 @@ class AdminService {
         inactiveUsers: number;
         adminUsers: number;
         regularUsers: number;
-        viewerUsers: number;
         premiumUsers: number;
         recentLogins: number; // Users who logged in within last 7 days
     }> {
@@ -155,7 +159,6 @@ class AdminService {
             inactiveUsers: authentications.filter(auth => !auth.enabled).length,
             adminUsers: authentications.filter(auth => auth.role === 'ADMIN').length,
             regularUsers: authentications.filter(auth => auth.role === 'USER').length,
-            viewerUsers: authentications.filter(auth => auth.role === 'VIEWER').length,
             premiumUsers: authentications.filter(auth => auth.role === 'PREMIUM_USER').length,
             recentLogins: authentications.filter(auth => 
                 auth.lastLogin && new Date(auth.lastLogin) > sevenDaysAgo

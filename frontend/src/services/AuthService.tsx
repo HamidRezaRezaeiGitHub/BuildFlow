@@ -4,7 +4,7 @@ import type {
     SignUpData,
     AuthResponse,
     ValidationResponse,
-    DomainUser
+    User
 } from './dtos';
 
 /**
@@ -37,8 +37,8 @@ class AuthService {
      * @param token - JWT authentication token
      * @returns Promise with current user data
      */
-    async getCurrentUser(token: string): Promise<DomainUser> {
-        return await apiService.get<DomainUser>('/auth/current', token);
+    async getCurrentUser(token: string): Promise<User> {
+        return await apiService.get<User>('/auth/current', token);
     }
 
     /**
@@ -80,8 +80,8 @@ class AuthService {
      * @param token - JWT token with admin privileges
      * @returns Promise with admin user creation response
      */
-    async createAdminUser(signUpData: SignUpData, token: string): Promise<DomainUser> {
-        return await apiService.post<DomainUser>('/auth/admin', signUpData, token);
+    async createAdminUser(signUpData: SignUpData, token: string): Promise<User> {
+        return await apiService.post<User>('/auth/admin', signUpData, token);
     }
 
     /**
@@ -130,38 +130,6 @@ class AuthService {
         if (!expiration) return true; // If we can't determine expiration, consider it expired
 
         return new Date() >= expiration;
-    }
-
-    /**
-     * Store JWT token in localStorage
-     * @param token - JWT token to store
-     */
-    setToken(token: string): void {
-        localStorage.setItem('jwt_token', token);
-    }
-
-    /**
-     * Retrieve JWT token from localStorage
-     * @returns JWT token or null if not found
-     */
-    getToken(): string | null {
-        return localStorage.getItem('jwt_token');
-    }
-
-    /**
-     * Remove JWT token from localStorage
-     */
-    removeToken(): void {
-        localStorage.removeItem('jwt_token');
-    }
-
-    /**
-     * Check if user is currently authenticated (has valid token)
-     * @returns boolean indicating if user appears to be authenticated
-     */
-    isAuthenticated(): boolean {
-        const token = this.getToken();
-        return this.isTokenFormatValid(token) && !this.isTokenExpired(token);
     }
 }
 
