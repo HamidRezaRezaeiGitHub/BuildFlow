@@ -1,35 +1,28 @@
 package dev.hr.rezaei.buildflow.user;
 
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
-import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
+import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Slf4j
-@Configuration
+@Component
+@RequiredArgsConstructor
 @ConditionalOnProperty(value = "app.users.mock.enabled", havingValue = "true")
-@ConfigurationProperties(prefix = "app.users.mock")
 @DependsOn("adminUserInitializer")
-public class UserDataInitializer {
+public class UserMockDataInitializer implements ApplicationRunner {
 
-    @Setter
-    private boolean enabled;
-
-    @Setter
-    private Map<String, MockUserProps> roles;
-
-    @Autowired
-    private UserService userService;
+    private final UserMockDataProperties properties;
+    private final UserService userService;
+    
     private final Map<String, List<User>> mockUsers = new HashMap<>();
     private final Random random = new Random();
 
@@ -57,17 +50,21 @@ public class UserDataInitializer {
             "Canada"
     };
 
-
-    @PostConstruct
-    public void initialize() {
-        if (!enabled) {
+    @Override
+    public void run(ApplicationArguments args) {
+        if (!properties.isEnabled()) {
             log.info("Mock user initialization is disabled.");
             return;
         }
 
-        for (Map.Entry<String, MockUserProps> entry : roles.entrySet()) {
+        if (properties.getRoles() == null || properties.getRoles().isEmpty()) {
+            log.info("No mock user roles configured.");
+            return;
+        }
+
+        for (Map.Entry<String, UserMockDataProperties.MockUserProps> entry : properties.getRoles().entrySet()) {
             String role = entry.getKey();
-            MockUserProps props = entry.getValue();
+            UserMockDataProperties.MockUserProps props = entry.getValue();
             log.info("Initializing {} mock users with role: {}", props.getCount(), role);
             for (int i = 1; i <= props.getCount(); i++) {
                 User user = createUser(role);
@@ -105,14 +102,33 @@ public class UserDataInitializer {
                 .country(COUNTRIES[0]) // Always Canada
                 .build();
 
-        // Create labels for the contact
+        // Create labels for the contact (use valid ContactLabel enum values)
         List<String> labels = new ArrayList<>();
-        labels.add(role.toLowerCase());
-        if (random.nextBoolean()) {
-            labels.add("contractor");
+        
+        // Map role to valid ContactLabel enums
+        switch (role.toUpperCase()) {
+            case "BUILDER":
+                labels.add(ContactLabel.BUILDER.name());
+                break;
+            case "OWNER":
+                labels.add(ContactLabel.OWNER.name());
+                break;
+            case "SUPPLIER":
+                labels.add(ContactLabel.SUPPLIER.name());
+                break;
+            case "SUBCONTRACTOR":
+                labels.add(ContactLabel.SUBCONTRACTOR.name());
+                break;
+            default:
+                // For roles like "TESTER" that don't have a direct enum mapping,
+                // use OTHER and add a comment that this could be extended
+                labels.add(ContactLabel.OTHER.name());
+                break;
         }
+        
+        // Add additional random labels
         if (random.nextBoolean()) {
-            labels.add("verified");
+            labels.add(ContactLabel.SUBCONTRACTOR.name());
         }
 
         // Create contact request DTO
@@ -166,9 +182,7 @@ public class UserDataInitializer {
                streetTypes[random.nextInt(streetTypes.length)];
     }
 
-    @Setter
-    @Getter
-    public static class MockUserProps {
-        private int count;
+    public Map<String, List<User>> getMockUsers() {
+        return Collections.unmodifiableMap(mockUsers);
     }
 }
