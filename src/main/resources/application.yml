@@ -44,3 +44,11 @@ app:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:BuildFlow_1st_AdminPassword}
     email: ${ADMIN_EMAIL:hamidreza74hrr@yahoo.com}
+  users:
+    mock:
+      enabled: true
+      roles:
+        USER:
+          count: 10
+        PREMIUM_USER:
+          count: 5
