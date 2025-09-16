@@ -217,6 +217,34 @@ Provides REST endpoints for user management:
 - **Search Operations**: Find users by various criteria
 - **Role Management**: Handle user role assignments
 
+#### Available Endpoints
+
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/v1/users` | Retrieve all users in the system | `ADMIN_USERS` |
+| `POST` | `/api/v1/users` | Create a new user | `ADMIN_USERS` |
+| `GET` | `/api/v1/users/{username}` | Get user by username | `ADMIN_USERS` |
+
+**Endpoint Details:**
+
+**GET /api/v1/users**
+- **Description**: Retrieves all users in the system
+- **Authorization**: Requires `ADMIN_USERS` authority
+- **Response**: Array of `UserDto` objects
+- **Use Case**: Admin dashboard user management, bulk operations
+
+**POST /api/v1/users**
+- **Description**: Creates a new user with contact information
+- **Authorization**: Requires `ADMIN_USERS` authority
+- **Request Body**: `CreateUserRequest` (includes username, registration status, contact details)
+- **Response**: `CreateUserResponse` containing created user information
+
+**GET /api/v1/users/{username}**
+- **Description**: Retrieves a specific user by username
+- **Authorization**: Requires `ADMIN_USERS` authority
+- **Path Parameter**: `username` - The username of the user to retrieve
+- **Response**: `UserDto` object
+
 ### Request/Response Patterns
 ```
 User Operations:
@@ -233,6 +261,20 @@ Core business logic for user operations:
 - **Registration Logic**: Handles user registration workflow
 - **Profile Management**: Coordinates profile updates
 - **Security Integration**: Works with authentication services
+
+#### Key Methods
+
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `createUser(CreateUserRequest)` | Creates a new user with contact information | `CreateUserResponse` |
+| `getAllUserDtos()` | Retrieves all users as DTOs | `List<UserDto>` |
+| `getUserDtoByUsername(String)` | Gets a specific user by username | `UserDto` |
+| `update(User)` | Updates an existing user | `User` |
+| `delete(User)` | Deletes a user | `void` |
+| `findByUsername(String)` | Finds user by username | `Optional<User>` |
+| `findByEmail(String)` | Finds user by email | `Optional<User>` |
+| `existsByUsername(String)` | Checks if username exists | `boolean` |
+| `existsByEmail(String)` | Checks if email exists | `boolean` |
 
 ### ContactService
 Contact-specific business logic:

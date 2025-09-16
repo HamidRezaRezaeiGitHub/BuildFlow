@@ -4,7 +4,7 @@ import type {
     SignUpData,
     AuthResponse,
     ValidationResponse,
-    DomainUser
+    User
 } from './dtos';
 
 /**
@@ -37,8 +37,8 @@ class AuthService {
      * @param token - JWT authentication token
      * @returns Promise with current user data
      */
-    async getCurrentUser(token: string): Promise<DomainUser> {
-        return await apiService.get<DomainUser>('/auth/current', token);
+    async getCurrentUser(token: string): Promise<User> {
+        return await apiService.get<User>('/auth/current', token);
     }
 
     /**
@@ -80,8 +80,8 @@ class AuthService {
      * @param token - JWT token with admin privileges
      * @returns Promise with admin user creation response
      */
-    async createAdminUser(signUpData: SignUpData, token: string): Promise<DomainUser> {
-        return await apiService.post<DomainUser>('/auth/admin', signUpData, token);
+    async createAdminUser(signUpData: SignUpData, token: string): Promise<User> {
+        return await apiService.post<User>('/auth/admin', signUpData, token);
     }
 
     /**

@@ -3,11 +3,7 @@ package dev.hr.rezaei.buildflow.config.security;
 import dev.hr.rezaei.buildflow.config.mvc.ResponseFacilitator;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import dev.hr.rezaei.buildflow.config.mvc.dto.MessageResponse;
-import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
-import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
-import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
-import dev.hr.rezaei.buildflow.config.security.dto.UserAuthenticationDto;
-import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
+import dev.hr.rezaei.buildflow.config.security.dto.*;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -93,6 +89,8 @@ public class AuthController {
         // Log successful authentication
         securityAuditService.logLoginAttempt(loginRequest.getUsername(), true, "Valid credentials");
         securityAuditService.logTokenGeneration(loginRequest.getUsername());
+        // Update lastLogin timestamp
+        authService.updateLastLogin(loginRequest.getUsername());
 
         log.info("Authentication successful for username or email: {}", loginRequest.getUsername());
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
@@ -213,7 +211,6 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User authentication found successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserAuthenticationDto.class))),
             @ApiResponse(responseCode = "404", description = "User authentication not found"),
-            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required")
     })
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/user-auth/{username}")
@@ -236,7 +233,7 @@ public class AuthController {
                                     "targetUser", username
                             ));
                     log.info("User authentication retrieval successful for username: {} by admin: {}", username, currentUserUsername);
-                    
+
                     // Convert to DTO
                     UserAuthenticationDto dto = UserAuthenticationDto.builder()
                             .id(userAuth.getId())
@@ -246,7 +243,7 @@ public class AuthController {
                             .createdAt(userAuth.getCreatedAt())
                             .lastLogin(userAuth.getLastLogin())
                             .build();
-                    
+
                     return ResponseEntity.ok(dto);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -270,7 +267,7 @@ public class AuthController {
         log.info("Admin all user authentications retrieval attempt by: {}", currentUserUsername);
 
         List<UserAuthentication> userAuths = authService.findAllUserAuthentications();
-        
+        int userCount = userAuths.size();
         // Convert to DTOs
         List<UserAuthenticationDto> dtos = userAuths.stream()
                 .map(userAuth -> UserAuthenticationDto.builder()
@@ -288,8 +285,8 @@ public class AuthController {
                         "retrievedBy", currentUserUsername,
                         "count", dtos.size()
                 ));
-        log.info("All user authentications retrieval successful by admin: {}, count: {}", currentUserUsername, dtos.size());
-        
+        log.info("All user authentications retrieval successful by admin: {}. Total users: {}", currentUserUsername, userCount);
+
         return ResponseEntity.ok(dtos);
     }
 }

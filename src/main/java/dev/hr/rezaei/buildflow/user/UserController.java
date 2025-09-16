@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -30,6 +32,23 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @Operation(summary = "Get all users", description = "Retrieves all users in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class)))
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
+    @GetMapping("")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        log.info("Getting all users");
+
+        List<UserDto> users = userService.getAllUserDtos();
+
+        log.info("Successfully retrieved {} users", users.size());
+        return ResponseEntity.ok(users);
+    }
 
     @Operation(summary = "Create a new user", description = "Creates a new user with contact information, username, and registration status")
     @ApiResponses(value = {

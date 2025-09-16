@@ -133,4 +133,42 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void getAllUsers_shouldReturnOk_whenAdminUser() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        
+        mockMvc.perform(get("/api/v1/users")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .header("X-Forwarded-For", "192.168.109." + testCounter))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1)) // Admin user should be present
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].username").value(admin.getUsername()));
+    }
+
+    @Test
+    void getAllUsers_shouldReturnUnauthorized_whenNoToken() throws Exception {
+        mockMvc.perform(get("/api/v1/users")
+                        .header("X-Forwarded-For", "192.168.110." + testCounter))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getAllUsers_shouldReturnForbidden_whenRegularUser() throws Exception {
+        User admin = registerAdmin();
+        User user = registerBuilder();
+        String userToken = login(user);
+        
+        mockMvc.perform(get("/api/v1/users")
+                        .header("Authorization", "Bearer " + userToken)
+                        .header("X-Forwarded-For", "192.168.111." + testCounter))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 }

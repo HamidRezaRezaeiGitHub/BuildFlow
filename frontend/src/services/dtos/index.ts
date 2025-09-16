@@ -9,14 +9,20 @@ export type {
 } from './MvcDtos';
 
 export type {
-    ContactDto as DomainContact,
-    ContactAddressDto as DomainContactAddress, 
-    UserDto as DomainUser
+    ContactDto as Contact,
+    ContactAddressDto as ContactAddress,
+    ContactRequestDto as ContactRequest,
+    ContactAddressRequestDto as ContactAddressRequest,
+    UserDto as User,
+    UserRequestDto as UserRequest,
+    UserAuthenticationDto as UserAuthentication
 } from './UserDtos';
 
 export type {
     LoginRequest as LoginCredentials, 
     SignUpRequest as SignUpData,
+    CreateUserRequest,
+    CreateUserResponse,
     AuthResponse as AuthResponse,
     ValidationResponse as ValidationResponse
 } from './AuthDtos';

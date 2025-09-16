@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,5 +132,19 @@ public class AuthService {
 
     public List<UserAuthentication> findAllUserAuthentications() {
         return userAuthenticationRepository.findAll();
+    }
+
+    /**
+     * Updates the lastLogin timestamp for the given username.
+     *
+     * @param username the username to update
+     */
+    @Transactional
+    public void updateLastLogin(String username) {
+        userAuthenticationRepository.findByUsername(username).ifPresent(userAuth -> {
+            userAuth.setLastLogin(Instant.now());
+            userAuthenticationRepository.save(userAuth);
+            log.debug("Updated lastLogin for user: {}", username);
+        });
     }
 }

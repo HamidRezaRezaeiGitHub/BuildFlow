@@ -72,13 +72,6 @@ class CustomUserDetailsServiceIntegrationTest extends AbstractModelJpaTest {
         testUserAuth = userAuthenticationRepository.save(testUserAuth);
     }
 
-    @AfterEach
-    void tearDown() {
-        // Clear test data
-        userAuthenticationRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @Test
     void loadUserByUsername_shouldReturnUserDetails_whenUserExists() {
         // When
