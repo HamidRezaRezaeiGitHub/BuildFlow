@@ -21,6 +21,7 @@ import { AdminServiceWithAuth } from '@/services/AdminService';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserDetails } from '@/services/dtos/UserDtos';
 import UserDetailsDrawer from './UserDetailsDrawer';
+import { useMediaQuery } from '@/lib/useMediaQuery';
 
 interface UserStats {
     totalUsers: number;
@@ -51,6 +52,9 @@ const Users: React.FC = () => {
     // Initialize admin service with auth context
     const { token } = useAuth();
     const adminService = new AdminServiceWithAuth(() => token);
+
+    // Responsive: detect if screen is below md (768px)
+    const isMobile = useMediaQuery('(max-width: 767px)');
 
     // Filter users based on search term
     const filteredUsers = useMemo(() => {
@@ -372,7 +376,7 @@ const Users: React.FC = () => {
                                                 className="md:cursor-default cursor-pointer md:hover:bg-muted/50 hover:bg-muted/50"
                                                 onClick={() => {
                                                     // Only make clickable on small screens (below md)
-                                                    if (window.innerWidth < 768) {
+                                                    if (isMobile) {
                                                         handleViewUser(userDetails);
                                                     }
                                                 }}
@@ -490,3 +494,4 @@ const Users: React.FC = () => {
 };
 
 export default Users;
+
