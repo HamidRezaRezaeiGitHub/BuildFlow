@@ -368,8 +368,8 @@ const Users: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="flex space-x-4">
-        <Button onClick={loadUserData} variant="outline">
-          <Loader2 className="h-4 w-4 mr-2" />
+        <Button onClick={loadUserData} variant="outline" disabled={isLoading}>
+          {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           Refresh Data
         </Button>
         <Button>
