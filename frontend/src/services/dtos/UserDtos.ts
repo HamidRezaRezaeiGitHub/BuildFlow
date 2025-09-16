@@ -143,3 +143,9 @@ export interface UserAuthenticationDto {
     /** Timestamp of the user's last login */
     lastLogin?: string;
 }
+
+export interface UserDetails {
+    username: string;
+    user: UserDto;
+    userAuthentication: UserAuthenticationDto;
+}

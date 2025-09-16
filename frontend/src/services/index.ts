@@ -6,6 +6,10 @@ export { apiService as api } from './ApiService';
 export * from './AuthService';
 export { authService as auth } from './AuthService';
 
+// Re-export everything from AdminService
+export * from './AdminService';
+export { adminService as admin } from './AdminService';
+
 // Re-export all DTOs
 export * from './dtos';
 

@@ -1,8 +1,10 @@
 import { apiService } from './ApiService';
 import { User, UserAuthentication, CreateUserRequest, CreateUserResponse } from './dtos';
+import { UserDetails } from './dtos/UserDtos';
 
 /**
- * AdminService - Service for administrative operations
+ * AdminService class that handles all administrative operations
+ * Uses the generic ApiService for HTTP communications while focusing on admin business logic
  * 
  * This service provides functions for admin-only endpoints including:
  * - User management and authentication data
@@ -10,8 +12,10 @@ import { User, UserAuthentication, CreateUserRequest, CreateUserResponse } from 
  * - User statistics and monitoring
  * 
  * All methods require admin authentication (ADMIN_USERS authority)
+ * Token must be provided as parameter to each method
  */
 class AdminService {
+
     /**
      * Get all user authentication records
      * Requires ADMIN_USERS authority
@@ -83,77 +87,100 @@ class AdminService {
     }
 
     /**
-     * Get combined user data (User + UserAuthentication)
+     * Get user details (User + UserAuthentication combined)
      * This method combines user profile data with authentication data
      * 
-     * @param username - Username to get combined data for
+     * @param username - Username to get details for
      * @param token - JWT authentication token
-     * @returns Promise with combined user data
+     * @returns Promise with user details
      */
-    async getCombinedUserData(username: string, token: string): Promise<{
-        user: User;
-        authentication: UserAuthentication;
-    }> {
-        const [user, authentication] = await Promise.all([
-            this.getUserByUsername(username, token),
-            this.getUserAuthenticationByUsername(username, token)
+    async getUserDetails(username: string, token: string): Promise<UserDetails> {
+        const [user, userAuthentication] = await Promise.all([
+            apiService.get<User>(`/v1/users/${encodeURIComponent(username)}`, token),
+            apiService.get<UserAuthentication>(`/auth/user-auth/${encodeURIComponent(username)}`, token)
         ]);
 
-        return { user, authentication };
+        return { 
+            username,
+            user, 
+            userAuthentication 
+        };
     }
 
     /**
-     * Get all users with their authentication data
-     * Useful for admin dashboard with complete user overview
-     * Uses bulk fetch APIs and joins data by username
+     * Get all user details (All Users + UserAuthentications combined)
+     * This method fetches all users and their authentication data efficiently
      * 
      * @param token - JWT authentication token
-     * @returns Promise with array of combined user data
+     * @returns Promise with array of user details
      */
-    async getAllUsersWithAuth(token: string): Promise<Array<{
-        user: User | null;
-        authentication: UserAuthentication;
-    }>> {
+    async getAllUserDetails(token: string): Promise<UserDetails[]> {
         // Fetch both datasets in parallel using bulk APIs
         const [authentications, users] = await Promise.all([
-            this.getAllUserAuthentications(token),
-            this.getAllUsers(token)
+            apiService.get<UserAuthentication[]>('/auth/user-auth', token),
+            apiService.get<User[]>('/v1/users', token)
         ]);
+
+        // Validate authentication data
+        const validAuthentications = authentications.filter(auth => {
+            if (!auth || typeof auth !== 'object') {
+                console.warn('Invalid authentication object:', auth);
+                return false;
+            }
+            if (!auth.username || !auth.role) {
+                console.warn('Authentication missing required fields:', auth);
+                return false;
+            }
+            return true;
+        });
 
         // Create a map of users by username for efficient lookup
         const userMap = new Map<string, User>();
         users.forEach(user => {
-            userMap.set(user.username, user);
+            if (user && user.username) {
+                userMap.set(user.username, user);
+            }
         });
 
         // Join authentication data with user data using username
-        return authentications.map(authentication => ({
-            user: userMap.get(authentication.username) || null,
-            authentication
-        }));
+        // Filter out entries where user is not found (should not happen based on backend contract)
+        return validAuthentications
+            .map(userAuthentication => {
+                const user = userMap.get(userAuthentication.username);
+                if (!user) {
+                    console.warn(`User not found for username: ${userAuthentication.username}`);
+                    return null;
+                }
+                return {
+                    username: userAuthentication.username,
+                    user,
+                    userAuthentication
+                };
+            })
+            .filter((details): details is UserDetails => details !== null);
     }
 
     /**
-     * Get user statistics for admin dashboard
+     * Calculate user statistics from user details array
+     * This method analyzes user data and returns various statistics
      * 
-     * @param token - JWT authentication token
-     * @returns Promise with user statistics
+     * @param userDetailsList - Array of user details
+     * @returns Object containing user statistics
      */
-    async getUserStats(token: string): Promise<{
+    calculateUserStats(userDetailsList: UserDetails[]): {
         totalUsers: number;
         activeUsers: number;
         inactiveUsers: number;
         adminUsers: number;
         regularUsers: number;
         premiumUsers: number;
-        recentLogins: number; // Users who logged in within last 7 days
-    }> {
-        const authentications = await this.getAllUserAuthentications(token);
-        
+        recentLogins: number;
+    } {
+        const authentications = userDetailsList.map(details => details.userAuthentication);
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        const stats = {
+        return {
             totalUsers: authentications.length,
             activeUsers: authentications.filter(auth => auth.enabled).length,
             inactiveUsers: authentications.filter(auth => !auth.enabled).length,
@@ -164,12 +191,77 @@ class AdminService {
                 auth.lastLogin && new Date(auth.lastLogin) > sevenDaysAgo
             ).length
         };
-
-        return stats;
     }
 }
 
-// Create and export a singleton instance
+/**
+ * Service wrapper that integrates with AuthContext
+ * This wrapper automatically provides the authentication token from context
+ * Consumers don't need to handle token management
+ */
+export class AdminServiceWithAuth {
+    private adminService: AdminService;
+    private getToken: () => string | null;
+
+    constructor(getToken: () => string | null) {
+        this.adminService = new AdminService();
+        this.getToken = getToken;
+    }
+
+    private ensureToken(): string {
+        const token = this.getToken();
+        if (!token) {
+            throw new Error('Authentication token required for admin operations');
+        }
+        return token;
+    }
+
+    async getAllUserAuthentications(): Promise<UserAuthentication[]> {
+        return this.adminService.getAllUserAuthentications(this.ensureToken());
+    }
+
+    async getUserAuthenticationByUsername(username: string): Promise<UserAuthentication> {
+        return this.adminService.getUserAuthenticationByUsername(username, this.ensureToken());
+    }
+
+    async getUserByUsername(username: string): Promise<User> {
+        return this.adminService.getUserByUsername(username, this.ensureToken());
+    }
+
+    async getAllUsers(): Promise<User[]> {
+        return this.adminService.getAllUsers(this.ensureToken());
+    }
+
+    async createUser(request: CreateUserRequest): Promise<CreateUserResponse> {
+        return this.adminService.createUser(request, this.ensureToken());
+    }
+
+    async createAdminUser(request: CreateUserRequest): Promise<CreateUserResponse> {
+        return this.adminService.createAdminUser(request, this.ensureToken());
+    }
+
+    async getUserDetails(username: string): Promise<UserDetails> {
+        return this.adminService.getUserDetails(username, this.ensureToken());
+    }
+
+    async getAllUserDetails(): Promise<UserDetails[]> {
+        return this.adminService.getAllUserDetails(this.ensureToken());
+    }
+
+    calculateUserStats(userDetailsList: UserDetails[]): {
+        totalUsers: number;
+        activeUsers: number;
+        inactiveUsers: number;
+        adminUsers: number;
+        regularUsers: number;
+        premiumUsers: number;
+        recentLogins: number;
+    } {
+        return this.adminService.calculateUserStats(userDetailsList);
+    }
+}
+
+// Create and export a singleton instance of the raw service
 export const adminService = new AdminService();
 
 // Also export the class for testing or custom instances
