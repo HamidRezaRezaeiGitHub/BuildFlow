@@ -1,8 +1,5 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
@@ -16,49 +13,63 @@ import java.util.*;
 @DependsOn("adminUserInitializer")
 public class UserMockDataInitializer {
 
+    public static final String MOCK_USER_PREFIX = "mock";
+
     private final UserMockDataProperties properties;
-    private final UserService userService;
-    
     private final Map<String, List<User>> mockUsers = new HashMap<>();
     private final Random random = new Random();
 
-    // Constructor that triggers initialization
-    public UserMockDataInitializer(UserMockDataProperties properties, UserService userService) {
+    public UserMockDataInitializer(UserMockDataProperties properties) {
         this.properties = properties;
-        this.userService = userService;
-        initializeMockUsers();
-    }
 
-    // Arrays for generating random data - Updated with Canadian data
-    private static final String[] FIRST_NAMES = {
-            "John", "Jane", "Michael", "Sarah", "David", "Emily", "Robert", "Lisa",
-            "James", "Jennifer", "William", "Ashley", "Christopher", "Amanda", "Daniel", "Jessica"
-    };
-
-    private static final String[] LAST_NAMES = {
-            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Taylor"
-    };
-
-    private static final String[] CITIES = {
-            "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa",
-            "Winnipeg", "Quebec City", "Hamilton", "Kitchener", "London", "Victoria"
-    };
-
-    private static final String[] PROVINCES = {
-            "ON", "QC", "BC", "AB", "MB", "SK", "NS", "NB", "NL", "PE", "YT", "NT", "NU"
-    };
-
-    private static final String[] COUNTRIES = {
-            "Canada"
-    };
-
-    private void initializeMockUsers() {
         if (!properties.isEnabled()) {
             log.info("Mock user initialization is disabled.");
             return;
         }
+        initializeMockUsers();
+    }
 
+    // Arrays for generating random data - Updated with Canadian data
+    public static final String[] FIRST_NAMES = {
+            "John", "Jane", "Michael", "Sarah", "David", "Emily", "Robert", "Lisa",
+            "James", "Jennifer", "William", "Ashley", "Christopher", "Amanda", "Daniel", "Jessica"
+    };
+
+    public static final String[] LAST_NAMES = {
+            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Taylor"
+    };
+
+    public static final String[] STREET_TYPES = {
+            "Street", "Avenue", "Boulevard", "Drive", "Lane", "Road", "Way", "Court"
+    };
+
+    public static final String[] STREET_NAMES = {
+            "Main", "First", "Second", "Third", "Oak", "Pine", "Maple", "Cedar",
+            "Elm", "Park", "King", "Queen", "Yonge", "Bloor"
+    };
+
+    public static final String[] COUNTRIES = {
+            "Canada"
+    };
+
+    // Map of Canadian provinces to their cities
+    public static final Map<String, String[]> PROVINCE_CITIES_MAP = Map.of(
+            "ON", new String[]{"Toronto", "Hamilton", "Ottawa", "London", "Kitchener"},
+            "QC", new String[]{"Montreal", "Quebec City", "Laval", "Gatineau"},
+            "BC", new String[]{"Vancouver", "Victoria", "Surrey", "Burnaby"},
+            "AB", new String[]{"Calgary", "Edmonton", "Red Deer", "Lethbridge"},
+            "MB", new String[]{"Winnipeg", "Brandon", "Steinbach"},
+            "SK", new String[]{"Saskatoon", "Regina", "Prince Albert"},
+            "NS", new String[]{"Halifax", "Sydney", "Dartmouth"},
+            "NB", new String[]{"Saint John", "Moncton", "Fredericton"},
+            "NL", new String[]{"St. John's", "Corner Brook", "Mount Pearl"},
+            "PE", new String[]{"Charlottetown", "Summerside", "Stratford"}
+    );
+
+    public static final String[] PROVINCES = PROVINCE_CITIES_MAP.keySet().toArray(new String[0]);
+
+    protected void initializeMockUsers() {
         if (properties.getRoles() == null || properties.getRoles().isEmpty()) {
             log.info("No mock user roles configured.");
             return;
@@ -76,112 +87,97 @@ public class UserMockDataInitializer {
         }
     }
 
-    private User createUser(String role) {
-        String firstName = FIRST_NAMES[random.nextInt(FIRST_NAMES.length)];
-        String lastName = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
+    protected User createUser(String role) {
+        String firstName = generateFirstName();
+        String lastName = generateLastName();
+        String username = generateUsername(firstName, lastName, role);
+        String email = generateEmail(firstName, lastName, role);
+        String phone = generatePhoneNumber();
+        ContactAddress address = generateAddress();
 
-        // Generate username starting with role's first letter
-        String username = role.toLowerCase().charAt(0) + firstName.toLowerCase() +
-                         lastName.toLowerCase() + random.nextInt(1000);
-
-        // Generate email
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() +
-                      random.nextInt(1000) + "@" + role.toLowerCase() + "example.com";
-
-        // Generate phone number (Canadian format)
-        String phone = "+1-" + (200 + random.nextInt(800)) + "-" +
-                      (200 + random.nextInt(800)) + "-" +
-                      (1000 + random.nextInt(9000));
-
-        // Create address using Canadian data
-        ContactAddressRequestDto addressDto = ContactAddressRequestDto.builder()
-                .unitNumber(random.nextBoolean() ? "Unit " + (1 + random.nextInt(999)) : null)
-                .streetNumber(String.valueOf(1 + random.nextInt(9999)))
-                .streetName(generateStreetName())
-                .city(CITIES[random.nextInt(CITIES.length)])
-                .stateOrProvince(PROVINCES[random.nextInt(PROVINCES.length)])
-                .postalOrZipCode(generateCanadianPostalCode())
-                .country(COUNTRIES[0]) // Always Canada
-                .build();
-
-        // Create labels for the contact (use valid ContactLabel enum values)
-        List<String> labels = new ArrayList<>();
-        
-        // Map role to valid ContactLabel enums
-        switch (role.toUpperCase()) {
-            case "BUILDER":
-                labels.add(ContactLabel.BUILDER.name());
-                break;
-            case "OWNER":
-                labels.add(ContactLabel.OWNER.name());
-                break;
-            case "SUPPLIER":
-                labels.add(ContactLabel.SUPPLIER.name());
-                break;
-            case "SUBCONTRACTOR":
-                labels.add(ContactLabel.SUBCONTRACTOR.name());
-                break;
-            default:
-                // For roles like "TESTER" that don't have a direct enum mapping,
-                // use OTHER and add a comment that this could be extended
-                labels.add(ContactLabel.OTHER.name());
-                break;
-        }
-        
-        // Add additional random labels
+        // Create labels for the contact - randomly choose between BUILDER and OWNER only
+        List<ContactLabel> labels = new ArrayList<>();
         if (random.nextBoolean()) {
-            labels.add(ContactLabel.SUBCONTRACTOR.name());
+            labels.add(ContactLabel.BUILDER);
+        } else {
+            labels.add(ContactLabel.OWNER);
         }
 
-        // Create contact request DTO
-        ContactRequestDto contactDto = ContactRequestDto.builder()
+        // Create contact
+        Contact contact = Contact.builder()
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
                 .phone(phone)
                 .labels(labels)
-                .addressRequestDto(addressDto)
+                .address(address)
                 .build();
 
-        // Create user request DTO
-        CreateUserRequest request = CreateUserRequest.builder()
+        return User.builder()
                 .username(username)
+                .email(email)
                 .registered(random.nextBoolean())
-                .contactRequestDto(contactDto)
+                .contact(contact)
                 .build();
-
-        // Create and return the user
-        try {
-            userService.createUser(request);
-            // Retrieve the created user by username
-            return userService.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Failed to retrieve created user: " + username));
-        } catch (Exception e) {
-            log.error("Failed to create mock user for role {}: {}", role, e.getMessage());
-            throw new RuntimeException("Failed to create mock user", e);
-        }
     }
 
-    private String generateCanadianPostalCode() {
+    protected String generateFirstName() {
+        return FIRST_NAMES[random.nextInt(FIRST_NAMES.length)];
+    }
+
+    protected String generateLastName() {
+        return LAST_NAMES[random.nextInt(LAST_NAMES.length)];
+    }
+
+    protected String generateUsername(String firstName, String lastName, String role) {
+        return MOCK_USER_PREFIX + role.toLowerCase().charAt(0) + firstName.toLowerCase() +
+                lastName.toLowerCase() + random.nextInt(1000);
+    }
+
+    protected String generateEmail(String firstName, String lastName, String role) {
+        return firstName.toLowerCase() + "." + lastName.toLowerCase() +
+                random.nextInt(1000) + "@" + role.toLowerCase() + "example.com";
+    }
+
+    protected String generatePhoneNumber() {
+        // Canadian phone number format: +1-XXX-XXX-XXXX
+        return "+1-" + (200 + random.nextInt(800)) + "-" +
+                (200 + random.nextInt(800)) + "-" +
+                (1000 + random.nextInt(9000));
+    }
+
+    protected ContactAddress generateAddress() {
+        String selectedProvince = PROVINCES[random.nextInt(PROVINCES.length)];
+        String[] citiesInProvince = PROVINCE_CITIES_MAP.get(selectedProvince);
+        String selectedCity = citiesInProvince[random.nextInt(citiesInProvince.length)];
+
+        return ContactAddress.builder()
+                .unitNumber(random.nextBoolean() ? "Unit " + (1 + random.nextInt(999)) : null)
+                .streetNumber(String.valueOf(1 + random.nextInt(9999)))
+                .streetName(generateStreetName())
+                .city(selectedCity)
+                .stateOrProvince(selectedProvince)
+                .postalOrZipCode(generateCanadianPostalCode())
+                .country(COUNTRIES[0]) // Always Canada
+                .build();
+    }
+
+    protected String generateCanadianPostalCode() {
         // Canadian postal code format: A1A 1A1
         char[] letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
         char[] digits = "0123456789".toCharArray();
 
         return "" + letters[random.nextInt(letters.length)] +
-               digits[random.nextInt(digits.length)] +
-               letters[random.nextInt(letters.length)] + " " +
-               digits[random.nextInt(digits.length)] +
-               letters[random.nextInt(letters.length)] +
-               digits[random.nextInt(digits.length)];
+                digits[random.nextInt(digits.length)] +
+                letters[random.nextInt(letters.length)] + " " +
+                digits[random.nextInt(digits.length)] +
+                letters[random.nextInt(letters.length)] +
+                digits[random.nextInt(digits.length)];
     }
 
-    private String generateStreetName() {
-        String[] streetTypes = {"Street", "Avenue", "Boulevard", "Drive", "Lane", "Road", "Way", "Court"};
-        String[] streetNames = {"Main", "First", "Second", "Third", "Oak", "Pine", "Maple", "Cedar",
-                               "Elm", "Park", "King", "Queen", "Yonge", "Bloor"};
-
-        return streetNames[random.nextInt(streetNames.length)] + " " +
-               streetTypes[random.nextInt(streetTypes.length)];
+    protected String generateStreetName() {
+        return STREET_NAMES[random.nextInt(STREET_NAMES.length)] + " " +
+                STREET_TYPES[random.nextInt(STREET_TYPES.length)];
     }
 
     public Map<String, List<User>> getMockUsers() {
