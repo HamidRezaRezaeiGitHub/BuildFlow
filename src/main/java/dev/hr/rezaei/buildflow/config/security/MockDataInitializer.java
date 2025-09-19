@@ -45,7 +45,14 @@ public class MockDataInitializer {
 
         for (var entry : mockUsers.entrySet()) {
             String roleName = entry.getKey();
-            Role role = Role.valueOf(roleName);
+            Role role;
+            try {
+                role = Role.valueOf(roleName);
+            } catch (Exception e) {
+                log.error("Invalid role name '{}' for mock users. Skipping these users.", roleName);
+                continue;
+            }
+
             List<User> users = entry.getValue();
             for (User user : users) {
                 String randomPassword = generateRandomPassword(random.nextInt(5) + 10);

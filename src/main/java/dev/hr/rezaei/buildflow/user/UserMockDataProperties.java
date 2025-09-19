@@ -3,19 +3,17 @@ package dev.hr.rezaei.buildflow.user;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 
 @Getter
 @Setter
-@Configuration
 @ConfigurationProperties(prefix = "app.users.mock")
 public class UserMockDataProperties {
-    
+
     private boolean enabled;
     private Map<String, MockUserProps> roles;
-    
+
     @Setter
     @Getter
     public static class MockUserProps {
