@@ -147,4 +147,19 @@ public class AuthService {
             log.debug("Updated lastLogin for user: {}", username);
         });
     }
+
+    protected List<UserAuthentication> getAllUserAuthentications() {
+        return userAuthenticationRepository.findAll();
+    }
+
+    protected void deleteUser(String username) {
+        userAuthenticationRepository.findByUsername(username).ifPresent(userAuth -> {
+            userAuthenticationRepository.delete(userAuth);
+            log.info("Deleted UserAuthentication for username: {}", username);
+        });
+        userService.findByUsername(username).ifPresent(user -> {
+            userService.delete(user);
+            log.info("Deleted User for username: {}", username);
+        });
+    }
 }
