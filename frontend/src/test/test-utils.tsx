@@ -51,17 +51,17 @@ const createMockLocalStorage = () => {
   let store: Record<string, string> = {};
   
   return {
-    getItem: jest.fn((key: string) => store[key] || null),
-    setItem: jest.fn((key: string, value: string) => {
+    getItem: (global as any).jest.fn((key: string) => store[key] || null),
+    setItem: (global as any).jest.fn((key: string, value: string) => {
       store[key] = value;
     }),
-    removeItem: jest.fn((key: string) => {
+    removeItem: (global as any).jest.fn((key: string) => {
       delete store[key];
     }),
-    clear: jest.fn(() => {
+    clear: (global as any).jest.fn(() => {
       store = {};
     }),
-    key: jest.fn((index: number) => Object.keys(store)[index] || null),
+    key: (global as any).jest.fn((index: number) => Object.keys(store)[index] || null),
     length: Object.keys(store).length,
   };
 };
@@ -70,13 +70,13 @@ const createMockLocalStorage = () => {
  * Mock window.matchMedia for tests
  */
 const createMockMatchMedia = (matches = false) => {
-  return jest.fn().mockImplementation(query => ({
+  return (global as any).jest.fn().mockImplementation((query: string) => ({
     matches,
     media: query,
     onchange: null,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addEventListener: (global as any).jest.fn(),
+    removeEventListener: (global as any).jest.fn(),
+    dispatchEvent: (global as any).jest.fn(),
   }));
 };
 
@@ -84,10 +84,10 @@ const createMockMatchMedia = (matches = false) => {
  * Common test setup for components that use ResizeObserver
  */
 const mockResizeObserver = () => {
-  global.ResizeObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
+  global.ResizeObserver = (global as any).jest.fn().mockImplementation(() => ({
+    observe: (global as any).jest.fn(),
+    unobserve: (global as any).jest.fn(),
+    disconnect: (global as any).jest.fn(),
   }));
 };
 
@@ -95,10 +95,10 @@ const mockResizeObserver = () => {
  * Common test setup for components that use IntersectionObserver
  */
 const mockIntersectionObserver = () => {
-  global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
+  global.IntersectionObserver = (global as any).jest.fn().mockImplementation(() => ({
+    observe: (global as any).jest.fn(),
+    unobserve: (global as any).jest.fn(),
+    disconnect: (global as any).jest.fn(),
   }));
 };
 
@@ -114,10 +114,10 @@ const waitForElementToBeRemoved = async (element: HTMLElement) => {
  * Create a mock navigation function for testing
  */
 const createMockNavigation = () => ({
-  navigateToSignup: jest.fn(),
-  navigateToLogin: jest.fn(),
-  navigateToHome: jest.fn(),
-  navigateTo: jest.fn(),
+  navigateToSignup: (global as any).jest.fn(),
+  navigateToLogin: (global as any).jest.fn(),
+  navigateToHome: (global as any).jest.fn(),
+  navigateTo: (global as any).jest.fn(),
 });
 
 /**
@@ -126,12 +126,12 @@ const createMockNavigation = () => ({
 const expectToBeAccessible = (element: HTMLElement) => {
   // Check for basic accessibility attributes
   if (element.getAttribute('role')) {
-    expect(element).toHaveAttribute('role');
+    (global as any).expect(element).toHaveAttribute('role');
   }
   
   // Check for proper focus management
   if (element.matches('button, a, input, select, textarea')) {
-    expect(element).not.toHaveAttribute('tabindex', '-1');
+    (global as any).expect(element).not.toHaveAttribute('tabindex', '-1');
   }
 };
 

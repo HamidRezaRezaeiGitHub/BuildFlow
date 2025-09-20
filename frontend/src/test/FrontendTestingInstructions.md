@@ -159,7 +159,7 @@ describe('ThemeProvider', () => {
 
 ```typescript
 import { renderHook, act } from '@testing-library/react';
-import { useMediaQuery } from '@/lib/useMediaQuery';
+import { useMediaQuery } from '@/utils/useMediaQuery';
 
 describe('useMediaQuery', () => {
   test('useMediaQuery_shouldReturnTrue_whenMediaQueryMatches', () => {

@@ -1,9 +1,9 @@
 /** @type {import('jest').Config} */
 export default {
-  // Test environment
+  // Test environment - Simulate a browser environment
   testEnvironment: 'jsdom',
   
-  // Setup files
+  // Setup files - Run setup file before each test
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   
   // Module name mapping (to handle path aliases and CSS modules)

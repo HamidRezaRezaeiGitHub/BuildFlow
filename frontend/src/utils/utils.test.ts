@@ -4,7 +4,7 @@
  * Tests the cn utility function for combining class names
  */
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/utils';
 
 describe('cn', () => {
   test('cn_shouldCombineClasses_whenMultipleClassesProvided', () => {

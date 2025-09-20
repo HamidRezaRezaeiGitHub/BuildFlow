@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/utils';
 import { Menu, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { useNavigation } from './NavigationProvider';
