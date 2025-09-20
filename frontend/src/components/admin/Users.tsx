@@ -21,7 +21,7 @@ import { AdminServiceWithAuth } from '@/services/AdminService';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserDetails } from '@/services/dtos/UserDtos';
 import UserDetailsDrawer from './UserDetailsDrawer';
-import { useMediaQuery } from '@/lib/useMediaQuery';
+import { useMediaQuery } from '@/utils/useMediaQuery';
 
 interface UserStats {
     totalUsers: number;

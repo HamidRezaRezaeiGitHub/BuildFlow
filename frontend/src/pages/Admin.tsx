@@ -1,6 +1,6 @@
 import React from 'react';
-import { AdminLayout } from '../components/layouts';
 import { Users } from '../components/admin';
+import AdminLayout from '@/components/admin/AdminLayout';
 
 /**
  * Admin page component for administrative functions.

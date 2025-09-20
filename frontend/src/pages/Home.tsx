@@ -8,7 +8,7 @@ import {
   NavigationProvider
 } from '@/components/home';
 import Navbar from '@/components/home/Navbar';
-import HomeLayout from '@/components/layouts/HomeLayout';
+import HomeLayout from '@/components/home/HomeLayout';
 import React from 'react';
 
 /**

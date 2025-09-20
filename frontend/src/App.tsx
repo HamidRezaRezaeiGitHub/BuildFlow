@@ -1,6 +1,6 @@
 import './App.css'
 import { AppProviders } from './contexts/AppProviders'
-import { AppRouter } from './router/AppRouter'
+import { AppRouter } from './contexts/AppRouter'
 
 /**
  * Main App component that sets up the entire application.
