@@ -2,7 +2,9 @@ package dev.hr.rezaei.buildflow.config.security.dto;
 
 import dev.hr.rezaei.buildflow.config.security.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.Date;
@@ -12,6 +14,8 @@ import java.util.Date;
  */
 @Data
 @Schema(description = "Response object containing JWT authentication token")
+@AllArgsConstructor
+@NoArgsConstructor
 public class JwtAuthenticationResponse {
 
     @Schema(description = "Token type", example = "Bearer", defaultValue = "Bearer")
