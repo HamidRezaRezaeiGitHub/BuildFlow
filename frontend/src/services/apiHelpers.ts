@@ -19,9 +19,10 @@ export function handleMessageResponse(response: ApiMessageResponse | any): strin
 }
 
 /**
- * Example of handling different error types with structured error handling
+ * Analyzes API errors and returns structured information for UI handling
+ * Returns error details without throwing - useful for displaying user-friendly messages
  */
-export function handleApiError(error: Error): { message: string; isRecoverable: boolean } {
+export function analyzeApiError(error: Error): { message: string; isRecoverable: boolean } {
   if (error instanceof StructuredApiError) {
     const errorResponse = error.apiErrorResponse;
     
@@ -86,7 +87,7 @@ export function handleApiError(error: Error): { message: string; isRecoverable: 
  */
 export function useApiErrorHandler() {
   const handleError = (error: Error) => {
-    const { message, isRecoverable } = handleApiError(error);
+    const { message, isRecoverable } = analyzeApiError(error);
     
     // Here you could integrate with your notification system
     console.error('API Error:', message, { recoverable: isRecoverable });
@@ -114,7 +115,7 @@ export async function exampleApiCall(endpoint: string, token?: string): Promise<
     return 'Operation completed successfully';
     
   } catch (error) {
-    const { message } = handleApiError(error as Error);
+    const { message } = analyzeApiError(error as Error);
     throw new Error(message);
   }
 }
@@ -141,7 +142,7 @@ export async function exampleCreateResource(data: any, token?: string): Promise<
     };
     
   } catch (error) {
-    const { message } = handleApiError(error as Error);
+    const { message } = analyzeApiError(error as Error);
     throw new Error(message);
   }
 }
@@ -153,7 +154,7 @@ export async function exampleCreateWithHelper<T>(endpoint: string, data: any, to
   try {
     return await apiService.create<T>(endpoint, data, token);
   } catch (error) {
-    const { message } = handleApiError(error as Error);
+    const { message } = analyzeApiError(error as Error);
     throw new Error(message);
   }
 }

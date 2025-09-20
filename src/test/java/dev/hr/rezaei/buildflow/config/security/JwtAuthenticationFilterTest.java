@@ -124,7 +124,7 @@ class JwtAuthenticationFilterTest extends AbstractModelJpaTest {
 
         Authentication mockAuth = mock(Authentication.class);
         when(mockAuth.getPrincipal()).thenReturn(testUserPrincipal);
-        validToken = jwtTokenProvider.generateToken(mockAuth);
+        validToken = jwtTokenProvider.generateToken(mockAuth).getValue();
 
         when(mockRequest.getRequestURI()).thenReturn("/api/v1/auth/token");
 
@@ -230,7 +230,7 @@ class JwtAuthenticationFilterTest extends AbstractModelJpaTest {
 
         Authentication mockAuth = mock(Authentication.class);
         when(mockAuth.getPrincipal()).thenReturn(nonExistentUser);
-        String tokenForNonExistentUser = jwtTokenProvider.generateToken(mockAuth);
+        String tokenForNonExistentUser = jwtTokenProvider.generateToken(mockAuth).getValue();
 
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + tokenForNonExistentUser);
 
@@ -270,7 +270,7 @@ class JwtAuthenticationFilterTest extends AbstractModelJpaTest {
 
         Authentication mockAuth = mock(Authentication.class);
         when(mockAuth.getPrincipal()).thenReturn(disabledUserPrincipal);
-        String tokenForDisabledUser = jwtTokenProvider.generateToken(mockAuth);
+        String tokenForDisabledUser = jwtTokenProvider.generateToken(mockAuth).getValue();
 
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + tokenForDisabledUser);
 
@@ -466,7 +466,7 @@ class JwtAuthenticationFilterTest extends AbstractModelJpaTest {
 
         Authentication mockAuth = mock(Authentication.class);
         when(mockAuth.getPrincipal()).thenReturn(anotherUserPrincipal);
-        String anotherToken = jwtTokenProvider.generateToken(mockAuth);
+        String anotherToken = jwtTokenProvider.generateToken(mockAuth).getValue();
 
         when(mockRequest.getHeader("Authorization")).thenReturn("Bearer " + anotherToken);
 

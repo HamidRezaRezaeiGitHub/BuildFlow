@@ -329,10 +329,30 @@ class ApiService {
         }
         return 'Operation completed';
     }
+
+    /**
+     * Centralized error handler for API errors - converts to standard Error
+     * Converts ApiError and StructuredApiError instances to user-friendly Error messages
+     * @param error - The caught error (unknown type)
+     * @param fallbackMessage - Message to use if error type is not recognized
+     * @returns Never (always throws an Error)
+     */
+    static handleApiError(error: unknown, fallbackMessage: string): never {
+        if (error instanceof StructuredApiError) {
+            throw new Error(error.getDetailedMessage());
+        }
+        if (error instanceof ApiError) {
+            throw new Error(error.message);
+        }
+        throw new Error(fallbackMessage);
+    }
 }
 
 // Create and export a singleton instance
 export const apiService = new ApiService();
+
+// Export the static error handler for convenience
+export const handleApiError = ApiService.handleApiError;
 
 // Also export the class for testing or custom instances
 export default ApiService;

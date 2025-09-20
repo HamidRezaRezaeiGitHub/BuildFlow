@@ -84,7 +84,7 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+        JwtTokenProvider.Token token = tokenProvider.generateToken(authentication);
 
         // Log successful authentication
         securityAuditService.logLoginAttempt(loginRequest.getUsername(), true, "Valid credentials");
@@ -93,7 +93,7 @@ public class AuthController {
         authService.updateLastLogin(loginRequest.getUsername());
 
         log.info("Authentication successful for username or email: {}", loginRequest.getUsername());
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 
     @Operation(summary = "Get current user information", description = "Returns information about the currently authenticated user")
@@ -128,13 +128,13 @@ public class AuthController {
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(Authentication authentication) {
-        String newJwt = tokenProvider.generateToken(authentication);
+        JwtTokenProvider.Token token = tokenProvider.generateToken(authentication);
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         securityAuditService.logTokenGeneration(userPrincipal.getUsername());
         log.info("Token refreshed for username: {}", userPrincipal.getUsername());
 
-        return ResponseEntity.ok(new JwtAuthenticationResponse(newJwt));
+        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 
     @Operation(summary = "Logout user", description = "Invalidates the current user session (client-side logout for stateless JWT)")

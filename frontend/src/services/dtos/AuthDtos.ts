@@ -51,11 +51,17 @@ export interface LoginRequest {
  * Matches backend JwtAuthenticationResponse.java
  */
 export interface AuthResponse {
+  /** Token type (typically "Bearer") */
+  tokenType: string;
+  
   /** JWT access token for API authentication */
   accessToken: string;
   
-  /** Token type (typically "Bearer") */
-  tokenType: string;
+  /** Expiration date and time of the token in ISO 8601 format */
+  expiryDate: string;
+  
+  /** Time in seconds until the token expires */
+  expiresInSeconds: number;
 }
 
 export interface UserSummary {

@@ -35,7 +35,7 @@ class JwtTokenProviderTest {
 
     @Test
     void generateToken_shouldReturnValidToken_whenAuthenticationProvided() {
-        String token = jwtTokenProvider.generateToken(mockAuthentication);
+        String token = jwtTokenProvider.generateToken(mockAuthentication).getValue();
         log.debug("Generated token: {}", token);
 
         assertNotNull(token);
@@ -45,7 +45,7 @@ class JwtTokenProviderTest {
 
     @Test
     void getUsernameFromToken_shouldReturnCorrectUsername_whenValidTokenProvided() {
-        String token = jwtTokenProvider.generateToken(mockAuthentication);
+        String token = jwtTokenProvider.generateToken(mockAuthentication).getValue();
         log.debug("Generated token for username extraction: {}", token);
 
         String username = jwtTokenProvider.getUsernameFromToken(token);
@@ -56,7 +56,7 @@ class JwtTokenProviderTest {
 
     @Test
     void isValid_shouldReturnTrue_whenValidTokenProvided() {
-        String token = jwtTokenProvider.generateToken(mockAuthentication);
+        String token = jwtTokenProvider.generateToken(mockAuthentication).getValue();
 
         boolean isValid = jwtTokenProvider.isValid(token);
 
@@ -104,17 +104,17 @@ class JwtTokenProviderTest {
 
     @Test
     void generateToken_shouldGenerateDifferentTokens_whenCalledMultipleTimes() throws InterruptedException {
-        String token1 = jwtTokenProvider.generateToken(mockAuthentication);
+        String token1 = jwtTokenProvider.generateToken(mockAuthentication).getValue();
         // Add a sufficient delay to ensure different timestamps (JWT uses seconds precision)
         Thread.sleep(1000);
-        String token2 = jwtTokenProvider.generateToken(mockAuthentication);
+        String token2 = jwtTokenProvider.generateToken(mockAuthentication).getValue();
 
         assertNotEquals(token1, token2);
     }
 
     @Test
     void generateToken_shouldHaveProperJwtStructure_whenTokenGenerated() {
-        String token = jwtTokenProvider.generateToken(mockAuthentication);
+        String token = jwtTokenProvider.generateToken(mockAuthentication).getValue();
 
         // JWT tokens should have 3 parts separated by dots
         String[] parts = token.split("\\.");
@@ -128,7 +128,7 @@ class JwtTokenProviderTest {
 
     @Test
     void generateToken_shouldIncludeSubject_whenTokenGenerated() {
-        String token = jwtTokenProvider.generateToken(mockAuthentication);
+        String token = jwtTokenProvider.generateToken(mockAuthentication).getValue();
         String extractedUsername = jwtTokenProvider.getUsernameFromToken(token);
 
         assertEquals(mockUserPrincipal.getUsername(), extractedUsername);

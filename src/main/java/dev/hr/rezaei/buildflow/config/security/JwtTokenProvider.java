@@ -3,6 +3,9 @@ package dev.hr.rezaei.buildflow.config.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -16,6 +19,7 @@ import java.util.Date;
  * JWT utility class for generating and validating JWT tokens.
  */
 @Slf4j
+@NoArgsConstructor
 @Component
 public class JwtTokenProvider {
 
@@ -24,10 +28,6 @@ public class JwtTokenProvider {
 
     @Value("${app.jwt.expiration:86400000}") // 24 hours in milliseconds
     private int jwtExpirationInMs;
-
-    // No-arg constructor (Spring will use this and inject values via @Value)
-    public JwtTokenProvider() {
-    }
 
     // All-args constructor (useful for testing or manual instantiation)
     public JwtTokenProvider(String jwtSecret, int jwtExpirationInMs) {
@@ -59,17 +59,26 @@ public class JwtTokenProvider {
      * @param authentication the authentication object containing user details
      * @return a signed JWT token as a String
      */
-    public String generateToken(Authentication authentication) {
+    public Token generateToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationInMs);
 
-        return Jwts.builder()
+        String tokenValue = Jwts.builder()
                 .subject(userPrincipal.getUsername())
                 .issuedAt(new Date())
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
                 .compact();
+
+        return new Token(tokenValue, expiryDate);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class Token {
+        private String value;
+        private Date expiryDate;
     }
 
     public String getUsernameFromToken(String token) {
@@ -80,6 +89,16 @@ public class JwtTokenProvider {
                 .getPayload();
 
         return claims.getSubject();
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getExpiration();
     }
 
     @SuppressWarnings("deprecation")

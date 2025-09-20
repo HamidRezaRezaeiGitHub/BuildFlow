@@ -4,7 +4,8 @@ import type {
     SignUpData,
     AuthResponse,
     ValidationResponse,
-    User
+    User,
+    CreateUserResponse
 } from './dtos';
 
 /**
@@ -25,11 +26,11 @@ class AuthService {
     /**
      * Register new user
      * @param signUpData - User registration data with contact information
-     * @returns Promise with authentication response
+     * @returns Promise with CreateUserResponse containing the created user data
      */
-    async register(signUpData: SignUpData): Promise<AuthResponse> {
+    async register(signUpData: SignUpData): Promise<CreateUserResponse> {
         // Use the create method since registration should return 201 CREATED
-        return await apiService.create<AuthResponse>('/auth/register', signUpData);
+        return await apiService.create<CreateUserResponse>('/auth/register', signUpData);
     }
 
     /**
