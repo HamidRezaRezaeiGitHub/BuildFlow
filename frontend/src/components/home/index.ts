@@ -1,5 +1,4 @@
 // Home page specific components
-export { default as Auth } from './Auth';
 export { default as Brands } from './Brands';
 export { default as Contact } from './Contact';
 export { default as Features } from './Features';

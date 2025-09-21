@@ -19,7 +19,7 @@ import { validateSignUpForm, type SignUpFormData } from '@/utils/validation';
 import { useAuth } from '@/contexts/AuthContext';
 import { ChevronDown, ChevronUp, Phone, Tag, User } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { EmailField, PasswordField } from './Credentials';
+import { EmailField, PasswordField } from './CredentialFields';
 
 interface SignUpProps {
     showPassword: boolean;

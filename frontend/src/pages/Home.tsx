@@ -1,5 +1,5 @@
+import { Auth } from '@/components/auth';
 import {
-  Auth,
   Brands,
   Contact,
   Features,
@@ -7,8 +7,8 @@ import {
   Hero,
   NavigationProvider
 } from '@/components/home';
-import Navbar from '@/components/home/Navbar';
 import HomeLayout from '@/components/home/HomeLayout';
+import Navbar from '@/components/home/Navbar';
 import React from 'react';
 
 /**
