@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { authService, handleApiError } from '../services';
+import { authService, handleApiError, timerService, type TimerId } from '../services';
 import type {
   AuthResponse,
   LoginCredentials,
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('jwt_token'));
   const [isLoading, setIsLoading] = useState(true);
-  const [refreshTimer, setRefreshTimer] = useState<NodeJS.Timeout | null>(null);
+  const [refreshTimerId, setRefreshTimerId] = useState<TimerId | null>(null);
 
   const isAuthenticated = !!token && !!user; // User is authenticated if token and user info are present
 
@@ -50,17 +50,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
 
     // Clear any scheduled refresh timer
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
-      setRefreshTimer(null);
+    if (refreshTimerId) {
+      timerService.cancel(refreshTimerId);
+      setRefreshTimerId(null);
     }
   };
 
   // Schedule automatic token refresh 30 seconds before expiry
   const scheduleTokenRefresh = (expiresInSeconds: number) => {
     // Clear any existing timer
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
+    if (refreshTimerId) {
+      timerService.cancel(refreshTimerId);
     }
 
     // Calculate delay: refresh 30 seconds before expiry
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Only schedule if there's enough time (more than 30 seconds)
     if (expiresInSeconds > 30) {
-      const timerId = setTimeout(async () => {
+      const timerId = timerService.schedule(async () => {
         try {
           console.log('Auto-refreshing token...');
           await refreshToken();
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }, refreshDelayMs);
 
-      setRefreshTimer(timerId);
+      setRefreshTimerId(timerId);
 
       console.log(`Token refresh scheduled in ${Math.floor(refreshDelayMs / 1000)} seconds`);
     } else {
@@ -207,8 +207,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Cleanup timer on component unmount
   useEffect(() => {
     return () => {
-      if (refreshTimer) {
-        clearTimeout(refreshTimer);
+      if (refreshTimerId) {
+        timerService.cancel(refreshTimerId);
       }
     };
   }, []);

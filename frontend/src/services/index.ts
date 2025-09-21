@@ -10,6 +10,10 @@ export { authService as auth } from './AuthService';
 export * from './AdminService';
 export { adminService as admin } from './AdminService';
 
+// Re-export timer service
+export * from './TimerService';
+export { timerService } from './TimerService';
+
 // Re-export all DTOs
 export * from './dtos';
 
