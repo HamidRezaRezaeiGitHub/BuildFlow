@@ -24,7 +24,7 @@ export type {
 export { default as AddressFields } from './AddressFields';
 export type { AddressFieldsProps } from './AddressFields';
 
-// Address Utilities (re-export from utils)
+// Address Utilities (re-export from AddressFields)
 export {
   TORONTO_DEFAULT_ADDRESS,
   createEmptyAddress,
@@ -33,4 +33,4 @@ export {
   isAddressEmpty,
   isAddressComplete,
   getAddressCompletionPercentage
-} from '@/utils/addressUtils';
+} from './AddressFields';

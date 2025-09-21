@@ -1,24 +1,18 @@
-/**
- * Tests for address utilities
- * 
- * Tests address formatting, validation, and utility functions
- */
-
+import { AddressData } from '@/services/dtos';
 import {
   TORONTO_DEFAULT_ADDRESS,
   createEmptyAddress,
   createTorontoDefaultAddress,
   formatAddress,
-  isAddressEmpty,
-  isAddressComplete,
   getAddressCompletionPercentage,
-} from '@/utils/addressUtils';
-import { AddressData } from '@/services/dtos';
+  isAddressComplete,
+  isAddressEmpty,
+} from './AddressFields';
 
 describe('createEmptyAddress', () => {
   test('createEmptyAddress_shouldReturnEmptyObject_whenCalled', () => {
     const address = createEmptyAddress();
-    
+
     expect(address.unitNumber).toBe('');
     expect(address.streetNumber).toBe('');
     expect(address.streetName).toBe('');
@@ -32,7 +26,7 @@ describe('createEmptyAddress', () => {
 describe('createTorontoDefaultAddress', () => {
   test('createTorontoDefaultAddress_shouldReturnTorontoDefaults_whenCalled', () => {
     const address = createTorontoDefaultAddress();
-    
+
     expect(address.streetNumber).toBe('100');
     expect(address.streetName).toBe('Queen Street West');
     expect(address.city).toBe('Toronto');
@@ -44,7 +38,7 @@ describe('createTorontoDefaultAddress', () => {
 
   test('createTorontoDefaultAddress_shouldMatchConstant_whenCalled', () => {
     const address = createTorontoDefaultAddress();
-    
+
     expect(address).toEqual(TORONTO_DEFAULT_ADDRESS);
   });
 });
@@ -60,9 +54,9 @@ describe('formatAddress', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const formatted = formatAddress(address);
-    
+
     expect(formatted).toBe('Unit 101, 123 Main Street, Toronto, ON, M5H 2N2, Canada');
   });
 
@@ -76,17 +70,17 @@ describe('formatAddress', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const formatted = formatAddress(address);
-    
+
     expect(formatted).toBe('123 Main Street, Toronto, M5H 2N2, Canada');
   });
 
   test('formatAddress_shouldReturnEmpty_whenAllFieldsEmpty', () => {
     const address = createEmptyAddress();
-    
+
     const formatted = formatAddress(address);
-    
+
     expect(formatted).toBe('');
   });
 
@@ -100,9 +94,9 @@ describe('formatAddress', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const formatted = formatAddress(address);
-    
+
     expect(formatted).toContain('Unit 5A');
   });
 
@@ -116,9 +110,9 @@ describe('formatAddress', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const formatted = formatAddress(address);
-    
+
     expect(formatted).toBe('Main Street, Toronto, ON, M5H 2N2, Canada');
   });
 });
@@ -126,9 +120,9 @@ describe('formatAddress', () => {
 describe('isAddressEmpty', () => {
   test('isAddressEmpty_shouldReturnTrue_whenAllFieldsEmpty', () => {
     const address = createEmptyAddress();
-    
+
     const result = isAddressEmpty(address);
-    
+
     expect(result).toBe(true);
   });
 
@@ -137,9 +131,9 @@ describe('isAddressEmpty', () => {
       ...createEmptyAddress(),
       city: 'Toronto'
     };
-    
+
     const result = isAddressEmpty(address);
-    
+
     expect(result).toBe(false);
   });
 
@@ -153,9 +147,9 @@ describe('isAddressEmpty', () => {
       postalOrZipCode: '   ',
       country: ''
     };
-    
+
     const result = isAddressEmpty(address);
-    
+
     expect(result).toBe(true);
   });
 });
@@ -171,9 +165,9 @@ describe('isAddressComplete', () => {
       postalOrZipCode: '', // Optional according to the function
       country: 'Canada'
     };
-    
+
     const result = isAddressComplete(address);
-    
+
     expect(result).toBe(true);
   });
 
@@ -187,9 +181,9 @@ describe('isAddressComplete', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const result = isAddressComplete(address);
-    
+
     expect(result).toBe(false);
   });
 
@@ -203,9 +197,9 @@ describe('isAddressComplete', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const result = isAddressComplete(address);
-    
+
     expect(result).toBe(false);
   });
 
@@ -219,9 +213,9 @@ describe('isAddressComplete', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const result = isAddressComplete(address);
-    
+
     expect(result).toBe(false);
   });
 });
@@ -237,17 +231,17 @@ describe('getAddressCompletionPercentage', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const percentage = getAddressCompletionPercentage(address);
-    
+
     expect(percentage).toBe(100);
   });
 
   test('getAddressCompletionPercentage_shouldReturn0_whenAllFieldsEmpty', () => {
     const address = createEmptyAddress();
-    
+
     const percentage = getAddressCompletionPercentage(address);
-    
+
     expect(percentage).toBe(0);
   });
 
@@ -261,9 +255,9 @@ describe('getAddressCompletionPercentage', () => {
       postalOrZipCode: 'M5H 2N2',
       country: ''
     };
-    
+
     const percentage = getAddressCompletionPercentage(address);
-    
+
     expect(percentage).toBe(57); // 4/7 = 0.571... rounded to 57
   });
 
@@ -277,9 +271,9 @@ describe('getAddressCompletionPercentage', () => {
       postalOrZipCode: 'M5H 2N2',
       country: 'Canada'
     };
-    
+
     const percentage = getAddressCompletionPercentage(address);
-    
+
     expect(percentage).toBe(86); // 6/7 = 0.857... rounded to 86
   });
 
@@ -293,9 +287,9 @@ describe('getAddressCompletionPercentage', () => {
       postalOrZipCode: '',
       country: ''
     };
-    
+
     const percentage = getAddressCompletionPercentage(address);
-    
+
     expect(percentage).toBe(14); // 1/7 = 0.142... rounded to 14
   });
 });

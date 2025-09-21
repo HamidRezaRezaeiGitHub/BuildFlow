@@ -4,6 +4,89 @@ import { AddressData } from '@/services/dtos';
 import { MapPin } from 'lucide-react';
 import React from 'react';
 
+// Default Toronto address values
+export const TORONTO_DEFAULT_ADDRESS: AddressData = {
+  unitNumber: '',
+  streetNumber: '100',
+  streetName: 'Queen Street West',
+  city: 'Toronto',
+  stateOrProvince: 'ON',
+  postalOrZipCode: 'M5H 2N2',
+  country: 'Canada'
+};
+
+// Create an empty address data object
+export const createEmptyAddress = (): AddressData => ({
+  unitNumber: '',
+  streetNumber: '',
+  streetName: '',
+  city: '',
+  stateOrProvince: '',
+  postalOrZipCode: '',
+  country: ''
+});
+
+// Create address with Toronto defaults
+export const createTorontoDefaultAddress = (): AddressData => ({
+  ...TORONTO_DEFAULT_ADDRESS
+});
+
+// Format address for display
+export const formatAddress = (address: AddressData): string => {
+  const parts: string[] = [];
+
+  if (address.unitNumber) {
+    parts.push(`Unit ${address.unitNumber}`);
+  }
+
+  if (address.streetNumber || address.streetName) {
+    const streetPart = [address.streetNumber, address.streetName].filter(Boolean).join(' ');
+    if (streetPart) parts.push(streetPart);
+  }
+
+  if (address.city) {
+    parts.push(address.city);
+  }
+
+  if (address.stateOrProvince) {
+    parts.push(address.stateOrProvince);
+  }
+
+  if (address.postalOrZipCode) {
+    parts.push(address.postalOrZipCode);
+  }
+
+  if (address.country) {
+    parts.push(address.country);
+  }
+
+  return parts.join(', ');
+};
+
+// Check if address is empty
+export const isAddressEmpty = (address: AddressData): boolean => {
+  return Object.values(address).every(value => !value || !value.trim());
+};
+
+// Check if address is complete (all required fields filled)
+export const isAddressComplete = (address: AddressData): boolean => {
+  // Unit number and postal code are optional, others are required
+  return !!(
+    address.streetNumber?.trim() &&
+    address.streetName?.trim() &&
+    address.city?.trim() &&
+    address.stateOrProvince?.trim() &&
+    address.country?.trim()
+  );
+};
+
+// Get address completion percentage
+export const getAddressCompletionPercentage = (address: AddressData): number => {
+  const totalFields = 7; // All fields including optional ones
+  const filledFields = Object.values(address).filter(value => value && value.trim()).length;
+  return Math.round((filledFields / totalFields) * 100);
+};
+
 // Base interface for all address field components
 export interface BaseFieldProps {
   id?: string;
@@ -298,7 +381,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           <Label className="text-sm font-medium">{headerText}</Label>
         </div>
       )}
-      
+
       {/* Unit Number and Street Number Row */}
       <div className="grid grid-cols-2 gap-4">
         <UnitNumberField
@@ -307,7 +390,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           errors={errors.unitNumber}
           disabled={disabled}
         />
-        
+
         <StreetNumberField
           value={addressData.streetNumber || ''}
           onChange={(value) => onAddressChange('streetNumber', value)}
@@ -332,7 +415,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           errors={errors.city}
           disabled={disabled}
         />
-        
+
         <StateProvinceField
           value={addressData.stateOrProvince}
           onChange={(value) => onAddressChange('stateOrProvince', value)}
@@ -349,7 +432,7 @@ const AddressFields: React.FC<AddressFieldsProps> = ({
           errors={errors.postalOrZipCode}
           disabled={disabled}
         />
-        
+
         <CountryField
           value={addressData.country}
           onChange={(value) => onAddressChange('country', value)}
