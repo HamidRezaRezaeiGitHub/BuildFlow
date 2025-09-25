@@ -86,11 +86,10 @@ export const CityField: React.FC<CityFieldProps> = ({
             if (onValidationChange) {
                 onValidationChange(true, []);
             }
-        } else if (hasBeenTouched) {
-            // Re-validate current value when validation mode changes and field has been touched
-            validateField(value);
         }
-    }, [enableValidation, validationMode, hasBeenTouched, validateField, onValidationChange]);
+        // Note: We don't re-validate on value changes here - that's handled in handleChange
+        // We only clear errors when validation is disabled or config changes
+    }, [enableValidation, validationMode]);
 
     // Handle input change
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

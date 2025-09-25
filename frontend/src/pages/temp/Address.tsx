@@ -127,6 +127,14 @@ const Address: React.FC = () => {
                             inline={true}
                             isSkippable={isSkippable}
                             enableValidation={true}
+                            requiredFields={isSkippable ? undefined : [
+                                'streetNumber',
+                                'streetName', 
+                                'city',
+                                'stateOrProvince',
+                                'postalOrZipCode',
+                                'country'
+                            ]}
                         />
 
                         {submitMessage && (

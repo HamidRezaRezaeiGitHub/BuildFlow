@@ -83,6 +83,9 @@ export interface AddressFormProps {
 
     /** Whether to enable validation for form fields */
     enableValidation?: boolean;
+
+    /** Custom list of required fields. If not provided, uses default required fields (unitNumber is optional by default). */
+    requiredFields?: (keyof AddressData)[];
 }
 
 /**
@@ -123,7 +126,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
     skipButtonVariant = 'outline',
     resetButtonVariant = 'secondary',
     isSkippable = false,
-    enableValidation = false
+    enableValidation = false,
+    requiredFields: customRequiredFields
 }) => {
     // Track validation state for each field
     const [fieldValidationState, setFieldValidationState] = React.useState<{
@@ -142,8 +146,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
     }, []);
 
     // Define required fields (fields that must have values when form is not skippable)
-    const requiredFields: (keyof AddressData)[] = [
-        'unitNumber',
+    // Default: unitNumber is optional, other fields are required
+    const requiredFields: (keyof AddressData)[] = customRequiredFields || [
         'streetNumber',
         'streetName', 
         'city',
