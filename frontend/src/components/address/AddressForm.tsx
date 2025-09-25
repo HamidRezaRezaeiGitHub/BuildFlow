@@ -144,12 +144,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
     // Define required fields (fields that must have values when form is not skippable)
     const requiredFields: (keyof AddressData)[] = [
         'unitNumber',
-        // 'streetNumber',
-        // 'streetName', 
-        // 'city',
-        // 'stateOrProvince',
-        // 'postalOrZipCode',
-        // 'country'
+        'streetNumber',
+        'streetName', 
+        'city',
+        'stateOrProvince',
+        'postalOrZipCode',
+        'country'
     ];
 
     // Check if form is valid for submission
@@ -242,6 +242,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         onChange={(value) => onAddressChange('streetNumber', value)}
                         errors={errors.streetNumber}
                         disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={validationMode}
+                        onValidationChange={(isValid, fieldErrors) =>
+                            handleFieldValidationChange('streetNumber', isValid, fieldErrors)
+                        }
                     />
                 </div>
 
@@ -251,6 +256,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     onChange={(value) => onAddressChange('streetName', value)}
                     errors={errors.streetName}
                     disabled={disabled || isSubmitting}
+                    enableValidation={enableValidation}
+                    validationMode={validationMode}
+                    onValidationChange={(isValid, fieldErrors) =>
+                        handleFieldValidationChange('streetName', isValid, fieldErrors)
+                    }
                 />
 
                 {/* City and Province Row */}
@@ -260,6 +270,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         onChange={(value) => onAddressChange('city', value)}
                         errors={errors.city}
                         disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={validationMode}
+                        onValidationChange={(isValid, fieldErrors) =>
+                            handleFieldValidationChange('city', isValid, fieldErrors)
+                        }
                     />
 
                     <StateProvinceField
@@ -267,6 +282,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         onChange={(value) => onAddressChange('stateOrProvince', value)}
                         errors={errors.stateOrProvince}
                         disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={validationMode}
+                        onValidationChange={(isValid, fieldErrors) =>
+                            handleFieldValidationChange('stateOrProvince', isValid, fieldErrors)
+                        }
                     />
                 </div>
 
@@ -277,6 +297,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         onChange={(value) => onAddressChange('postalOrZipCode', value)}
                         errors={errors.postalOrZipCode}
                         disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={validationMode}
+                        onValidationChange={(isValid, fieldErrors) =>
+                            handleFieldValidationChange('postalOrZipCode', isValid, fieldErrors)
+                        }
                     />
 
                     <CountryField
@@ -284,6 +309,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         onChange={(value) => onAddressChange('country', value)}
                         errors={errors.country}
                         disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={validationMode}
+                        onValidationChange={(isValid, fieldErrors) =>
+                            handleFieldValidationChange('country', isValid, fieldErrors)
+                        }
                     />
                 </div>
             </div>

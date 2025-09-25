@@ -79,7 +79,7 @@ export const UnitNumberField: React.FC<UnitNumberFieldProps> = ({
             // Re-validate current value when validation mode changes and field has been touched
             validateField(value);
         }
-    }, [enableValidation, validationMode, hasBeenTouched, validateField, onValidationChange]);
+    }, [enableValidation, validationMode, hasBeenTouched, value, validateField]);
 
     // Handle input change
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
