@@ -28,6 +28,7 @@ public class SecurityConfig {
 
     public static Set<String> PUBLIC_URLS = Set.of(
             "/", "/home", "/index.html", "/theme", "/dashboard", "/admin",
+            "/temp/**", // Temporary pages for testing
             "/api/auth/register", "/api/auth/login", "/api/auth/logout",
             "/api/public/**", "/api/*/public/**",
             "/actuator/health",
