@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeShowcase } from '../components/theme';
+import { ThemeShowcase } from '@/components/theme';
 
 /**
  * Theme page - public page to showcase the theme system

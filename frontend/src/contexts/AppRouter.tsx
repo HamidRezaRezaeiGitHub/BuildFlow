@@ -51,22 +51,12 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <>{children}</>;
 };
 
-/**
- * AppRouter component that defines all application routes.
- * 
- * Route structure:
- * - / -> Home page (public)
- * - /theme -> Theme showcase page (public)
- * - /dashboard -> Dashboard (protected, requires authentication)
- * - /admin -> Admin panel (protected, requires admin role - backend enforced)
- * - * -> redirects to Home (catch-all for undefined paths)
- */
 export const AppRouter: React.FC = () => {
     return (
         <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
-            <Route path="/theme" element={<Theme />} />
+            <Route path="/temp/theme" element={<Theme />} />
             <Route path="/temp/address" element={<Address />} />
 
             {/* Protected routes */}
