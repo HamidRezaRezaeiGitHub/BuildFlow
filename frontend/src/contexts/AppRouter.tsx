@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Address, Admin, Dashboard, Home, Theme } from '../pages';
+import { NewProject } from '../pages/project';
 import { useAuth } from './AuthContext';
 
 // Protected Route component
@@ -65,6 +66,16 @@ export const AppRouter: React.FC = () => {
                 element={
                     <ProtectedRoute>
                         <Dashboard />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Project routes */}
+            <Route
+                path="/projects/new"
+                element={
+                    <ProtectedRoute>
+                        <NewProject />
                     </ProtectedRoute>
                 }
             />
