@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import SignUp from './SignUp';
-import Login from './Login';
+import LoginForm from './LoginForm';
+import SignUpForm from './SignUpForm';
 import React, { useState, useEffect } from 'react';
 
 interface AuthSectionProps {
@@ -90,20 +90,22 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
 
             {/* Sign Up Tab */}
             <TabsContent value="signup" className="space-y-6" id="auth-signup">
-              <SignUp
+              <SignUpForm
                 showPassword={showPassword}
                 showConfirmPassword={showConfirmPassword}
                 onTogglePassword={togglePasswordVisibility}
                 onToggleConfirmPassword={toggleConfirmPasswordVisibility}
                 onSignUpSuccess={() => setActiveTab('login')}
+                inline={true}
               />
             </TabsContent>
 
             {/* Login Tab */}
             <TabsContent value="login" className="space-y-6" id="auth-login">
-              <Login
+              <LoginForm
                 showPassword={showPassword}
                 onTogglePassword={togglePasswordVisibility}
+                inline={true}
               />
             </TabsContent>
           </Tabs>
