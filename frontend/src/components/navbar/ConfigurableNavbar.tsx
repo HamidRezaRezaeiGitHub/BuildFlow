@@ -26,7 +26,7 @@ const themeToggleComponents = {
   toggleGroup: ToggleGroupThemeToggle,
   button: ButtonThemeToggle,
   segmented: SegmentedThemeToggle,
-} as const;
+};
 
 export interface NavItem {
   label: string;
