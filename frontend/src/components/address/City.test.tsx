@@ -1,70 +1,70 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { StreetNumberField } from './StreetNumber';
+import { CityField } from './City';
 
-describe('StreetNumberField', () => {
+describe('CityField', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test('StreetNumberField_shouldRenderWithDefaultProps', () => {
+    test('CityField_shouldRenderWithDefaultProps', () => {
         const mockOnChange = jest.fn();
         
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
             />
         );
 
         const input = screen.getByRole('textbox');
-        const label = screen.getByText('Street Number');
+        const label = screen.getByText('City');
 
         expect(input).toBeInTheDocument();
         expect(label).toBeInTheDocument();
-        expect(input).toHaveAttribute('placeholder', '123');
+        expect(input).toHaveAttribute('placeholder', 'Toronto');
         expect(input).toHaveValue('');
     });
 
-    test('StreetNumberField_shouldCallOnChange_whenValueChanges', () => {
+    test('CityField_shouldCallOnChange_whenValueChanges', () => {
         const mockOnChange = jest.fn();
         
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
             />
         );
 
         const input = screen.getByRole('textbox');
-        fireEvent.change(input, { target: { value: '456' } });
+        fireEvent.change(input, { target: { value: 'Vancouver' } });
 
-        expect(mockOnChange).toHaveBeenCalledWith('456');
+        expect(mockOnChange).toHaveBeenCalledWith('Vancouver');
     });
 
-    test('StreetNumberField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
+    test('CityField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
         const mockOnChange = jest.fn();
-        const errors = ['Street number must contain only numbers'];
+        const errors = ['City is invalid'];
         
         render(
-            <StreetNumberField
-                value="123A"
+            <CityField
+                value="Invalid City"
                 onChange={mockOnChange}
                 errors={errors}
             />
         );
 
-        const errorText = screen.getByText('Street number must contain only numbers');
+        const errorText = screen.getByText('City is invalid');
         const input = screen.getByRole('textbox');
 
         expect(errorText).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
     });
 
-    test('StreetNumberField_shouldBeDisabled_whenDisabledPropTrue', () => {
+    test('CityField_shouldBeDisabled_whenDisabledPropTrue', () => {
         const mockOnChange = jest.fn();
         
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 disabled={true}
@@ -76,79 +76,45 @@ describe('StreetNumberField', () => {
         expect(input).toBeDisabled();
     });
 
-    test('StreetNumberField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
+    test('CityField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
         const mockOnChange = jest.fn();
         
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
-                placeholder="999"
+                placeholder="Custom City"
             />
         );
 
         const input = screen.getByRole('textbox');
 
-        expect(input).toHaveAttribute('placeholder', '999');
+        expect(input).toHaveAttribute('placeholder', 'Custom City');
     });
 
-    test('StreetNumberField_shouldDisplayValue_whenValueProvided', () => {
+    test('CityField_shouldDisplayValue_whenValueProvided', () => {
         const mockOnChange = jest.fn();
         
         render(
-            <StreetNumberField
-                value="456"
+            <CityField
+                value="Montreal"
                 onChange={mockOnChange}
             />
         );
 
         const input = screen.getByRole('textbox');
 
-        expect(input).toHaveValue('456');
-    });
-
-    test('StreetNumberField_shouldAcceptNumericText_withoutValidation', () => {
-        const mockOnChange = jest.fn();
-        
-        render(
-            <StreetNumberField
-                value=""
-                onChange={mockOnChange}
-            />
-        );
-
-        const input = screen.getByRole('textbox');
-        
-        // Should accept numbers
-        fireEvent.change(input, { target: { value: '123' } });
-        expect(mockOnChange).toHaveBeenCalledWith('123');
-    });
-
-    test('StreetNumberField_shouldAcceptNonNumericText_withoutValidation', () => {
-        const mockOnChange = jest.fn();
-        
-        render(
-            <StreetNumberField
-                value=""
-                onChange={mockOnChange}
-            />
-        );
-
-        const input = screen.getByRole('textbox');
-        
-        // Should accept non-numeric text (no validation)
-        fireEvent.change(input, { target: { value: '123A' } });
-        expect(mockOnChange).toHaveBeenCalledWith('123A');
+        expect(input).toHaveValue('Montreal');
     });
 
     // === VALIDATION TESTS ===
 
-    test('StreetNumberField_shouldShowRequiredError_whenEmptyAndRequired', () => {
+    test('CityField_shouldShowRequiredError_whenEmptyAndRequired', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -161,17 +127,17 @@ describe('StreetNumberField', () => {
 
         fireEvent.blur(input);
 
-        expect(screen.getByText('Street number is required')).toBeInTheDocument();
+        expect(screen.getByText('City is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City is required']);
     });
 
-    test('StreetNumberField_shouldPassValidation_whenValidNumberProvided', () => {
+    test('CityField_shouldPassValidation_whenValidCityProvided', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         const { rerender } = render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -183,12 +149,12 @@ describe('StreetNumberField', () => {
         const input = screen.getByRole('textbox');
 
         // Enter valid value and trigger onChange
-        fireEvent.change(input, { target: { value: '123' } });
+        fireEvent.change(input, { target: { value: 'Toronto' } });
 
         // Simulate the parent component updating the value prop
         rerender(
-            <StreetNumberField
-                value="123"
+            <CityField
+                value="Toronto"
                 onChange={mockOnChange}
                 enableValidation={true}
                 validationMode="required"
@@ -202,17 +168,20 @@ describe('StreetNumberField', () => {
         // Should not show any validation errors
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/exceed/)).not.toBeInTheDocument();
-        expect(screen.queryByText(/numbers/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/contain only/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
         expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
     });
 
-    test('StreetNumberField_shouldShowMaxLengthError_whenExceedsLimit', () => {
+    test('CityField_shouldShowMaxLengthError_whenExceedsLimit', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
+        const longCityName = 'A'.repeat(51); // 51 characters
+
         const { rerender } = render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -224,12 +193,12 @@ describe('StreetNumberField', () => {
         const input = screen.getByRole('textbox');
 
         // Enter long value and trigger onChange
-        fireEvent.change(input, { target: { value: '123456789012345678901' } }); // 21 characters
+        fireEvent.change(input, { target: { value: longCityName } });
 
         // Simulate the parent component updating the value prop
         rerender(
-            <StreetNumberField
-                value="123456789012345678901"
+            <CityField
+                value={longCityName}
                 onChange={mockOnChange}
                 enableValidation={true}
                 validationMode="optional"
@@ -239,17 +208,17 @@ describe('StreetNumberField', () => {
 
         fireEvent.blur(input);
 
-        expect(screen.getByText('Street number must not exceed 20 characters')).toBeInTheDocument();
+        expect(screen.getByText('City name must not exceed 50 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must not exceed 20 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must not exceed 50 characters']);
     });
 
-    test('StreetNumberField_shouldShowNonNumericError_whenContainsLetters', () => {
+    test('CityField_shouldShowMinLengthError_whenTooShort', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         const { rerender } = render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -260,13 +229,13 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
-        // Enter non-numeric value and trigger onChange
-        fireEvent.change(input, { target: { value: '123A' } });
+        // Enter too short value and trigger onChange
+        fireEvent.change(input, { target: { value: 'A' } });
 
         // Simulate the parent component updating the value prop
         rerender(
-            <StreetNumberField
-                value="123A"
+            <CityField
+                value="A"
                 onChange={mockOnChange}
                 enableValidation={true}
                 validationMode="optional"
@@ -276,17 +245,92 @@ describe('StreetNumberField', () => {
 
         fireEvent.blur(input);
 
-        expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
+        expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must contain only numbers']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must be at least 2 characters long']);
     });
 
-    test('StreetNumberField_shouldHandleEmptyValueInOptionalMode', () => {
+    test('CityField_shouldShowInvalidCharacterError_whenContainsNumbers', () => {
+        const mockOnChange = jest.fn();
+        const mockOnValidationChange = jest.fn();
+
+        const { rerender } = render(
+            <CityField
+                value=""
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
+
+        const input = screen.getByRole('textbox');
+
+        // Enter invalid value with numbers
+        fireEvent.change(input, { target: { value: 'Toronto123' } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <CityField
+                value="Toronto123"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
+
+        fireEvent.blur(input);
+
+        expect(screen.getByText('City name must contain only letters, spaces, hyphens, periods, and apostrophes')).toBeInTheDocument();
+        expect(input).toHaveClass('border-red-500');
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must contain only letters, spaces, hyphens, periods, and apostrophes']);
+    });
+
+    test('CityField_shouldAllowValidSpecialCharacters_inCityNames', () => {
+        const mockOnChange = jest.fn();
+        const mockOnValidationChange = jest.fn();
+
+        const { rerender } = render(
+            <CityField
+                value=""
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
+
+        const input = screen.getByRole('textbox');
+
+        // Enter valid value with allowed special characters
+        fireEvent.change(input, { target: { value: "St. John's-upon-Thames" } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <CityField
+                value="St. John's-upon-Thames"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
+
+        fireEvent.blur(input);
+
+        // Should not show validation errors for valid special characters
+        expect(screen.queryByText(/contain only/)).not.toBeInTheDocument();
+        expect(input).not.toHaveClass('border-red-500');
+        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+    });
+
+    test('CityField_shouldHandleEmptyValueInOptionalMode', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -304,12 +348,12 @@ describe('StreetNumberField', () => {
         expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
     });
 
-    test('StreetNumberField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
+    test('CityField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -320,20 +364,20 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
-        fireEvent.change(input, { target: { value: 'ABC' } });
+        fireEvent.change(input, { target: { value: 'A' } });
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
-        expect(screen.queryByText(/numbers/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
         expect(mockOnValidationChange).not.toHaveBeenCalled();
     });
 
-    test('StreetNumberField_shouldValidateOnChangeAfterFirstBlur', () => {
+    test('CityField_shouldValidateOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -347,19 +391,19 @@ describe('StreetNumberField', () => {
         fireEvent.blur(input);
         mockOnValidationChange.mockClear();
 
-        fireEvent.change(input, { target: { value: 'ABC123' } });
+        fireEvent.change(input, { target: { value: 'A' } });
 
-        expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
+        expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must contain only numbers']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must be at least 2 characters long']);
     });
 
-    test('StreetNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
+    test('CityField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
         const mockOnChange = jest.fn();
         const externalErrors = ['External error message'];
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 errors={externalErrors}
@@ -373,15 +417,15 @@ describe('StreetNumberField', () => {
         fireEvent.blur(input);
 
         // Should show validation error, not external error
-        expect(screen.getByText('Street number is required')).toBeInTheDocument();
+        expect(screen.getByText('City is required')).toBeInTheDocument();
         expect(screen.queryByText('External error message')).not.toBeInTheDocument();
     });
 
-    test('StreetNumberField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
+    test('CityField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
         const mockOnChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -394,11 +438,11 @@ describe('StreetNumberField', () => {
         expect(requiredIndicator).toHaveClass('text-red-500');
     });
 
-    test('StreetNumberField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
+    test('CityField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
         const mockOnChange = jest.fn();
 
         render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -409,12 +453,12 @@ describe('StreetNumberField', () => {
         expect(screen.queryByText('*')).not.toBeInTheDocument();
     });
 
-    test('StreetNumberField_shouldClearValidationErrors_whenValidationDisabled', () => {
+    test('CityField_shouldClearValidationErrors_whenValidationDisabled', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
         const { rerender } = render(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={true}
@@ -427,11 +471,11 @@ describe('StreetNumberField', () => {
 
         // First trigger a validation error
         fireEvent.blur(input);
-        expect(screen.getByText('Street number is required')).toBeInTheDocument();
+        expect(screen.getByText('City is required')).toBeInTheDocument();
 
         // Now disable validation
         rerender(
-            <StreetNumberField
+            <CityField
                 value=""
                 onChange={mockOnChange}
                 enableValidation={false}
@@ -441,7 +485,7 @@ describe('StreetNumberField', () => {
         );
 
         // Validation errors should be cleared
-        expect(screen.queryByText('Street number is required')).not.toBeInTheDocument();
+        expect(screen.queryByText('City is required')).not.toBeInTheDocument();
         expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
     });
 });
