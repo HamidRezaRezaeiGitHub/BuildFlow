@@ -261,33 +261,30 @@ const SignUp: React.FC<SignUpProps> = ({
                     <EmailField
                         id="signUpEmail"
                         value={signUpForm.email}
-                        onChange={(e) => setSignUpForm(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(value) => setSignUpForm(prev => ({ ...prev, email: value }))}
                         errors={getDisplayableErrors('email')}
-                        hasError={shouldShowErrorStyling('email')}
                     />
 
                     {/* Password Field */}
                     <PasswordField
                         id="signUpPassword"
                         value={signUpForm.password}
-                        onChange={(e) => setSignUpForm(prev => ({ ...prev, password: e.target.value }))}
+                        onChange={(value) => setSignUpForm(prev => ({ ...prev, password: value }))}
                         placeholder="Create a strong password"
                         showPassword={showPassword}
                         onToggleVisibility={onTogglePassword}
                         errors={getDisplayableErrors('password')}
-                        hasError={shouldShowErrorStyling('password')}
                     />
 
                     {/* Confirm Password Field */}
                     <PasswordField
                         id="confirmPassword"
                         value={signUpForm.confirmPassword}
-                        onChange={(e) => setSignUpForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(value) => setSignUpForm(prev => ({ ...prev, confirmPassword: value }))}
                         placeholder="Confirm your password"
                         showPassword={showConfirmPassword}
                         onToggleVisibility={onToggleConfirmPassword}
                         errors={getDisplayableErrors('confirmPassword')}
-                        hasError={shouldShowErrorStyling('confirmPassword')}
                     />
 
                     {/* Optional Information Section - Collapsible */}

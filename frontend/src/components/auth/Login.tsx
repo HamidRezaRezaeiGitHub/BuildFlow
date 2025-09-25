@@ -67,8 +67,8 @@ const Login: React.FC<LoginProps> = ({
           <UsernameEmailField
             id="loginUsernameEmail"
             value={loginForm.usernameOrEmail}
-            onChange={(e) => {
-              setLoginForm(prev => ({ ...prev, usernameOrEmail: e.target.value }));
+            onChange={(value) => {
+              setLoginForm(prev => ({ ...prev, usernameOrEmail: value }));
               if (submitError) setSubmitError(null);
             }}
           />
@@ -77,8 +77,8 @@ const Login: React.FC<LoginProps> = ({
           <PasswordField
             id="loginPassword"
             value={loginForm.password}
-            onChange={(e) => {
-              setLoginForm(prev => ({ ...prev, password: e.target.value }));
+            onChange={(value) => {
+              setLoginForm(prev => ({ ...prev, password: value }));
               if (submitError) setSubmitError(null);
             }}
             placeholder="Enter your password"
