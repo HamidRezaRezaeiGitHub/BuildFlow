@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import {
   DropdownThemeToggle,
   SwitchThemeToggle,
@@ -15,6 +21,17 @@ interface ThemeShowcaseProps {
   showHeader?: boolean;
 }
 
+// Theme toggle component mapping
+const themeToggleComponents = {
+  compact: { component: CompactThemeToggle, label: 'Compact', description: 'Minimal icon-only toggle' },
+  dropdown: { component: DropdownThemeToggle, label: 'Dropdown', description: 'Full control with all three options' },
+  switch: { component: SwitchThemeToggle, label: 'Switch', description: 'Simple light/dark switch' },
+  singleIcon: { component: SingleChangingIconThemeToggle, label: 'Single Icon', description: 'Minimal changing icon' },
+  toggleGroup: { component: ToggleGroupThemeToggle, label: 'Toggle Group', description: 'Button group with three states' },
+  button: { component: ButtonThemeToggle, label: 'Button', description: 'Cycling button with indicator' },
+  segmented: { component: SegmentedThemeToggle, label: 'Segmented', description: 'iOS-style segmented control' },
+};
+
 /**
  * Comprehensive theme showcase component demonstrating all theme toggle variants
  * and the design system in action.
@@ -23,6 +40,7 @@ export const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({
   className = '', 
   showHeader = true 
 }) => {
+  const [selectedToggleType, setSelectedToggleType] = useState<keyof typeof themeToggleComponents>('compact');
   return (
     <div className={`bg-background text-foreground transition-colors duration-300 ${className}`}>
       {/* Header with title */}
@@ -52,79 +70,55 @@ export const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Dropdown Toggle */}
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Dropdown Toggle
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Full control with all three options
-                </p>
-                <DropdownThemeToggle showLabel={true} />
+            <div className="flex flex-col items-center space-y-6">
+              {/* Dropdown to select theme toggle variant */}
+              <div className="flex flex-col items-center space-y-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-64">
+                      {themeToggleComponents[selectedToggleType].label} Theme Toggle
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64">
+                    {Object.entries(themeToggleComponents).map(([key, { label, description }]) => (
+                      <DropdownMenuItem
+                        key={key}
+                        onClick={() => setSelectedToggleType(key as keyof typeof themeToggleComponents)}
+                        className="flex flex-col items-start p-3"
+                      >
+                        <span className="font-medium">{label}</span>
+                        <span className="text-sm text-muted-foreground">{description}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              {/* Switch Toggle */}
-              <div className="bg-card border border-border rounded-lg p-6">
+              {/* Display selected theme toggle */}
+              <div className="bg-card border border-border rounded-lg p-8 min-w-[300px] text-center">
                 <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Switch Toggle
+                  {themeToggleComponents[selectedToggleType].label} Toggle
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Simple light/dark switch
+                <p className="text-sm text-muted-foreground mb-6">
+                  {themeToggleComponents[selectedToggleType].description}
                 </p>
-                <SwitchThemeToggle showLabel={true} />
-              </div>
-
-              {/* Single Icon Toggle */}
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Single Icon Toggle
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Minimal changing icon
-                </p>
-                <SingleChangingIconThemeToggle />
-              </div>
-
-              {/* Toggle Group */}
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Toggle Group
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Button group with three states
-                </p>
-                <ToggleGroupThemeToggle />
-              </div>
-
-              {/* Button Toggle */}
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Button Toggle
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Cycling button with indicator
-                </p>
-                <ButtonThemeToggle showLabel={true} />
-              </div>
-
-              {/* Segmented Toggle */}
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-card-foreground mb-3">
-                  Segmented Toggle
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  iOS-style segmented control
-                </p>
-                <SegmentedThemeToggle />
-              </div>
-            </div>
-
-            {/* Additional variants */}
-            <div className="flex items-center justify-center gap-6 p-6 bg-muted/50 rounded-lg">
-              <div className="text-center">
-                <p className="text-sm font-medium text-foreground mb-2">Compact</p>
-                <CompactThemeToggle />
+                <div className="flex justify-center">
+                  {selectedToggleType === 'dropdown' ? (
+                    <DropdownThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'switch' ? (
+                    <SwitchThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'button' ? (
+                    <ButtonThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'singleIcon' ? (
+                    <SingleChangingIconThemeToggle />
+                  ) : selectedToggleType === 'toggleGroup' ? (
+                    <ToggleGroupThemeToggle />
+                  ) : selectedToggleType === 'segmented' ? (
+                    <SegmentedThemeToggle />
+                  ) : (
+                    <CompactThemeToggle />
+                  )}
+                </div>
               </div>
             </div>
           </section>
