@@ -1,6 +1,8 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Address, Admin, Dashboard, Home, Theme } from '../pages';
+import { NewProject } from '../pages/project';
+import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { useAuth } from './AuthContext';
 
 // Protected Route component
@@ -58,6 +60,7 @@ export const AppRouter: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/temp/theme" element={<Theme />} />
             <Route path="/temp/address" element={<Address />} />
+            <Route path="/temp/new-project" element={<NewProjectDemo />} />
 
             {/* Protected routes */}
             <Route
@@ -65,6 +68,16 @@ export const AppRouter: React.FC = () => {
                 element={
                     <ProtectedRoute>
                         <Dashboard />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Project routes */}
+            <Route
+                path="/projects/new"
+                element={
+                    <ProtectedRoute>
+                        <NewProject />
                     </ProtectedRoute>
                 }
             />

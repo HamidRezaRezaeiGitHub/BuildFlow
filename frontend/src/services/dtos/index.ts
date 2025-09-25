@@ -30,3 +30,11 @@ export type {
 export type {
     BaseAddressDto as AddressData
 } from './AddressDtos';
+
+export type {
+    CreateProjectRequest,
+    CreateProjectResponse,
+    ProjectDto,
+    ProjectLocationRequestDto,
+    ProjectLocationDto
+} from './ProjectDtos';

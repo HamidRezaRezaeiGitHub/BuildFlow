@@ -9,3 +9,9 @@ export * from './ui/button';
 export * from './ui/card';
 export * from './ui/switch';
 export * from './ui/toggle';
+
+// Address components
+export * from './address';
+
+// Project components
+export * from './project';
