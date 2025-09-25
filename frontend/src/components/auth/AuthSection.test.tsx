@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Auth from './Auth';
+import AuthSection from './AuthSection';
 
 // Mock the form components
 jest.mock('./LoginForm', () => {
@@ -80,7 +80,7 @@ describe('Auth Component', () => {
 
     // Basic rendering tests
     test('Auth_shouldRenderWithDefaultState', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should render the main heading and description
         expect(screen.getByText('Ready to Get Started?')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldRenderStarsInSocialProof', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should render 5 stars
         const stars = document.querySelectorAll('svg');
@@ -108,7 +108,7 @@ describe('Auth Component', () => {
 
     // Tab navigation tests
     test('Auth_shouldSwitchToLoginTab_whenLoginTabClicked', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Initially should show signup
         expect(screen.getByTestId('signup-form')).toBeInTheDocument();
@@ -124,7 +124,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldSwitchToSignUpTab_whenSignUpTabClicked', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // First switch to login
         const loginTab = screen.getByRole('tab', { name: 'Login' });
@@ -139,7 +139,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldMaintainTabState_whenNavigatingBetweenTabs', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Switch to login tab
         const loginTab = screen.getByRole('tab', { name: 'Login' });
@@ -154,7 +154,7 @@ describe('Auth Component', () => {
 
     // Password visibility tests
     test('Auth_shouldManagePasswordVisibility_forSignUpForm', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should start with password hidden
         expect(screen.getByText('Show Password: false')).toBeInTheDocument();
@@ -176,7 +176,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldManagePasswordVisibility_forLoginForm', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Switch to login tab
         const loginTab = screen.getByRole('tab', { name: 'Login' });
@@ -194,7 +194,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldSharePasswordVisibility_betweenForms', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Toggle password in signup form
         const signupToggleButton = screen.getByTestId('signup-toggle-password');
@@ -214,7 +214,7 @@ describe('Auth Component', () => {
         mockLocationHash.mockReturnValue('#auth');
         mockSessionStorage.getItem.mockReturnValue('login');
 
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should handle the hash change and potentially switch tabs based on stored preference
         // This tests the useEffect that listens for hash changes
@@ -222,7 +222,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldStoreTabPreference_inSessionStorage', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Switch to login tab
         const loginTab = screen.getByRole('tab', { name: 'Login' });
@@ -235,7 +235,7 @@ describe('Auth Component', () => {
 
     // Success flow tests
     test('Auth_shouldSwitchToLoginTab_whenSignUpSuccessful', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should start on signup tab
         expect(screen.getByTestId('signup-form')).toBeInTheDocument();
@@ -251,7 +251,7 @@ describe('Auth Component', () => {
 
     // Form integration tests
     test('Auth_shouldPassInlinePropsToForms', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Both forms should receive inline=true
         expect(screen.getByTestId('signup-inline')).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldPassPasswordVisibilityPropsToForms', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Check initial password visibility props are passed
         expect(screen.getByText('Show Password: false')).toBeInTheDocument();
@@ -277,7 +277,7 @@ describe('Auth Component', () => {
 
     // Accessibility tests
     test('Auth_shouldHaveProperTabAccessibility', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         const signupTab = screen.getByRole('tab', { name: 'Sign Up' });
         const loginTab = screen.getByRole('tab', { name: 'Login' });
@@ -291,7 +291,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldHaveProperHeadingStructure', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Should have proper heading hierarchy
         const mainHeading = screen.getByRole('heading', { level: 2 });
@@ -300,7 +300,7 @@ describe('Auth Component', () => {
 
     // Layout tests
     test('Auth_shouldHaveProperContainerStructure', () => {
-        const { container } = render(<Auth />);
+        const { container } = render(<AuthSection />);
 
         // Should have proper max-width container
         expect(container.querySelector('.max-w-md')).toBeInTheDocument();
@@ -311,7 +311,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldRenderTabsWithProperGridLayout', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Tab list should have grid layout
         const tabsList = screen.getByRole('tablist');
@@ -320,7 +320,7 @@ describe('Auth Component', () => {
 
     // Edge cases
     test('Auth_shouldHandleMultiplePasswordToggles', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         const passwordToggle = screen.getByTestId('signup-toggle-password');
         const confirmPasswordToggle = screen.getByTestId('signup-toggle-confirm-password');
@@ -341,7 +341,7 @@ describe('Auth Component', () => {
     });
 
     test('Auth_shouldMaintainStateWhenSwitchingTabs', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Toggle password in signup
         const signupPasswordToggle = screen.getByTestId('signup-toggle-password');
@@ -361,7 +361,7 @@ describe('Auth Component', () => {
 
     // Props and customization tests
     test('Auth_shouldAcceptCustomClassName', () => {
-        const { container } = render(<Auth className="custom-auth-class" />);
+        const { container } = render(<AuthSection className="custom-auth-class" />);
         
         // The Auth component should accept and apply custom className
         // This would need to be implemented in the actual component
@@ -370,7 +370,7 @@ describe('Auth Component', () => {
 
     // Error handling tests
     test('Auth_shouldHandleFormErrors_gracefully', () => {
-        render(<Auth />);
+        render(<AuthSection />);
 
         // Component should render even if forms have errors
         // This is more of a structural test to ensure robustness

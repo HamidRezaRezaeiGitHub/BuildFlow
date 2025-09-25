@@ -10,11 +10,15 @@ import { contactLabelOptions } from '@/services/dtos/UserDtos';
 import { AddressData } from '@/services/dtos';
 import { ChevronDown, ChevronUp, Phone, Tag, User } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
-import { EmailField, PasswordField, ConfirmPasswordField } from './CredentialFields';
+import { EmailField } from './Email';
+import { UsernameField } from './Username';
+import { PasswordField } from './Password';
+import { ConfirmPasswordField } from './ConfirmPassword';
 
 export interface SignUpFormData {
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -59,6 +63,7 @@ export interface SignUpFormProps {
   requiredFields?: {
     firstName?: boolean;
     lastName?: boolean;
+    username?: boolean;
     email?: boolean;
     password?: boolean;
     confirmPassword?: boolean;
@@ -84,6 +89,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   requiredFields = {
     firstName: true,
     lastName: true,
+    username: true,
     email: true,
     password: true,
     confirmPassword: true,
@@ -97,6 +103,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     return {
       firstName: '',
       lastName: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -121,6 +128,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   const [fieldValidations, setFieldValidations] = useState<Record<string, boolean>>({
     firstName: false,
     lastName: false,
+    username: false,
     email: false,
     password: false,
     confirmPassword: false,
@@ -186,7 +194,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     e.preventDefault();
     
     // Basic validation
-    if (!signUpForm.firstName || !signUpForm.lastName || !signUpForm.email || !signUpForm.password) {
+    if (!signUpForm.firstName || !signUpForm.lastName || !signUpForm.username || !signUpForm.email || !signUpForm.password) {
       const error = 'Please fill in all required fields.';
       setSubmitError(error);
       if (onSignUpError) onSignUpError(error);
@@ -205,7 +213,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
     try {
       await register({
-        username: signUpForm.email, // Use email as username 
+        username: signUpForm.username,
         password: signUpForm.password,
         contactRequestDto: {
           firstName: signUpForm.firstName,
@@ -282,6 +290,18 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         </div>
       </div>
 
+      {/* Username Field */}
+      <UsernameField
+        id="signupUsername"
+        value={signUpForm.username}
+        onChange={(value) => setSignUpForm(prev => ({ ...prev, username: value }))}
+        enableValidation={enableValidation}
+        validationMode={requiredFields.username ? 'required' : 'optional'}
+        onValidationChange={(isValid) => handleFieldValidation('username', isValid)}
+        errors={errors.username}
+        placeholder="john_doe"
+      />
+
       {/* Email Field */}
       <EmailField
         id="signupEmail"
@@ -305,6 +325,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           onToggleVisibility={onTogglePassword}
           enableValidation={enableValidation}
           validationMode={requiredFields.password ? 'required' : 'optional'}
+          validationType="signup"
           onValidationChange={(isValid) => handleFieldValidation('password', isValid)}
           errors={errors.password}
         />

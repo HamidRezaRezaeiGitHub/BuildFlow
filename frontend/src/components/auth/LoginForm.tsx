@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import { UsernameEmailField, PasswordField } from './CredentialFields';
+import { UsernameEmailField } from './UsernameEmail';
+import { PasswordField } from './Password';
 
 export interface LoginFormData {
   usernameOrEmail: string;
