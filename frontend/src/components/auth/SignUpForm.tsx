@@ -1,4 +1,4 @@
-import { AddressForm, createEmptyAddress } from '@/components/address';
+import { AddressForm, createEmptyAddress, parseStreetNumber } from '@/components/address';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -66,21 +66,6 @@ export interface SignUpFormProps {
     address?: boolean;
   };
 }
-
-const parseStreetNumber = (input: string) => {
-  // If the input contains letters, try to separate number from street name
-  const match = input.match(/^(\d+)\s*(.*)$/);
-  if (match && match[2].trim()) {
-    return {
-      streetNumber: match[1],
-      streetName: match[2].trim()
-    };
-  }
-  return {
-    streetNumber: input,
-    streetName: ''
-  };
-};
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({
   title = "Create your account",

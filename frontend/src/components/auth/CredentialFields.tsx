@@ -20,8 +20,76 @@ export interface BaseAuthFieldProps {
 }
 
 /**
- * Validates email format
+ * Validates username format based on backend validation rules
  */
+export const validateUsername = (username: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!username.trim()) {
+    errors.push('Username is required');
+  } else {
+    // Length validation (3-50 characters) from SignUpRequest.java
+    if (username.length < 3) {
+      errors.push('Username must be at least 3 characters long');
+    }
+    if (username.length > 50) {
+      errors.push('Username must not exceed 50 characters');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * Validates username or email for login (more permissive than username alone)
+ */
+export const validateUsernameOrEmail = (usernameOrEmail: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!usernameOrEmail.trim()) {
+    errors.push('Username or email is required');
+  } else {
+    // Length validation (3-100 characters) from LoginRequest.java
+    if (usernameOrEmail.length < 3) {
+      errors.push('Username or email must be at least 3 characters long');
+    }
+    if (usernameOrEmail.length > 100) {
+      errors.push('Username or email must not exceed 100 characters');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * Validates login password (less restrictive than signup password)
+ */
+export const validateLoginPassword = (password: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!password) {
+    errors.push('Password is required');
+  } else {
+    // Length validation (6-40 characters) from LoginRequest.java
+    if (password.length < 6) {
+      errors.push('Password must be at least 6 characters long');
+    }
+    if (password.length > 40) {
+      errors.push('Password must not exceed 40 characters');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
 export const validateEmail = (email: string): ValidationResult => {
   const errors: string[] = [];
 
@@ -114,6 +182,14 @@ export const validateConfirmPassword = (password: string, confirmPassword: strin
   };
 };
 
+// Username Field Component Props
+export interface UsernameFieldProps extends BaseAuthFieldProps {
+  placeholder?: string;
+  enableValidation?: boolean;
+  validationMode?: 'required' | 'optional';
+  onValidationChange?: (isValid: boolean, errors: string[]) => void;
+}
+
 // Email Field Component Props (following address pattern)
 export interface EmailFieldProps extends BaseAuthFieldProps {
   placeholder?: string;
@@ -138,6 +214,8 @@ export interface PasswordFieldProps extends BaseAuthFieldProps {
   enableValidation?: boolean;
   validationMode?: 'required' | 'optional';
   onValidationChange?: (isValid: boolean, errors: string[]) => void;
+  // Add validation type to determine which validation to use
+  validationType?: 'signup' | 'login';
 }
 
 // Confirm Password Field Component Props
@@ -279,6 +357,102 @@ export const EmailField: React.FC<EmailFieldProps> = ({
   );
 };
 
+// Username Field Component (for signup)
+export const UsernameField: React.FC<UsernameFieldProps> = ({
+  id = 'username',
+  value,
+  onChange,
+  disabled = false,
+  className = '',
+  errors = [],
+  placeholder = "john_doe",
+  enableValidation = false,
+  validationMode = 'optional',
+  onValidationChange
+}) => {
+  const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
+  const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
+
+  // Validate field using our validation function
+  const validateField = React.useCallback((fieldValue: string) => {
+    if (!enableValidation) {
+      setValidationErrors([]);
+      return true;
+    }
+
+    const result = validateUsername(fieldValue);
+    setValidationErrors(result.errors);
+    
+    if (onValidationChange) {
+      onValidationChange(result.isValid, result.errors);
+    }
+    
+    return result.isValid;
+  }, [enableValidation, onValidationChange]);
+
+  // Effect to validate when value changes (if touched)
+  React.useEffect(() => {
+    if (hasBeenTouched && enableValidation) {
+      validateField(value);
+    }
+  }, [value, validateField, hasBeenTouched, enableValidation]);
+
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    onChange(newValue);
+
+    // Validate if touched or if we want immediate validation
+    if (hasBeenTouched && enableValidation) {
+      validateField(newValue);
+    }
+  };
+
+  // Handle input blur - Used for touch-based validation strategy
+  const handleBlur = () => {
+    setHasBeenTouched(true);
+    if (enableValidation) {
+      validateField(value);
+    }
+  };
+
+  // Use validation errors if validation is enabled, otherwise use passed errors
+  const displayErrors = enableValidation ? validationErrors : errors;
+  const hasErrors = displayErrors.length > 0;
+
+  // Determine if field is required for label display
+  const isRequired = enableValidation && validationMode === 'required';
+
+  return (
+    <div className={`space-y-2 ${className}`}>
+      <Label htmlFor={id} className="text-xs">
+        Username
+        {isRequired && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      <div className="relative">
+        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          id={id}
+          type="text"
+          placeholder={placeholder}
+          className={`pl-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
+          value={value}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          disabled={disabled}
+        />
+      </div>
+      {hasErrors && (
+        <div className="space-y-1">
+          {displayErrors.map((error, index) => (
+            <p key={index} className="text-xs text-red-500">{error}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Enhanced Username/Email Field Component (following address pattern)
 export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({
   id = 'usernameEmail',
@@ -330,12 +504,12 @@ export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({
 
   // Validate field when value changes
   const validateField = React.useCallback((fieldValue: string) => {
-    if (!enableValidation || !validationConfig) {
+    if (!enableValidation) {
       setValidationErrors([]);
       return true;
     }
 
-    const result = validationService.validateField('usernameEmail', fieldValue, validationConfig);
+    const result = validateUsernameOrEmail(fieldValue);
     setValidationErrors(result.errors);
 
     // Notify parent of validation changes
@@ -425,72 +599,24 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
   onToggleVisibility,
   enableValidation = false,
   validationMode = 'optional',
-  onValidationChange
+  onValidationChange,
+  validationType = 'signup'
 }) => {
   const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
   const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
 
-  // Create validation configuration based on props
-  const validationConfig = React.useMemo(() => {
-    if (!enableValidation) return undefined;
-
-    return {
-      fieldName: 'password',
-      fieldType: 'password' as const,
-      required: validationMode === 'required',
-      rules: [
-        ...(validationMode === 'required' ? [{
-          name: 'required',
-          message: 'Password is required',
-          validator: (val: string) => !!val && val.trim().length > 0
-        }] : []),
-        {
-          name: 'minLength_8',
-          message: 'Password must be at least 8 characters long',
-          validator: (val: string) => !val || val.length >= 8
-        },
-        {
-          name: 'maxLength_128',
-          message: 'Password must not exceed 128 characters',
-          validator: (val: string) => !val || val.length <= 128
-        },
-        {
-          name: 'hasLowercase',
-          message: 'Password must contain at least one lowercase letter',
-          validator: (val: string) => !val || /.*[a-z].*/.test(val)
-        },
-        {
-          name: 'hasUppercase',
-          message: 'Password must contain at least one uppercase letter',
-          validator: (val: string) => !val || /.*[A-Z].*/.test(val)
-        },
-        {
-          name: 'hasDigit',
-          message: 'Password must contain at least one digit',
-          validator: (val: string) => !val || /.*\d.*/.test(val)
-        },
-        {
-          name: 'hasSpecialChar',
-          message: 'Password must contain at least one special character (@$!%*?&_)',
-          validator: (val: string) => !val || /.*[@$!%*?&_].*/.test(val)
-        },
-        {
-          name: 'validChars',
-          message: 'Password can only contain letters, digits, and special characters (@$!%*?&_)',
-          validator: (val: string) => !val || /^[A-Za-z\d@$!%*?&_]+$/.test(val)
-        }
-      ]
-    };
-  }, [enableValidation, validationMode]);
-
   // Validate field when value changes
   const validateField = React.useCallback((fieldValue: string) => {
-    if (!enableValidation || !validationConfig) {
+    if (!enableValidation) {
       setValidationErrors([]);
       return true;
     }
 
-    const result = validationService.validateField('password', fieldValue, validationConfig);
+    // Use different validation based on type
+    const result = validationType === 'login' 
+      ? validateLoginPassword(fieldValue)
+      : validatePassword(fieldValue);
+      
     setValidationErrors(result.errors);
 
     // Notify parent of validation changes
@@ -499,7 +625,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
     }
 
     return result.isValid;
-  }, [enableValidation, validationConfig, onValidationChange]);
+  }, [enableValidation, onValidationChange, validationType]);
 
   // Handle validation prop changes
   React.useEffect(() => {

@@ -4,11 +4,15 @@ export { default as Auth } from './Auth';
 // Individual field components with validation service integration
 export {
   EmailField,
+  UsernameField,
   UsernameEmailField, 
   PasswordField,
   ConfirmPasswordField,
   validateEmail,
+  validateUsername,
+  validateUsernameOrEmail,
   validatePassword,
+  validateLoginPassword,
   validateConfirmPassword
 } from './CredentialFields';
 

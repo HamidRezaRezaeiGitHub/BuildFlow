@@ -12,6 +12,10 @@ export {
 
 export type { ValidationResult } from './Address';
 
+// Complete Address Form Component (Recommended)
+export { default as AddressForm, parseStreetNumber } from './AddressForm';
+export type { AddressFormProps } from './AddressForm';
+
 // Individual Address Field Components
 export { CityField } from './City';
 export { CountryField } from './Country';
@@ -34,8 +38,4 @@ export type { UnitNumberFieldProps } from './UnitNumber';
 // Complete Address Panel Component (DEPRECATED - Use AddressForm instead)
 export { default as AddressPanel } from './AddressPanel';
 export type { AddressPanelProps } from './AddressPanel';
-
-// Complete Address Form Component (Recommended)
-export { default as AddressForm } from './AddressForm';
-export type { AddressFormProps } from './AddressForm';
 

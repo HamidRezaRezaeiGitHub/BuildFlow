@@ -11,6 +11,26 @@ import { StreetNameField } from './StreetName';
 import { StreetNumberField } from './StreetNumber';
 import { UnitNumberField } from './UnitNumber';
 
+/**
+ * Utility function to parse street number input and extract street name if present
+ * @param input The street number input (e.g., "123 Main St")
+ * @returns Object with parsed streetNumber and streetName
+ */
+export const parseStreetNumber = (input: string): { streetNumber: string; streetName: string } => {
+  // If the input contains letters, try to separate number from street name
+  const match = input.match(/^(\d+)\s*(.*)$/);
+  if (match && match[2].trim()) {
+    return {
+      streetNumber: match[1],
+      streetName: match[2].trim()
+    };
+  }
+  return {
+    streetNumber: input,
+    streetName: ''
+  };
+};
+
 export interface AddressFormProps {
     /** Address data to populate the form */
     addressData: AddressData;
@@ -243,7 +263,19 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
                     <StreetNumberField
                         value={addressData.streetNumber || ''}
-                        onChange={(value) => onAddressChange('streetNumber', value)}
+                        onChange={(value) => {
+                            // Auto-parse street number when it contains alphabetic parts and street name is empty
+                            if (value && !addressData.streetName.trim()) {
+                                const parsed = parseStreetNumber(value);
+                                if (parsed.streetName) {
+                                    // Auto-fill street name if parsing found one
+                                    onAddressChange('streetNumber', parsed.streetNumber);
+                                    onAddressChange('streetName', parsed.streetName);
+                                    return;
+                                }
+                            }
+                            onAddressChange('streetNumber', value);
+                        }}
                         errors={errors.streetNumber}
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}

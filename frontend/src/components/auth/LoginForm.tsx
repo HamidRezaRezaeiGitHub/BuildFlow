@@ -134,6 +134,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         onToggleVisibility={onTogglePassword}
         enableValidation={enableValidation}
         validationMode="required"
+        validationType="login"
         onValidationChange={(isValid) => handleFieldValidation('password', isValid)}
         errors={errors.password}
       />
