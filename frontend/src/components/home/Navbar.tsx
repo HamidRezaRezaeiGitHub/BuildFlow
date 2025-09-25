@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
 import { Menu, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { useNavigation } from './NavigationProvider';
+import { useNavigate } from '@/contexts';
 
 interface HomeNavbarProps {
     className?: string;
@@ -58,7 +58,7 @@ const Navbar: React.FC<HomeNavbarProps> = ({
     onGetStartedClick
 }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { navigateToSignup, navigateToLogin, scrollToSection } = useNavigation();
+    const { navigateToSignup, navigateToLogin, scrollToSection } = useNavigate();
 
     const handleSignIn = () => {
         if (onSignInClick) {
