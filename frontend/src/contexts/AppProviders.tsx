@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { AuthProvider } from './AuthContext';
 import { ThemeProvider } from './ThemeContext';
+import { NavigationProvider } from './NavigationContext';
 import { RouterProvider } from './RouterProvider';
 
 interface AppProvidersProps {
@@ -13,8 +14,9 @@ interface AppProvidersProps {
  * 
  * Provider hierarchy (outside to inside):
  * 1. RouterProvider - Must be outermost for routing to work
- * 2. ThemeProvider - Theme context for UI components
- * 3. AuthProvider - Authentication state and user data
+ * 2. NavigationProvider - Navigation context for routing and section scrolling
+ * 3. ThemeProvider - Theme context for UI components
+ * 4. AuthProvider - Authentication state and user data
  * 
  * Benefits:
  * - Clean separation of concerns
@@ -26,18 +28,20 @@ interface AppProvidersProps {
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <RouterProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          {/* Add other providers here as the app grows, e.g.:
-          <NotificationProvider>
-            <UserPreferencesProvider>
-              {children}
-            </UserPreferencesProvider>
-          </NotificationProvider>
-          */}
-          {children}
-        </AuthProvider>
-      </ThemeProvider>
+      <NavigationProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {/* Add other providers here as the app grows, e.g.:
+            <NotificationProvider>
+              <UserPreferencesProvider>
+                {children}
+              </UserPreferencesProvider>
+            </NotificationProvider>
+            */}
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
+      </NavigationProvider>
     </RouterProvider>
   );
 };

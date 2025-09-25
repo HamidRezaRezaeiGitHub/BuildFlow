@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Play } from 'lucide-react';
 import React from 'react';
-import { useNavigation } from './NavigationProvider';
+import { useNavigate } from '@/contexts';
 
 interface HeroSectionProps {
   className?: string;
@@ -17,7 +17,7 @@ interface HeroSectionProps {
  * - Responsive design
  */
 const Hero: React.FC<HeroSectionProps> = ({ className = '' }) => {
-  const { navigateToSignup } = useNavigation();
+  const { navigateToSignup } = useNavigate();
 
   const handleGetStarted = () => {
     // Navigate to auth section with signup tab

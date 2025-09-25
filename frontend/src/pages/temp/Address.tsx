@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { AddressData } from '@/services/dtos';
+import { useNavigate } from '@/contexts';
 import React, { useState } from 'react';
 
 /**
@@ -18,6 +19,8 @@ import React, { useState } from 'react';
  * - Responsive card layout
  */
 const Address: React.FC = () => {
+    const navigation = useNavigate();
+    
     // Single form state
     const [addressData, setAddressData] = useState<AddressData>(createEmptyAddress());
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,13 +70,13 @@ const Address: React.FC = () => {
         <div className="min-h-screen bg-background">
             <ConfigurableNavbar 
                 navItems={[
-                    { label: 'Home', onClick: () => console.log('Navigate to Home') },
+                    { label: 'Home', onClick: () => navigation.navigateToHome() },
                     { label: 'Addresses', onClick: () => console.log('Current page') },
-                    { label: 'Contact', onClick: () => console.log('Navigate to Contact') }
+                    { label: 'Contact', onClick: () => navigation.scrollToSection('contact') }
                 ]}
-                themeToggleType="dropdown"
-                onLoginClick={() => console.log('Login clicked')}
-                onSignUpClick={() => console.log('Sign up clicked')}
+                themeToggleType="compact"
+                onLoginClick={() => navigation.navigateToAuth('login')}
+                onSignUpClick={() => navigation.navigateToAuth('signup')}
             />
             
             <div className="container mx-auto px-4 py-8 max-w-4xl">

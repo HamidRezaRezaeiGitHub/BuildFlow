@@ -1,6 +1,6 @@
 import { Quote, Star } from 'lucide-react';
 import React from 'react';
-import { useNavigation } from './NavigationProvider';
+import { useNavigate } from '@/contexts';
 
 interface BrandsSectionProps {
   className?: string;
@@ -31,7 +31,7 @@ interface Brand {
  * - Social proof metrics
  */
 const Brands: React.FC<BrandsSectionProps> = ({ className = '' }) => {
-  const { navigateToSignup } = useNavigation();
+  const { navigateToSignup } = useNavigate();
   const testimonials: Testimonial[] = [
     {
       id: 1,

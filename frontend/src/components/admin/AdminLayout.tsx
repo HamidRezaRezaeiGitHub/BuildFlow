@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '@/utils/utils';
 import { ConfigurableNavbar } from '@/components/navbar';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from '@/contexts';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -18,7 +19,8 @@ interface AdminLayoutProps {
  * - Consistent styling for all admin pages
  */
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, className }) => {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated } = useAuth();
+    const navigation = useNavigate();
 
     return (
         <div className={cn("min-h-screen bg-background", className)}>
@@ -26,14 +28,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, className }) => {
                 isAuthenticated={isAuthenticated}
                 user={user}
                 navItems={[
-                    { label: 'Dashboard', onClick: () => window.location.href = '/dashboard' },
+                    { label: 'Dashboard', onClick: () => navigation.navigateToDashboard() },
                     { label: 'Admin Panel', onClick: () => console.log('Current page') },
-                    { label: 'Home', onClick: () => window.location.href = '/' }
+                    { label: 'Home', onClick: () => navigation.navigateToHome() }
                 ]}
                 themeToggleType="compact"
                 onAvatarClick={() => console.log('Show user menu')}
-                onLoginClick={() => window.location.href = '/'}
-                onSignUpClick={() => window.location.href = '/'}
+                onLoginClick={() => navigation.navigateToHome()}
+                onSignUpClick={() => navigation.navigateToHome()}
             />
 
             {/* Main content area */}
