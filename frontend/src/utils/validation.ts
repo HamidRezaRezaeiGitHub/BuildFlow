@@ -1,9 +1,95 @@
 import {
-  validateConfirmPassword,
-  validateEmail,
-  validatePassword,
   type ValidationResult
-} from '@/components/auth/CredentialFields';
+} from '@/components/auth/Auth';
+
+// Temporary validation functions for backward compatibility
+// These replicate the validation logic that's now in individual auth components
+
+/**
+ * Validates email format (replicated from Email.tsx)
+ */
+export const validateEmail = (email: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!email.trim()) {
+    errors.push('Email is required');
+  } else {
+    // Basic email regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errors.push('Email must be valid');
+    }
+
+    // Max length validation (from ContactRequestDto)
+    if (email.length > 100) {
+      errors.push('Email must not exceed 100 characters');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * Validates password format (replicated from Password.tsx)
+ */
+export const validatePassword = (password: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!password.trim()) {
+    errors.push('Password is required');
+  } else {
+    // Length validation (signup requirements)
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long');
+    }
+    if (password.length > 128) {
+      errors.push('Password must not exceed 128 characters');
+    }
+
+    // Complexity validation (signup requirements)
+    if (!/.*[a-z].*/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!/.*[A-Z].*/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!/.*\d.*/.test(password)) {
+      errors.push('Password must contain at least one digit');
+    }
+    if (!/.*[@$!%*?&_].*/.test(password)) {
+      errors.push('Password must contain at least one special character (@$!%*?&_)');
+    }
+    if (!/^[A-Za-z\d@$!%*?&_]+$/.test(password)) {
+      errors.push('Password can only contain letters, digits, and special characters (@$!%*?&_)');
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * Validates password confirmation (replicated from ConfirmPassword.tsx)
+ */
+export const validateConfirmPassword = (originalPassword: string, confirmPassword: string): ValidationResult => {
+  const errors: string[] = [];
+
+  if (!confirmPassword.trim()) {
+    errors.push('Password confirmation is required');
+  } else if (confirmPassword !== originalPassword) {
+    errors.push('Passwords do not match');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
 
 export interface SignUpFormData {
   firstName: string;

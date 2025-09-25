@@ -1,4 +1,4 @@
-import { Auth } from '@/components/auth';
+import { AuthSection } from '@/components/auth';
 import {
   Brands,
   Contact,
@@ -22,7 +22,7 @@ export const Home: React.FC = () => {
       <Navbar />
       <Hero />
       <Features />
-      <Auth />
+      <AuthSection />
       <Brands />
       <Contact />
       <Footer />
