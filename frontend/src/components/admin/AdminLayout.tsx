@@ -18,7 +18,7 @@ interface AdminLayoutProps {
  * - Consistent styling for all admin pages
  */
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, className }) => {
-    const { user, isAuthenticated, logout } = useAuth();
+    const { user, isAuthenticated } = useAuth();
 
     return (
         <div className={cn("min-h-screen bg-background", className)}>
