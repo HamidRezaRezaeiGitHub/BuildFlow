@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Address, Admin, Dashboard, Home, Theme } from '../pages';
 import { useAuth } from './AuthContext';
-import { Dashboard, Home, Theme, Admin } from '../pages';
 
 // Protected Route component
 interface ProtectedRouteProps {
@@ -67,6 +67,7 @@ export const AppRouter: React.FC = () => {
             {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/theme" element={<Theme />} />
+            <Route path="/temp/address" element={<Address />} />
 
             {/* Protected routes */}
             <Route

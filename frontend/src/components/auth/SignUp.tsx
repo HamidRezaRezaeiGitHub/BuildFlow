@@ -404,7 +404,7 @@ const SignUp: React.FC<SignUpProps> = ({
                                     <StreetNumberField
                                         value={effectiveFormData.streetNumber || ''}
                                         onChange={(value) => setSignUpForm(prev => ({ ...prev, streetNumber: value }))}
-                                        errors={getFieldErrors('streetNumber')}
+                                        // errors={getFieldErrors('streetNumber')}
                                         placeholder="123"
                                     />
                                 </div>

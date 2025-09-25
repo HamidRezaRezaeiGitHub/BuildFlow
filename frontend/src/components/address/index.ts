@@ -1,36 +1,41 @@
-// Individual Address Field Components
+// Address Utilities
 export {
-  UnitNumberField,
-  StreetNumberField,
-  StreetNameField,
-  CityField,
-  StateProvinceField,
-  PostalCodeField,
-  CountryField
-} from './AddressFields';
-
-export type {
-  BaseFieldProps,
-  UnitNumberFieldProps,
-  StreetNumberFieldProps,
-  StreetNameFieldProps,
-  CityFieldProps,
-  StateProvinceFieldProps,
-  PostalCodeFieldProps,
-  CountryFieldProps
-} from './AddressFields';
-
-// Complete Address Fields Component
-export { default as AddressFields } from './AddressFields';
-export type { AddressFieldsProps } from './AddressFields';
-
-// Address Utilities (re-export from AddressFields)
-export {
-  TORONTO_DEFAULT_ADDRESS,
   createEmptyAddress,
   createTorontoDefaultAddress,
   formatAddress,
-  isAddressEmpty,
+  getAddressCompletionPercentage,
   isAddressComplete,
-  getAddressCompletionPercentage
-} from './AddressFields';
+  isAddressEmpty,
+  TORONTO_DEFAULT_ADDRESS,
+  validateStreetNumber
+} from './Address';
+
+export type { ValidationResult } from './Address';
+
+// Individual Address Field Components
+export { CityField } from './City';
+export { CountryField } from './Country';
+export { PostalCodeField } from './PostalCode';
+export { StateProvinceField } from './StateProvince';
+export { StreetNameField } from './StreetName';
+export { StreetNumberField } from './StreetNumber';
+export { UnitNumberField } from './UnitNumber';
+
+// Field Component Prop Types
+export type { BaseFieldProps } from './Address';
+export type { CityFieldProps } from './City';
+export type { CountryFieldProps } from './Country';
+export type { PostalCodeFieldProps } from './PostalCode';
+export type { StateProvinceFieldProps } from './StateProvince';
+export type { StreetNameFieldProps } from './StreetName';
+export type { StreetNumberFieldProps } from './StreetNumber';
+export type { UnitNumberFieldProps } from './UnitNumber';
+
+// Complete Address Panel Component (DEPRECATED - Use AddressForm instead)
+export { default as AddressPanel } from './AddressPanel';
+export type { AddressPanelProps } from './AddressPanel';
+
+// Complete Address Form Component (Recommended)
+export { default as AddressForm } from './AddressForm';
+export type { AddressFormProps } from './AddressForm';
+

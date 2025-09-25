@@ -4,8 +4,7 @@ import {
   validateLastName,
   validatePhone,
   validateSignUpForm,
-  validateStreetNumber,
-  type SignUpFormData,
+  type SignUpFormData
 } from '@/utils/validation';
 
 describe('validatePhone', () => {
@@ -53,37 +52,6 @@ describe('validatePhone', () => {
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Phone number must be a valid format (e.g., +1-555-123-4567)');
     });
-  });
-});
-
-describe('validateStreetNumber', () => {
-  test('validateStreetNumber_shouldReturnValid_whenEmpty', () => {
-    const result = validateStreetNumber('');
-
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-  });
-
-  test('validateStreetNumber_shouldReturnValid_whenNumbersOnly', () => {
-    const result = validateStreetNumber('123');
-
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toHaveLength(0);
-  });
-
-  test('validateStreetNumber_shouldReturnInvalid_whenContainsLetters', () => {
-    const result = validateStreetNumber('123A');
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Street number must contain only numbers');
-  });
-
-  test('validateStreetNumber_shouldReturnInvalid_whenExceedsMaxLength', () => {
-    const longNumber = '1'.repeat(21);
-    const result = validateStreetNumber(longNumber);
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Street number must not exceed 20 characters');
   });
 });
 

@@ -49,31 +49,6 @@ export const validatePhone = (phone: string): ValidationResult => {
 };
 
 /**
- * Validates street number (should only contain numbers)
- */
-export const validateStreetNumber = (streetNumber: string): ValidationResult => {
-  const errors: string[] = [];
-
-  // Street number is optional, so only validate if provided
-  if (streetNumber.trim()) {
-    // Max length validation (from BaseAddressDto)
-    if (streetNumber.length > 20) {
-      errors.push('Street number must not exceed 20 characters');
-    }
-
-    // Should only contain numbers
-    if (!/^\d+$/.test(streetNumber)) {
-      errors.push('Street number must contain only numbers');
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
-
-/**
  * Validates first name field
  */
 export const validateFirstName = (firstName: string): ValidationResult => {
@@ -146,7 +121,6 @@ export const validateSignUpForm = (formData: SignUpFormData) => {
   const passwordValidation = validatePassword(formData.password);
   const confirmPasswordValidation = validateConfirmPassword(formData.password, formData.confirmPassword);
   const phoneValidation = validatePhone(formData.phone);
-  const streetNumberValidation = validateStreetNumber(formData.streetNumber);
   const requiredFieldsValidation = validateRequiredFields(formData);
 
   const isFormValid =
@@ -156,7 +130,6 @@ export const validateSignUpForm = (formData: SignUpFormData) => {
     passwordValidation.isValid &&
     confirmPasswordValidation.isValid &&
     phoneValidation.isValid &&
-    streetNumberValidation.isValid &&
     requiredFieldsValidation.isValid;
 
   return {
@@ -168,7 +141,6 @@ export const validateSignUpForm = (formData: SignUpFormData) => {
       password: passwordValidation,
       confirmPassword: confirmPasswordValidation,
       phone: phoneValidation,
-      streetNumber: streetNumberValidation,
       requiredFields: requiredFieldsValidation
     }
   };

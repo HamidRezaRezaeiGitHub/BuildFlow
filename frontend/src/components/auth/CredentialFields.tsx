@@ -3,13 +3,6 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import React from 'react';
 
-/**
- * Credential Validation Utilities
- * 
- * Provides validation helpers for email, password, and credential-related fields
- * based on backend validation rules from SignUpRequest.java and related DTOs
- */
-
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];

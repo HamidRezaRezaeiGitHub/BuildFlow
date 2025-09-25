@@ -3,3 +3,6 @@ export { default as Home } from './Home';
 export { default as Theme } from './Theme';
 export { default as Dashboard } from './Dashboard';
 export { default as Admin } from './Admin';
+
+// Temp pages for testing
+export { default as Address } from './temp/Address';

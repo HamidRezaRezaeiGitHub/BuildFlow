@@ -7,7 +7,8 @@ import {
   getAddressCompletionPercentage,
   isAddressComplete,
   isAddressEmpty,
-} from './AddressFields';
+  validateStreetNumber,
+} from './Address';
 
 describe('createEmptyAddress', () => {
   test('createEmptyAddress_shouldReturnEmptyObject_whenCalled', () => {
@@ -291,5 +292,36 @@ describe('getAddressCompletionPercentage', () => {
     const percentage = getAddressCompletionPercentage(address);
 
     expect(percentage).toBe(14); // 1/7 = 0.142... rounded to 14
+  });
+});
+
+describe('validateStreetNumber', () => {
+  test('validateStreetNumber_shouldReturnValid_whenEmpty', () => {
+    const result = validateStreetNumber('');
+
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test('validateStreetNumber_shouldReturnValid_whenNumbersOnly', () => {
+    const result = validateStreetNumber('123');
+
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test('validateStreetNumber_shouldReturnInvalid_whenContainsLetters', () => {
+    const result = validateStreetNumber('123A');
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toContain('Street number must contain only numbers');
+  });
+
+  test('validateStreetNumber_shouldReturnInvalid_whenExceedsMaxLength', () => {
+    const longNumber = '1'.repeat(21);
+    const result = validateStreetNumber(longNumber);
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toContain('Street number must not exceed 20 characters');
   });
 });
