@@ -1,4 +1,5 @@
 import { AddressForm, createEmptyAddress } from '@/components/address';
+import { ConfigurableNavbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -63,8 +64,19 @@ const Address: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="container mx-auto px-4 max-w-4xl">
+        <div className="min-h-screen bg-background">
+            <ConfigurableNavbar 
+                navItems={[
+                    { label: 'Home', onClick: () => console.log('Navigate to Home') },
+                    { label: 'Addresses', onClick: () => console.log('Current page') },
+                    { label: 'Contact', onClick: () => console.log('Navigate to Contact') }
+                ]}
+                themeToggleType="dropdown"
+                onLoginClick={() => console.log('Login clicked')}
+                onSignUpClick={() => console.log('Sign up clicked')}
+            />
+            
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold mb-2">Address Form Validation Testing</h1>
                     <p className="text-muted-foreground">

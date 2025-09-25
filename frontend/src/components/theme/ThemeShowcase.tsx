@@ -103,11 +103,20 @@ export const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({
                   {themeToggleComponents[selectedToggleType].description}
                 </p>
                 <div className="flex justify-center">
-                  {React.createElement(
-                    themeToggleComponents[selectedToggleType].component, 
-                    selectedToggleType === 'dropdown' || selectedToggleType === 'switch' || selectedToggleType === 'button' 
-                      ? { showLabel: true } 
-                      : {}
+                  {selectedToggleType === 'dropdown' ? (
+                    <DropdownThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'switch' ? (
+                    <SwitchThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'button' ? (
+                    <ButtonThemeToggle showLabel={true} />
+                  ) : selectedToggleType === 'singleIcon' ? (
+                    <SingleChangingIconThemeToggle />
+                  ) : selectedToggleType === 'toggleGroup' ? (
+                    <ToggleGroupThemeToggle />
+                  ) : selectedToggleType === 'segmented' ? (
+                    <SegmentedThemeToggle />
+                  ) : (
+                    <CompactThemeToggle />
                   )}
                 </div>
               </div>
