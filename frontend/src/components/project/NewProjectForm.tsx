@@ -216,8 +216,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     };
 
     const createRequest: CreateProjectRequest = {
-      builderId: formData.userRole === 'builder' ? user.id : 'placeholder-id', // TODO: Resolve other party ID
-      ownerId: formData.userRole === 'owner' ? user.id : 'placeholder-id', // TODO: Resolve other party ID
+      builderId: formData.userRole === 'builder' ? user.id : '00000000-0000-0000-0000-000000000000', // TODO: Resolve other party ID
+      ownerId: formData.userRole === 'owner' ? user.id : '00000000-0000-0000-0000-000000000000', // TODO: Resolve other party ID
       locationRequestDto: locationRequest
     };
 
@@ -229,7 +229,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     (validationErrors.otherPartyIdentifier || []) : [];
 
   const isFormValid = (
-    validationErrors.otherPartyIdentifier?.length === 0 &&
+    (!validationErrors.otherPartyIdentifier || validationErrors.otherPartyIdentifier.length === 0) &&
     isLocationValid
   );
 
