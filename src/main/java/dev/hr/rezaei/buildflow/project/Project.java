@@ -39,16 +39,14 @@ public class Project extends UpdatableEntity {
 
     // Bidirectional relationship: Many Projects can have the same User as builder.
     // Table: projects, Foreign Key: builder_id
-    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "builder_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_builder"))
+    @JoinColumn(name = "builder_id", foreignKey = @ForeignKey(name = "fk_projects_builder"))
     private User builderUser;
 
     // Bidirectional relationship: Many Projects can have the same User as owner.
     // Table: projects, Foreign Key: owner_id
-    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_owner"))
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_projects_owner"))
     private User owner;
 
     @NonNull
@@ -64,14 +62,30 @@ public class Project extends UpdatableEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Estimate> estimates = new ArrayList<>();
 
+    @PrePersist
+    private void prePersist() {
+        ensureBuilderOrOwner();
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        ensureBuilderOrOwner();
+    }
+
+    private void ensureBuilderOrOwner() {
+        if (builderUser == null && owner == null) {
+            throw new IllegalStateException("Project must have either a builder or an owner.");
+        }
+    }
+
     @Override
     public String toString() {
         return "Project{" +
                 "id=" + id +
                 ", createdAt=" + getCreatedAt() +
                 ", lastUpdatedAt=" + getLastUpdatedAt() +
-                ", builder.id=" + builderUser.getId() +
-                ", owner.id=" + owner.getId() +
+                ", builder.id=" + (builderUser != null ? builderUser.getId() : "null") +
+                ", owner.id=" + (owner != null ? owner.getId() : "null") +
                 ", location.id=" + location.getId() +
                 ", estimates.size=" + estimates.size() +
                 '}';

@@ -41,14 +41,9 @@ public class ProjectService {
     }
 
     public void validate(CreateProjectRequest request) {
-        UUID builderId = request.getBuilderId();
-        if (!userService.existsById(builderId)) {
-            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
-        }
-
-        UUID ownerId = request.getOwnerId();
-        if (!userService.existsById(ownerId)) {
-            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
+        UUID userId = request.getUserId();
+        if (!userService.existsById(userId)) {
+            throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
         if (request.getLocationRequestDto() == null) {
@@ -66,10 +61,13 @@ public class ProjectService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
         validate(request);
-        UUID builderId = request.getBuilderId();
-        User builder = userService.findById(builderId).get();
-        UUID ownerId = request.getOwnerId();
-        User owner = userService.findById(ownerId).get();
+        User builder = null;
+        User owner = null;
+        if (request.isBuilder()) {
+            builder = userService.findById(request.getUserId()).get();
+        } else {
+            owner = userService.findById(request.getUserId()).get();
+        }
         ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
 
         Instant now = Instant.now();
@@ -81,7 +79,8 @@ public class ProjectService {
                 .lastUpdatedAt(now)
                 .build();
 
-        log.info("Persisting new project for builder Id {}, owner Id {}, at location {}", builderId, ownerId, location);
+        log.info("Persisting new project for user ID [{}], who is {}a builder, at location: {}",
+                request.getUserId(), request.isBuilder() ? "" : "not ", location);
         Project savedProject = projectRepository.save(project);
 
         return CreateProjectResponse.builder()

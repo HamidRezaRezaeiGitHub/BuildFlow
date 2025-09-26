@@ -60,19 +60,6 @@ class ProjectControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void createProject_shouldReturnBadRequest_whenOwnerUserIdIsNull() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/v1/projects")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullOwnerUserId)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(containsString("400")))
-                .andExpect(jsonPath("$.message").exists());
-    }
-
-    @Test
     void createProject_shouldReturnBadRequest_whenLocationIsNull() throws Exception {
         // When & Then
         mockMvc.perform(post("/api/v1/projects")

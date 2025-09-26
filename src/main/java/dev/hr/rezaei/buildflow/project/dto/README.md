@@ -8,7 +8,7 @@ This package defines all Data Transfer Objects (DTOs) for project management ope
 
 | File | Description |
 |------|-------------|
-| [CreateProjectRequest.java](CreateProjectRequest.java) | Request object for creating new projects with builder, owner, and location |
+| [CreateProjectRequest.java](CreateProjectRequest.java) | Request object for creating new projects with user, builder flag, and location |
 | [CreateProjectResponse.java](CreateProjectResponse.java) | Response object containing the created project details |
 | [ProjectLocationRequestDto.java](ProjectLocationRequestDto.java) | Location information for project creation (without ID field) |
 
@@ -18,19 +18,19 @@ This package defines all Data Transfer Objects (DTOs) for project management ope
 Primary request DTO for project creation operations.
 
 **Key Features:**
-- **User Association**: Links projects to both builder and owner users
+- **User Association**: Identifies the user making the request and whether they are the builder
 - **Location Integration**: Embedded location details for complete project setup
 - **Validation Chain**: Cascading validation through nested objects
 - **API Documentation**: Full Swagger documentation for API consumers
 
 **Structure:**
-- `builderId` (UUID, required): ID of the builder user responsible for the project
-- `ownerId` (UUID, required): ID of the project owner/client
+- `userId` (UUID, required): ID of the user making the request
+- `isBuilder` (boolean, required): Flag indicating if the requesting user is the builder
 - `locationRequestDto` (ProjectLocationRequestDto, required): Complete project location information
 
 **Validation Rules:**
-- All fields are required (NotNull validation)
-- UUIDs must be valid format
+- All fields are required (`@NotNull` validation)
+- UUID must be valid format
 - Nested location DTO must pass validation
 
 ### CreateProjectResponse
@@ -69,8 +69,8 @@ Specialized location DTO for project creation requests.
 ### Project Creation Flow
 ```
 1. Client sends CreateProjectRequest
-   ├── builderId (UUID)
-   ├── ownerId (UUID)
+   ├── userId (UUID)
+   ├── isBuilder (boolean)
    └── ProjectLocationRequestDto (address details)
 
 2. Service processes request and creates entities

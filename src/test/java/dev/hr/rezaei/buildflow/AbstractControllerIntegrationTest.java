@@ -250,12 +250,13 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
         return user;
     }
 
-    protected ProjectDto createProject(String token, UUID builderId, UUID ownerId, ProjectLocationRequestDto locationRequestDto) throws Exception {
+    protected ProjectDto createProject(String token, UUID userId, boolean isBuilder, ProjectLocationRequestDto locationRequestDto) throws Exception {
         CreateProjectRequest projectRequest = CreateProjectRequest.builder()
-                .builderId(builderId)
-                .ownerId(ownerId)
+                .userId(userId)
+                .isBuilder(isBuilder)
                 .locationRequestDto(locationRequestDto)
                 .build();
+        String role = isBuilder ? "builder" : "owner";
 
         ResultActions result = mockMvc.perform(post("/api/v1/projects")
                         .header("Authorization", "Bearer " + token)
@@ -264,8 +265,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$.projectDto.ownerId").value(ownerId.toString()));
+                .andExpect(jsonPath("$.projectDto." + role + "Id").value(userId.toString()));
         String responseContent = result.andReturn().getResponse().getContentAsString();
         CreateProjectResponse responseDto = objectMapper.readValue(responseContent, CreateProjectResponse.class);
         return responseDto.getProjectDto();

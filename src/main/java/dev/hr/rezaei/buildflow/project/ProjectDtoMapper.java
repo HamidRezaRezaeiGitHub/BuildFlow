@@ -9,10 +9,12 @@ public class ProjectDtoMapper {
 
     public static ProjectDto toProjectDto(Project project) {
         if (project == null) return null;
+        User builder = project.getBuilderUser();
+        User owner = project.getOwner();
         return ProjectDto.builder()
                 .id(project.getId())
-                .builderId(project.getBuilderUser().getId())
-                .ownerId(project.getOwner().getId())
+                .builderId(builder == null ? null : builder.getId())
+                .ownerId(owner == null ? null : owner.getId())
                 .locationDto(ProjectLocationDtoMapper.toProjectLocationDto(project.getLocation()))
                 .createdAt(UpdatableEntityDtoMapper.toString(project.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.toString(project.getLastUpdatedAt()))

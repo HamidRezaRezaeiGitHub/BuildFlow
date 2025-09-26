@@ -26,11 +26,10 @@ public class ProjectAuthService extends AbstractAuthorizationHandler {
         }
 
         User user = getAuthenticatedUser(authentication, "create a project");
-        UUID requestorId = user.getId();
-        UUID builderId = request.getBuilderId();
-        UUID ownerId = request.getOwnerId();
-        if (!requestorId.equals(builderId) && !requestorId.equals(ownerId)) {
-            log.debug("User [{}] is not authorized to create project for builder [{}] and owner [{}].", requestorId, builderId, ownerId);
+        UUID authenticatedUserId = user.getId();
+        UUID requestorId = request.getUserId();
+        if (!authenticatedUserId.equals(requestorId)) {
+            log.debug("User [{}] is not authorized to create project for another user [{}].", authenticatedUserId, requestorId);
             return false;
         }
         return true;

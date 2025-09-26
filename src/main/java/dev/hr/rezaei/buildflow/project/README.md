@@ -63,22 +63,26 @@ Core entity representing construction projects in the BuildFlow system.
 - **Estimate Integration**: Can have multiple estimates for cost planning
 - **Audit Trail**: Inherits creation and modification tracking from UpdatableEntity
 - **Authorization Support**: Integration with authorization services for access control
+- **Validation Rule**: Enforces that at least one of `builderUser` or `owner` must be non-null at all times (see below)
 
 **Structure:**
 - `id` (UUID): Primary key
-- `builderUser` (User): Assigned builder for the project (many-to-one relationship)
-- `ownerUser` (User): Project owner/client (many-to-one relationship)
-- `location` (ProjectLocation): Project location information (one-to-one relationship)
-- `estimates` (List<Estimate>): Associated cost estimates (one-to-many relationship)
+- `builderUser` (User): Assigned builder for the project (many-to-one relationship, nullable)
+- `owner` (User): Project owner/client (many-to-one relationship, nullable)
+- `location` (ProjectLocation): Project location information (one-to-one relationship, non-null, cascade all)
+- `estimates` (List<Estimate>): Associated cost estimates (one-to-many relationship, non-null, cascade all)
 
 **Relationships:**
 - **Builder User**: Many projects can have the same builder user (bidirectional)
-- **Owner User**: Many projects can have the same owner user (bidirectional)
+- **Owner**: Many projects can have the same owner user (bidirectional)
 - **Location**: One-to-one relationship with project location (unique constraint)
 - **Estimates**: One project can have multiple estimates (bidirectional)
 
 **Unique Constraints:**
 - Location ID uniqueness (one location per project)
+
+**Validation Logic:**
+- The entity uses JPA lifecycle hooks (`@PrePersist` and `@PreUpdate`) to ensure that at least one of `builderUser` or `owner` is always set. If both are null, an `IllegalStateException` is thrown and the operation is aborted. This enforces business rules at the persistence layer and prevents invalid project records.
 
 ### ProjectLocation Entity
 Address/location information specific to construction projects.

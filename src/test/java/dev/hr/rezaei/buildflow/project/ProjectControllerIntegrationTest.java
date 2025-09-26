@@ -20,10 +20,9 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User admin = registerAdmin();
         String token = login(admin);
         User builder = registerBuilder();
-        User owner = registerOwner();
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -35,8 +34,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()))
-                .andExpect(jsonPath("$.projectDto.ownerId").value(owner.getId().toString()));
+                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()));
     }
 
     @Test
@@ -44,8 +42,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User builder = registerBuilder();
         String token = login(builder);
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(builder.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -57,8 +55,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()))
-                .andExpect(jsonPath("$.projectDto.ownerId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()));
     }
 
     @Test
@@ -66,10 +63,9 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User actingUser = registerBuilder();
         String token = login(actingUser);
         User builder = registerBuilder();
-        User owner = registerOwner();
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -86,8 +82,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User viewer = registerViewer();
         String token = login(viewer);
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(viewer.getId())
-                .ownerId(viewer.getId())
+                .userId(viewer.getId())
+                .isBuilder(false)
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -102,10 +98,9 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     @Test
     void createProject_shouldReturnUnauthorized_whenNoJwtProvided() throws Exception {
         var builder = userService.createUser(testCreateBuilderRequest);
-        var owner = userService.createUser(testCreateOwnerRequest);
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builder.getUserDto().getId())
-                .ownerId(owner.getUserDto().getId())
+                .userId(builder.getUserDto().getId())
+                .isBuilder(true)
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -121,9 +116,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User admin = registerAdmin();
         String adminToken = login(admin);
         User builder = registerBuilder();
-        User owner = registerOwner();
         // Create a project for the builder using helper
-        var projectDto = createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        var projectDto = createProject(adminToken, builder.getId(), true, testCreateProjectRequest.getLocationRequestDto());
         // Admin fetches builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + adminToken))
@@ -138,9 +132,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     void getProjectsByBuilderId_shouldReturnOk_whenBuilderIsSelf() throws Exception {
         User builder = registerBuilder();
         String builderToken = login(builder);
-        User owner = registerOwner();
         // Create a project for the builder using helper
-        var projectDto = createProject(builderToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        var projectDto = createProject(builderToken, builder.getId(), true, testCreateProjectRequest.getLocationRequestDto());
         // Builder fetches their own projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + builderToken))
@@ -154,13 +147,12 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     @Test
     void getProjectsByBuilderId_shouldReturnForbidden_whenOtherUser() throws Exception {
         User builder = registerBuilder();
-        User owner = registerOwner();
         User otherUser = registerBuilder();
         String otherUserToken = login(otherUser);
         User admin = registerAdmin();
         String adminToken = login(admin);
         // Create a project for the builder using helper
-        createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        createProject(adminToken, builder.getId(), true, testCreateProjectRequest.getLocationRequestDto());
         // Other user tries to fetch builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + otherUserToken))
@@ -171,13 +163,12 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     @Test
     void getProjectsByBuilderId_shouldReturnForbidden_whenNoViewProjectAuthority() throws Exception {
         User builder = registerBuilder();
-        User owner = registerOwner();
         User viewer = registerViewer();
         String viewerToken = login(viewer);
         User admin = registerAdmin();
         String adminToken = login(admin);
         // Create a project for the builder using helper
-        createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        createProject(adminToken, builder.getId(), true, testCreateProjectRequest.getLocationRequestDto());
         // Viewer tries to fetch builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + viewerToken))
@@ -210,10 +201,9 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     void getProjectsByOwnerId_shouldReturnOk_whenAdminUser() throws Exception {
         User admin = registerAdmin();
         String adminToken = login(admin);
-        User builder = registerBuilder();
         User owner = registerOwner();
         // Create a project for the owner using helper
-        var projectDto = createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        var projectDto = createProject(adminToken, owner.getId(), false, testCreateProjectRequest.getLocationRequestDto());
         // Admin fetches owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + adminToken))
@@ -226,11 +216,10 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
 
     @Test
     void getProjectsByOwnerId_shouldReturnOk_whenOwnerIsSelf() throws Exception {
-        User builder = registerBuilder();
         User owner = registerOwner();
         String ownerToken = login(owner);
         // Create a project for the owner using helper
-        var projectDto = createProject(ownerToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        var projectDto = createProject(ownerToken, owner.getId(), false, testCreateProjectRequest.getLocationRequestDto());
         // Owner fetches their own projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + ownerToken))
@@ -243,14 +232,13 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
 
     @Test
     void getProjectsByOwnerId_shouldReturnForbidden_whenOtherUser() throws Exception {
-        User builder = registerBuilder();
         User owner = registerOwner();
         User otherUser = registerBuilder();
         String otherUserToken = login(otherUser);
         User admin = registerAdmin();
         String adminToken = login(admin);
         // Create a project for the owner using helper
-        createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        createProject(adminToken, owner.getId(), false, testCreateProjectRequest.getLocationRequestDto());
         // Other user tries to fetch owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + otherUserToken))
@@ -260,14 +248,13 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
 
     @Test
     void getProjectsByOwnerId_shouldReturnForbidden_whenNoViewProjectAuthority() throws Exception {
-        User builder = registerBuilder();
         User owner = registerOwner();
         User viewer = registerViewer();
         String viewerToken = login(viewer);
         User admin = registerAdmin();
         String adminToken = login(admin);
         // Create a project for the owner using helper
-        createProject(adminToken, builder.getId(), owner.getId(), testCreateProjectRequest.getLocationRequestDto());
+        createProject(adminToken, owner.getId(), false, testCreateProjectRequest.getLocationRequestDto());
         // Viewer tries to fetch owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + viewerToken))

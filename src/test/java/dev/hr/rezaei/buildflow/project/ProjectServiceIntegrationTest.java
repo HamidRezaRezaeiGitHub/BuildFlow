@@ -57,11 +57,10 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         persistProjectDependencies(testProject);
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
         User builder = testProject.getBuilderUser();
-        User owner = testProject.getOwner();
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -72,14 +71,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     @Test
     void validate_shouldThrow_whenBuilderNotFound() {
         // Arrange
-        User owner = registerUser(userService, testProject.getOwner());
-        assertNotNull(owner.getId());
         UUID nonExistentBuilderId = UUID.randomUUID();
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(nonExistentBuilderId)
-                .ownerId(owner.getId())
+                .userId(nonExistentBuilderId)
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -91,14 +88,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     @Test
     void validate_shouldThrow_whenOwnerNotFound() {
         // Arrange
-        User builder = registerUser(userService, testProject.getBuilderUser());
-        assertNotNull(builder.getId());
         UUID nonExistentOwnerId = UUID.randomUUID();
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(nonExistentOwnerId)
+                .userId(nonExistentOwnerId)
+                .isBuilder(false)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -112,11 +107,10 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         // Arrange
         persistProjectDependencies(testProject);
         User builder = testProject.getBuilderUser();
-        User owner = testProject.getOwner();
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(null)
                 .build();
 
@@ -131,11 +125,10 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         persistProjectDependencies(testProject);
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
         User builder = testProject.getBuilderUser();
-        User owner = testProject.getOwner();
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -148,7 +141,6 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         ProjectDto projectDto = response.getProjectDto();
         assertNotNull(projectDto.getId());
         assertEquals(builder.getId(), projectDto.getBuilderId());
-        assertEquals(owner.getId(), projectDto.getOwnerId());
         assertNotNull(projectDto.getLocationDto());
         assertNotNull(projectDto.getCreatedAt());
         assertNotNull(projectDto.getLastUpdatedAt());
@@ -159,19 +151,17 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         Project foundProject = persistedProject.get();
         assertEquals(projectDto.getId(), foundProject.getId());
         assertEquals(builder.getId(), foundProject.getBuilderUser().getId());
-        assertEquals(owner.getId(), foundProject.getOwner().getId());
     }
 
     @Test
     void createProject_shouldThrow_whenValidationFails() {
         // Arrange
         UUID nonExistentBuilderId = UUID.randomUUID();
-        UUID nonExistentOwnerId = UUID.randomUUID();
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(nonExistentBuilderId)
-                .ownerId(nonExistentOwnerId)
+                .userId(nonExistentBuilderId)
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -199,14 +189,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void update_shouldPersistChanges_whenProjectIsPersisted() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -252,14 +240,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void delete_shouldRemoveProject_whenProjectIsPersisted() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -280,14 +266,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void isPersisted_shouldReturnTrue_whenProjectIsPersisted() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -319,14 +303,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void findById_shouldReturnProject_whenExists() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -353,37 +335,14 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void findByBuilderId_shouldReturnProjects_whenBuilderHasProjects() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner1 = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner1.getId());
-
-        // Create a second owner with different email
-        ContactAddress owner2ContactAddress = ContactAddress.builder()
-                .unitNumber("22")
-                .streetNumber("200")
-                .streetName("Owner St")
-                .city("Ownerville")
-                .stateOrProvince("OS")
-                .postalOrZipCode("22222")
-                .country("Ownerland")
-                .build();
-        Contact owner2Contact = Contact.builder()
-                .email("owner2@example.com")
-                .firstName("Owner2")
-                .lastName("User2")
-                .phone(owner1.getContact().getPhone())
-                .address(owner2ContactAddress)
-                .labels(new ArrayList<>(owner1.getContact().getLabels()))
-                .build();
-        User owner2 = registerUser(userService, owner2Contact);
-        assertNotNull(owner2.getId());
 
         // Create first project using test location data
         ProjectLocationRequestDto locationRequestDto1 = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request1 = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner1.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto1)
                 .build();
 
@@ -399,8 +358,8 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
                 .build();
 
         CreateProjectRequest request2 = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner2.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto2)
                 .build();
 
@@ -431,38 +390,14 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void findByOwnerId_shouldReturnProjects_whenOwnerHasProjects() {
         // Arrange
         User owner = registerUser(userService, testProject.getOwner());
-        User builder1 = registerUser(userService, testProject.getBuilderUser());
         assertNotNull(owner.getId());
-        assertNotNull(builder1.getId());
-        Contact builder1Contact = testBuilderUser.getContact();
-
-        // Create a second builder with different email
-        ContactAddress builder2ContactAddress = ContactAddress.builder()
-                .unitNumber("33")
-                .streetNumber("300")
-                .streetName("Builder St")
-                .city("Builderville")
-                .stateOrProvince("BS")
-                .postalOrZipCode("33333")
-                .country("Builderland")
-                .build();
-        Contact builder2Contact = Contact.builder()
-                .email("builder2@example.com")
-                .firstName("Builder2")
-                .lastName("User2")
-                .phone(builder1Contact.getPhone())
-                .address(builder2ContactAddress)
-                .labels(new ArrayList<>(builder1Contact.getLabels()))
-                .build();
-        User builder2 = registerUser(userService, builder2Contact);
-        assertNotNull(builder2.getId());
 
         // Create first project using test location data
         ProjectLocationRequestDto locationRequestDto1 = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request1 = CreateProjectRequest.builder()
-                .builderId(builder1.getId())
-                .ownerId(owner.getId())
+                .userId(owner.getId())
+                .isBuilder(false)
                 .locationRequestDto(locationRequestDto1)
                 .build();
 
@@ -478,8 +413,8 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
                 .build();
 
         CreateProjectRequest request2 = CreateProjectRequest.builder()
-                .builderId(builder2.getId())
-                .ownerId(owner.getId())
+                .userId(owner.getId())
+                .isBuilder(false)
                 .locationRequestDto(locationRequestDto2)
                 .build();
 
@@ -510,14 +445,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void getProjectsByBuilderId_shouldReturnProjectDtos_whenBuilderExists() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
-        User owner = registerUser(userService, testProject.getOwner());
         assertNotNull(builder.getId());
-        assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(builder.getId())
+                .isBuilder(true)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -529,7 +462,6 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         // Assert
         assertEquals(1, projectDtos.size());
         assertEquals(builder.getId(), projectDtos.getFirst().getBuilderId());
-        assertEquals(owner.getId(), projectDtos.getFirst().getOwnerId());
     }
 
     @Test
@@ -545,15 +477,13 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     @Test
     void getProjectsByOwnerId_shouldReturnProjectDtos_whenOwnerExists() {
         // Arrange
-        User builder = registerUser(userService, testProject.getBuilderUser());
         User owner = registerUser(userService, testProject.getOwner());
-        assertNotNull(builder.getId());
         assertNotNull(owner.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .builderId(builder.getId())
-                .ownerId(owner.getId())
+                .userId(owner.getId())
+                .isBuilder(false)
                 .locationRequestDto(locationRequestDto)
                 .build();
 
@@ -564,7 +494,6 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
 
         // Assert
         assertEquals(1, projectDtos.size());
-        assertEquals(builder.getId(), projectDtos.getFirst().getBuilderId());
         assertEquals(owner.getId(), projectDtos.getFirst().getOwnerId());
     }
 

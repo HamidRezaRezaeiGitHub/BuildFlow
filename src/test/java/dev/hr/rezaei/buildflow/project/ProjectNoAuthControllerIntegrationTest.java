@@ -28,11 +28,10 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         // Given
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
         var builderResponse = userService.createUser(testCreateBuilderRequest);
-        var ownerResponse = userService.createUser(testCreateOwnerRequest);
 
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builderResponse.getUserDto().getId())
-                .ownerId(ownerResponse.getUserDto().getId())
+                .userId(builderResponse.getUserDto().getId())
+                .isBuilder(true)
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -45,7 +44,6 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectDto.id").exists())
                 .andExpect(jsonPath("$.projectDto.builderId").value(builderResponse.getUserDto().getId().toString()))
-                .andExpect(jsonPath("$.projectDto.ownerId").value(ownerResponse.getUserDto().getId().toString()))
                 .andExpect(jsonPath("$.projectDto.locationDto").exists())
                 .andExpect(jsonPath("$.projectDto.locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
                 .andExpect(jsonPath("$.projectDto.locationDto.city").value(projectLocationRequestDto.getCity()))
@@ -59,11 +57,9 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
         var builderResponse = createUniqUser(userService, testBuilderContactRequestDto);
         UUID builderId = builderResponse.getUserDto().getId();
-        var ownerResponse = createUniqUser(userService, testOwnerContactRequestDto);
-        UUID ownerId = ownerResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builderId)
-                .ownerId(ownerId)
+                .userId(builderId)
+                .isBuilder(true)
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -82,7 +78,6 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$[0].ownerId").value(ownerId.toString()))
                 .andExpect(jsonPath("$[0].locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
                 .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));
     }
@@ -91,13 +86,11 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
     void getProjectsByOwnerId_shouldReturnOk_whenOwnerHasProjects() throws Exception {
         // Given
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
-        CreateUserResponse builderResponse = createUniqUser(userService, testBuilderContactRequestDto);
-        UUID builderId = builderResponse.getUserDto().getId();
         CreateUserResponse ownerResponse = createUniqUser(userService, testOwnerContactRequestDto);
         UUID ownerId = ownerResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
-                .builderId(builderId)
-                .ownerId(ownerId)
+                .userId(ownerId)
+                .isBuilder(false)
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -115,7 +108,6 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].builderId").value(builderId.toString()))
                 .andExpect(jsonPath("$[0].ownerId").value(ownerId.toString()))
                 .andExpect(jsonPath("$[0].locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
                 .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));

@@ -61,7 +61,6 @@ public abstract class AbstractDtoTest {
 
     // Invalid Project DTOs for validation testing
     protected CreateProjectRequest testCreateProjectRequestWithNullBuilderUserId;
-    protected CreateProjectRequest testCreateProjectRequestWithNullOwnerUserId;
     protected CreateProjectRequest testCreateProjectRequestWithNullLocation;
     protected ProjectLocationRequestDto testProjectLocationRequestDtoWithLongStreetName;
 
@@ -163,8 +162,8 @@ public abstract class AbstractDtoTest {
                 .build();
 
         testCreateProjectRequest = CreateProjectRequest.builder()
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
+                .userId(testBuilderUserDto.getId())
+                .isBuilder(true)
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
@@ -238,20 +237,14 @@ public abstract class AbstractDtoTest {
 
         // Invalid Project DTOs for validation testing
         testCreateProjectRequestWithNullBuilderUserId = CreateProjectRequest.builder()
-                .builderId(null)  // Invalid: null
-                .ownerId(testOwnerUserDto.getId())
-                .locationRequestDto(testProjectLocationRequestDto)
-                .build();
-
-        testCreateProjectRequestWithNullOwnerUserId = CreateProjectRequest.builder()
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(null)  // Invalid: null
+                .userId(null)  // Invalid: null
+                .isBuilder(true)
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
         testCreateProjectRequestWithNullLocation = CreateProjectRequest.builder()
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
+                .userId(testBuilderUserDto.getId())
+                .isBuilder(true)
                 .locationRequestDto(null)  // Invalid: null
                 .build();
 
