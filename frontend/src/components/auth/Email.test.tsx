@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { EmailField } from './Email';
 
 describe('EmailField', () => {
@@ -49,15 +50,20 @@ describe('EmailField', () => {
     });
 
     test('EmailField_shouldValidateEmail_whenValidationEnabled', async () => {
-        render(
-            <EmailField
-                value=""
-                onChange={mockOnChange}
-                enableValidation={true}
-                validationMode="required"
-                onValidationChange={mockOnValidationChange}
-            />
-        );
+        const TestComponent = () => {
+            const [value, setValue] = React.useState('');
+            return (
+                <EmailField
+                    value={value}
+                    onChange={setValue}
+                    enableValidation={true}
+                    validationMode="required"
+                    onValidationChange={mockOnValidationChange}
+                />
+            );
+        };
+
+        render(<TestComponent />);
 
         const input = screen.getByRole('textbox');
         

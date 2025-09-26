@@ -224,7 +224,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
     };
 
     const formContent = (
-        <form onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
+        <form role="form" onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
             {/* Optional Form Header */}
             {(title || description) && !inline && (
                 <div className="text-center space-y-2">

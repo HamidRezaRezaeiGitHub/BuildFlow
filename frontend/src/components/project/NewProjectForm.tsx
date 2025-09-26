@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddressData, CreateProjectRequest, ProjectLocationRequestDto } from '@/services/dtos';
-import { Building2, Mail, User } from 'lucide-react';
+import { Building2, User } from 'lucide-react';
 import React from 'react';
-import AddressForm from '../address/AddressForm';
 import { createEmptyAddress } from '../address/Address';
+import AddressForm from '../address/AddressForm';
 
 export interface NewProjectFormProps {
   /** Callback when form is submitted successfully */
@@ -28,7 +27,6 @@ export interface NewProjectFormProps {
 
 interface FormData {
   userRole: 'builder' | 'owner';
-  otherPartyIdentifier: string; // Username or email of the other party
   projectLocation: AddressData;
 }
 
@@ -36,11 +34,18 @@ interface FormData {
  * NewProjectForm component for creating new construction projects
  * 
  * Features:
- * - User role selection (builder or owner)
- * - Other party identifier input (username/email)
+ * - User role selection (builder or owner) - indicates current user's role in the project
  * - Integrated address form for project location
- * - Form validation using the validation service
+ * - Form validation for location completeness
  * - Consistent styling with other forms in the application
+ * 
+ * The form creates a CreateProjectRequest with:
+ * - userId: Always the current authenticated user's ID
+ * - isBuilder: Boolean indicating if the current user is the builder (true) or owner (false)
+ * - locationRequestDto: Complete project location details
+ * 
+ * Note: The other party (builder or owner) will be associated with the project later
+ * through a separate process, so no other party information is required during creation.
  */
 export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   onSubmit,
@@ -50,24 +55,15 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   className = ''
 }) => {
   const { user } = useAuth();
-  
+
   // Form state
   const [formData, setFormData] = React.useState<FormData>({
     userRole: 'builder', // Default to builder
-    otherPartyIdentifier: '',
     projectLocation: createEmptyAddress()
   });
 
-  // Validation state
-  const [validationErrors, setValidationErrors] = React.useState<{
-    userRole?: string[];
-    otherPartyIdentifier?: string[];
-    projectLocation?: boolean;
-  }>({});
-
   const [hasBeenTouched, setHasBeenTouched] = React.useState({
     userRole: false,
-    otherPartyIdentifier: false,
     projectLocation: false
   });
 
@@ -78,7 +74,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     const requiredFields: (keyof AddressData)[] = [
       'streetName', 'city', 'stateOrProvince', 'country'
     ];
-    
+
     return requiredFields.every(field => {
       const value = address[field];
       return value && value.trim().length > 0;
@@ -91,37 +87,6 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     setIsLocationValid(isValid);
   }, [formData.projectLocation, validateAddress]);
 
-  // Validate other party identifier
-  const validateOtherPartyIdentifier = React.useCallback((value: string) => {
-    const rules = [
-      {
-        name: 'required',
-        message: 'Please enter the username or email of the other party',
-        validator: (val: string) => !!val && val.trim().length > 0
-      },
-      {
-        name: 'format',
-        message: 'Please enter a valid username or email address',
-        validator: (val: string) => {
-          if (!val) return false;
-          // Check if it's email format or a simple username
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          const usernameRegex = /^[a-zA-Z0-9_.-]{3,}$/;
-          return emailRegex.test(val) || usernameRegex.test(val);
-        }
-      }
-    ];
-
-    const errors: string[] = [];
-    for (const rule of rules) {
-      if (!rule.validator(value)) {
-        errors.push(rule.message);
-      }
-    }
-
-    return { isValid: errors.length === 0, errors };
-  }, []);
-
   // Handle role change
   const handleRoleChange = (role: 'builder' | 'owner') => {
     setFormData(prev => ({ ...prev, userRole: role }));
@@ -130,45 +95,13 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     }
   };
 
-  // Handle other party identifier change
-  const handleOtherPartyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFormData(prev => ({ ...prev, otherPartyIdentifier: value }));
-    
-    if (!hasBeenTouched.otherPartyIdentifier) {
-      setHasBeenTouched(prev => ({ ...prev, otherPartyIdentifier: true }));
-    }
-
-    // Validate if touched
-    if (hasBeenTouched.otherPartyIdentifier) {
-      const validation = validateOtherPartyIdentifier(value);
-      setValidationErrors(prev => ({ 
-        ...prev, 
-        otherPartyIdentifier: validation.errors 
-      }));
-    }
-  };
-
-  // Handle other party identifier blur
-  const handleOtherPartyBlur = () => {
-    if (!hasBeenTouched.otherPartyIdentifier) {
-      setHasBeenTouched(prev => ({ ...prev, otherPartyIdentifier: true }));
-    }
-    
-    const validation = validateOtherPartyIdentifier(formData.otherPartyIdentifier);
-    setValidationErrors(prev => ({ 
-      ...prev, 
-      otherPartyIdentifier: validation.errors 
-    }));
-  };
-
   // Handle address changes
   const handleAddressChange = (field: keyof AddressData, value: string) => {
     setFormData(prev => ({
       ...prev,
       projectLocation: { ...prev.projectLocation, [field]: value }
     }));
-    
+
     if (!hasBeenTouched.projectLocation) {
       setHasBeenTouched(prev => ({ ...prev, projectLocation: true }));
     }
@@ -177,7 +110,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       console.error('User not authenticated');
       return;
@@ -186,21 +119,11 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     // Mark all fields as touched for validation
     setHasBeenTouched({
       userRole: true,
-      otherPartyIdentifier: true,
       projectLocation: true
     });
 
-    // Validate other party identifier
-    const otherPartyValidation = validateOtherPartyIdentifier(formData.otherPartyIdentifier);
-    
-    // Check if form is valid
-    const isFormValid = otherPartyValidation.isValid && isLocationValid;
-    
-    if (!isFormValid) {
-      setValidationErrors(prev => ({
-        ...prev,
-        otherPartyIdentifier: otherPartyValidation.errors
-      }));
+    // Check if form is valid (only location needs to be valid now)
+    if (!isLocationValid) {
       return;
     }
 
@@ -216,22 +139,16 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     };
 
     const createRequest: CreateProjectRequest = {
-      builderId: formData.userRole === 'builder' ? user.id : '00000000-0000-0000-0000-000000000000', // TODO: Resolve other party ID
-      ownerId: formData.userRole === 'owner' ? user.id : '00000000-0000-0000-0000-000000000000', // TODO: Resolve other party ID
+      userId: user.id, // Always the current authenticated user
+      isBuilder: formData.userRole === 'builder', // Boolean flag indicating if current user is the builder
       locationRequestDto: locationRequest
     };
 
     await onSubmit(createRequest);
   };
 
-  // Get validation errors for display
-  const otherPartyErrors = hasBeenTouched.otherPartyIdentifier ? 
-    (validationErrors.otherPartyIdentifier || []) : [];
-
-  const isFormValid = (
-    (!validationErrors.otherPartyIdentifier || validationErrors.otherPartyIdentifier.length === 0) &&
-    isLocationValid
-  );
+  // Form is valid when location is valid
+  const isFormValid = isLocationValid;
 
   return (
     <Card className={`w-full max-w-2xl mx-auto ${className}`}>
@@ -241,7 +158,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
           Create New Project
         </CardTitle>
         <CardDescription>
-          Set up a new construction project by specifying your role and the project details.
+          Set up a new construction project by specifying your role and the project location.
         </CardDescription>
       </CardHeader>
 
@@ -254,11 +171,10 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleRoleChange('builder')}
-                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                  formData.userRole === 'builder'
+                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'border-muted-foreground/20 hover:border-muted-foreground/40'
-                }`}
+                  }`}
                 disabled={isSubmitting}
               >
                 <div className="flex items-center gap-2 justify-center">
@@ -273,11 +189,10 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleRoleChange('owner')}
-                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                  formData.userRole === 'owner'
+                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
                     ? 'border-primary bg-primary/5 text-primary'
                     : 'border-muted-foreground/20 hover:border-muted-foreground/40'
-                }`}
+                  }`}
                 disabled={isSubmitting}
               >
                 <div className="flex items-center gap-2 justify-center">
@@ -291,40 +206,6 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
             </div>
           </div>
 
-          {/* Other Party Identifier */}
-          <div className="space-y-2">
-            <Label htmlFor="otherParty" className="text-sm font-medium">
-              {formData.userRole === 'builder' 
-                ? "Property Owner's Username or Email" 
-                : "Builder's Username or Email"}
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="otherParty"
-                type="text"
-                placeholder={formData.userRole === 'builder' 
-                  ? "owner@example.com or owner_username" 
-                  : "builder@example.com or builder_username"}
-                value={formData.otherPartyIdentifier}
-                onChange={handleOtherPartyChange}
-                onBlur={handleOtherPartyBlur}
-                disabled={isSubmitting}
-                className={`pl-10 ${otherPartyErrors.length > 0 ? 'border-destructive' : ''}`}
-              />
-            </div>
-            {otherPartyErrors.length > 0 && (
-              <div className="text-sm text-destructive">
-                {otherPartyErrors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Enter the username or email address of the {formData.userRole === 'builder' ? 'property owner' : 'builder'}.
-            </p>
-          </div>
-
           {/* Project Location */}
           <div className="space-y-4">
             <div>
@@ -333,11 +214,11 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
                 Enter the complete address where the construction project will take place.
               </p>
             </div>
-            
+
             <AddressForm
               addressData={formData.projectLocation}
               onAddressChange={handleAddressChange}
-              onSubmit={() => {}} // Not used - handled by parent form
+              onSubmit={() => { }} // Not used - handled by parent form
               inline={true}
               enableValidation={true}
               isSkippable={false}
@@ -358,8 +239,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
                 Cancel
               </Button>
             )}
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting || !isFormValid}
             >
               {isSubmitting ? submittingText : 'Create Project'}

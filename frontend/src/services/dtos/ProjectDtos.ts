@@ -18,13 +18,8 @@ export interface ProjectLocationRequestDto extends BaseAddressDto {
  * Matches backend CreateProjectRequest structure
  */
 export interface CreateProjectRequest {
-  /** ID of the builder user for this project */
-  builderId: string;
-  
-  /** ID of the owner user for this project */
-  ownerId: string;
-  
-  /** Location information for the project */
+  userId: string;
+  isBuilder: boolean;
   locationRequestDto: ProjectLocationRequestDto;
 }
 
@@ -35,13 +30,13 @@ export interface CreateProjectRequest {
 export interface ProjectDto {
   /** Project ID */
   id: string;
-  
+
   /** Builder user ID */
   builderId: string;
-  
+
   /** Owner user ID */
   ownerId: string;
-  
+
   /** Project location */
   location: ProjectLocationDto;
 }

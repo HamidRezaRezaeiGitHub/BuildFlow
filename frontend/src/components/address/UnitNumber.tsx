@@ -75,9 +75,10 @@ export const UnitNumberField: React.FC<UnitNumberFieldProps> = ({
             if (onValidationChange) {
                 onValidationChange(true, []);
             }
+        } else if (hasBeenTouched) {
+            // Re-validate when validation config changes and field has been touched
+            validateField(value);
         }
-        // Note: We don't re-validate on value changes here - that's handled in handleChange
-        // We only clear errors when validation is disabled or config changes
     }, [enableValidation, validationMode]);
 
     // Handle input change

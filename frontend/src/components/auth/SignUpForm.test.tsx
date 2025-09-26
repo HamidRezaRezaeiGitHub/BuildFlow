@@ -34,11 +34,15 @@ jest.mock('@/components/address', () => ({
         stateOrProvince: '',
         postalOrZipCode: '',
         country: ''
+    }),
+    parseStreetNumber: (input: string) => ({
+        streetNumber: input.replace(/[^0-9]/g, ''),
+        streetName: input.replace(/^[0-9\s-]+/, '').trim()
     })
 }));
 
 // Mock the field components
-jest.mock('./CredentialFields', () => ({
+jest.mock('./Email', () => ({
     EmailField: ({ value, onChange, id, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Email</label>
@@ -50,7 +54,25 @@ jest.mock('./CredentialFields', () => ({
                 data-testid={id}
             />
         </div>
-    ),
+    )
+}));
+
+jest.mock('./Username', () => ({
+    UsernameField: ({ value, onChange, id, onValidationChange }: any) => (
+        <div data-testid={`${id}-container`}>
+            <label htmlFor={id}>Username</label>
+            <input
+                id={id}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                onBlur={() => onValidationChange && onValidationChange(true)}
+                data-testid={id}
+            />
+        </div>
+    )
+}));
+
+jest.mock('./Password', () => ({
     PasswordField: ({ value, onChange, id, showPassword, onToggleVisibility, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Password</label>
@@ -66,7 +88,10 @@ jest.mock('./CredentialFields', () => ({
                 {showPassword ? 'Hide' : 'Show'}
             </button>
         </div>
-    ),
+    )
+}));
+
+jest.mock('./ConfirmPassword', () => ({
     ConfirmPasswordField: ({ value, onChange, id, showPassword, onToggleVisibility, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Confirm Password</label>
@@ -162,7 +187,7 @@ describe('SignUpForm Component', () => {
     test('SignUpForm_shouldUpdateFirstName_whenUserTypesFirstName', () => {
         renderSignUpForm();
 
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
         expect(firstNameField).toBeInTheDocument();
         
         fireEvent.change(firstNameField, { target: { value: 'John' } });
@@ -172,7 +197,7 @@ describe('SignUpForm Component', () => {
     test('SignUpForm_shouldUpdateLastName_whenUserTypesLastName', () => {
         renderSignUpForm();
 
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         expect(lastNameField).toBeInTheDocument();
         
         fireEvent.change(lastNameField, { target: { value: 'Doe' } });
@@ -209,7 +234,7 @@ describe('SignUpForm Component', () => {
     test('SignUpForm_shouldUpdatePhone_whenUserTypesPhone', () => {
         renderSignUpForm();
 
-        const phoneField = screen.getByDisplayValue('').closest('input[placeholder="+1 (555) 123-4567"]') as HTMLInputElement;
+        const phoneField = screen.getByPlaceholderText('+1 (555) 123-4567') as HTMLInputElement;
         expect(phoneField).toBeInTheDocument();
         
         fireEvent.change(phoneField, { target: { value: '+1 (555) 123-4567' } });
@@ -298,8 +323,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill required fields
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -327,8 +352,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill required fields
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -381,8 +406,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill and submit form
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -417,8 +442,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill and submit form
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -453,8 +478,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill and submit form
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -490,8 +515,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm({ onSignUpSuccess: mockOnSignUpSuccess });
 
         // Fill and submit form
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -528,8 +553,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm({ onSignUpError: mockOnSignUpError });
 
         // Fill and submit form
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');
@@ -563,8 +588,8 @@ describe('SignUpForm Component', () => {
         renderSignUpForm();
 
         // Fill form with mismatched passwords
-        const firstNameField = screen.getByDisplayValue('').closest('input[placeholder="John"]') as HTMLInputElement;
-        const lastNameField = screen.getByDisplayValue('').closest('input[placeholder="Smith"]') as HTMLInputElement;
+        const firstNameField = screen.getByPlaceholderText('John') as HTMLInputElement;
+        const lastNameField = screen.getByPlaceholderText('Smith') as HTMLInputElement;
         const emailField = screen.getByTestId('signupEmail');
         const passwordField = screen.getByTestId('signupPassword');
         const confirmPasswordField = screen.getByTestId('confirmPassword');

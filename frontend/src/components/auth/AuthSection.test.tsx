@@ -48,16 +48,23 @@ jest.mock('./SignUpForm', () => {
 
 // Mock window location
 const mockLocationHash = jest.fn();
-Object.defineProperty(window, 'location', {
-    value: {
+const originalLocation = window.location;
+
+beforeAll(() => {
+    delete (window as any).location;
+    (window as any).location = {
+        ...originalLocation,
         get hash() {
             return mockLocationHash();
         },
         set hash(value) {
             mockLocationHash.mockReturnValue(value);
         }
-    },
-    writable: true
+    };
+});
+
+afterAll(() => {
+    (window as any).location = originalLocation;
 });
 
 // Mock sessionStorage

@@ -18,7 +18,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the field components
-jest.mock('./CredentialFields', () => ({
+jest.mock('./UsernameEmail', () => ({
     UsernameEmailField: ({ value, onChange, id, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Username or Email</label>
@@ -30,7 +30,10 @@ jest.mock('./CredentialFields', () => ({
                 data-testid={id}
             />
         </div>
-    ),
+    )
+}));
+
+jest.mock('./Password', () => ({
     PasswordField: ({ value, onChange, id, showPassword, onToggleVisibility, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Password</label>

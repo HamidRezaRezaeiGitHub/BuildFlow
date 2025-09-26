@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { UsernameField } from './Username';
 
 describe('UsernameField', () => {
@@ -49,15 +50,20 @@ describe('UsernameField', () => {
     });
 
     test('UsernameField_shouldValidateUsername_whenValidationEnabled', async () => {
-        render(
-            <UsernameField
-                value=""
-                onChange={mockOnChange}
-                enableValidation={true}
-                validationMode="required"
-                onValidationChange={mockOnValidationChange}
-            />
-        );
+        const TestComponent = () => {
+            const [value, setValue] = React.useState('');
+            return (
+                <UsernameField
+                    value={value}
+                    onChange={setValue}
+                    enableValidation={true}
+                    validationMode="required"
+                    onValidationChange={mockOnValidationChange}
+                />
+            );
+        };
+
+        render(<TestComponent />);
 
         const input = screen.getByRole('textbox');
         
