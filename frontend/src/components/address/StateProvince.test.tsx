@@ -60,7 +60,7 @@ describe('StateProvinceField', () => {
         fireEvent.blur(screen.getByRole('textbox'));
 
         expect(screen.getByText('State/Province is required')).toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['State/Province is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['State/Province is required'] });
     });
 
     test('StateProvinceField_shouldPassValidation_whenValidStateProvinceProvided', () => {
@@ -94,7 +94,7 @@ describe('StateProvinceField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StateProvinceField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -214,7 +214,7 @@ describe('StateProvinceField', () => {
         fireEvent.blur(screen.getByRole('textbox'));
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StateProvinceField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
@@ -263,6 +263,6 @@ describe('StateProvinceField', () => {
         );
 
         expect(screen.queryByText('State/Province is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

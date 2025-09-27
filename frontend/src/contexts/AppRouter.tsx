@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Address, Admin, Dashboard, Home, CompactSignUpPage, ShortSignUpPage, AuthFormsPage, LoginPage, Theme } from '../pages';
+import { AddressPage, Admin, Dashboard, Home, CompactSignUpPage, ShortSignUpPage, AuthFormsPage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { useAuth } from './AuthContext';
@@ -59,7 +59,7 @@ export const AppRouter: React.FC = () => {
             {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/temp/theme" element={<Theme />} />
-            <Route path="/temp/address" element={<Address />} />
+            <Route path="/temp/address" element={<AddressPage />} />
             <Route path="/temp/compact-sign-up" element={<CompactSignUpPage />} />
             <Route path="/temp/short-sign-up" element={<ShortSignUpPage />} />
             <Route path="/temp/auth-forms" element={<AuthFormsPage />} />

@@ -129,7 +129,7 @@ describe('PostalCodeField', () => {
 
         expect(screen.getByText('Postal code is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Postal code is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Postal code is required'] });
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidCanadianPostalCodeProvided', () => {
@@ -171,7 +171,7 @@ describe('PostalCodeField', () => {
         expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
         expect(screen.queryByText(/format is invalid/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidUSZipCodeProvided', () => {
@@ -211,7 +211,7 @@ describe('PostalCodeField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/format is invalid/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidExtendedUSZipCodeProvided', () => {
@@ -250,7 +250,7 @@ describe('PostalCodeField', () => {
         // Should not show any validation errors
         expect(screen.queryByText(/format is invalid/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('PostalCodeField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -289,10 +289,10 @@ describe('PostalCodeField', () => {
 
         expect(screen.getByText('Postal code must not exceed 10 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, [
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Postal code must not exceed 10 characters', 
             'Postal code format is invalid (e.g., M5H 2N2 or 12345)'
-        ]);
+        ] });
     });
 
     test('PostalCodeField_shouldShowMinLengthError_whenTooShort', () => {
@@ -329,10 +329,10 @@ describe('PostalCodeField', () => {
 
         expect(screen.getByText('Postal code must be at least 5 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, [
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Postal code must be at least 5 characters long', 
             'Postal code format is invalid (e.g., M5H 2N2 or 12345)'
-        ]);
+        ] });
     });
 
     test('PostalCodeField_shouldShowInvalidFormatError_whenInvalidFormat', () => {
@@ -369,7 +369,7 @@ describe('PostalCodeField', () => {
 
         expect(screen.getByText('Postal code format is invalid (e.g., M5H 2N2 or 12345)')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Postal code format is invalid (e.g., M5H 2N2 or 12345)']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Postal code format is invalid (e.g., M5H 2N2 or 12345)'] });
     });
 
     test('PostalCodeField_shouldAcceptCanadianPostalCodeWithoutSpace', () => {
@@ -407,7 +407,7 @@ describe('PostalCodeField', () => {
         // Should not show validation errors for valid format
         expect(screen.queryByText(/format is invalid/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('PostalCodeField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -430,7 +430,7 @@ describe('PostalCodeField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('PostalCodeField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
@@ -480,7 +480,7 @@ describe('PostalCodeField', () => {
 
         expect(screen.getByText('Postal code format is invalid (e.g., M5H 2N2 or 12345)')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Postal code format is invalid (e.g., M5H 2N2 or 12345)']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Postal code format is invalid (e.g., M5H 2N2 or 12345)'] });
     });
 
     test('PostalCodeField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -571,6 +571,6 @@ describe('PostalCodeField', () => {
 
         // Validation errors should be cleared
         expect(screen.queryByText('Postal code is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

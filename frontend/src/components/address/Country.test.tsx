@@ -60,7 +60,7 @@ describe('CountryField', () => {
         fireEvent.blur(screen.getByRole('textbox'));
 
         expect(screen.getByText('Country is required')).toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Country is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Country is required'] });
     });
 
     test('CountryField_shouldPassValidation_whenValidCountryProvided', () => {
@@ -94,7 +94,7 @@ describe('CountryField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CountryField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -228,7 +228,7 @@ describe('CountryField', () => {
 
         expect(screen.queryByText(/contain only/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CountryField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -248,7 +248,7 @@ describe('CountryField', () => {
         fireEvent.blur(screen.getByRole('textbox'));
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CountryField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
@@ -297,6 +297,6 @@ describe('CountryField', () => {
         );
 
         expect(screen.queryByText('Country is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

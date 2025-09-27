@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AddressData } from '@/services/dtos';
+import { ValidationResult } from '@/services/validation';
 import { MapPin } from 'lucide-react';
 import React from 'react';
 import { CityField } from './City';
@@ -158,11 +159,20 @@ const AddressForm: React.FC<AddressFormProps> = ({
     const validationMode = isSkippable ? 'optional' : 'required';
 
     // Handle field validation changes
-    const handleFieldValidationChange = React.useCallback((fieldName: string, isValid: boolean, fieldErrors: string[]) => {
-        setFieldValidationState(prev => ({
-            ...prev,
-            [fieldName]: { isValid, errors: fieldErrors }
-        }));
+    const handleFieldValidationChange = React.useCallback((fieldName: string, validationResult: ValidationResult) => {
+        setFieldValidationState(prev => {
+            // Only update if validation result has changed
+            const currentState = prev[fieldName];
+            if (currentState?.isValid === validationResult.isValid &&
+                JSON.stringify(currentState?.errors) === JSON.stringify(validationResult.errors)) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                [fieldName]: { isValid: validationResult.isValid, errors: validationResult.errors }
+            };
+        });
     }, []);
 
     // Define required fields (fields that must have values when form is not skippable)
@@ -256,8 +266,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('unitNumber', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('unitNumber', validationResult)
                         }
                     />
 
@@ -280,8 +290,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('streetNumber', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('streetNumber', validationResult)
                         }
                     />
                 </div>
@@ -294,8 +304,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     disabled={disabled || isSubmitting}
                     enableValidation={enableValidation}
                     validationMode={validationMode}
-                    onValidationChange={(isValid, fieldErrors) =>
-                        handleFieldValidationChange('streetName', isValid, fieldErrors)
+                    onValidationChange={(validationResult) =>
+                        handleFieldValidationChange('streetName', validationResult)
                     }
                 />
 
@@ -308,8 +318,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('city', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('city', validationResult)
                         }
                     />
 
@@ -320,8 +330,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('stateOrProvince', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('stateOrProvince', validationResult)
                         }
                     />
                 </div>
@@ -335,8 +345,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('postalOrZipCode', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('postalOrZipCode', validationResult)
                         }
                     />
 
@@ -347,8 +357,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         disabled={disabled || isSubmitting}
                         enableValidation={enableValidation}
                         validationMode={validationMode}
-                        onValidationChange={(isValid, fieldErrors) =>
-                            handleFieldValidationChange('country', isValid, fieldErrors)
+                        onValidationChange={(validationResult) =>
+                            handleFieldValidationChange('country', validationResult)
                         }
                     />
                 </div>

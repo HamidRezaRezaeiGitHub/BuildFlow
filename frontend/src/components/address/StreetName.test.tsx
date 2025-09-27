@@ -129,7 +129,7 @@ describe('StreetNameField', () => {
 
         expect(screen.getByText('Street name is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street name is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street name is required'] });
     });
 
     test('StreetNameField_shouldPassValidation_whenValidNameProvided', () => {
@@ -170,7 +170,7 @@ describe('StreetNameField', () => {
         expect(screen.queryByText(/exceed/)).not.toBeInTheDocument();
         expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNameField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -209,7 +209,7 @@ describe('StreetNameField', () => {
 
         expect(screen.getByText('Street name must not exceed 100 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street name must not exceed 100 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street name must not exceed 100 characters'] });
     });
 
     test('StreetNameField_shouldShowMinLengthError_whenTooShort', () => {
@@ -246,7 +246,7 @@ describe('StreetNameField', () => {
 
         expect(screen.getByText('Street name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street name must be at least 2 characters long']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street name must be at least 2 characters long'] });
     });
 
     test('StreetNameField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -269,7 +269,7 @@ describe('StreetNameField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNameField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
@@ -319,7 +319,7 @@ describe('StreetNameField', () => {
 
         expect(screen.getByText('Street name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street name must be at least 2 characters long']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street name must be at least 2 characters long'] });
     });
 
     test('StreetNameField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -410,6 +410,6 @@ describe('StreetNameField', () => {
 
         // Validation errors should be cleared
         expect(screen.queryByText('Street name is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

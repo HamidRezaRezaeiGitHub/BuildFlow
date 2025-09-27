@@ -1,7 +1,8 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { validationService } from '@/services/validation/ValidationService';
-import React from 'react';
+import { ValidationResult } from '@/services/validation';
+import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
+import { ChangeEvent, FC, useMemo } from 'react';
 import { BaseFieldProps } from './Address';
 
 // Country Field Component
@@ -9,10 +10,10 @@ export interface CountryFieldProps extends BaseFieldProps {
     placeholder?: string;
     enableValidation?: boolean;
     validationMode?: 'required' | 'optional';
-    onValidationChange?: (isValid: boolean, errors: string[]) => void;
+    onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
-export const CountryField: React.FC<CountryFieldProps> = ({
+export const CountryField: FC<CountryFieldProps> = ({
     id = 'country',
     value,
     onChange,
@@ -24,94 +25,70 @@ export const CountryField: React.FC<CountryFieldProps> = ({
     validationMode = 'optional',
     onValidationChange
 }) => {
-    const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
-    const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
+    // Memoized validation rules configuration
+    const validationRules = useMemo(() => {
+        if (!enableValidation) return [];
 
-    // Create validation configuration based on props
-    const validationConfig = React.useMemo(() => {
-        if (!enableValidation) return undefined;
-
-        return {
-            fieldName: 'country',
-            fieldType: 'text' as const,
-            required: validationMode === 'required',
-            rules: [
-                ...(validationMode === 'required' ? [{
-                    name: 'required',
-                    message: 'Country is required',
-                    validator: (val: string) => !!val && val.trim().length > 0
-                }] : []),
-                {
-                    name: 'maxLength_60',
-                    message: 'Country name must not exceed 60 characters',
-                    validator: (val: string) => !val || val.length <= 60
-                },
-                {
-                    name: 'minLength_2',
-                    message: 'Country name must be at least 2 characters long',
-                    validator: (val: string) => !val || val.trim().length >= 2
-                },
-                {
-                    name: 'validCountryName',
-                    message: 'Country name must contain only letters, spaces, hyphens, and periods',
-                    validator: (val: string) => !val || /^[a-zA-Z\s\-.]+$/.test(val.trim())
-                }
-            ]
-        };
-    }, [enableValidation, validationMode]);
-
-    // Validate field when value changes
-    const validateField = React.useCallback((fieldValue: string) => {
-        if (!enableValidation || !validationConfig) {
-            setValidationErrors([]);
-            return true;
-        }
-
-        const result = validationService.validateField('country', fieldValue, validationConfig);
-        setValidationErrors(result.errors);
-
-        // Notify parent of validation changes
-        if (onValidationChange) {
-            onValidationChange(result.isValid, result.errors);
-        }
-
-        return result.isValid;
-    }, [enableValidation, validationConfig, onValidationChange]);
-
-    // Handle validation prop changes (not value changes - those are handled by handleChange)
-    React.useEffect(() => {
-        if (!enableValidation) {
-            // Clear validation errors when validation is disabled
-            setValidationErrors([]);
-            if (onValidationChange) {
-                onValidationChange(true, []);
+        return [
+            ...(validationMode === 'required' ? [{
+                name: 'required',
+                message: 'Country is required',
+                validator: (val: string) => !!val && val.trim().length > 0
+            }] : []),
+            {
+                name: 'maxLength_60',
+                message: 'Country name must not exceed 60 characters',
+                validator: (val: string) => !val || val.length <= 60
+            },
+            {
+                name: 'minLength_2',
+                message: 'Country name must be at least 2 characters long',
+                validator: (val: string) => !val || val.trim().length >= 2
+            },
+            {
+                name: 'validCountryName',
+                message: 'Country name must contain only letters, spaces, hyphens, and periods',
+                validator: (val: string) => !val || /^[a-zA-Z\s\-.]+$/.test(val.trim())
             }
-        }
-        // Note: We don't re-validate on value changes here - that's handled in handleChange
-        // We only clear errors when validation is disabled or config changes
+        ];
     }, [enableValidation, validationMode]);
 
-    // Handle input change
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Memoized config for the hook to prevent infinite re-renders
+    const hookConfig = useMemo(() => ({
+        fieldName: 'country',
+        fieldType: 'text' as const,
+        required: validationMode === 'required',
+        validationRules
+    }), [validationMode, validationRules]);
+
+    // Use the smart field validation hook
+    const { state, handlers } = useSmartFieldValidation({
+        value,
+        config: hookConfig,
+        enableValidation,
+        onValidationChange
+    });
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const oldValue = value;
         const newValue = e.target.value;
+
+        // Use the hook's change handler for autofill detection
+        handlers.handleChange(newValue, oldValue);
+
         onChange(newValue);
-
-        // Validate if touched or if we want immediate validation
-        if (hasBeenTouched && enableValidation) {
-            validateField(newValue);
-        }
     };
 
-    // Handle input blur - Used for touch-based validation strategy
+    const handleFocus = () => {
+        handlers.handleFocus();
+    };
+
     const handleBlur = () => {
-        setHasBeenTouched(true);
-        if (enableValidation) {
-            validateField(value);
-        }
+        handlers.handleBlur();
     };
 
-    // Use validation errors if validation is enabled, otherwise use passed errors
-    const displayErrors = enableValidation ? validationErrors : errors;
+    // Determine which errors to display - use hook's computed displayErrors or fallback to external errors
+    const displayErrors = enableValidation ? state.displayErrors : errors;
     const hasErrors = displayErrors.length > 0;
 
     // Determine if field is required for label display
@@ -128,6 +105,7 @@ export const CountryField: React.FC<CountryFieldProps> = ({
                 type="text"
                 placeholder={placeholder}
                 value={value}
+                onFocus={handleFocus}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 className={hasErrors ? 'border-red-500 focus:border-red-500' : ''}

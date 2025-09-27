@@ -8,7 +8,7 @@ import { useNavigate } from '@/contexts';
 import React, { useState } from 'react';
 
 /**
- * Temporary Address page for testing both skippable and non-skippable AddressForm components
+ * Temporary AddressPage for testing both skippable and non-skippable AddressForm components
  * and validation service integration.
  * 
  * Features:
@@ -18,7 +18,7 @@ import React, { useState } from 'react';
  * - Address data state management
  * - Responsive card layout
  */
-const Address: React.FC = () => {
+const AddressPage: React.FC = () => {
     const navigation = useNavigate();
     
     // Single form state
@@ -210,4 +210,4 @@ const Address: React.FC = () => {
     );
 };
 
-export default Address;
+export default AddressPage;

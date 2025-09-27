@@ -7,7 +7,7 @@ export { default as Admin } from './Admin';
 export * from './project';
 
 // Temp pages for testing
-export { default as Address } from './temp/Address';
+export { default as AddressPage } from './temp/AddressPage';
 export { default as Theme } from './temp/Theme';
 export { default as CompactSignUpPage } from './temp/CompactSignUpPage';
 export { default as ShortSignUpPage } from './temp/ShortSignUpPage';
