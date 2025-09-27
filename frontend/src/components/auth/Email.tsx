@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { validationService } from '@/services/validation/ValidationService';
 import { Mail } from 'lucide-react';
-import React from 'react';
+import { ChangeEvent, FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
 
 // Email Field Component Props
@@ -14,7 +14,7 @@ export interface EmailFieldProps extends BaseAuthFieldProps {
     onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
-export const EmailField: React.FC<EmailFieldProps> = ({
+export const EmailField: FC<EmailFieldProps> = ({
     id = 'email',
     value,
     onChange,
@@ -26,11 +26,14 @@ export const EmailField: React.FC<EmailFieldProps> = ({
     validationMode = 'optional',
     onValidationChange
 }) => {
-    const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
-    const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
+    const [validationResult, setValidationResult] = useState<ValidationResult>({ isValid: true, errors: [] });
+    const [hasBeenTouched, setHasBeenTouched] = useState(false);
+    const [wasAutofilled, setWasAutofilled] = useState(false);
+    const [hasFocus, setHasFocus] = useState(false);
+    const [userTypingTimer, setUserTypingTimer] = useState<NodeJS.Timeout | null>(null);
 
-    // Create validation configuration based on props
-    const validationConfig = React.useMemo(() => {
+    // memoized validation config
+    const validationConfig = useMemo(() => {
         if (!enableValidation) return undefined;
 
         return {
@@ -57,57 +60,89 @@ export const EmailField: React.FC<EmailFieldProps> = ({
         };
     }, [enableValidation, validationMode]);
 
-    // Validate field when value changes
-    const validateField = React.useCallback((fieldValue: string) => {
+    // memoized validation function
+    const validateEmail = useCallback((fieldValue: string) => {
         if (!enableValidation || !validationConfig) {
-            setValidationErrors([]);
-            return true;
+            setValidationResult({ isValid: true, errors: [] });
+            return;
         }
 
         const result: ValidationResult = validationService.validateField('email', fieldValue, validationConfig);
-        setValidationErrors(result.errors);
+        setValidationResult(result);
+    }, [enableValidation, validationConfig]);
 
-        // Notify parent of validation changes
+    const detectAutofill = useCallback((newValue: string, oldValue: string) => {
+        // Clear any existing timer
+        if (userTypingTimer) {
+            clearTimeout(userTypingTimer);
+        }
+
+        // Primary detection logic
+        const wasEmpty = !oldValue || oldValue.trim() === '';
+        const hasContent = newValue && newValue.trim().length > 0;
+        const largeChange = (newValue.length - oldValue.length) > 2;
+        const noUserInteraction = !hasBeenTouched && !hasFocus;
+        const looksLikeEmail = newValue.includes('@') && newValue.includes('.');
+
+        const isLikelyAutofill = wasEmpty && hasContent && largeChange &&
+            noUserInteraction && looksLikeEmail;
+
+        if (isLikelyAutofill) {
+            setWasAutofilled(true);
+            const timer = setTimeout(() => {
+                setHasBeenTouched(true);
+            }, 1500); // Give user time to see the autofilled value
+
+            setUserTypingTimer(timer);
+            return true;
+        }
+
+        return false;
+    }, [hasBeenTouched, hasFocus, userTypingTimer]);
+
+    useEffect(() => {
         if (onValidationChange) {
-            onValidationChange(result);
+            onValidationChange(validationResult);
         }
+    }, [validationResult]);
 
-        return result.isValid;
-    }, [enableValidation, validationConfig, onValidationChange]);
+    useEffect(() => {
+        validateEmail(value);
+    }, [value, validateEmail]);
 
-    // Handle validation prop changes
-    React.useEffect(() => {
-        if (!enableValidation) {
-            setValidationErrors([]);
-            if (onValidationChange) {
-                onValidationChange({ isValid: true, errors: [] });
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (userTypingTimer) {
+                clearTimeout(userTypingTimer);
             }
-        }
-    }, [enableValidation, validationMode]);
+        };
+    }, [userTypingTimer]);
 
-    // Handle input change
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const oldValue = value;
         const newValue = e.target.value;
+
+        // Detect autofill
+        if (!wasAutofilled) {
+            detectAutofill(newValue, oldValue);
+        }
+
         onChange(newValue);
-
-        // Validate if touched or if we want immediate validation
-        if (hasBeenTouched && enableValidation) {
-            validateField(newValue);
-        }
     };
 
-    // Handle input blur - Used for touch-based validation strategy
-    const handleBlur = () => {
+    const handleFocus = () => {
+        setHasFocus(true);
         setHasBeenTouched(true);
-        if (enableValidation) {
-            validateField(value);
-        }
     };
 
-    // Use validation errors if validation is enabled, otherwise use passed errors
-    const displayErrors = enableValidation ? validationErrors : errors;
-    const hasErrors = displayErrors.length > 0;
+    const handleBlur = () => {
+        setHasFocus(false);
+    };
 
+    // Determine which errors to display
+    const displayErrors = enableValidation && hasBeenTouched ? validationResult.errors : errors;
+    const hasErrors = displayErrors.length > 0;
     // Determine if field is required for label display
     const isRequired = enableValidation && validationMode === 'required';
 
@@ -125,6 +160,7 @@ export const EmailField: React.FC<EmailFieldProps> = ({
                     placeholder={placeholder}
                     className={`pl-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
                     value={value}
+                    onFocus={handleFocus}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}

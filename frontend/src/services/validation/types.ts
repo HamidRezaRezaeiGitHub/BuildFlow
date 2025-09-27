@@ -97,7 +97,7 @@ export interface BuiltInFieldConfigs {
 // Export commonly used validation patterns
 export const VALIDATION_PATTERNS = {
     EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    PHONE_INTERNATIONAL: /^[\+]?[1-9][\d\-\s\(\)\.]{7,29}$/,
+    PHONE_INTERNATIONAL: /^[\+\(\d][\d\-\s\(\)\.]{6,28}$/,
     CANADIAN_POSTAL: /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/,
     US_ZIP: /^\d{5}(-\d{4})?$/,
     STREET_NUMBER: /^\d+$/,

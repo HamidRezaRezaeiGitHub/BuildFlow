@@ -30,3 +30,11 @@ export {
 export {
     createFieldConfig, validateField, ValidationService
 } from './ValidationService';
+
+// Smart field validation hook
+export {
+    useSmartFieldValidation
+} from './useSmartFieldValidation';
+export type {
+    SmartFieldConfig, AutofillDetectionConfig, SmartFieldState
+} from './useSmartFieldValidation';
