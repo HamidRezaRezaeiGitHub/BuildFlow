@@ -8,13 +8,13 @@ import { ConfirmPasswordField } from './ConfirmPassword';
 import { EmailField } from './Email';
 import { PasswordField } from './Password';
 
-export interface SimpleSignUpFormData {
+export interface CompactSignUpFormData {
     email: string;
     password: string;
     confirmPassword: string;
 }
 
-export interface SimpleSignUpFormProps {
+export interface CompactSignUpFormProps {
     // Optional form configuration
     title?: string;
     description?: string;
@@ -23,9 +23,9 @@ export interface SimpleSignUpFormProps {
 
     // Form callbacks
     onValidationStateChange?: (isValid: boolean) => void;
-    onFormDataChange?: (formData: SimpleSignUpFormData) => void;
+    onFormDataChange?: (formData: CompactSignUpFormData) => void;
     onLoadingStateChange?: (isLoading: boolean) => void;
-    onFormSubmit?: (formData: SimpleSignUpFormData) => void;
+    onFormSubmit?: (formData: CompactSignUpFormData) => void;
     onSignUpSuccess?: () => void;
     onSignUpError?: (error: string) => void;
 
@@ -52,7 +52,7 @@ export interface SimpleSignUpFormProps {
     autoRedirect?: boolean;
 }
 
-export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
+export const CompactSignUpForm: React.FC<CompactSignUpFormProps> = ({
     title = "Create your account",
     description = "Enter your email and password to get started",
     inline = false,
@@ -74,7 +74,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
     redirectPath = '/dashboard',
     autoRedirect = true
 }) => {
-    const [signUpForm, setSignUpForm] = useState<SimpleSignUpFormData>({
+    const [signUpForm, setSignUpForm] = useState<CompactSignUpFormData>({
         email: '',
         password: '',
         confirmPassword: ''
@@ -126,7 +126,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
         const allRequiredFieldsComplete = Object.entries(requiredFields)
             .filter(([, isRequired]) => isRequired)
             .every(([fieldName]) => {
-                const fieldValue = signUpForm[fieldName as keyof SimpleSignUpFormData];
+                const fieldValue = signUpForm[fieldName as keyof CompactSignUpFormData];
                 return fieldValue && fieldValue.trim() !== '';
             });
 
@@ -148,7 +148,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
         const allRequiredFieldsComplete = Object.entries(requiredFields)
             .filter(([, isRequired]) => isRequired)
             .every(([fieldName]) => {
-                const fieldValue = signUpForm[fieldName as keyof SimpleSignUpFormData];
+                const fieldValue = signUpForm[fieldName as keyof CompactSignUpFormData];
                 return fieldValue && fieldValue.trim() !== '';
             });
 
@@ -222,7 +222,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
         }
     };
 
-    const handleFormDataChange = (field: keyof SimpleSignUpFormData, value: string) => {
+    const handleFormDataChange = (field: keyof CompactSignUpFormData, value: string) => {
         setSignUpForm(prev => {
             const newFormData = { ...prev, [field]: value };
 
@@ -245,7 +245,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
         <form onSubmit={handleSignUp} className={`space-y-4 ${className}`}>
             {/* Email Field */}
             <EmailField
-                id="simpleSignupEmail"
+                id="compactSignUpEmail"
                 value={signUpForm.email}
                 onChange={(value) => handleFormDataChange('email', value)}
                 enableValidation={enableValidation}
@@ -258,7 +258,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
 
             {/* Password Field */}
             <PasswordField
-                id="simpleSignupPassword"
+                id="compactSignUpPassword"
                 value={signUpForm.password}
                 onChange={(value) => handleFormDataChange('password', value)}
                 disabled={disabled}
@@ -274,7 +274,7 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
 
             {/* Confirm Password Field */}
             <ConfirmPasswordField
-                id="simpleConfirmPassword"
+                id="compactConfirmPassword"
                 value={signUpForm.confirmPassword}
                 onChange={(value) => handleFormDataChange('confirmPassword', value)}
                 placeholder="Confirm your password"
@@ -347,4 +347,4 @@ export const SimpleSignUpForm: React.FC<SimpleSignUpFormProps> = ({
     );
 };
 
-export default SimpleSignUpForm;
+export default CompactSignUpForm;

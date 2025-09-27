@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { SimpleSignUpForm } from './SimpleSignUpForm';
+import { CompactSignUpForm } from './CompactSignUpForm';
 
 // Mock the useAuth hook
 const mockRegister = jest.fn();
@@ -17,7 +17,7 @@ jest.mock('@/contexts/NavigationContext', () => ({
   })
 }));
 
-describe('SimpleSignUpForm', () => {
+describe('CompactSignUpForm', () => {
   const mockOnValidationStateChange = jest.fn();
   const mockOnFormDataChange = jest.fn();
   const mockOnLoadingStateChange = jest.fn();
@@ -31,8 +31,8 @@ describe('SimpleSignUpForm', () => {
     mockNavigate.mockClear();
   });
 
-  test('SimpleSignUpForm_shouldRenderWithMinimalProps', () => {
-    render(<SimpleSignUpForm />);
+  test('CompactSignUpForm_shouldRenderWithMinimalProps', () => {
+    render(<CompactSignUpForm />);
 
     expect(screen.getByText('Create your account')).toBeInTheDocument();
     expect(screen.getByText('Enter your email and password to get started')).toBeInTheDocument();
@@ -42,16 +42,16 @@ describe('SimpleSignUpForm', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
-  test('SimpleSignUpForm_shouldRenderInlineVersion', () => {
-    render(<SimpleSignUpForm inline={true} />);
+  test('CompactSignUpForm_shouldRenderInlineVersion', () => {
+    render(<CompactSignUpForm inline={true} />);
 
     // Should not render card header when inline
     expect(screen.queryByText('Create your account')).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText('john@company.com')).toBeInTheDocument();
   });
 
-  test('SimpleSignUpForm_shouldHandleFormDataChanges', () => {
-    render(<SimpleSignUpForm onFormDataChange={mockOnFormDataChange} />);
+  test('CompactSignUpForm_shouldHandleFormDataChanges', () => {
+    render(<CompactSignUpForm onFormDataChange={mockOnFormDataChange} />);
 
     const emailInput = screen.getByPlaceholderText('john@company.com');
     const passwordInput = screen.getByPlaceholderText('Create your password');
@@ -72,10 +72,10 @@ describe('SimpleSignUpForm', () => {
     });
   });
 
-  test('SimpleSignUpForm_shouldValidateFields_whenValidationEnabled', async () => {
+  test('CompactSignUpForm_shouldValidateFields_whenValidationEnabled', async () => {
     const TestComponent = () => {
       return (
-        <SimpleSignUpForm
+        <CompactSignUpForm
           enableValidation={true}
           onValidationStateChange={mockOnValidationStateChange}
         />
@@ -105,10 +105,10 @@ describe('SimpleSignUpForm', () => {
     });
   });
 
-  test('SimpleSignUpForm_shouldValidatePasswordMatching', async () => {
+  test('CompactSignUpForm_shouldValidatePasswordMatching', async () => {
     const TestComponent = () => {
       return (
-        <SimpleSignUpForm enableValidation={true} />
+        <CompactSignUpForm enableValidation={true} />
       );
     };
 
@@ -140,9 +140,9 @@ describe('SimpleSignUpForm', () => {
     });
   });
 
-  test('SimpleSignUpForm_shouldSubmitForm_whenValid', async () => {
+  test('CompactSignUpForm_shouldSubmitForm_whenValid', async () => {
     render(
-      <SimpleSignUpForm
+      <CompactSignUpForm
         enableValidation={false}
         onFormSubmit={mockOnFormSubmit}
         onLoadingStateChange={mockOnLoadingStateChange}
@@ -196,12 +196,12 @@ describe('SimpleSignUpForm', () => {
     expect(mockOnSignUpSuccess).toHaveBeenCalled();
   });
 
-  test('SimpleSignUpForm_shouldHandleRegistrationError', async () => {
+  test('CompactSignUpForm_shouldHandleRegistrationError', async () => {
     const errorMessage = 'Registration failed';
     mockRegister.mockRejectedValue(new Error(errorMessage));
 
     render(
-      <SimpleSignUpForm
+      <CompactSignUpForm
         enableValidation={false}
         onSignUpError={mockOnSignUpError}
       />
@@ -225,8 +225,8 @@ describe('SimpleSignUpForm', () => {
     expect(mockOnSignUpError).toHaveBeenCalledWith(errorMessage);
   });
 
-  test('SimpleSignUpForm_shouldDisableSubmit_whenFormInvalid', () => {
-    render(<SimpleSignUpForm enableValidation={false} />);
+  test('CompactSignUpForm_shouldDisableSubmit_whenFormInvalid', () => {
+    render(<CompactSignUpForm enableValidation={false} />);
 
     const submitButton = screen.getByRole('button', { name: /create account/i });
 
@@ -234,8 +234,8 @@ describe('SimpleSignUpForm', () => {
     expect(submitButton).toBeDisabled();
   });
 
-  test('SimpleSignUpForm_shouldTogglePasswordVisibility', () => {
-    render(<SimpleSignUpForm />);
+  test('CompactSignUpForm_shouldTogglePasswordVisibility', () => {
+    render(<CompactSignUpForm />);
 
     const toggleButtons = screen.getAllByRole('button', { name: '' }); // Password toggle buttons have no accessible name
 
@@ -249,8 +249,8 @@ describe('SimpleSignUpForm', () => {
     expect(toggleButtons[1]).toBeInTheDocument();
   });
 
-  test('SimpleSignUpForm_shouldRespectDisabledProp', () => {
-    render(<SimpleSignUpForm disabled={true} />);
+  test('CompactSignUpForm_shouldRespectDisabledProp', () => {
+    render(<CompactSignUpForm disabled={true} />);
 
     const emailInput = screen.getByPlaceholderText('john@company.com');
     const passwordInput = screen.getByPlaceholderText('Create your password');
@@ -263,12 +263,12 @@ describe('SimpleSignUpForm', () => {
     expect(submitButton).toBeDisabled();
   });
 
-  test('SimpleSignUpForm_shouldUseCustomTitle_whenProvided', () => {
+  test('CompactSignUpForm_shouldUseCustomTitle_whenProvided', () => {
     const customTitle = 'Join BuildFlow';
     const customDescription = 'Sign up to start building';
 
     render(
-      <SimpleSignUpForm
+      <CompactSignUpForm
         title={customTitle}
         description={customDescription}
       />
@@ -278,14 +278,14 @@ describe('SimpleSignUpForm', () => {
     expect(screen.getByText(customDescription)).toBeInTheDocument();
   });
 
-  test('SimpleSignUpForm_shouldHandleExternalErrors', () => {
+  test('CompactSignUpForm_shouldHandleExternalErrors', () => {
     const externalErrors = {
       email: ['Email already exists'],
       password: ['Password too weak']
     };
 
     render(
-      <SimpleSignUpForm
+      <CompactSignUpForm
         enableValidation={false}
         errors={externalErrors}
       />
@@ -295,9 +295,9 @@ describe('SimpleSignUpForm', () => {
     expect(screen.getByText('Password too weak')).toBeInTheDocument();
   });
 
-  test('SimpleSignUpForm_shouldUseNavigateForRedirect', async () => {
+  test('CompactSignUpForm_shouldUseNavigateForRedirect', async () => {
     render(
-      <SimpleSignUpForm
+      <CompactSignUpForm
         enableValidation={false}
         autoRedirect={true}
         redirectPath="/custom-path"

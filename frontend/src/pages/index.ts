@@ -9,4 +9,4 @@ export * from './project';
 // Temp pages for testing
 export { default as Address } from './temp/Address';
 export { default as Theme } from './temp/Theme';
-export { default as SimpleSignUpPage } from './temp/SimpleSignUpPage';
+export { default as CompactSignUpPage } from './temp/CompactSignUpPage';

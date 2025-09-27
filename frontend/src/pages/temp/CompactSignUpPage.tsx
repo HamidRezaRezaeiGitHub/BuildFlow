@@ -1,4 +1,4 @@
-import { SimpleSignUpForm } from '@/components/auth/SimpleSignUpForm';
+import { CompactSignUpForm } from '@/components/auth/CompactSignUpForm';
 import { ConfigurableNavbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { useNavigate } from '@/contexts';
 import React, { useState } from 'react';
 
 /**
- * Temporary SimpleSignUpPage for testing the SimpleSignUpForm component
+ * Temporary CompactSignUpPage for testing the CompactSignUpForm component
  * with different configurations and validation modes.
  * 
  * Features:
@@ -18,7 +18,7 @@ import React, { useState } from 'react';
  * - Different configuration options
  * - Responsive layout
  */
-const SimpleSignUpPage: React.FC = () => {
+const CompactSignUpPage: React.FC = () => {
     const navigation = useNavigate();
     
     // Form state and settings
@@ -103,9 +103,9 @@ const SimpleSignUpPage: React.FC = () => {
                     {/* Page Header */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-2xl">Simple Sign Up Form Testing</CardTitle>
+                            <CardTitle className="text-2xl">Compact Sign Up Form Testing</CardTitle>
                             <CardDescription>
-                                Test the SimpleSignUpForm component with different configurations.
+                                Test the CompactSignUpForm component with different configurations.
                                 This page demonstrates both card and inline modes, validation options, and callbacks.
                             </CardDescription>
                         </CardHeader>
@@ -176,7 +176,7 @@ const SimpleSignUpPage: React.FC = () => {
                         {/* Card Mode Form */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold">Card Mode (Default)</h3>
-                            <SimpleSignUpForm
+                            <CompactSignUpForm
                                 title="Join BuildFlow"
                                 description="Create your account to get started with project management"
                                 enableValidation={enableValidation}
@@ -199,11 +199,11 @@ const SimpleSignUpPage: React.FC = () => {
                                 <CardHeader>
                                     <CardTitle>Custom Container</CardTitle>
                                     <CardDescription>
-                                        SimpleSignUpForm in inline mode within a custom container
+                                        CompactSignUpForm in inline mode within a custom container
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <SimpleSignUpForm
+                                    <CompactSignUpForm
                                         inline={true}
                                         enableValidation={enableValidation}
                                         autoRedirect={autoRedirect}
@@ -275,4 +275,4 @@ const SimpleSignUpPage: React.FC = () => {
     );
 };
 
-export default SimpleSignUpPage;
+export default CompactSignUpPage;

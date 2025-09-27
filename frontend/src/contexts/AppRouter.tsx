@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Address, Admin, Dashboard, Home, SimpleSignUpPage, Theme } from '../pages';
+import { Address, Admin, Dashboard, Home, CompactSignUpPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { useAuth } from './AuthContext';
@@ -60,7 +60,7 @@ export const AppRouter: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/temp/theme" element={<Theme />} />
             <Route path="/temp/address" element={<Address />} />
-            <Route path="/temp/simple-sign-up" element={<SimpleSignUpPage />} />
+            <Route path="/temp/compact-sign-up" element={<CompactSignUpPage />} />
             <Route path="/temp/new-project" element={<NewProjectDemo />} />
 
             {/* Protected routes */}
