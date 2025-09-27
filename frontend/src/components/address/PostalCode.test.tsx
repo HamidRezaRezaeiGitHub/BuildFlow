@@ -292,7 +292,7 @@ describe('PostalCodeField', () => {
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Postal code must not exceed 10 characters', 
             'Postal code format is invalid (e.g., M5H 2N2 or 12345)'
-        ]);
+        ] });
     });
 
     test('PostalCodeField_shouldShowMinLengthError_whenTooShort', () => {
@@ -332,7 +332,7 @@ describe('PostalCodeField', () => {
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Postal code must be at least 5 characters long', 
             'Postal code format is invalid (e.g., M5H 2N2 or 12345)'
-        ]);
+        ] });
     });
 
     test('PostalCodeField_shouldShowInvalidFormatError_whenInvalidFormat', () => {
