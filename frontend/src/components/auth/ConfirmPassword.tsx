@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ValidationResult } from '@/services/validation';
 import { validationService } from '@/services/validation/ValidationService';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import React from 'react';
@@ -13,7 +14,7 @@ export interface ConfirmPasswordFieldProps extends BaseAuthFieldProps {
     originalPassword: string;
     enableValidation?: boolean;
     validationMode?: 'required' | 'optional';
-    onValidationChange?: (isValid: boolean, errors: string[]) => void;
+    onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
 export const ConfirmPasswordField: React.FC<ConfirmPasswordFieldProps> = ({
@@ -64,12 +65,12 @@ export const ConfirmPasswordField: React.FC<ConfirmPasswordFieldProps> = ({
             return true;
         }
 
-        const result = validationService.validateField('confirmPassword', fieldValue, validationConfig);
+        const result: ValidationResult = validationService.validateField('confirmPassword', fieldValue, validationConfig);
         setValidationErrors(result.errors);
 
         // Notify parent of validation changes
         if (onValidationChange) {
-            onValidationChange(result.isValid, result.errors);
+            onValidationChange(result);
         }
 
         return result.isValid;
@@ -80,7 +81,7 @@ export const ConfirmPasswordField: React.FC<ConfirmPasswordFieldProps> = ({
         if (!enableValidation) {
             setValidationErrors([]);
             if (onValidationChange) {
-                onValidationChange(true, []);
+                onValidationChange({ isValid: true, errors: [] });
             }
         } else if (hasBeenTouched) {
             // Re-validate when original password changes

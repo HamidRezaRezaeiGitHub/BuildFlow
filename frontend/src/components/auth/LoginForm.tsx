@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
+import { ValidationResult } from '@/services/validation';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PasswordField } from './Password';
@@ -69,7 +70,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [fieldValidationState, setFieldValidationState] = React.useState<{
-    [key: string]: { isValid: boolean; errors: string[] }
+    [key: string]: ValidationResult
   }>({});
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -79,30 +80,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     'password'
   ];
 
-  const handleFieldValidationChange = React.useCallback((fieldName: string, isValid: boolean, fieldErrors: string[]) => {
-    setFieldValidationState(prev => {
-      const newState = {
-        ...prev,
-        [fieldName]: { isValid, errors: fieldErrors }
-      };
-
-      // Call validation state change callback with overall validity
-      if (onValidationStateChange) {
-        const isFormValid = Object.values(newState).every(state => state.isValid) &&
-          requiredFields.every(field => {
-            const fieldValue = loginForm[field];
-            return fieldValue && fieldValue.trim() !== '';
-          });
-        onValidationStateChange(isFormValid);
-      }
-
-      return newState;
-    });
-  }, [onValidationStateChange, requiredFields, loginForm]);
-
-  const isFormValidForSubmit = React.useMemo(() => {
-    if (!enableValidation) return true;
-
+  const isFormValid = React.useMemo(() => {
     // 1. All required fields must be filled
     const allRequiredFieldsComplete = requiredFields.every(fieldName => {
       const fieldValue = loginForm[fieldName];
@@ -114,6 +92,27 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     return allRequiredFieldsComplete && allValidatedFieldsValid;
   }, [enableValidation, fieldValidationState, loginForm, requiredFields]);
+
+  const handleFieldValidationChange = React.useCallback((fieldName: string, isValid: boolean, fieldErrors: string[]) => {
+    setFieldValidationState(prev => {
+      const newState = {
+        ...prev,
+        [fieldName]: { isValid, errors: fieldErrors }
+      };
+
+      // Call validation state change callback with overall validity
+      if (onValidationStateChange) {
+        onValidationStateChange(isFormValid);
+      }
+
+      return newState;
+    });
+  }, [onValidationStateChange, isFormValid]);
+
+  const isFormValidForSubmit = React.useMemo(() => {
+    if (!enableValidation) return true;
+    return isFormValid;
+  }, [isFormValid]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

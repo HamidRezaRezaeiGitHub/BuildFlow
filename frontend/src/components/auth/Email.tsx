@@ -1,16 +1,17 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ValidationResult } from '@/services/validation';
 import { validationService } from '@/services/validation/ValidationService';
 import { Mail } from 'lucide-react';
 import React from 'react';
-import { BaseAuthFieldProps, AUTH_VALIDATION_RULES } from './Auth';
+import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
 
 // Email Field Component Props
 export interface EmailFieldProps extends BaseAuthFieldProps {
     placeholder?: string;
     enableValidation?: boolean;
     validationMode?: 'required' | 'optional';
-    onValidationChange?: (isValid: boolean, errors: string[]) => void;
+    onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
 export const EmailField: React.FC<EmailFieldProps> = ({
@@ -63,12 +64,12 @@ export const EmailField: React.FC<EmailFieldProps> = ({
             return true;
         }
 
-        const result = validationService.validateField('email', fieldValue, validationConfig);
+        const result: ValidationResult = validationService.validateField('email', fieldValue, validationConfig);
         setValidationErrors(result.errors);
 
         // Notify parent of validation changes
         if (onValidationChange) {
-            onValidationChange(result.isValid, result.errors);
+            onValidationChange(result);
         }
 
         return result.isValid;
@@ -79,7 +80,7 @@ export const EmailField: React.FC<EmailFieldProps> = ({
         if (!enableValidation) {
             setValidationErrors([]);
             if (onValidationChange) {
-                onValidationChange(true, []);
+                onValidationChange({ isValid: true, errors: [] });
             }
         }
     }, [enableValidation, validationMode]);
