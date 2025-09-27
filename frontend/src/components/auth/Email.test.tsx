@@ -68,6 +68,7 @@ describe('EmailField', () => {
         const input = screen.getByRole('textbox');
         
         // Test invalid email
+        fireEvent.focus(input); // Focus first to mark as touched
         fireEvent.change(input, { target: { value: 'invalid-email' } });
         fireEvent.blur(input);
 
@@ -76,6 +77,7 @@ describe('EmailField', () => {
         });
 
         // Test valid email
+        fireEvent.focus(input); // Focus again for consistency
         fireEvent.change(input, { target: { value: 'test@example.com' } });
         fireEvent.blur(input);
 

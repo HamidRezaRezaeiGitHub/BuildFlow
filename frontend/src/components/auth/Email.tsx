@@ -1,9 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
-import { validationService } from '@/services/validation/ValidationService';
+import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { Mail } from 'lucide-react';
-import { ChangeEvent, FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FC, useMemo } from 'react';
 import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
 
 // Email Field Component Props
@@ -26,122 +26,65 @@ export const EmailField: FC<EmailFieldProps> = ({
     validationMode = 'optional',
     onValidationChange
 }) => {
-    const [validationResult, setValidationResult] = useState<ValidationResult>({ isValid: true, errors: [] });
-    const [hasBeenTouched, setHasBeenTouched] = useState(false);
-    const [wasAutofilled, setWasAutofilled] = useState(false);
-    const [hasFocus, setHasFocus] = useState(false);
-    const [userTypingTimer, setUserTypingTimer] = useState<NodeJS.Timeout | null>(null);
+    // Memoized validation rules configuration
+    const validationRules = useMemo(() => {
+        if (!enableValidation) return [];
 
-    // memoized validation config
-    const validationConfig = useMemo(() => {
-        if (!enableValidation) return undefined;
-
-        return {
-            fieldName: 'email',
-            fieldType: 'email' as const,
-            required: validationMode === 'required',
-            rules: [
-                ...(validationMode === 'required' ? [{
-                    name: 'required',
-                    message: 'Email is required',
-                    validator: (val: string) => !!val && val.trim().length > 0
-                }] : []),
-                {
-                    name: 'validEmail',
-                    message: 'Email must be valid',
-                    validator: (val: string) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
-                },
-                {
-                    name: `maxLength_${AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH}`,
-                    message: `Email must not exceed ${AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH} characters`,
-                    validator: (val: string) => !val || val.length <= AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH
-                }
-            ]
-        };
+        return [
+            ...(validationMode === 'required' ? [{
+                name: 'required',
+                message: 'Email is required',
+                validator: (val: string) => !!val && val.trim().length > 0
+            }] : []),
+            {
+                name: 'validEmail',
+                message: 'Email must be valid',
+                validator: (val: string) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+            },
+            {
+                name: `maxLength_${AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH}`,
+                message: `Email must not exceed ${AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH} characters`,
+                validator: (val: string) => !val || val.length <= AUTH_VALIDATION_RULES.EMAIL_MAX_LENGTH
+            }
+        ];
     }, [enableValidation, validationMode]);
 
-    // memoized validation function
-    const validateEmail = useCallback((fieldValue: string) => {
-        if (!enableValidation || !validationConfig) {
-            setValidationResult({ isValid: true, errors: [] });
-            return;
-        }
+    // Memoized config for the hook to prevent infinite re-renders
+    const hookConfig = useMemo(() => ({
+        fieldName: 'email',
+        fieldType: 'email' as const,
+        required: validationMode === 'required',
+        validationRules
+    }), [validationMode, validationRules]);
 
-        const result: ValidationResult = validationService.validateField('email', fieldValue, validationConfig);
-        setValidationResult(result);
-    }, [enableValidation, validationConfig]);
-
-    const detectAutofill = useCallback((newValue: string, oldValue: string) => {
-        // Clear any existing timer
-        if (userTypingTimer) {
-            clearTimeout(userTypingTimer);
-        }
-
-        // Primary detection logic
-        const wasEmpty = !oldValue || oldValue.trim() === '';
-        const hasContent = newValue && newValue.trim().length > 0;
-        const largeChange = (newValue.length - oldValue.length) > 2;
-        const noUserInteraction = !hasBeenTouched && !hasFocus;
-        const looksLikeEmail = newValue.includes('@') && newValue.includes('.');
-
-        const isLikelyAutofill = wasEmpty && hasContent && largeChange &&
-            noUserInteraction && looksLikeEmail;
-
-        if (isLikelyAutofill) {
-            setWasAutofilled(true);
-            const timer = setTimeout(() => {
-                setHasBeenTouched(true);
-            }, 1500); // Give user time to see the autofilled value
-
-            setUserTypingTimer(timer);
-            return true;
-        }
-
-        return false;
-    }, [hasBeenTouched, hasFocus, userTypingTimer]);
-
-    useEffect(() => {
-        if (onValidationChange) {
-            onValidationChange(validationResult);
-        }
-    }, [validationResult]);
-
-    useEffect(() => {
-        validateEmail(value);
-    }, [value, validateEmail]);
-
-    // Cleanup timer on unmount
-    useEffect(() => {
-        return () => {
-            if (userTypingTimer) {
-                clearTimeout(userTypingTimer);
-            }
-        };
-    }, [userTypingTimer]);
+    // Use the smart field validation hook
+    const { state, handlers } = useSmartFieldValidation({
+        value,
+        config: hookConfig,
+        enableValidation,
+        onValidationChange
+    });
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const oldValue = value;
         const newValue = e.target.value;
 
-        // Detect autofill
-        if (!wasAutofilled) {
-            detectAutofill(newValue, oldValue);
-        }
+        // Use the hook's change handler for autofill detection
+        handlers.handleChange(newValue, oldValue);
 
         onChange(newValue);
     };
 
     const handleFocus = () => {
-        setHasFocus(true);
-        setHasBeenTouched(true);
+        handlers.handleFocus();
     };
 
     const handleBlur = () => {
-        setHasFocus(false);
+        handlers.handleBlur();
     };
 
-    // Determine which errors to display
-    const displayErrors = enableValidation && hasBeenTouched ? validationResult.errors : errors;
+    // Determine which errors to display - use hook's computed displayErrors or fallback to external errors
+    const displayErrors = enableValidation ? state.displayErrors : errors;
     const hasErrors = displayErrors.length > 0;
     // Determine if field is required for label display
     const isRequired = enableValidation && validationMode === 'required';

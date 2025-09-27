@@ -1,9 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
-import { validationService } from '@/services/validation/ValidationService';
+import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { Eye, EyeOff, Lock } from 'lucide-react';
-import React from 'react';
+import { ChangeEvent, FC, useMemo } from 'react';
 import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
 
 // Password Field Component Props
@@ -17,7 +17,7 @@ export interface PasswordFieldProps extends BaseAuthFieldProps {
     onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
-export const PasswordField: React.FC<PasswordFieldProps> = ({
+export const PasswordField: FC<PasswordFieldProps> = ({
     id = 'password',
     value,
     onChange,
@@ -32,16 +32,13 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
     validationType = 'signup',
     onValidationChange
 }) => {
-    const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
-    const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
-
-    // Create validation configuration based on props and validation type
-    const validationConfig = React.useMemo(() => {
-        if (!enableValidation) return undefined;
+    // Memoized validation rules configuration
+    const validationRules = useMemo(() => {
+        if (!enableValidation) return [];
 
         const isSignup = validationType === 'signup';
-        const minLength = isSignup ? AUTH_VALIDATION_RULES.SIGNUP_PASSWORD_MIN_LENGTH : AUTH_VALIDATION_RULES.LOGIN_PASSWORD_MIN_LENGTH;
-        const maxLength = isSignup ? AUTH_VALIDATION_RULES.SIGNUP_PASSWORD_MAX_LENGTH : AUTH_VALIDATION_RULES.LOGIN_PASSWORD_MAX_LENGTH;
+        const minLength = AUTH_VALIDATION_RULES.PASSWORD_MIN_LENGTH;
+        const maxLength = AUTH_VALIDATION_RULES.PASSWORD_MAX_LENGTH;
 
         const baseRules = [
             ...(validationMode === 'required' ? [{
@@ -92,65 +89,46 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
             );
         }
 
-        return {
-            fieldName: 'password',
-            fieldType: 'password' as const,
-            required: validationMode === 'required',
-            rules: baseRules
-        };
+        return baseRules;
     }, [enableValidation, validationMode, validationType]);
 
-    // Validate field when value changes
-    const validateField = React.useCallback((fieldValue: string) => {
-        if (!enableValidation || !validationConfig) {
-            setValidationErrors([]);
-            return true;
-        }
+    // Memoized config for the hook to prevent infinite re-renders
+    const hookConfig = useMemo(() => ({
+        fieldName: 'password',
+        fieldType: 'password' as const,
+        required: validationMode === 'required',
+        validationRules
+    }), [validationMode, validationRules]);
 
-        const result: ValidationResult = validationService.validateField('password', fieldValue, validationConfig);
-        setValidationErrors(result.errors);
+    // Use the smart field validation hook
+    const { state, handlers } = useSmartFieldValidation({
+        value,
+        config: hookConfig,
+        enableValidation,
+        onValidationChange
+    });
 
-        // Notify parent of validation changes
-        if (onValidationChange) {
-            onValidationChange(result);
-        }
-
-        return result.isValid;
-    }, [enableValidation, validationConfig, onValidationChange]);
-
-    // Handle validation prop changes
-    React.useEffect(() => {
-        if (!enableValidation) {
-            setValidationErrors([]);
-            if (onValidationChange) {
-                onValidationChange({ isValid: true, errors: [] });
-            }
-        }
-    }, [enableValidation, validationMode, validationType]);
-
-    // Handle input change
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const oldValue = value;
         const newValue = e.target.value;
+
+        // Use the hook's change handler for autofill detection
+        handlers.handleChange(newValue, oldValue);
+
         onChange(newValue);
-
-        // Validate if touched or if we want immediate validation
-        if (hasBeenTouched && enableValidation) {
-            validateField(newValue);
-        }
     };
 
-    // Handle input blur - Used for touch-based validation strategy
+    const handleFocus = () => {
+        handlers.handleFocus();
+    };
+
     const handleBlur = () => {
-        setHasBeenTouched(true);
-        if (enableValidation) {
-            validateField(value);
-        }
+        handlers.handleBlur();
     };
 
-    // Use validation errors if validation is enabled, otherwise use passed errors
-    const displayErrors = enableValidation ? validationErrors : errors;
+    // Determine which errors to display - use hook's computed displayErrors or fallback to external errors
+    const displayErrors = enableValidation ? state.displayErrors : errors;
     const hasErrors = displayErrors.length > 0;
-
     // Determine if field is required for label display
     const isRequired = enableValidation && validationMode === 'required';
 
@@ -168,6 +146,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
                     placeholder={placeholder}
                     className={`pl-10 pr-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
                     value={value}
+                    onFocus={handleFocus}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
