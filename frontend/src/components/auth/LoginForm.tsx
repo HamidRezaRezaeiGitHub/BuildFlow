@@ -81,6 +81,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   ];
 
   const isFormValid = React.useMemo(() => {
+    if (!enableValidation) {
+      // Without validation, just check that required fields have content
+      return requiredFields.every(fieldName => {
+        const fieldValue = loginForm[fieldName];
+        return fieldValue && fieldValue.trim() !== '';
+      });
+    }
+
     // 1. All required fields must be filled
     const allRequiredFieldsComplete = requiredFields.every(fieldName => {
       const fieldValue = loginForm[fieldName];
@@ -88,16 +96,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     });
 
     // 2. All fields that have been validated must be valid
-    const allValidatedFieldsValid = Object.values(fieldValidationState).every(state => state.isValid);
+    // If a field has no validation state, it means it hasn't been touched, so we consider it neutral (valid)
+    const allValidatedFieldsValid = requiredFields.every(fieldName => {
+      const validation = fieldValidationState[fieldName];
+      return validation ? validation.isValid : true; // Consider untouched fields as valid for form enabling
+    });
 
     return allRequiredFieldsComplete && allValidatedFieldsValid;
   }, [enableValidation, fieldValidationState, loginForm, requiredFields]);
 
-  const handleFieldValidationChange = React.useCallback((fieldName: string, isValid: boolean, fieldErrors: string[]) => {
+  const handleFieldValidationChange = React.useCallback((fieldName: string, validationResult: ValidationResult) => {
     setFieldValidationState(prev => {
       const newState = {
         ...prev,
-        [fieldName]: { isValid, errors: fieldErrors }
+        [fieldName]: validationResult
       };
 
       // Call validation state change callback with overall validity
@@ -110,9 +122,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   }, [onValidationStateChange, isFormValid]);
 
   const isFormValidForSubmit = React.useMemo(() => {
-    if (!enableValidation) return true;
+    if (!enableValidation) {
+      // Without validation, just check that fields have content
+      return requiredFields.every(fieldName => {
+        const fieldValue = loginForm[fieldName];
+        return fieldValue && fieldValue.trim() !== '';
+      });
+    }
     return isFormValid;
-  }, [isFormValid]);
+  }, [enableValidation, isFormValid, loginForm, requiredFields]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +200,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         onChange={(value) => handleLoginDataChange('usernameOrEmail', value)}
         enableValidation={enableValidation}
         validationMode="required"
-        onValidationChange={(isValid, fieldErrors) => handleFieldValidationChange('usernameOrEmail', isValid, fieldErrors)}
+        onValidationChange={(validationResult) => handleFieldValidationChange('usernameOrEmail', validationResult)}
         errors={errors.usernameOrEmail}
         placeholder="username or email@company.com"
       />
@@ -199,7 +217,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         enableValidation={enableValidation}
         validationMode="required"
         validationType="login"
-        onValidationChange={(isValid, fieldErrors) => handleFieldValidationChange('password', isValid, fieldErrors)}
+        onValidationChange={(validationResult) => handleFieldValidationChange('password', validationResult)}
         errors={errors.password}
       />
 
