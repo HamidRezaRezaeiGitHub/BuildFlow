@@ -2,32 +2,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { ChangeEvent, FC, useMemo } from 'react';
 import { BaseAuthFieldProps } from './';
 
-// Confirm Password Field Component Props
-export interface ConfirmPasswordFieldProps extends BaseAuthFieldProps {
+// Phone Field Component Props
+export interface PhoneFieldProps extends BaseAuthFieldProps {
     placeholder?: string;
-    showPassword: boolean;
-    onToggleVisibility: () => void;
-    originalPassword: string;
     enableValidation?: boolean;
     validationMode?: 'required' | 'optional';
     onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
-export const ConfirmPasswordField: FC<ConfirmPasswordFieldProps> = ({
-    id = 'confirmPassword',
+export const PhoneField: FC<PhoneFieldProps> = ({
+    id = 'phone',
     value,
     onChange,
     disabled = false,
     className = '',
     errors = [],
-    placeholder = "Confirm your password",
-    showPassword,
-    onToggleVisibility,
-    originalPassword,
+    placeholder = "+1 (555) 123-4567",
     enableValidation = false,
     validationMode = 'optional',
     onValidationChange
@@ -39,21 +33,32 @@ export const ConfirmPasswordField: FC<ConfirmPasswordFieldProps> = ({
         return [
             ...(validationMode === 'required' ? [{
                 name: 'required',
-                message: 'Password confirmation is required',
+                message: 'Phone number is required',
                 validator: (val: string) => !!val && val.trim().length > 0
             }] : []),
             {
-                name: 'passwordMatch',
-                message: 'Passwords do not match',
-                validator: (val: string) => !val || val === originalPassword
+                name: 'validPhone',
+                message: 'Phone number must be valid (10-15 digits)',
+                validator: (val: string) => {
+                    if (!val) return true; // Optional field validation
+                    // Remove all non-digit characters for validation
+                    const digitsOnly = val.replace(/\D/g, '');
+                    // Phone should have 10-15 digits (international format support)
+                    return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+                }
+            },
+            {
+                name: 'maxLength_20',
+                message: 'Phone number must not exceed 20 characters',
+                validator: (val: string) => !val || val.length <= 20
             }
         ];
-    }, [enableValidation, validationMode, originalPassword]);
+    }, [enableValidation, validationMode]);
 
     // Memoized config for the hook to prevent infinite re-renders
     const hookConfig = useMemo(() => ({
-        fieldName: 'confirmPassword',
-        fieldType: 'password' as const,
+        fieldName: 'phone',
+        fieldType: 'phone' as const,
         required: validationMode === 'required',
         validationRules
     }), [validationMode, validationRules]);
@@ -93,29 +98,22 @@ export const ConfirmPasswordField: FC<ConfirmPasswordFieldProps> = ({
     return (
         <div className={`space-y-2 ${className}`}>
             <Label htmlFor={id} className="text-xs">
-                Confirm Password
+                Phone Number
                 {isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     id={id}
-                    type={showPassword ? "text" : "password"}
+                    type="tel"
                     placeholder={placeholder}
-                    className={`pl-10 pr-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
+                    className={`pl-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
                     value={value}
                     onFocus={handleFocus}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
                 />
-                <button
-                    type="button"
-                    onClick={onToggleVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
             </div>
             {hasErrors && (
                 <div className="space-y-1">
@@ -128,4 +126,4 @@ export const ConfirmPasswordField: FC<ConfirmPasswordFieldProps> = ({
     );
 };
 
-export default ConfirmPasswordField;
+export default PhoneField;

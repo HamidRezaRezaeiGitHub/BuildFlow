@@ -4,7 +4,7 @@ import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { User } from 'lucide-react';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { BaseAuthFieldProps } from './Auth';
+import { BaseAuthFieldProps } from './';
 
 // Name type configuration
 export type NameType = 'firstName' | 'lastName';

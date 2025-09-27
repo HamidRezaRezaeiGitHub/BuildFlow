@@ -4,7 +4,7 @@ import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { Mail, User } from 'lucide-react';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
+import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './';
 
 // Username/Email Field Component Props
 export interface UsernameEmailFieldProps extends BaseAuthFieldProps {

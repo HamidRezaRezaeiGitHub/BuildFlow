@@ -16,6 +16,10 @@ export type { ValidationResult } from './Address';
 export { default as AddressForm, parseStreetNumber } from './AddressForm';
 export type { AddressFormProps } from './AddressForm';
 
+// Flexible Address Form Component with Customizable Fields
+export { default as FlexibleAddressForm, addressFieldConfigs } from './FlexibleAddressForm';
+export type { FlexibleAddressFormProps, AddressFieldConfig } from './FlexibleAddressForm';
+
 // Individual Address Field Components
 export { CityField } from './City';
 export { CountryField } from './Country';

@@ -4,7 +4,7 @@ import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
+import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './';
 
 // Password Field Component Props
 export interface PasswordFieldProps extends BaseAuthFieldProps {

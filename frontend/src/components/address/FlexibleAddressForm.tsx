@@ -13,6 +13,63 @@ import { StreetNumberField } from './StreetNumber';
 import { UnitNumberField } from './UnitNumber';
 
 /**
+ * Configuration for address field display and behavior
+ */
+export interface AddressFieldConfig {
+    /** The field name/key from AddressData */
+    field: keyof AddressData;
+    /** Display label for the field */
+    label?: string;
+    /** Custom placeholder text */
+    placeholder?: string;
+    /** Whether this field is required */
+    required?: boolean;
+    /** Column span (1-2) for grid layout */
+    colSpan?: 1 | 2;
+    /** Whether to show this field */
+    show?: boolean;
+}
+
+/**
+ * Predefined field configurations for common layouts
+ */
+export const addressFieldConfigs = {
+    full: [
+        { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetName' as keyof AddressData, colSpan: 2, required: true },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'country' as keyof AddressData, colSpan: 1, required: true }
+    ] as AddressFieldConfig[],
+
+    minimal: [
+        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'country' as keyof AddressData, colSpan: 1, required: true }
+    ] as AddressFieldConfig[],
+
+    shipping: [
+        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'postalOrZipCode' as keyof AddressData, colSpan: 2, required: true }
+    ] as AddressFieldConfig[],
+
+    international: [
+        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'country' as keyof AddressData, colSpan: 1, required: true }
+    ] as AddressFieldConfig[]
+};
+
+/**
  * Utility function to parse street number input and extract street name if present
  * @param input The street number input (e.g., "123 Main St")
  * @returns Object with parsed streetNumber and streetName
@@ -32,7 +89,7 @@ export const parseStreetNumber = (input: string): { streetNumber: string; street
     };
 };
 
-export interface AddressFormProps {
+export interface FlexibleAddressFormProps {
     /** Address data to populate the form */
     addressData: AddressData;
 
@@ -47,6 +104,9 @@ export interface AddressFormProps {
 
     /** Optional callback when form is reset */
     onReset?: () => void;
+
+    /** Configuration for which fields to show and how to display them */
+    fieldsConfig?: AddressFieldConfig[] | keyof typeof addressFieldConfigs;
 
     /** Form header/title text */
     title?: string;
@@ -105,30 +165,27 @@ export interface AddressFormProps {
     /** Whether to enable validation for form fields */
     enableValidation?: boolean;
 
-    /** Custom list of required fields. If not provided, uses default required fields (unitNumber is optional by default). */
-    requiredFields?: (keyof AddressData)[];
+    /** Maximum columns for grid layout (default: 2) */
+    maxColumns?: 1 | 2 | 3 | 4;
 }
 
 /**
- * Flexible AddressForm component that provides a complete address input form
- * with customizable features for different use cases.
+ * FlexibleAddressForm - A highly customizable address form component
  * 
  * Features:
- * - Customizable header and description
- * - Optional skip button for multi-step flows
- * - Configurable submit/skip/reset button text and variants
- * - Inline or card-wrapped display modes
- * - Flexible button layouts (horizontal/vertical)
- * - Validation error display
- * - Loading states
- * - Full AddressPanel integration
+ * - Configurable field selection and layout
+ * - Predefined layout presets (full, minimal, shipping, international)
+ * - Dynamic validation based on selected fields
+ * - Flexible grid layout with customizable column spans
+ * - All features from original AddressForm
  */
-const AddressForm: React.FC<AddressFormProps> = ({
+const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     addressData,
     onAddressChange,
     onSubmit,
     onSkip,
     onReset,
+    fieldsConfig = 'full',
     title,
     description,
     submitButtonText = 'Submit',
@@ -148,15 +205,22 @@ const AddressForm: React.FC<AddressFormProps> = ({
     resetButtonVariant = 'secondary',
     isSkippable = false,
     enableValidation = false,
-    requiredFields: customRequiredFields
+    maxColumns = 2
 }) => {
     // Track validation state for each field
     const [fieldValidationState, setFieldValidationState] = React.useState<{
         [key: string]: ValidationResult
     }>({});
 
-    // Determine validation mode based on skippable setting
-    const validationMode = isSkippable ? 'optional' : 'required';
+    // Resolve field configuration
+    const resolvedFieldsConfig: AddressFieldConfig[] = React.useMemo(() => {
+        if (typeof fieldsConfig === 'string') {
+            return addressFieldConfigs[fieldsConfig] || addressFieldConfigs.full;
+        }
+        return fieldsConfig.filter(config => config.show !== false);
+    }, [fieldsConfig]);
+
+    // Validation mode is determined per field based on field config and isSkippable
 
     // Handle field validation changes
     const handleFieldValidationChange = React.useCallback((fieldName: string, validationResult: ValidationResult) => {
@@ -175,16 +239,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
         });
     }, []);
 
-    // Define required fields (fields that must have values when form is not skippable)
-    // Default: unitNumber is optional, other fields are required
-    const requiredFields: (keyof AddressData)[] = customRequiredFields || [
-        'streetNumber',
-        'streetName',
-        'city',
-        'stateOrProvince',
-        'postalOrZipCode',
-        'country'
-    ];
+    // Get required fields from configuration
+    const requiredFields: (keyof AddressData)[] = React.useMemo(() => {
+        return resolvedFieldsConfig
+            .filter(config => config.required === true)
+            .map(config => config.field);
+    }, [resolvedFieldsConfig]);
 
     // Check if form is valid for submission
     const isFormValidForSubmit = React.useMemo(() => {
@@ -233,6 +293,144 @@ const AddressForm: React.FC<AddressFormProps> = ({
         }
     };
 
+    // Render individual field component
+    const renderField = (config: AddressFieldConfig) => {
+        const { field, placeholder, required } = config;
+        const fieldValue = addressData[field] || '';
+        const fieldErrors = errors[field];
+        const fieldRequired = isSkippable ? false : (required ?? true);
+        const fieldValidationMode: 'required' | 'optional' = fieldRequired ? 'required' : 'optional';
+
+        const commonProps = {
+            value: fieldValue,
+            onChange: (value: string) => onAddressChange(field, value),
+            errors: fieldErrors,
+            disabled: disabled || isSubmitting,
+            enableValidation,
+            validationMode: fieldValidationMode,
+            onValidationChange: (validationResult: ValidationResult) =>
+                handleFieldValidationChange(field, validationResult),
+            placeholder
+        };
+
+        switch (field) {
+            case 'unitNumber':
+                return (
+                    <UnitNumberField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            case 'streetNumber':
+                return (
+                    <StreetNumberField
+                        key={field}
+                        placeholder={placeholder}
+                        value={fieldValue}
+                        errors={fieldErrors}
+                        disabled={disabled || isSubmitting}
+                        enableValidation={enableValidation}
+                        validationMode={fieldValidationMode}
+                        onValidationChange={(validationResult: ValidationResult) =>
+                            handleFieldValidationChange(field, validationResult)
+                        }
+                        onChange={(value) => {
+                            // Auto-parse street number when it contains alphabetic parts and street name is empty
+                            if (value && !addressData.streetName.trim()) {
+                                const parsed = parseStreetNumber(value);
+                                if (parsed.streetName) {
+                                    // Auto-fill street name if parsing found one
+                                    onAddressChange('streetNumber', parsed.streetNumber);
+                                    onAddressChange('streetName', parsed.streetName);
+                                    return;
+                                }
+                            }
+                            onAddressChange(field, value);
+                        }}
+                    />
+                );
+
+            case 'streetName':
+                return (
+                    <StreetNameField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            case 'city':
+                return (
+                    <CityField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            case 'stateOrProvince':
+                return (
+                    <StateProvinceField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            case 'postalOrZipCode':
+                return (
+                    <PostalCodeField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            case 'country':
+                return (
+                    <CountryField
+                        key={field}
+                        {...commonProps}
+                    />
+                );
+
+            default:
+                return null;
+        }
+    };
+
+    // Group fields by rows based on column spans
+    const fieldRows = React.useMemo(() => {
+        const rows: AddressFieldConfig[][] = [];
+        let currentRow: AddressFieldConfig[] = [];
+        let currentRowSpan = 0;
+
+        for (const config of resolvedFieldsConfig) {
+            const colSpan = Math.min(config.colSpan || 1, maxColumns) as 1 | 2;
+
+            // If adding this field would exceed max columns, start new row
+            if (currentRowSpan + colSpan > maxColumns && currentRow.length > 0) {
+                rows.push(currentRow);
+                currentRow = [];
+                currentRowSpan = 0;
+            }
+
+            currentRow.push({ ...config, colSpan });
+            currentRowSpan += colSpan;
+
+            // If we've filled the row exactly, start new row
+            if (currentRowSpan === maxColumns) {
+                rows.push(currentRow);
+                currentRow = [];
+                currentRowSpan = 0;
+            }
+        }
+
+        // Add remaining fields as the last row
+        if (currentRow.length > 0) {
+            rows.push(currentRow);
+        }
+
+        return rows;
+    }, [resolvedFieldsConfig, maxColumns]);
+
     const formContent = (
         <form role="form" onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
             {/* Optional Form Header */}
@@ -257,111 +455,22 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     </div>
                 )}
 
-                {/* Unit Number and Street Number Row */}
-                <div className="grid grid-cols-2 gap-4">
-                    <UnitNumberField
-                        value={addressData.unitNumber || ''}
-                        onChange={(value) => onAddressChange('unitNumber', value)}
-                        errors={errors.unitNumber}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('unitNumber', validationResult)
-                        }
-                    />
-
-                    <StreetNumberField
-                        value={addressData.streetNumber || ''}
-                        onChange={(value) => {
-                            // Auto-parse street number when it contains alphabetic parts and street name is empty
-                            if (value && !addressData.streetName.trim()) {
-                                const parsed = parseStreetNumber(value);
-                                if (parsed.streetName) {
-                                    // Auto-fill street name if parsing found one
-                                    onAddressChange('streetNumber', parsed.streetNumber);
-                                    onAddressChange('streetName', parsed.streetName);
-                                    return;
-                                }
-                            }
-                            onAddressChange('streetNumber', value);
-                        }}
-                        errors={errors.streetNumber}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('streetNumber', validationResult)
-                        }
-                    />
-                </div>
-
-                {/* Street Name */}
-                <StreetNameField
-                    value={addressData.streetName}
-                    onChange={(value) => onAddressChange('streetName', value)}
-                    errors={errors.streetName}
-                    disabled={disabled || isSubmitting}
-                    enableValidation={enableValidation}
-                    validationMode={validationMode}
-                    onValidationChange={(validationResult) =>
-                        handleFieldValidationChange('streetName', validationResult)
-                    }
-                />
-
-                {/* City and Province Row */}
-                <div className="grid grid-cols-2 gap-4">
-                    <CityField
-                        value={addressData.city}
-                        onChange={(value) => onAddressChange('city', value)}
-                        errors={errors.city}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('city', validationResult)
-                        }
-                    />
-
-                    <StateProvinceField
-                        value={addressData.stateOrProvince}
-                        onChange={(value) => onAddressChange('stateOrProvince', value)}
-                        errors={errors.stateOrProvince}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('stateOrProvince', validationResult)
-                        }
-                    />
-                </div>
-
-                {/* Postal Code and Country Row */}
-                <div className="grid grid-cols-2 gap-4">
-                    <PostalCodeField
-                        value={addressData.postalOrZipCode || ''}
-                        onChange={(value) => onAddressChange('postalOrZipCode', value)}
-                        errors={errors.postalOrZipCode}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('postalOrZipCode', validationResult)
-                        }
-                    />
-
-                    <CountryField
-                        value={addressData.country}
-                        onChange={(value) => onAddressChange('country', value)}
-                        errors={errors.country}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={validationMode}
-                        onValidationChange={(validationResult) =>
-                            handleFieldValidationChange('country', validationResult)
-                        }
-                    />
-                </div>
+                {/* Dynamic Field Rows */}
+                {fieldRows.map((row, rowIndex) => (
+                    <div
+                        key={rowIndex}
+                        className={`grid gap-4 grid-cols-${maxColumns}`}
+                    >
+                        {row.map((config) => (
+                            <div
+                                key={config.field}
+                                className={`col-span-${config.colSpan || 1}`}
+                            >
+                                {renderField(config)}
+                            </div>
+                        ))}
+                    </div>
+                ))}
             </div>
 
             {/* Action Buttons */}
@@ -420,4 +529,4 @@ const AddressForm: React.FC<AddressFormProps> = ({
     );
 };
 
-export default AddressForm;
+export default FlexibleAddressForm;
