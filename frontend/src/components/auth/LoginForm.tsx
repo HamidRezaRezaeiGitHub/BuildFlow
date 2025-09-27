@@ -2,10 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import { UsernameEmailField } from './UsernameEmail';
+import { useNavigate } from 'react-router-dom';
 import { PasswordField } from './Password';
+import { UsernameEmailField } from './UsernameEmail';
 
 export interface LoginFormData {
   usernameOrEmail: string;
@@ -18,20 +18,30 @@ export interface LoginFormProps {
   description?: string;
   inline?: boolean;
   className?: string;
-  
+
   // Password visibility (controlled by parent)
   showPassword: boolean;
   onTogglePassword: () => void;
-  
+
   // Form callbacks
+  onValidationStateChange?: (isValid: boolean) => void;
+  onFormDataChange?: (formData: LoginFormData) => void;
+  onLoadingStateChange?: (isLoading: boolean) => void;
+  onFormSubmit?: (formData: LoginFormData) => void;
   onLoginSuccess?: () => void;
   onLoginError?: (error: string) => void;
-  
+
   // Validation configuration
   enableValidation?: boolean;
-  
+
   // External errors (from parent)
   errors?: Record<string, string[]>;
+
+  /** Whether the form is disabled */
+  disabled?: boolean;
+
+  /** Custom list of required fields. If not provided, uses default required fields (unitNumber is optional by default). */
+  requiredFields?: (keyof LoginFormData)[];
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -41,10 +51,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   className = '',
   showPassword,
   onTogglePassword,
+  onValidationStateChange,
+  onFormDataChange,
+  onLoadingStateChange,
+  onFormSubmit,
   onLoginSuccess,
   onLoginError,
   enableValidation = true,
-  errors = {}
+  errors = {},
+  disabled = false,
+  requiredFields: customRequiredFields
 }) => {
   const [loginForm, setLoginForm] = useState<LoginFormData>({
     usernameOrEmail: '',
@@ -52,36 +68,70 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [fieldValidations, setFieldValidations] = useState<Record<string, boolean>>({
-    usernameOrEmail: false,
-    password: false
-  });
-  
+  const [fieldValidationState, setFieldValidationState] = React.useState<{
+    [key: string]: { isValid: boolean; errors: string[] }
+  }>({});
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Handle field validation changes
-  const handleFieldValidation = (fieldName: string, isValid: boolean) => {
-    setFieldValidations(prev => ({ ...prev, [fieldName]: isValid }));
-  };
+  const requiredFields: (keyof LoginFormData)[] = customRequiredFields || [
+    'usernameOrEmail',
+    'password'
+  ];
 
-  // Check if form is valid
-  const isFormValid = Object.values(fieldValidations).every(isValid => isValid) &&
-                     loginForm.usernameOrEmail.trim() !== '' &&
-                     loginForm.password.trim() !== '';
+  const handleFieldValidationChange = React.useCallback((fieldName: string, isValid: boolean, fieldErrors: string[]) => {
+    setFieldValidationState(prev => {
+      const newState = {
+        ...prev,
+        [fieldName]: { isValid, errors: fieldErrors }
+      };
+
+      // Call validation state change callback with overall validity
+      if (onValidationStateChange) {
+        const isFormValid = Object.values(newState).every(state => state.isValid) &&
+          requiredFields.every(field => {
+            const fieldValue = loginForm[field];
+            return fieldValue && fieldValue.trim() !== '';
+          });
+        onValidationStateChange(isFormValid);
+      }
+
+      return newState;
+    });
+  }, [onValidationStateChange, requiredFields, loginForm]);
+
+  const isFormValidForSubmit = React.useMemo(() => {
+    if (!enableValidation) return true;
+
+    // 1. All required fields must be filled
+    const allRequiredFieldsComplete = requiredFields.every(fieldName => {
+      const fieldValue = loginForm[fieldName];
+      return fieldValue && fieldValue.trim() !== '';
+    });
+
+    // 2. All fields that have been validated must be valid
+    const allValidatedFieldsValid = Object.values(fieldValidationState).every(state => state.isValid);
+
+    return allRequiredFieldsComplete && allValidatedFieldsValid;
+  }, [enableValidation, fieldValidationState, loginForm, requiredFields]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!loginForm.usernameOrEmail || !loginForm.password) {
-      const error = 'Please fill in all fields.';
-      setSubmitError(error);
-      if (onLoginError) onLoginError(error);
-      return;
+
+    if (disabled || isSubmitting || !isFormValidForSubmit) return;
+
+    // Call form submit callback
+    if (onFormSubmit) {
+      onFormSubmit(loginForm);
     }
 
     setIsSubmitting(true);
     setSubmitError(null);
+
+    // Call loading state change callback
+    if (onLoadingStateChange) {
+      onLoadingStateChange(true);
+    }
 
     try {
       // Use the flexible username/email field for login
@@ -89,35 +139,51 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         username: loginForm.usernameOrEmail,
         password: loginForm.password
       });
-      
+
       // Navigate to dashboard on successful login
       navigate('/dashboard');
-      
+
       if (onLoginSuccess) onLoginSuccess();
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       setSubmitError(errorMessage);
       if (onLoginError) onLoginError(errorMessage);
     } finally {
       setIsSubmitting(false);
+
+      // Call loading state change callback
+      if (onLoadingStateChange) {
+        onLoadingStateChange(false);
+      }
     }
+  };
+
+  const handleLoginDataChange = (field: keyof LoginFormData, value: string) => {
+    setLoginForm(prev => {
+      const newFormData = { ...prev, [field]: value };
+
+      // Call form data change callback
+      if (onFormDataChange) {
+        onFormDataChange(newFormData);
+      }
+
+      return newFormData;
+    });
+    if (submitError) setSubmitError(null);
   };
 
   // Form content
   const formContent = (
-    <form onSubmit={handleLogin} className="space-y-4">
+    <form onSubmit={handleLogin} className={`space-y-4 ${className}`}>
       {/* Username or Email Field */}
       <UsernameEmailField
         id="loginUsernameEmail"
         value={loginForm.usernameOrEmail}
-        onChange={(value) => {
-          setLoginForm(prev => ({ ...prev, usernameOrEmail: value }));
-          if (submitError) setSubmitError(null);
-        }}
+        onChange={(value) => handleLoginDataChange('usernameOrEmail', value)}
         enableValidation={enableValidation}
         validationMode="required"
-        onValidationChange={(isValid) => handleFieldValidation('usernameOrEmail', isValid)}
+        onValidationChange={(isValid, fieldErrors) => handleFieldValidationChange('usernameOrEmail', isValid, fieldErrors)}
         errors={errors.usernameOrEmail}
         placeholder="username or email@company.com"
       />
@@ -126,17 +192,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <PasswordField
         id="loginPassword"
         value={loginForm.password}
-        onChange={(value) => {
-          setLoginForm(prev => ({ ...prev, password: value }));
-          if (submitError) setSubmitError(null);
-        }}
+        onChange={(value) => { handleLoginDataChange('password', value); }}
+        disabled={disabled}
         placeholder="Enter your password"
         showPassword={showPassword}
         onToggleVisibility={onTogglePassword}
         enableValidation={enableValidation}
         validationMode="required"
         validationType="login"
-        onValidationChange={(isValid) => handleFieldValidation('password', isValid)}
+        onValidationChange={(isValid, fieldErrors) => handleFieldValidationChange('password', isValid, fieldErrors)}
         errors={errors.password}
       />
 
@@ -162,7 +226,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         type="submit"
         className="w-full"
         size="lg"
-        disabled={!isFormValid || isSubmitting}
+        disabled={disabled || isSubmitting || !isFormValidForSubmit}
       >
         {isSubmitting ? 'Signing in...' : 'Sign In'}
       </Button>

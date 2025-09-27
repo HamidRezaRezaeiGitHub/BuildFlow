@@ -98,7 +98,7 @@ describe('LoginForm Component', () => {
         // Should not have card structure
         expect(screen.queryByText('Welcome back')).not.toBeInTheDocument();
         expect(screen.queryByText('Enter your credentials to sign in to your account')).not.toBeInTheDocument();
-        
+
         // But should still have form elements
         expect(screen.getByTestId('loginUsernameEmail')).toBeInTheDocument();
         expect(screen.getByTestId('loginPassword')).toBeInTheDocument();
@@ -167,7 +167,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'password123' } });
 
@@ -197,7 +197,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'password123' } });
 
@@ -225,7 +225,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'wrongpassword' } });
 
@@ -253,7 +253,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'password123' } });
 
@@ -274,17 +274,22 @@ describe('LoginForm Component', () => {
         expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
     });
 
-    test('LoginForm_shouldShowErrorMessage_whenEmptyFieldsSubmitted', async () => {
+    test('LoginForm_shouldNotSubmit_whenEmptyFieldsSubmitted', async () => {
         renderLoginForm();
 
+        // Submit button should be disabled when fields are empty
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
+        expect(submitButton).toBeDisabled();
+
+        // Try to submit the form - it should be prevented
         const form = screen.getByRole('button', { name: /sign in/i }).closest('form');
         fireEvent.submit(form!);
 
-        await waitFor(() => {
-            expect(screen.getByText('Please fill in all fields.')).toBeInTheDocument();
-        });
-
+        // Login should not be called since form is invalid
         expect(mockLogin).not.toHaveBeenCalled();
+
+        // No error message is displayed, the form just prevents submission
+        expect(screen.queryByText(/Please fill in all fields/i)).not.toBeInTheDocument();
     });
 
     // Callback tests
@@ -295,7 +300,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'password123' } });
 
@@ -324,7 +329,7 @@ describe('LoginForm Component', () => {
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
         const passwordField = screen.getByTestId('loginPassword');
-        
+
         fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
         fireEvent.change(passwordField, { target: { value: 'wrongpassword' } });
 
@@ -375,5 +380,143 @@ describe('LoginForm Component', () => {
         const forgotPasswordLink = screen.getByText('Forgot password?');
         expect(forgotPasswordLink).toBeInTheDocument();
         expect(forgotPasswordLink).toHaveAttribute('href', '#');
+    });
+
+    // New callback tests
+    test('LoginForm_shouldCallOnFormDataChange_whenFieldValuesChange', () => {
+        const mockOnFormDataChange = jest.fn();
+        renderLoginForm({ onFormDataChange: mockOnFormDataChange });
+
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        fireEvent.change(usernameField, { target: { value: 'testuser' } });
+
+        expect(mockOnFormDataChange).toHaveBeenCalledWith({
+            usernameOrEmail: 'testuser',
+            password: ''
+        });
+    });
+
+    test('LoginForm_shouldCallOnValidationStateChange_whenValidationChanges', async () => {
+        const mockOnValidationStateChange = jest.fn();
+        renderLoginForm({ onValidationStateChange: mockOnValidationStateChange });
+
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        const passwordField = screen.getByTestId('loginPassword');
+
+        // Fill both fields to make form valid
+        fireEvent.change(usernameField, { target: { value: 'testuser' } });
+        fireEvent.change(passwordField, { target: { value: 'password123' } });
+
+        // Trigger validation
+        fireEvent.blur(usernameField);
+        fireEvent.blur(passwordField);
+
+        await waitFor(() => {
+            expect(mockOnValidationStateChange).toHaveBeenCalledWith(true);
+        });
+    });
+
+    test('LoginForm_shouldCallOnLoadingStateChange_whenSubmitting', async () => {
+        const mockOnLoadingStateChange = jest.fn();
+        mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+        renderLoginForm({ onLoadingStateChange: mockOnLoadingStateChange });
+
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        const passwordField = screen.getByTestId('loginPassword');
+
+        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
+        fireEvent.change(passwordField, { target: { value: 'password123' } });
+
+        // Trigger validation to enable submit button
+        fireEvent.blur(usernameField);
+        fireEvent.blur(passwordField);
+
+        await waitFor(() => {
+            const submitButton = screen.getByRole('button', { name: /sign in/i });
+            expect(submitButton).toBeEnabled();
+        });
+
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
+        fireEvent.click(submitButton);
+
+        // Should call loading state change with true when starting
+        expect(mockOnLoadingStateChange).toHaveBeenCalledWith(true);
+
+        await waitFor(() => {
+            // Should call loading state change with false when finished
+            expect(mockOnLoadingStateChange).toHaveBeenCalledWith(false);
+        });
+    });
+
+    test('LoginForm_shouldCallOnFormSubmit_whenFormSubmitted', async () => {
+        const mockOnFormSubmit = jest.fn();
+        mockLogin.mockResolvedValueOnce({ success: true });
+        renderLoginForm({ onFormSubmit: mockOnFormSubmit });
+
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        const passwordField = screen.getByTestId('loginPassword');
+
+        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
+        fireEvent.change(passwordField, { target: { value: 'password123' } });
+
+        // Trigger validation to enable submit button
+        fireEvent.blur(usernameField);
+        fireEvent.blur(passwordField);
+
+        await waitFor(() => {
+            const submitButton = screen.getByRole('button', { name: /sign in/i });
+            expect(submitButton).toBeEnabled();
+        });
+
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
+        fireEvent.click(submitButton);
+
+        expect(mockOnFormSubmit).toHaveBeenCalledWith({
+            usernameOrEmail: 'testuser@example.com',
+            password: 'password123'
+        });
+    });
+
+    test('LoginForm_shouldCallMultipleCallbacks_whenAllProvided', async () => {
+        const mockCallbacks = {
+            onFormDataChange: jest.fn(),
+            onValidationStateChange: jest.fn(),
+            onLoadingStateChange: jest.fn(),
+            onFormSubmit: jest.fn(),
+            onLoginSuccess: jest.fn()
+        };
+
+        mockLogin.mockResolvedValueOnce({ success: true });
+        renderLoginForm(mockCallbacks);
+
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        const passwordField = screen.getByTestId('loginPassword');
+
+        // Fill form - should trigger data change callbacks
+        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
+        fireEvent.change(passwordField, { target: { value: 'password123' } });
+
+        expect(mockCallbacks.onFormDataChange).toHaveBeenCalledTimes(2);
+
+        // Trigger validation to enable submit button
+        fireEvent.blur(usernameField);
+        fireEvent.blur(passwordField);
+
+        await waitFor(() => {
+            const submitButton = screen.getByRole('button', { name: /sign in/i });
+            expect(submitButton).toBeEnabled();
+        });
+
+        // Submit form - should trigger multiple callbacks
+        const submitButton = screen.getByRole('button', { name: /sign in/i });
+        fireEvent.click(submitButton);
+
+        expect(mockCallbacks.onFormSubmit).toHaveBeenCalled();
+        expect(mockCallbacks.onLoadingStateChange).toHaveBeenCalledWith(true);
+
+        await waitFor(() => {
+            expect(mockCallbacks.onLoginSuccess).toHaveBeenCalled();
+            expect(mockCallbacks.onLoadingStateChange).toHaveBeenCalledWith(false);
+        });
     });
 });
