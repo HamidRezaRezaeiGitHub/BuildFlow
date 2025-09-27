@@ -68,6 +68,7 @@ describe('UsernameField', () => {
         const input = screen.getByRole('textbox');
         
         // Test too short username
+        fireEvent.focus(input); // Focus first to mark as touched
         fireEvent.change(input, { target: { value: 'ab' } });
         fireEvent.blur(input);
 
@@ -76,6 +77,7 @@ describe('UsernameField', () => {
         });
 
         // Test valid username
+        fireEvent.focus(input); // Focus again for consistency
         fireEvent.change(input, { target: { value: 'validuser' } });
         fireEvent.blur(input);
 
