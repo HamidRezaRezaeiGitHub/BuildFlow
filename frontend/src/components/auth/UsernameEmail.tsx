@@ -1,9 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
-import { validationService } from '@/services/validation/ValidationService';
+import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { Mail, User } from 'lucide-react';
-import React from 'react';
+import { ChangeEvent, FC, useMemo } from 'react';
 import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './Auth';
 
 // Username/Email Field Component Props
@@ -14,7 +14,7 @@ export interface UsernameEmailFieldProps extends BaseAuthFieldProps {
     onValidationChange?: (validationResult: ValidationResult) => void;
 }
 
-export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({
+export const UsernameEmailField: FC<UsernameEmailFieldProps> = ({
     id = 'usernameEmail',
     value,
     onChange,
@@ -26,93 +26,71 @@ export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({
     validationMode = 'optional',
     onValidationChange
 }) => {
-    const [validationErrors, setValidationErrors] = React.useState<string[]>([]);
-    const [hasBeenTouched, setHasBeenTouched] = React.useState(false);
-
     // Detect if current value looks like an email
     const isEmail = value.includes('@');
     const icon = isEmail ? Mail : User;
     const IconComponent = icon;
 
-    // Create validation configuration based on props
-    const validationConfig = React.useMemo(() => {
-        if (!enableValidation) return undefined;
+    // Memoized validation rules configuration
+    const validationRules = useMemo(() => {
+        if (!enableValidation) return [];
 
-        return {
-            fieldName: 'usernameEmail',
-            fieldType: 'text' as const,
-            required: validationMode === 'required',
-            rules: [
-                ...(validationMode === 'required' ? [{
-                    name: 'required',
-                    message: 'Username or email is required',
-                    validator: (val: string) => !!val && val.trim().length > 0
-                }] : []),
-                {
-                    name: `minLength_${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH}`,
-                    message: `Username or email must be at least ${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH} characters long`,
-                    validator: (val: string) => !val || val.trim().length >= AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH
-                },
-                {
-                    name: `maxLength_${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH}`,
-                    message: `Username or email must not exceed ${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH} characters`,
-                    validator: (val: string) => !val || val.length <= AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH
-                }
-            ]
-        };
-    }, [enableValidation, validationMode]);
-
-    // Validate field when value changes
-    const validateField = React.useCallback((fieldValue: string) => {
-        if (!enableValidation || !validationConfig) {
-            setValidationErrors([]);
-            return true;
-        }
-
-        const result: ValidationResult = validationService.validateField('usernameEmail', fieldValue, validationConfig);
-        setValidationErrors(result.errors);
-
-        // Notify parent of validation changes
-        if (onValidationChange) {
-            onValidationChange(result);
-        }
-
-        return result.isValid;
-    }, [enableValidation, validationConfig, onValidationChange]);
-
-    // Handle validation prop changes
-    React.useEffect(() => {
-        if (!enableValidation) {
-            setValidationErrors([]);
-            if (onValidationChange) {
-                onValidationChange({ isValid: true, errors: [] });
+        return [
+            ...(validationMode === 'required' ? [{
+                name: 'required',
+                message: 'Username or email is required',
+                validator: (val: string) => !!val && val.trim().length > 0
+            }] : []),
+            {
+                name: `minLength_${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH}`,
+                message: `Username or email must be at least ${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH} characters long`,
+                validator: (val: string) => !val || val.trim().length >= AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MIN_LENGTH
+            },
+            {
+                name: `maxLength_${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH}`,
+                message: `Username or email must not exceed ${AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH} characters`,
+                validator: (val: string) => !val || val.length <= AUTH_VALIDATION_RULES.LOGIN_USERNAME_EMAIL_MAX_LENGTH
             }
-        }
+        ];
     }, [enableValidation, validationMode]);
 
-    // Handle input change
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Memoized config for the hook to prevent infinite re-renders
+    const hookConfig = useMemo(() => ({
+        fieldName: 'usernameEmail',
+        fieldType: 'text' as const,
+        required: validationMode === 'required',
+        validationRules
+    }), [validationMode, validationRules]);
+
+    // Use the smart field validation hook
+    const { state, handlers } = useSmartFieldValidation({
+        value,
+        config: hookConfig,
+        enableValidation,
+        onValidationChange
+    });
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const oldValue = value;
         const newValue = e.target.value;
+
+        // Use the hook's change handler for autofill detection
+        handlers.handleChange(newValue, oldValue);
+
         onChange(newValue);
-
-        // Validate if touched or if we want immediate validation
-        if (hasBeenTouched && enableValidation) {
-            validateField(newValue);
-        }
     };
 
-    // Handle input blur - Used for touch-based validation strategy
+    const handleFocus = () => {
+        handlers.handleFocus();
+    };
+
     const handleBlur = () => {
-        setHasBeenTouched(true);
-        if (enableValidation) {
-            validateField(value);
-        }
+        handlers.handleBlur();
     };
 
-    // Use validation errors if validation is enabled, otherwise use passed errors
-    const displayErrors = enableValidation ? validationErrors : errors;
+    // Determine which errors to display - use hook's computed displayErrors or fallback to external errors
+    const displayErrors = enableValidation ? state.displayErrors : errors;
     const hasErrors = displayErrors.length > 0;
-
     // Determine if field is required for label display
     const isRequired = enableValidation && validationMode === 'required';
 
@@ -130,6 +108,7 @@ export const UsernameEmailField: React.FC<UsernameEmailFieldProps> = ({
                     placeholder={placeholder}
                     className={`pl-10 ${hasErrors ? 'border-red-500 focus:border-red-500' : ''}`}
                     value={value}
+                    onFocus={handleFocus}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}

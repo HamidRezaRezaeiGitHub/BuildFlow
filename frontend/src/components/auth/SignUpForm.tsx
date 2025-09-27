@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { contactLabelOptions } from '@/services/dtos/UserDtos';
 import { AddressData } from '@/services/dtos';
+import { ValidationResult } from '@/services/validation';
 import { ChevronDown, ChevronUp, Phone, Tag, User } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import { EmailField } from './Email';
@@ -159,8 +160,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   }, [signUpForm.streetNumber, signUpForm.streetName, submitError]);
 
   // Handle field validation changes
-  const handleFieldValidation = (fieldName: string, isValid: boolean) => {
-    setFieldValidations(prev => ({ ...prev, [fieldName]: isValid }));
+  const handleFieldValidation = (fieldName: string, validationResult: ValidationResult) => {
+    setFieldValidations(prev => ({ ...prev, [fieldName]: validationResult.isValid }));
   };
 
   // Handle address data changes
@@ -297,7 +298,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         onChange={(value) => setSignUpForm(prev => ({ ...prev, username: value }))}
         enableValidation={enableValidation}
         validationMode={requiredFields.username ? 'required' : 'optional'}
-        onValidationChange={(isValid) => handleFieldValidation('username', isValid)}
+        onValidationChange={(validationResult) => handleFieldValidation('username', validationResult)}
         errors={errors.username}
         placeholder="john_doe"
       />
@@ -309,7 +310,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         onChange={(value) => setSignUpForm(prev => ({ ...prev, email: value }))}
         enableValidation={enableValidation}
         validationMode={requiredFields.email ? 'required' : 'optional'}
-        onValidationChange={(isValid) => handleFieldValidation('email', isValid)}
+        onValidationChange={(validationResult) => handleFieldValidation('email', validationResult)}
         errors={errors.email}
         placeholder="john@company.com"
       />
@@ -326,7 +327,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           enableValidation={enableValidation}
           validationMode={requiredFields.password ? 'required' : 'optional'}
           validationType="signup"
-          onValidationChange={(isValid) => handleFieldValidation('password', isValid)}
+          onValidationChange={(validationResult) => handleFieldValidation('password', validationResult)}
           errors={errors.password}
         />
         
@@ -340,7 +341,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           originalPassword={signUpForm.password}
           enableValidation={enableValidation}
           validationMode={requiredFields.confirmPassword ? 'required' : 'optional'}
-          onValidationChange={(isValid) => handleFieldValidation('confirmPassword', isValid)}
+          onValidationChange={(validationResult) => handleFieldValidation('confirmPassword', validationResult)}
           errors={errors.confirmPassword}
         />
       </div>

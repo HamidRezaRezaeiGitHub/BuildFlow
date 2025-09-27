@@ -71,6 +71,28 @@ describe('LoginForm Component', () => {
         jest.clearAllMocks();
     });
 
+    // Helper function to fill form fields with proper validation triggering
+    const fillAndValidateForm = async (username: string, password: string) => {
+        const usernameField = screen.getByTestId('loginUsernameEmail');
+        const passwordField = screen.getByTestId('loginPassword');
+
+        // Fill username field with focus/change/blur pattern
+        fireEvent.focus(usernameField);
+        fireEvent.change(usernameField, { target: { value: username } });
+        fireEvent.blur(usernameField);
+        
+        // Fill password field with focus/change/blur pattern
+        fireEvent.focus(passwordField);
+        fireEvent.change(passwordField, { target: { value: password } });
+        fireEvent.blur(passwordField);
+
+        // Wait for validation to complete and submit button to be enabled
+        await waitFor(() => {
+            const submitButton = screen.getByRole('button', { name: /sign in/i });
+            expect(submitButton).toBeEnabled();
+        });
+    };
+
     // Basic rendering tests
     test('LoginForm_shouldRenderWithDefaultProps', () => {
         renderLoginForm();
@@ -143,21 +165,8 @@ describe('LoginForm Component', () => {
 
     test('LoginForm_shouldEnableSubmitButton_whenFormIsValid', async () => {
         renderLoginForm();
-
-        const usernameField = screen.getByTestId('loginUsernameEmail');
-        const passwordField = screen.getByTestId('loginPassword');
-
-        fireEvent.change(usernameField, { target: { value: 'testuser' } });
-        fireEvent.change(passwordField, { target: { value: 'password123' } });
-
-        // Trigger validation
-        fireEvent.blur(usernameField);
-        fireEvent.blur(passwordField);
-
-        await waitFor(() => {
-            const submitButton = screen.getByRole('button', { name: /sign in/i });
-            expect(submitButton).toBeEnabled();
-        });
+        await fillAndValidateForm('testuser', 'password123');
+        // The helper already verifies the submit button is enabled
     });
 
     // Form submission tests
@@ -165,20 +174,7 @@ describe('LoginForm Component', () => {
         mockLogin.mockResolvedValueOnce({ success: true });
         renderLoginForm();
 
-        const usernameField = screen.getByTestId('loginUsernameEmail');
-        const passwordField = screen.getByTestId('loginPassword');
-
-        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
-        fireEvent.change(passwordField, { target: { value: 'password123' } });
-
-        // Trigger validation to enable submit button
-        fireEvent.blur(usernameField);
-        fireEvent.blur(passwordField);
-
-        await waitFor(() => {
-            const submitButton = screen.getByRole('button', { name: /sign in/i });
-            expect(submitButton).toBeEnabled();
-        });
+        await fillAndValidateForm('testuser@example.com', 'password123');
 
         const submitButton = screen.getByRole('button', { name: /sign in/i });
         fireEvent.click(submitButton);
@@ -195,20 +191,7 @@ describe('LoginForm Component', () => {
         mockLogin.mockResolvedValueOnce({ success: true });
         renderLoginForm();
 
-        const usernameField = screen.getByTestId('loginUsernameEmail');
-        const passwordField = screen.getByTestId('loginPassword');
-
-        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
-        fireEvent.change(passwordField, { target: { value: 'password123' } });
-
-        // Trigger validation to enable submit button
-        fireEvent.blur(usernameField);
-        fireEvent.blur(passwordField);
-
-        await waitFor(() => {
-            const submitButton = screen.getByRole('button', { name: /sign in/i });
-            expect(submitButton).toBeEnabled();
-        });
+        await fillAndValidateForm('testuser@example.com', 'password123');
 
         const submitButton = screen.getByRole('button', { name: /sign in/i });
         fireEvent.click(submitButton);
@@ -223,20 +206,7 @@ describe('LoginForm Component', () => {
         mockLogin.mockRejectedValueOnce(new Error(errorMessage));
         renderLoginForm();
 
-        const usernameField = screen.getByTestId('loginUsernameEmail');
-        const passwordField = screen.getByTestId('loginPassword');
-
-        fireEvent.change(usernameField, { target: { value: 'testuser@example.com' } });
-        fireEvent.change(passwordField, { target: { value: 'wrongpassword' } });
-
-        // Trigger validation to enable submit button
-        fireEvent.blur(usernameField);
-        fireEvent.blur(passwordField);
-
-        await waitFor(() => {
-            const submitButton = screen.getByRole('button', { name: /sign in/i });
-            expect(submitButton).toBeEnabled();
-        });
+        await fillAndValidateForm('testuser@example.com', 'wrongpassword');
 
         const submitButton = screen.getByRole('button', { name: /sign in/i });
         fireEvent.click(submitButton);
