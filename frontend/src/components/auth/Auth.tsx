@@ -8,11 +8,6 @@ export interface BaseAuthFieldProps {
   errors?: string[];
 }
 
-export interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-}
-
 // Auth field validation configuration types (matching backend DTOs)
 export interface AuthValidationRules {
   // SignUpRequest.java validation rules

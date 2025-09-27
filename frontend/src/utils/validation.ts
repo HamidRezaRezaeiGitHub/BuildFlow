@@ -1,6 +1,6 @@
 import {
   type ValidationResult
-} from '@/components/auth/Auth';
+} from '@/services/validation/types';
 
 // Temporary validation functions for backward compatibility
 // These replicate the validation logic that's now in individual auth components
