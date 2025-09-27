@@ -140,7 +140,7 @@ describe('UnitNumberField', () => {
         // The validation should now show because field was touched
         expect(screen.getByText('Unit number must not exceed 20 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Unit number must not exceed 20 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Unit number must not exceed 20 characters'] });
     });
 
     test('UnitNumberField_shouldShowRequiredError_whenValidationRequiredAndFieldEmpty', () => {
@@ -163,7 +163,7 @@ describe('UnitNumberField', () => {
 
         expect(screen.getByText('Unit number is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Unit number is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Unit number is required'] });
     });
 
     test('UnitNumberField_shouldPassValidation_whenValidValueProvided', () => {
@@ -204,7 +204,7 @@ describe('UnitNumberField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/exceed/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('UnitNumberField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
@@ -253,7 +253,7 @@ describe('UnitNumberField', () => {
 
         expect(screen.getByText('Unit number must not exceed 20 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Unit number must not exceed 20 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Unit number must not exceed 20 characters'] });
     });
 
     test('UnitNumberField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -276,7 +276,7 @@ describe('UnitNumberField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('UnitNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -411,7 +411,7 @@ describe('UnitNumberField', () => {
         // Validation errors should be cleared
         expect(screen.queryByText('Unit number is required')).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenLastCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenLastCalledWith({ isValid: true, errors: [] });
     });
 
     test('UnitNumberField_shouldReValidate_whenValidationModeChanges', () => {
@@ -449,7 +449,7 @@ describe('UnitNumberField', () => {
         // Should now show required error since field is empty and touched
         expect(screen.getByText('Unit number is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenLastCalledWith(false, ['Unit number is required']);
+        expect(mockOnValidationChange).toHaveBeenLastCalledWith({ isValid: false, errors: ['Unit number is required'] });
     });
 
     test('UnitNumberField_shouldClearErrors_whenChangingFromRequiredToOptional', () => {
@@ -488,6 +488,6 @@ describe('UnitNumberField', () => {
         // Error should be cleared since empty is valid in optional mode
         expect(screen.queryByText('Unit number is required')).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenLastCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenLastCalledWith({ isValid: true, errors: [] });
     });
 });

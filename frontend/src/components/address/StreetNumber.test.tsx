@@ -163,7 +163,7 @@ describe('StreetNumberField', () => {
 
         expect(screen.getByText('Street number is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number is required'] });
     });
 
     test('StreetNumberField_shouldPassValidation_whenValidNumberProvided', () => {
@@ -204,7 +204,7 @@ describe('StreetNumberField', () => {
         expect(screen.queryByText(/exceed/)).not.toBeInTheDocument();
         expect(screen.queryByText(/numbers/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNumberField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -241,7 +241,7 @@ describe('StreetNumberField', () => {
 
         expect(screen.getByText('Street number must not exceed 20 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must not exceed 20 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must not exceed 20 characters'] });
     });
 
     test('StreetNumberField_shouldShowNonNumericError_whenContainsLetters', () => {
@@ -278,7 +278,7 @@ describe('StreetNumberField', () => {
 
         expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must contain only numbers']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must contain only numbers'] });
     });
 
     test('StreetNumberField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -301,7 +301,7 @@ describe('StreetNumberField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNumberField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
@@ -351,7 +351,7 @@ describe('StreetNumberField', () => {
 
         expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['Street number must contain only numbers']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must contain only numbers'] });
     });
 
     test('StreetNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -442,6 +442,6 @@ describe('StreetNumberField', () => {
 
         // Validation errors should be cleared
         expect(screen.queryByText('Street number is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

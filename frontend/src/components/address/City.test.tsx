@@ -129,7 +129,7 @@ describe('CityField', () => {
 
         expect(screen.getByText('City is required')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City is required']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['City is required'] });
     });
 
     test('CityField_shouldPassValidation_whenValidCityProvided', () => {
@@ -171,7 +171,7 @@ describe('CityField', () => {
         expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
         expect(screen.queryByText(/contain only/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CityField_shouldShowMaxLengthError_whenExceedsLimit', () => {
@@ -210,7 +210,7 @@ describe('CityField', () => {
 
         expect(screen.getByText('City name must not exceed 50 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must not exceed 50 characters']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['City name must not exceed 50 characters'] });
     });
 
     test('CityField_shouldShowMinLengthError_whenTooShort', () => {
@@ -247,7 +247,7 @@ describe('CityField', () => {
 
         expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must be at least 2 characters long']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['City name must be at least 2 characters long'] });
     });
 
     test('CityField_shouldShowInvalidCharacterError_whenContainsNumbers', () => {
@@ -284,7 +284,7 @@ describe('CityField', () => {
 
         expect(screen.getByText('City name must contain only letters, spaces, hyphens, periods, and apostrophes')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must contain only letters, spaces, hyphens, periods, and apostrophes']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['City name must contain only letters, spaces, hyphens, periods, and apostrophes'] });
     });
 
     test('CityField_shouldAllowValidSpecialCharacters_inCityNames', () => {
@@ -322,7 +322,7 @@ describe('CityField', () => {
         // Should not show validation errors for valid special characters
         expect(screen.queryByText(/contain only/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CityField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -345,7 +345,7 @@ describe('CityField', () => {
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('CityField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
@@ -395,7 +395,7 @@ describe('CityField', () => {
 
         expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith(false, ['City name must be at least 2 characters long']);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['City name must be at least 2 characters long'] });
     });
 
     test('CityField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -486,6 +486,6 @@ describe('CityField', () => {
 
         // Validation errors should be cleared
         expect(screen.queryByText('City is required')).not.toBeInTheDocument();
-        expect(mockOnValidationChange).toHaveBeenCalledWith(true, []);
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 });

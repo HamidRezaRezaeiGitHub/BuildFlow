@@ -160,10 +160,19 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
     // Handle field validation changes
     const handleFieldValidationChange = React.useCallback((fieldName: string, validationResult: ValidationResult) => {
-        setFieldValidationState(prev => ({
-            ...prev,
-            [fieldName]: { isValid: validationResult.isValid, errors: validationResult.errors }
-        }));
+        setFieldValidationState(prev => {
+            // Only update if validation result has changed
+            const currentState = prev[fieldName];
+            if (currentState?.isValid === validationResult.isValid &&
+                JSON.stringify(currentState?.errors) === JSON.stringify(validationResult.errors)) {
+                return prev;
+            }
+
+            return {
+                ...prev,
+                [fieldName]: { isValid: validationResult.isValid, errors: validationResult.errors }
+            };
+        });
     }, []);
 
     // Define required fields (fields that must have values when form is not skippable)
