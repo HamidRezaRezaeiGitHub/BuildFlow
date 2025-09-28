@@ -45,10 +45,11 @@ const AddressPage: React.FC = () => {
     const [presetLayout, setPresetLayout] = useState<PresetLayout>('full');
     
     // Individual field states for custom configuration
-    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData]: FieldState }>({
+    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData | 'streetNumberName']: FieldState }>({
         unitNumber: { show: true, required: false, colSpan: 1 },
         streetNumber: { show: true, required: true, colSpan: 1 },
         streetName: { show: true, required: true, colSpan: 2 },
+        streetNumberName: { show: false, required: true, colSpan: 2 }, // Combined field - disabled by default
         city: { show: true, required: true, colSpan: 1 },
         stateOrProvince: { show: true, required: true, colSpan: 1 },
         postalOrZipCode: { show: true, required: true, colSpan: 1 },
@@ -56,10 +57,11 @@ const AddressPage: React.FC = () => {
     });
 
     // Field labels for UI
-    const fieldLabels: { [K in keyof AddressData]: string } = {
+    const fieldLabels: { [K in keyof AddressData | 'streetNumberName']: string } = {
         unitNumber: 'Unit Number',
         streetNumber: 'Street Number',
         streetName: 'Street Name',
+        streetNumberName: 'Street Number & Name (Combined)',
         city: 'City',
         stateOrProvince: 'State/Province',
         postalOrZipCode: 'Postal/Zip Code',
@@ -114,7 +116,7 @@ const AddressPage: React.FC = () => {
             
             // Reset all fields to hidden first
             Object.keys(newFieldStates).forEach(field => {
-                newFieldStates[field as keyof AddressData] = {
+                newFieldStates[field as keyof AddressData | 'streetNumberName'] = {
                     show: false,
                     required: false,
                     colSpan: 1
@@ -147,7 +149,7 @@ const AddressPage: React.FC = () => {
     };
 
     // Update individual field state
-    const updateFieldState = (field: keyof AddressData, updates: Partial<FieldState>) => {
+    const updateFieldState = (field: keyof AddressData | 'streetNumberName', updates: Partial<FieldState>) => {
         setFieldStates(prev => ({
             ...prev,
             [field]: { ...prev[field], ...updates }
@@ -254,6 +256,9 @@ const AddressPage: React.FC = () => {
                                             <DropdownMenuItem onClick={() => handlePresetLayoutChange('international')}>
                                                 International Layout
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handlePresetLayoutChange('combined')}>
+                                                Combined Street Address
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handlePresetLayoutChange('custom')}>
                                                 Custom Layout
                                             </DropdownMenuItem>
@@ -265,7 +270,7 @@ const AddressPage: React.FC = () => {
                                         <Label className="text-sm font-medium">Field Configuration</Label>
                                         <div className="space-y-3 max-h-64 overflow-y-auto">
                                             {Object.entries(fieldLabels).map(([field, label]) => {
-                                                const fieldKey = field as keyof AddressData;
+                                                const fieldKey = field as keyof AddressData | 'streetNumberName';
                                                 const state = fieldStates[fieldKey];
                                                 if (!state) return null;
                                                 
