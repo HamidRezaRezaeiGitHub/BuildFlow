@@ -45,10 +45,11 @@ const AddressPage: React.FC = () => {
     const [presetLayout, setPresetLayout] = useState<PresetLayout>('full');
     
     // Individual field states for custom configuration
-    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData]: FieldState }>({
+    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData | 'streetNumberName']: FieldState }>({
         unitNumber: { show: true, required: false, colSpan: 1 },
         streetNumber: { show: true, required: true, colSpan: 1 },
         streetName: { show: true, required: true, colSpan: 2 },
+        streetNumberName: { show: false, required: true, colSpan: 2 }, // Combined field - disabled by default
         city: { show: true, required: true, colSpan: 1 },
         stateOrProvince: { show: true, required: true, colSpan: 1 },
         postalOrZipCode: { show: true, required: true, colSpan: 1 },
@@ -56,10 +57,11 @@ const AddressPage: React.FC = () => {
     });
 
     // Field labels for UI
-    const fieldLabels: { [K in keyof AddressData]: string } = {
+    const fieldLabels: { [K in keyof AddressData | 'streetNumberName']: string } = {
         unitNumber: 'Unit Number',
         streetNumber: 'Street Number',
         streetName: 'Street Name',
+        streetNumberName: 'Street Number & Name (Combined)',
         city: 'City',
         stateOrProvince: 'State/Province',
         postalOrZipCode: 'Postal/Zip Code',

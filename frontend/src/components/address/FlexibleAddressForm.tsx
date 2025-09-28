@@ -10,14 +10,15 @@ import { PostalCodeField } from './PostalCode';
 import { StateProvinceField } from './StateProvince';
 import { StreetNameField } from './StreetName';
 import { StreetNumberField } from './StreetNumber';
+import { StreetNumberNameField } from './StreetNumberName';
 import { UnitNumberField } from './UnitNumber';
 
 /**
  * Configuration for address field display and behavior
  */
 export interface AddressFieldConfig {
-    /** The field name/key from AddressData */
-    field: keyof AddressData;
+    /** The field name/key from AddressData, or special combined fields */
+    field: keyof AddressData | 'streetNumberName';
     /** Display label for the field */
     label?: string;
     /** Custom placeholder text */
@@ -65,6 +66,16 @@ export const addressFieldConfigs = {
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: false },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'country' as keyof AddressData, colSpan: 1, required: true }
+    ] as AddressFieldConfig[],
+
+    // New configuration using combined street number and name field
+    combined: [
+        { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'streetNumberName' as 'streetNumberName', colSpan: 2, required: true },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true },
         { field: 'country' as keyof AddressData, colSpan: 1, required: true }
     ] as AddressFieldConfig[]
 };
@@ -240,7 +251,7 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     }, []);
 
     // Get required fields from configuration
-    const requiredFields: (keyof AddressData)[] = React.useMemo(() => {
+    const requiredFields: (keyof AddressData | 'streetNumberName')[] = React.useMemo(() => {
         return resolvedFieldsConfig
             .filter(config => config.required === true)
             .map(config => config.field);
@@ -264,7 +275,12 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
         // For non-skippable forms: check both completeness and validity
         // 1. All required fields must have values
         const allRequiredFieldsComplete = requiredFields.every(fieldName => {
-            const fieldValue = addressData[fieldName];
+            if (fieldName === 'streetNumberName') {
+                // For combined field, check that either streetNumber or streetName has a value
+                return (addressData.streetNumber && addressData.streetNumber.trim() !== '') ||
+                       (addressData.streetName && addressData.streetName.trim() !== '');
+            }
+            const fieldValue = addressData[fieldName as keyof AddressData];
             return fieldValue && fieldValue.trim() !== '';
         });
 
@@ -296,20 +312,59 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     // Render individual field component
     const renderField = (config: AddressFieldConfig) => {
         const { field, placeholder, required } = config;
-        const fieldValue = addressData[field] || '';
-        const fieldErrors = errors[field];
+        
+        // Handle special combined field case
+        if (field === 'streetNumberName') {
+            // Combine streetNumber and streetName for display value
+            const combinedValue = addressData.streetNumber && addressData.streetName 
+                ? `${addressData.streetNumber} ${addressData.streetName}` 
+                : addressData.streetNumber || addressData.streetName || '';
+            
+            const fieldRequired = isSkippable ? false : (required ?? true);
+            const fieldValidationMode: 'required' | 'optional' = fieldRequired ? 'required' : 'optional';
+            
+            return (
+                <StreetNumberNameField
+                    key={field}
+                    value={combinedValue}
+                    onChange={(_value: string) => {
+                        // This is just for the input display - actual parsing happens in onParsedChange
+                    }}
+                    onParsedChange={(streetNumber: string, streetName: string) => {
+                        // Update both fields when parsed
+                        onAddressChange('streetNumber', streetNumber);
+                        onAddressChange('streetName', streetName);
+                    }}
+                    errors={errors.streetNumber || errors.streetName ? 
+                        [...(errors.streetNumber || []), ...(errors.streetName || [])] : 
+                        undefined}
+                    disabled={disabled || isSubmitting}
+                    enableValidation={enableValidation}
+                    validationMode={fieldValidationMode}
+                    onValidationChange={(validationResult: ValidationResult) => {
+                        // Update validation state for both related fields
+                        handleFieldValidationChange('streetNumber', validationResult);
+                        handleFieldValidationChange('streetName', validationResult);
+                    }}
+                    placeholder={placeholder || '123 Main Street'}
+                />
+            );
+        }
+        
+        const fieldValue = addressData[field as keyof AddressData] || '';
+        const fieldErrors = errors[field as keyof AddressData];
         const fieldRequired = isSkippable ? false : (required ?? true);
         const fieldValidationMode: 'required' | 'optional' = fieldRequired ? 'required' : 'optional';
 
         const commonProps = {
             value: fieldValue,
-            onChange: (value: string) => onAddressChange(field, value),
+            onChange: (value: string) => onAddressChange(field as keyof AddressData, value),
             errors: fieldErrors,
             disabled: disabled || isSubmitting,
             enableValidation,
             validationMode: fieldValidationMode,
             onValidationChange: (validationResult: ValidationResult) =>
-                handleFieldValidationChange(field, validationResult),
+                handleFieldValidationChange(field as keyof AddressData, validationResult),
             placeholder
         };
 
