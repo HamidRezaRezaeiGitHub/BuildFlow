@@ -78,7 +78,35 @@ All address field components follow the same pattern with consistent validation 
 - **Test Coverage**: 12 comprehensive test scenarios
 - **Special Features**: International country name support
 
+#### **StreetNumberName Field** (`StreetNumberName.tsx`)
+- **Purpose**: Combined street number and name input with intelligent parsing
+- **Validation Rules**:
+  - Optional/Required modes
+  - Intelligent parsing of "123 Main St" format
+  - Separate validation for number and name components
+- **Test Coverage**: 15 comprehensive test scenarios
+- **Special Features**: Smart parsing, separate callbacks for parsed components
+
 ### Composite Components
+
+#### **Address** (`Address.tsx`)
+- **Purpose**: Base types, interfaces, and utility functions for address components
+- **Features**:
+  - `BaseFieldProps` interface definition
+  - `ValidationResult` interface
+  - `createEmptyAddress()` utility function
+  - Toronto default address constants
+- **Special Features**: Shared utilities and type definitions for all address components
+
+#### **AddressPanel** (`AddressPanel.tsx`)
+- **Purpose**: Complete address input panel with grid layout
+- **Features**:
+  - All 7 address fields in responsive grid layout
+  - Individual field error display
+  - Optional header and custom styling
+  - Disabled state support
+- **Test Coverage**: Integrated with AddressForm testing
+- **Special Features**: Panel-style layout for embedding in larger forms
 
 #### **AddressForm** (`AddressForm.tsx`)
 - **Purpose**: Complete address form with integrated validation and submission handling
@@ -94,6 +122,17 @@ All address field components follow the same pattern with consistent validation 
   - **Required Mode**: All fields must be completed and valid
   - **Optional Mode**: Fields validate only if they contain values
   - **Disabled Mode**: No validation, form always submittable
+
+#### **FlexibleAddressForm** (`FlexibleAddressForm.tsx`)
+- **Purpose**: Highly configurable address form with customizable field selection
+- **Features**:
+  - Configurable field inclusion/exclusion
+  - Custom field configurations and layouts
+  - Pre-defined configuration presets
+  - Grid-based responsive layout
+  - Per-field validation configuration
+- **Test Coverage**: 20 comprehensive configuration test scenarios
+- **Special Features**: Ultimate flexibility for different address collection needs
 
 ## 🔄 Validation Flow
 
