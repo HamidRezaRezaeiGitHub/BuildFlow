@@ -54,6 +54,7 @@ describe('FlexibleSignUpForm', () => {
                 <FlexibleSignUpForm 
                     title="Custom Sign Up Form" 
                     description="Please enter your details to register"
+                    enableValidation={false}
                 />
             );
 
@@ -66,6 +67,7 @@ describe('FlexibleSignUpForm', () => {
                 <FlexibleSignUpForm 
                     inline={true}
                     title="Should not show"
+                    enableValidation={false}
                 />
             );
 
