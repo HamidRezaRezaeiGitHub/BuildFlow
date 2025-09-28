@@ -116,7 +116,7 @@ const AddressPage: React.FC = () => {
             
             // Reset all fields to hidden first
             Object.keys(newFieldStates).forEach(field => {
-                newFieldStates[field as keyof AddressData] = {
+                newFieldStates[field as keyof AddressData | 'streetNumberName'] = {
                     show: false,
                     required: false,
                     colSpan: 1
@@ -149,7 +149,7 @@ const AddressPage: React.FC = () => {
     };
 
     // Update individual field state
-    const updateFieldState = (field: keyof AddressData, updates: Partial<FieldState>) => {
+    const updateFieldState = (field: keyof AddressData | 'streetNumberName', updates: Partial<FieldState>) => {
         setFieldStates(prev => ({
             ...prev,
             [field]: { ...prev[field], ...updates }
@@ -256,6 +256,9 @@ const AddressPage: React.FC = () => {
                                             <DropdownMenuItem onClick={() => handlePresetLayoutChange('international')}>
                                                 International Layout
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handlePresetLayoutChange('combined')}>
+                                                Combined Street Address
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handlePresetLayoutChange('custom')}>
                                                 Custom Layout
                                             </DropdownMenuItem>
@@ -267,7 +270,7 @@ const AddressPage: React.FC = () => {
                                         <Label className="text-sm font-medium">Field Configuration</Label>
                                         <div className="space-y-3 max-h-64 overflow-y-auto">
                                             {Object.entries(fieldLabels).map(([field, label]) => {
-                                                const fieldKey = field as keyof AddressData;
+                                                const fieldKey = field as keyof AddressData | 'streetNumberName';
                                                 const state = fieldStates[fieldKey];
                                                 if (!state) return null;
                                                 
