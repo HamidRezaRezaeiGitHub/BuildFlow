@@ -52,6 +52,7 @@ export { default as SignUpForm } from './SignUpForm';
 export { CompactSignUpForm } from './CompactSignUpForm';
 export { ShortSignUpForm } from './ShortSignUpForm';
 export { LongSignUpForm } from './LongSignUpForm';
+export { default as FlexibleSignUpForm } from './FlexibleSignUpForm';
 
 // Base types and interfaces
 export type { ValidationResult } from '@/services/validation';
@@ -67,3 +68,5 @@ export type { SignUpFormData, SignUpFormProps } from './SignUpForm';
 export type { CompactSignUpFormData, CompactSignUpFormProps } from './CompactSignUpForm';
 export type { ShortSignUpFormData, ShortSignUpFormProps } from './ShortSignUpForm';
 export type { LongSignUpFormData, LongSignUpFormProps } from './LongSignUpForm';
+export type { FlexibleSignUpFormData, FlexibleSignUpFormProps, SignUpFieldConfig } from './FlexibleSignUpForm';
+export { signUpFieldConfigs } from './FlexibleSignUpForm';
