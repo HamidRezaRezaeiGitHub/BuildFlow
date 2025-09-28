@@ -91,7 +91,7 @@ const FlexibleSignUpPage: React.FC = () => {
                 show: personalFieldStates[field].show,
                 required: personalFieldStates[field].required,
                 colSpan: personalFieldStates[field].colSpan
-            }));
+            })) as SignUpFieldConfig[];
     };
 
     const getCurrentAddressConfig = (): AddressFieldConfig[] | keyof typeof addressFieldConfigs => {
@@ -459,7 +459,7 @@ const FlexibleSignUpPage: React.FC = () => {
                             <CardContent>
                                 {formType === 'flexible' ? (
                                     <FlexibleSignUpForm
-                                        fieldsConfig={getCurrentPersonalInfoConfig() as any}
+                                        fieldsConfig={getCurrentPersonalInfoConfig()}
                                         addressFieldsConfig={getCurrentAddressConfig()}
                                         title={inline ? undefined : "Create Your Account"}  
                                         description={inline ? undefined : "Enter your details to get started"}

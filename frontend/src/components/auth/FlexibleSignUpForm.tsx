@@ -271,21 +271,21 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
 
     // Ensure mandatory fields are always included
     const processedFields = useMemo(() => {
-        const mandatoryFields = ['username', 'password', 'confirmPassword'];
+        const mandatoryFields: (keyof FlexibleSignUpFormData)[] = ['username', 'password', 'confirmPassword'];
         const fieldMap = new Map(fieldsToShow.map(field => [field.field, field]));
         
         // Add mandatory fields if not present
         mandatoryFields.forEach(fieldName => {
-            if (!fieldMap.has(fieldName as keyof FlexibleSignUpFormData)) {
-                fieldMap.set(fieldName as keyof FlexibleSignUpFormData, {
-                    field: fieldName as keyof FlexibleSignUpFormData,
+            if (!fieldMap.has(fieldName)) {
+                fieldMap.set(fieldName, {
+                    field: fieldName,
                     required: true,
                     colSpan: 1,
                     show: true
                 });
             } else {
                 // Ensure mandatory fields are marked as required
-                const field = fieldMap.get(fieldName as keyof FlexibleSignUpFormData);
+                const field = fieldMap.get(fieldName);
                 if (field) {
                     field.required = true;
                 }
@@ -383,6 +383,16 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             case 3: return 'col-span-3';
             case 4: return 'col-span-4';
             default: return 'col-span-1';
+        }
+    };
+
+    // Helper function to generate grid column classes
+    const getGridColsClass = (maxColumns: number): string => {
+        switch (maxColumns) {
+            case 1: return 'grid-cols-1';
+            case 3: return 'grid-cols-3';
+            case 4: return 'grid-cols-4';
+            default: return 'grid-cols-2';
         }
     };
 
@@ -503,7 +513,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 )}
 
                 {/* Personal Info Fields Grid */}
-                <div className={`grid gap-4 ${maxColumns === 1 ? 'grid-cols-1' : maxColumns === 3 ? 'grid-cols-3' : maxColumns === 4 ? 'grid-cols-4' : 'grid-cols-2'}`}>
+                <div className={`grid gap-4 ${getGridColsClass(maxColumns)}`}>
                     {processedFields.map(renderField)}
                 </div>
             </div>
@@ -546,7 +556,15 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     addressPanelHeaderText={addressPanelHeaderText}
                                     inline={true}
                                     disabled={disabled || isSubmitting}
-                                    errors={errors as any}
+                                    errors={{
+                                        unitNumber: errors.unitNumber,
+                                        streetNumber: errors.streetNumber,
+                                        streetName: errors.streetName,
+                                        city: errors.city,
+                                        stateOrProvince: errors.stateOrProvince,
+                                        postalOrZipCode: errors.postalOrZipCode,
+                                        country: errors.country
+                                    }}
                                     enableValidation={enableValidation}
                                 />
                             </CollapsibleContent>
@@ -571,7 +589,15 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                 addressPanelHeaderText={addressPanelHeaderText}
                                 inline={true}
                                 disabled={disabled || isSubmitting}
-                                errors={errors as any}
+                                errors={{
+                                    unitNumber: errors.unitNumber,
+                                    streetNumber: errors.streetNumber,
+                                    streetName: errors.streetName,
+                                    city: errors.city,
+                                    stateOrProvince: errors.stateOrProvince,
+                                    postalOrZipCode: errors.postalOrZipCode,
+                                    country: errors.country
+                                }}
                                 enableValidation={enableValidation}
                             />
                         </div>
