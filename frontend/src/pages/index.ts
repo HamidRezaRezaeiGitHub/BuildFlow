@@ -11,6 +11,5 @@ export { default as AddressPage } from './temp/AddressPage';
 export { default as Theme } from './temp/Theme';
 export { default as CompactSignUpPage } from './temp/CompactSignUpPage';
 export { default as ShortSignUpPage } from './temp/ShortSignUpPage';
-export { default as AuthFormsPage } from './temp/AuthFormsPage';
 export { default as LoginPage } from './temp/LoginPage';
 export { default as FlexibleSignUpPage } from './temp/FlexibleSignUpPage';
