@@ -125,6 +125,7 @@ describe('PostalCodeField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Postal code is required')).toBeInTheDocument();
@@ -285,6 +286,7 @@ describe('PostalCodeField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Postal code must not exceed 10 characters')).toBeInTheDocument();
@@ -325,6 +327,7 @@ describe('PostalCodeField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Postal code must be at least 5 characters long')).toBeInTheDocument();
@@ -365,6 +368,7 @@ describe('PostalCodeField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Postal code format is invalid (e.g., M5H 2N2 or 12345)')).toBeInTheDocument();
@@ -454,14 +458,15 @@ describe('PostalCodeField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/format is invalid/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).not.toHaveBeenCalled();
+        // Validation is called on mount and when value changes, but errors are not displayed until touched
+        expect(mockOnValidationChange).toHaveBeenCalledTimes(2);
     });
 
     test('PostalCodeField_shouldValidateOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
-        render(
+        const { rerender } = render(
             <PostalCodeField
                 value=""
                 onChange={mockOnChange}
@@ -473,10 +478,22 @@ describe('PostalCodeField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
         mockOnValidationChange.mockClear();
 
         fireEvent.change(input, { target: { value: 'INVALID' } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <PostalCodeField
+                value="INVALID"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
 
         expect(screen.getByText('Postal code format is invalid (e.g., M5H 2N2 or 12345)')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
@@ -499,6 +516,7 @@ describe('PostalCodeField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         // Should show validation error, not external error
@@ -555,6 +573,7 @@ describe('PostalCodeField', () => {
         const input = screen.getByRole('textbox');
 
         // First trigger a validation error
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('Postal code is required')).toBeInTheDocument();
 

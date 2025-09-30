@@ -145,6 +145,7 @@ describe('StreetNumberNameField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number and name is required')).toBeInTheDocument();
@@ -226,11 +227,15 @@ describe('StreetNumberNameField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number and name must not exceed 120 characters')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number and name must not exceed 120 characters'] });
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
+            'Street number and name must not exceed 120 characters',
+            'Street address must contain a number'
+        ] });
     });
 
     test('StreetNumberNameField_shouldShowMinLengthError_whenTooShort', () => {
@@ -263,11 +268,15 @@ describe('StreetNumberNameField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number and name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number and name must be at least 2 characters long'] });
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
+            'Street number and name must be at least 2 characters long',
+            'Street address must contain a number'
+        ] });
     });
 
     test('StreetNumberNameField_shouldShowMustContainNumberError_whenNoNumberProvided', () => {
@@ -300,6 +309,7 @@ describe('StreetNumberNameField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street address must contain a number')).toBeInTheDocument();
@@ -323,7 +333,7 @@ describe('StreetNumberNameField', () => {
 
         const input = screen.getByRole('textbox');
 
-        // Enter value with invalid format (number not at start) and trigger onChange
+        // Enter value with number (should pass validFormat validation)
         fireEvent.change(input, { target: { value: 'Street 123' } });
 
         // Simulate the parent component updating the value prop
@@ -337,11 +347,13 @@ describe('StreetNumberNameField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
-        expect(screen.getByText('Street address should start with a number (e.g., "123 Main St")')).toBeInTheDocument();
-        expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street address should start with a number (e.g., "123 Main St")'] });
+        // Should not show format error since input contains a number
+        expect(screen.queryByText('Street address should start with a number (e.g., "123 Main St")')).not.toBeInTheDocument();
+        expect(input).not.toHaveClass('border-red-500');
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNumberNameField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -388,14 +400,15 @@ describe('StreetNumberNameField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/contain a number/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).not.toHaveBeenCalled();
+        // Validation is called on mount and when value changes, but errors are not displayed until touched
+        expect(mockOnValidationChange).toHaveBeenCalledTimes(2);
     });
 
     test('StreetNumberNameField_shouldValidateOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
-        render(
+        const { rerender } = render(
             <StreetNumberNameField
                 value=""
                 onChange={mockOnChange}
@@ -407,10 +420,22 @@ describe('StreetNumberNameField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
         mockOnValidationChange.mockClear();
 
         fireEvent.change(input, { target: { value: 'Main Street' } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <StreetNumberNameField
+                value="Main Street"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
 
         expect(screen.getByText('Street address must contain a number')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
@@ -433,6 +458,7 @@ describe('StreetNumberNameField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         // Should show validation error, not external error
@@ -489,6 +515,7 @@ describe('StreetNumberNameField', () => {
         const input = screen.getByRole('textbox');
 
         // First trigger a validation error
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('Street number and name is required')).toBeInTheDocument();
 

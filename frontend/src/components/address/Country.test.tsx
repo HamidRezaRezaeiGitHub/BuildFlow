@@ -57,7 +57,9 @@ describe('CountryField', () => {
             />
         );
 
-        fireEvent.blur(screen.getByRole('textbox'));
+        const input = screen.getByRole('textbox');
+        fireEvent.focus(input);
+        fireEvent.blur(input);
 
         expect(screen.getByText('Country is required')).toBeInTheDocument();
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Country is required'] });
@@ -125,6 +127,7 @@ describe('CountryField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Country name must not exceed 60 characters')).toBeInTheDocument();
@@ -158,6 +161,7 @@ describe('CountryField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Country name must be at least 2 characters long')).toBeInTheDocument();
@@ -191,6 +195,7 @@ describe('CountryField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Country name must contain only letters, spaces, hyphens, and periods')).toBeInTheDocument();
@@ -283,6 +288,7 @@ describe('CountryField', () => {
         );
 
         const input = screen.getByRole('textbox');
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('Country is required')).toBeInTheDocument();
 

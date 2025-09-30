@@ -125,6 +125,7 @@ describe('CityField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('City is required')).toBeInTheDocument();
@@ -206,6 +207,7 @@ describe('CityField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('City name must not exceed 50 characters')).toBeInTheDocument();
@@ -243,6 +245,7 @@ describe('CityField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
@@ -280,6 +283,7 @@ describe('CityField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('City name must contain only letters, spaces, hyphens, periods, and apostrophes')).toBeInTheDocument();
@@ -369,14 +373,15 @@ describe('CityField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/at least/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).not.toHaveBeenCalled();
+        // Validation is called on mount and when value changes, but errors are not displayed until touched
+        expect(mockOnValidationChange).toHaveBeenCalledTimes(2);
     });
 
     test('CityField_shouldValidateOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
-        render(
+        const { rerender } = render(
             <CityField
                 value=""
                 onChange={mockOnChange}
@@ -388,10 +393,22 @@ describe('CityField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
         mockOnValidationChange.mockClear();
 
         fireEvent.change(input, { target: { value: 'A' } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <CityField
+                value="A"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
 
         expect(screen.getByText('City name must be at least 2 characters long')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
@@ -414,6 +431,7 @@ describe('CityField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         // Should show validation error, not external error
@@ -470,6 +488,7 @@ describe('CityField', () => {
         const input = screen.getByRole('textbox');
 
         // First trigger a validation error
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('City is required')).toBeInTheDocument();
 

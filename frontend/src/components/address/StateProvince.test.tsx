@@ -57,7 +57,9 @@ describe('StateProvinceField', () => {
             />
         );
 
-        fireEvent.blur(screen.getByRole('textbox'));
+        const input = screen.getByRole('textbox');
+        fireEvent.focus(input);
+        fireEvent.blur(input);
 
         expect(screen.getByText('State/Province is required')).toBeInTheDocument();
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['State/Province is required'] });
@@ -125,6 +127,7 @@ describe('StateProvinceField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('State/Province must not exceed 50 characters')).toBeInTheDocument();
@@ -158,6 +161,7 @@ describe('StateProvinceField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('State/Province must be at least 2 characters long')).toBeInTheDocument();
@@ -191,6 +195,7 @@ describe('StateProvinceField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('State/Province must contain only letters, spaces, hyphens, and periods')).toBeInTheDocument();
@@ -249,6 +254,7 @@ describe('StateProvinceField', () => {
         );
 
         const input = screen.getByRole('textbox');
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('State/Province is required')).toBeInTheDocument();
 

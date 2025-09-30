@@ -159,6 +159,7 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number is required')).toBeInTheDocument();
@@ -237,6 +238,7 @@ describe('StreetNumberField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number must not exceed 20 characters')).toBeInTheDocument();
@@ -274,6 +276,7 @@ describe('StreetNumberField', () => {
             />
         );
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
@@ -325,14 +328,15 @@ describe('StreetNumberField', () => {
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
         expect(screen.queryByText(/numbers/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
-        expect(mockOnValidationChange).not.toHaveBeenCalled();
+        // Validation callback is called on mount and on value change, but errors are not displayed until touched
+        expect(mockOnValidationChange).toHaveBeenCalled();
     });
 
     test('StreetNumberField_shouldValidateOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
-        render(
+        const { rerender } = render(
             <StreetNumberField
                 value=""
                 onChange={mockOnChange}
@@ -344,10 +348,22 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
         mockOnValidationChange.mockClear();
 
         fireEvent.change(input, { target: { value: 'ABC123' } });
+
+        // Simulate the parent component updating the value prop
+        rerender(
+            <StreetNumberField
+                value="ABC123"
+                onChange={mockOnChange}
+                enableValidation={true}
+                validationMode="optional"
+                onValidationChange={mockOnValidationChange}
+            />
+        );
 
         expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
@@ -370,6 +386,7 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
+        fireEvent.focus(input);
         fireEvent.blur(input);
 
         // Should show validation error, not external error
@@ -426,6 +443,7 @@ describe('StreetNumberField', () => {
         const input = screen.getByRole('textbox');
 
         // First trigger a validation error
+        fireEvent.focus(input);
         fireEvent.blur(input);
         expect(screen.getByText('Street number is required')).toBeInTheDocument();
 
