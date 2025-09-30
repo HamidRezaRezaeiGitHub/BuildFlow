@@ -70,13 +70,13 @@ export class ValidationService {
             }
         });
 
-        // Street number rule (numbers only)
+        // Street number rule (alphanumeric with common separators)
         this.registerRule({
             name: 'streetNumber',
-            message: 'Street number must contain only numbers',
+            message: 'Street number contains invalid characters',
             validator: (value: string) => {
                 if (!value) return true;
-                return VALIDATION_PATTERNS.STREET_NUMBER.test(value);
+                return /^[0-9A-Za-z\-\/\s]*$/.test(value);
             }
         });
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ValidationResult } from '@/services/validation';
-import { validationService } from '@/services/validation/ValidationService';
+import { ValidationResult } from './types';
+import { validationService } from './ValidationService';
 
 export interface AutofillDetectionConfig {
   /** Minimum character change to consider autofill */

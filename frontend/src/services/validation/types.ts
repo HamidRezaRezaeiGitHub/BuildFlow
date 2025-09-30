@@ -100,7 +100,7 @@ export const VALIDATION_PATTERNS = {
     PHONE_INTERNATIONAL: /^[\+\(\d][\d\-\s\(\)\.]{6,28}$/,
     CANADIAN_POSTAL: /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/,
     US_ZIP: /^\d{5}(-\d{4})?$/,
-    STREET_NUMBER: /^\d+$/,
+    STREET_NUMBER: /^[0-9A-Za-z\-\/\s]*$/,
     UNIT_NUMBER: /^[A-Za-z0-9\-#]*$/,
     PASSWORD_STRONG: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]{8,}$/,
 } as const;
