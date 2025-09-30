@@ -61,14 +61,14 @@ class ApiService {
         if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
             baseUrl = process.env.VITE_API_BASE_URL;
         } else {
-            // Use eval to avoid TypeScript parsing import.meta
+            // Try to access Vite environment variables
             try {
-                const viteEnv = eval('import.meta.env');
+                const viteEnv = (import.meta as any).env;
                 if (viteEnv && viteEnv.VITE_API_BASE_URL) {
                     baseUrl = viteEnv.VITE_API_BASE_URL;
                 }
             } catch (e) {
-                // ignore
+                // ignore - not in Vite environment
             }
         }
         this.baseUrl = baseUrl;
