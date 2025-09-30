@@ -347,13 +347,8 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
                 <StreetNumberNameField
                     key={field}
                     value={combinedValue}
-                    onChange={(_value: string) => {
-                        // This is just for the input display - actual parsing happens in onParsedChange
-                    }}
-                    onParsedChange={(streetNumber: string, streetName: string) => {
-                        // Update both fields when parsed
-                        onAddressChange('streetNumber', streetNumber);
-                        onAddressChange('streetName', streetName);
+                    onChange={(value: string) => {
+                        onAddressChange('streetName', value);
                     }}
                     errors={errors.streetNumber || errors.streetName ? 
                         [...(errors.streetNumber || []), ...(errors.streetName || [])] : 

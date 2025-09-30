@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { BaseFieldProps } from './Address';
+import { BaseFieldProps } from '.';
 
 export interface UnitNumberFieldProps extends BaseFieldProps {
     placeholder?: string;

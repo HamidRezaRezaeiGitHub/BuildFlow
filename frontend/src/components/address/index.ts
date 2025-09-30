@@ -1,23 +1,30 @@
-// Address Utilities
-export {
-  createEmptyAddress,
-  createTorontoDefaultAddress,
-  formatAddress,
-  getAddressCompletionPercentage,
-  isAddressComplete,
-  isAddressEmpty,
-  TORONTO_DEFAULT_ADDRESS,
-  validateStreetNumber
-} from './Address';
+import { AddressData } from '@/services/dtos';
 
-export type { ValidationResult } from './Address';
+// Base interface for all address field components
+export interface BaseFieldProps {
+  id?: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  className?: string;
+  errors?: string[];
+}
 
-// Complete Address Form Component (Recommended)
-export { default as AddressForm, parseStreetNumber } from './AddressForm';
-export type { AddressFormProps } from './AddressForm';
+// Create an empty address data object
+export const createEmptyAddress = (): AddressData => ({
+  unitNumber: '',
+  streetNumber: '',
+  streetName: '',
+  city: '',
+  stateOrProvince: '',
+  postalOrZipCode: '',
+  country: ''
+});
 
-// Flexible Address Form Component with Customizable Fields
-export { default as FlexibleAddressForm, addressFieldConfigs } from './FlexibleAddressForm';
+
+
+// Flexible Address Form Component (Primary Address Form)
+export { default as FlexibleAddressForm, addressFieldConfigs, parseStreetNumber } from './FlexibleAddressForm';
 export type { FlexibleAddressFormProps, AddressFieldConfig } from './FlexibleAddressForm';
 
 // Individual Address Field Components
@@ -27,11 +34,11 @@ export { PostalCodeField } from './PostalCode';
 export { StateProvinceField } from './StateProvince';
 export { StreetNameField } from './StreetName';
 export { StreetNumberField } from './StreetNumber';
-export { StreetNumberNameField, parseStreetNumberName } from './StreetNumberName';
+export { StreetNumberNameField } from './StreetNumberName';
 export { UnitNumberField } from './UnitNumber';
 
 // Field Component Prop Types
-export type { BaseFieldProps } from './Address';
+// BaseFieldProps is now defined above in this file
 export type { CityFieldProps } from './City';
 export type { CountryFieldProps } from './Country';
 export type { PostalCodeFieldProps } from './PostalCode';
@@ -41,7 +48,5 @@ export type { StreetNumberFieldProps } from './StreetNumber';
 export type { StreetNumberNameFieldProps } from './StreetNumberName';
 export type { UnitNumberFieldProps } from './UnitNumber';
 
-// Complete Address Panel Component (DEPRECATED - Use AddressForm instead)
-export { default as AddressPanel } from './AddressPanel';
-export type { AddressPanelProps } from './AddressPanel';
+// Note: AddressPanel and AddressForm have been removed. Use FlexibleAddressForm instead.
 

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { StreetNumberNameField, parseStreetNumberName } from './StreetNumberName';
+import { StreetNumberNameField } from './StreetNumberName';
 
 describe('StreetNumberNameField', () => {
     beforeEach(() => {
@@ -43,23 +43,6 @@ describe('StreetNumberNameField', () => {
         expect(mockOnChange).toHaveBeenCalledWith('123 Main Street');
     });
 
-    test('StreetNumberNameField_shouldCallOnParsedChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
-        const mockOnParsedChange = jest.fn();
-        
-        render(
-            <StreetNumberNameField
-                value=""
-                onChange={mockOnChange}
-                onParsedChange={mockOnParsedChange}
-            />
-        );
-
-        const input = screen.getByRole('textbox');
-        fireEvent.change(input, { target: { value: '123 Main Street' } });
-
-        expect(mockOnParsedChange).toHaveBeenCalledWith('123', 'Main Street');
-    });
 
     test('StreetNumberNameField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
         const mockOnChange = jest.fn();
@@ -234,7 +217,8 @@ describe('StreetNumberNameField', () => {
         expect(input).toHaveClass('border-red-500');
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Street number and name must not exceed 120 characters',
-            'Street address must contain a number'
+            'Street address must contain a number',
+            'Street address should start with a number (e.g., "123 Main St")'
         ] });
     });
 
@@ -275,7 +259,8 @@ describe('StreetNumberNameField', () => {
         expect(input).toHaveClass('border-red-500');
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
             'Street number and name must be at least 2 characters long',
-            'Street address must contain a number'
+            'Street address must contain a number',
+            'Street address should start with a number (e.g., "123 Main St")'
         ] });
     });
 
@@ -314,7 +299,10 @@ describe('StreetNumberNameField', () => {
 
         expect(screen.getByText('Street address must contain a number')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street address must contain a number'] });
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
+            'Street address must contain a number',
+            'Street address should start with a number (e.g., "123 Main St")'
+        ] });
     });
 
     test('StreetNumberNameField_shouldShowValidFormatError_whenInvalidFormat', () => {
@@ -333,13 +321,13 @@ describe('StreetNumberNameField', () => {
 
         const input = screen.getByRole('textbox');
 
-        // Enter value with number (should pass validFormat validation)
-        fireEvent.change(input, { target: { value: 'Street 123' } });
+        // Enter value with number that starts with a number (should pass validFormat validation)
+        fireEvent.change(input, { target: { value: '123 Main Street' } });
 
         // Simulate the parent component updating the value prop
         rerender(
             <StreetNumberNameField
-                value="Street 123"
+                value="123 Main Street"
                 onChange={mockOnChange}
                 enableValidation={true}
                 validationMode="optional"
@@ -439,7 +427,10 @@ describe('StreetNumberNameField', () => {
 
         expect(screen.getByText('Street address must contain a number')).toBeInTheDocument();
         expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street address must contain a number'] });
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: [
+            'Street address must contain a number',
+            'Street address should start with a number (e.g., "123 Main St")'
+        ] });
     });
 
     test('StreetNumberNameField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
@@ -536,86 +527,3 @@ describe('StreetNumberNameField', () => {
     });
 });
 
-// === PARSING FUNCTION TESTS ===
-
-describe('parseStreetNumberName', () => {
-    test('parseStreetNumberName_shouldParseValidInput_withNumberAndName', () => {
-        const result = parseStreetNumberName('123 Main Street');
-        expect(result).toEqual({
-            streetNumber: '123',
-            streetName: 'Main Street'
-        });
-    });
-
-    test('parseStreetNumberName_shouldParseInput_withNumberAndMultipleWordName', () => {
-        const result = parseStreetNumberName('456 Queen Street West');
-        expect(result).toEqual({
-            streetNumber: '456',
-            streetName: 'Queen Street West'
-        });
-    });
-
-    test('parseStreetNumberName_shouldParseInput_withExtraSpaces', () => {
-        const result = parseStreetNumberName('789   Bay   Street');
-        expect(result).toEqual({
-            streetNumber: '789',
-            streetName: 'Bay   Street'
-        });
-    });
-
-    test('parseStreetNumberName_shouldReturnNumberOnly_whenNoNameProvided', () => {
-        const result = parseStreetNumberName('123');
-        expect(result).toEqual({
-            streetNumber: '123',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldReturnInputAsNumber_whenNoValidFormat', () => {
-        const result = parseStreetNumberName('Main Street');
-        expect(result).toEqual({
-            streetNumber: 'Main Street',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldHandleEmptyInput', () => {
-        const result = parseStreetNumberName('');
-        expect(result).toEqual({
-            streetNumber: '',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldHandleNullInput', () => {
-        const result = parseStreetNumberName(null as any);
-        expect(result).toEqual({
-            streetNumber: '',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldHandleUndefinedInput', () => {
-        const result = parseStreetNumberName(undefined as any);
-        expect(result).toEqual({
-            streetNumber: '',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldHandleWhitespaceOnlyInput', () => {
-        const result = parseStreetNumberName('   ');
-        expect(result).toEqual({
-            streetNumber: '',
-            streetName: ''
-        });
-    });
-
-    test('parseStreetNumberName_shouldParseComplexAddress', () => {
-        const result = parseStreetNumberName('1234 Main Street Apt 5');
-        expect(result).toEqual({
-            streetNumber: '1234',
-            streetName: 'Main Street Apt 5'
-        });
-    });
-});

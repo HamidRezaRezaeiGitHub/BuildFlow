@@ -43,7 +43,7 @@ describe('StreetNumberField', () => {
 
     test('StreetNumberField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
         const mockOnChange = jest.fn();
-        const errors = ['Street number must contain only numbers'];
+        const errors = ['Custom validation error'];
         
         render(
             <StreetNumberField
@@ -53,7 +53,7 @@ describe('StreetNumberField', () => {
             />
         );
 
-        const errorText = screen.getByText('Street number must contain only numbers');
+        const errorText = screen.getByText('Custom validation error');
         const input = screen.getByRole('textbox');
 
         expect(errorText).toBeInTheDocument();
@@ -246,7 +246,7 @@ describe('StreetNumberField', () => {
         expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must not exceed 20 characters'] });
     });
 
-    test('StreetNumberField_shouldShowNonNumericError_whenContainsLetters', () => {
+    test('StreetNumberField_shouldAcceptAlphanumericValues_whenValidationEnabled', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
@@ -262,7 +262,7 @@ describe('StreetNumberField', () => {
 
         const input = screen.getByRole('textbox');
 
-        // Enter non-numeric value and trigger onChange
+        // Enter alphanumeric value and trigger onChange
         fireEvent.change(input, { target: { value: '123A' } });
 
         // Simulate the parent component updating the value prop
@@ -279,9 +279,10 @@ describe('StreetNumberField', () => {
         fireEvent.focus(input);
         fireEvent.blur(input);
 
-        expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
-        expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must contain only numbers'] });
+        // Should accept alphanumeric values without error
+        expect(screen.queryByText(/must contain only numbers/)).not.toBeInTheDocument();
+        expect(input).not.toHaveClass('border-red-500');
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNumberField_shouldHandleEmptyValueInOptionalMode', () => {
@@ -326,13 +327,12 @@ describe('StreetNumberField', () => {
         fireEvent.change(input, { target: { value: 'ABC' } });
 
         expect(screen.queryByText(/required/)).not.toBeInTheDocument();
-        expect(screen.queryByText(/numbers/)).not.toBeInTheDocument();
         expect(input).not.toHaveClass('border-red-500');
         // Validation callback is called on mount and on value change, but errors are not displayed until touched
         expect(mockOnValidationChange).toHaveBeenCalled();
     });
 
-    test('StreetNumberField_shouldValidateOnChangeAfterFirstBlur', () => {
+    test('StreetNumberField_shouldAcceptValidInputOnChangeAfterFirstBlur', () => {
         const mockOnChange = jest.fn();
         const mockOnValidationChange = jest.fn();
 
@@ -365,9 +365,10 @@ describe('StreetNumberField', () => {
             />
         );
 
-        expect(screen.getByText('Street number must contain only numbers')).toBeInTheDocument();
-        expect(input).toHaveClass('border-red-500');
-        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: false, errors: ['Street number must contain only numbers'] });
+        // Should accept alphanumeric values without error
+        expect(screen.queryByText(/must contain only numbers/)).not.toBeInTheDocument();
+        expect(input).not.toHaveClass('border-red-500');
+        expect(mockOnValidationChange).toHaveBeenCalledWith({ isValid: true, errors: [] });
     });
 
     test('StreetNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {

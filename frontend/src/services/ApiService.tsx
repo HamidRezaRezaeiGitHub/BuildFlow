@@ -58,17 +58,26 @@ class ApiService {
     constructor() {
         // Support both Vite (import.meta.env) and Jest (process.env)
         let baseUrl = 'http://localhost:8080/api';
+        
+        // Check for environment variables in different environments
         if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
+            // Node.js environment (including Jest)
             baseUrl = process.env.VITE_API_BASE_URL;
-        } else {
-            // Try to access Vite environment variables
+        } else if (typeof window !== 'undefined' && typeof globalThis !== 'undefined') {
+            // Browser environment - safely access Vite variables
             try {
-                const viteEnv = (import.meta as any).env;
-                if (viteEnv && viteEnv.VITE_API_BASE_URL) {
-                    baseUrl = viteEnv.VITE_API_BASE_URL;
+                // Only access import.meta if we're not in a test environment
+                const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
+                if (!isTestEnv && typeof eval === 'function') {
+                    // Use eval to avoid TypeScript compilation issues with import.meta in Jest
+                    const viteEnv = eval('import.meta').env;
+                    if (viteEnv && viteEnv.VITE_API_BASE_URL) {
+                        baseUrl = viteEnv.VITE_API_BASE_URL;
+                    }
                 }
             } catch (e) {
-                // ignore - not in Vite environment
+                // Ignore error if import.meta is not available
+                console.debug('Vite environment variables not available:', e);
             }
         }
         this.baseUrl = baseUrl;

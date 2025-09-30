@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AddressData, CreateProjectRequest, ProjectLocationRequestDto } from '@/services/dtos';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
-import { createEmptyAddress } from '../address/Address';
-import AddressForm from '../address/AddressForm';
+import { createEmptyAddress } from '../address';
+import { FlexibleAddressForm } from '../address';
 
 export interface NewProjectFormProps {
   /** Callback when form is submitted successfully */
@@ -215,7 +215,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
               </p>
             </div>
 
-            <AddressForm
+            <FlexibleAddressForm
               addressData={formData.projectLocation}
               onAddressChange={handleAddressChange}
               onSubmit={() => { }} // Not used - handled by parent form
@@ -224,6 +224,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
               isSkippable={false}
               showAddressPanelHeader={false}
               disabled={isSubmitting}
+              noFormWrapper={true}
+              showActionButtons={false}
             />
           </div>
 

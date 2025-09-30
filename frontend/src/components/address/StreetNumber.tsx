@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { BaseFieldProps } from './Address';
+import { BaseFieldProps } from '.';
 
 // Street Number Field Component
 export interface StreetNumberFieldProps extends BaseFieldProps {
@@ -39,11 +39,6 @@ export const StreetNumberField: FC<StreetNumberFieldProps> = ({
                 name: 'maxLength_20',
                 message: 'Street number must not exceed 20 characters',
                 validator: (val: string) => !val || val.length <= 20
-            },
-            {
-                name: 'numbersOnly',
-                message: 'Street number must contain only numbers',
-                validator: (val: string) => !val || /^\d+$/.test(val)
             }
         ];
     }, [enableValidation, validationMode]);

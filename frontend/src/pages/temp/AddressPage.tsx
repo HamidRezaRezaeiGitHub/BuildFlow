@@ -1,4 +1,4 @@
-import { AddressForm, FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '@/components/address';
+import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '@/components/address';
 import { ConfigurableNavbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,10 +21,10 @@ interface FieldState {
 }
 
 /**
- * Enhanced AddressPage for comprehensive testing of both AddressForm and FlexibleAddressForm
+ * Enhanced AddressPage for comprehensive testing of FlexibleAddressForm
  * 
  * Features:
- * - Choose between Fixed AddressForm or Flexible AddressForm
+ * - Choose between Fixed preset (full) or Flexible configuration
  * - For Flexible: Select from preset layouts or create custom field configuration
  * - Individual field control: show/hide, required/optional, column span
  * - Validation mode toggle (required/optional)
@@ -177,7 +177,7 @@ const AddressPage: React.FC = () => {
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold mb-2">Enhanced Address Form Testing</h1>
                     <p className="text-muted-foreground">
-                        Test both Fixed AddressForm and FlexibleAddressForm with full customization options
+                        Test FlexibleAddressForm with both Fixed preset and custom configuration options
                     </p>
                 </div>
 
@@ -363,7 +363,7 @@ const AddressPage: React.FC = () => {
                     <Card className="lg:col-span-2">
                         <CardHeader>
                             <CardTitle className={`text-xl font-bold ${isSkippable ? 'text-green-600' : 'text-red-600'}`}>
-                                {formType === 'fixed' ? 'Fixed AddressForm' : 'Flexible AddressForm'} 
+                                {formType === 'fixed' ? 'FlexibleAddressForm (Fixed Preset)' : 'FlexibleAddressForm (Custom Config)'} 
                                 <Badge variant={isSkippable ? 'secondary' : 'destructive'} className="ml-2">
                                     {isSkippable ? 'Optional' : 'Required'}
                                 </Badge>
@@ -378,9 +378,10 @@ const AddressPage: React.FC = () => {
 
                         <CardContent className="space-y-6">
                             {formType === 'fixed' ? (
-                                <AddressForm
+                                <FlexibleAddressForm
                                     addressData={addressData}
                                     onAddressChange={handleAddressChange}
+                                    fieldsConfig="full" // Use full preset for "fixed" mode
                                     onSubmit={async () => {
                                         setIsSubmitting(true);
                                         setSubmitMessage('');

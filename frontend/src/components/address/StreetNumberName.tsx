@@ -3,33 +3,9 @@ import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { BaseFieldProps } from './Address';
+import { BaseFieldProps } from '.';
 
-/**
- * Parse combined street number and name input into separate components
- * @param input The combined input (e.g., "123 Main St")
- * @returns Object with parsed streetNumber and streetName
- */
-export const parseStreetNumberName = (input: string): { streetNumber: string; streetName: string } => {
-    if (!input?.trim()) {
-        return { streetNumber: '', streetName: '' };
-    }
-    
-    // If the input contains letters, try to separate number from street name
-    const match = input.match(/^(\d+)\s*(.*)$/);
-    if (match && match[2].trim()) {
-        return {
-            streetNumber: match[1],
-            streetName: match[2].trim()
-        };
-    }
-    
-    // If no match or no street name part, treat as street number only
-    return {
-        streetNumber: input,
-        streetName: ''
-    };
-};
+
 
 // Combined Street Number and Name Field Component
 export interface StreetNumberNameFieldProps extends BaseFieldProps {
@@ -37,7 +13,6 @@ export interface StreetNumberNameFieldProps extends BaseFieldProps {
     enableValidation?: boolean;
     validationMode?: 'required' | 'optional';
     onValidationChange?: (validationResult: ValidationResult) => void;
-    onParsedChange?: (streetNumber: string, streetName: string) => void;
 }
 
 export const StreetNumberNameField: FC<StreetNumberNameFieldProps> = ({
@@ -50,8 +25,7 @@ export const StreetNumberNameField: FC<StreetNumberNameFieldProps> = ({
     placeholder = '123 Main Street',
     enableValidation = false,
     validationMode = 'optional',
-    onValidationChange,
-    onParsedChange
+    onValidationChange
 }) => {
     // Memoized validation rules configuration
     const validationRules = useMemo(() => {
@@ -86,8 +60,7 @@ export const StreetNumberNameField: FC<StreetNumberNameFieldProps> = ({
                 message: 'Street address should start with a number (e.g., "123 Main St")',
                 validator: (val: string) => {
                     if (!val) return true; // Let required rule handle empty values
-                    const parsed = parseStreetNumberName(val);
-                    return parsed.streetNumber !== '';
+                    return /^\d/.test(val.trim());
                 }
             }
         ];
@@ -115,12 +88,6 @@ export const StreetNumberNameField: FC<StreetNumberNameFieldProps> = ({
 
         // Use the hook's change handler for autofill detection
         handlers.handleChange(newValue, oldValue);
-
-        // Parse the new value and notify parent if callback provided
-        if (onParsedChange) {
-            const parsed = parseStreetNumberName(newValue);
-            onParsedChange(parsed.streetNumber, parsed.streetName);
-        }
 
         onChange(newValue);
     };

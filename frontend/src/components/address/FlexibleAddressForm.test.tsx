@@ -669,9 +669,8 @@ describe('FlexibleAddressForm', () => {
             // Type combined address
             fireEvent.change(combinedInput, { target: { value: '123 Main Street' } });
 
-            // Should have called onAddressChange for both streetNumber and streetName
-            expect(mockOnAddressChange).toHaveBeenCalledWith('streetNumber', '123');
-            expect(mockOnAddressChange).toHaveBeenCalledWith('streetName', 'Main Street');
+            // Should have called onAddressChange for streetName with combined value
+            expect(mockOnAddressChange).toHaveBeenCalledWith('streetName', '123 Main Street');
         });
 
         test('FlexibleAddressForm_shouldDisplayCombinedValueWhenBothFieldsHaveData', () => {
@@ -764,9 +763,8 @@ describe('FlexibleAddressForm', () => {
             // Type complex address
             fireEvent.change(combinedInput, { target: { value: '1234 Queen Street West Apt 5' } });
 
-            // Should parse number and everything else as street name
-            expect(mockOnAddressChange).toHaveBeenCalledWith('streetNumber', '1234');
-            expect(mockOnAddressChange).toHaveBeenCalledWith('streetName', 'Queen Street West Apt 5');
+            // Should update streetName with the complete combined value
+            expect(mockOnAddressChange).toHaveBeenCalledWith('streetName', '1234 Queen Street West Apt 5');
         });
 
         test('FlexibleAddressForm_shouldMergeErrorsFromBothFieldsForCombinedField', () => {

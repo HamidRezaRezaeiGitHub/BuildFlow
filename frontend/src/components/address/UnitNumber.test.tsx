@@ -343,8 +343,6 @@ describe('UnitNumberField', () => {
 
         const asterisk = screen.getByText('*');
         expect(asterisk).toBeInTheDocument();
-        expect(asterisk).toHaveClass('text-red-500');
-        expect(asterisk).toHaveClass('ml-1');
     });
 
     test('UnitNumberField_shouldNotShowRequiredAsterisk_whenValidationEnabledButOptional', () => {

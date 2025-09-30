@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { ValidationResult } from '@/services/validation';
 import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
 import { ChangeEvent, FC, useMemo } from 'react';
-import { BaseFieldProps } from './Address';
+import { BaseFieldProps } from '.';
 
 // Street Name Field Component
 export interface StreetNameFieldProps extends BaseFieldProps {
