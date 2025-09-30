@@ -6,7 +6,7 @@ import LoginForm from './LoginForm';
 const mockLogin = jest.fn();
 const mockNavigate = jest.fn();
 
-jest.mock('@/contexts/AuthContext', () => ({
+jest.mock('../../contexts/AuthContext', () => ({
     useAuth: () => ({
         login: mockLogin
     })

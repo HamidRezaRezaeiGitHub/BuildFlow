@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { ValidationResult } from '@/services/validation';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Label } from '../ui/label';
+import { useAuth } from '../../contexts/AuthContext';
+import { ValidationResult } from '../../services/validation';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PasswordField } from './Password';
@@ -32,6 +32,10 @@ export interface LoginFormProps {
   onLoginSuccess?: () => void;
   onLoginError?: (error: string) => void;
 
+  // Context alternatives - provide either contexts or callback functions
+  onLogin?: (credentials: { username: string; password: string }) => Promise<void>;
+  onNavigate?: (path: string) => void;
+
   // Validation configuration
   enableValidation?: boolean;
 
@@ -58,6 +62,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onFormSubmit,
   onLoginSuccess,
   onLoginError,
+  onLogin,
+  onNavigate,
   enableValidation = true,
   errors = {},
   disabled = false,
@@ -72,8 +78,28 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [fieldValidationState, setFieldValidationState] = React.useState<{
     [key: string]: ValidationResult
   }>({});
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  
+  // Try to use contexts, but allow optional usage via callbacks
+  let authLogin: ((credentials: { username: string; password: string }) => Promise<void>) | undefined;
+  let navigationNavigate: ((path: string) => void) | undefined;
+  
+  try {
+    const authContext = useAuth?.();
+    authLogin = authContext?.login;
+  } catch {
+    // Context not available, rely on callbacks
+  }
+  
+  try {
+    const navigateFunction = useNavigate?.();
+    navigationNavigate = navigateFunction;
+  } catch {
+    // Context not available, rely on callbacks
+  }
+  
+  // Use provided callbacks or context functions
+  const loginFunction = onLogin || authLogin;
+  const navigateFunction = onNavigate || navigationNavigate;
 
   const requiredFields: (keyof LoginFormData)[] = customRequiredFields || [
     'usernameOrEmail',
@@ -165,14 +191,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
 
     try {
+      // Ensure we have a login function available
+      if (!loginFunction) {
+        throw new Error('No login function available. Please provide either useAuth context or onLogin callback.');
+      }
+      
       // Use the flexible username/email field for login
-      await login({
+      await loginFunction({
         username: loginForm.usernameOrEmail,
         password: loginForm.password
       });
 
-      // Navigate to dashboard on successful login
-      navigate('/dashboard');
+      // Navigate to dashboard on successful login if navigation function is available
+      if (navigateFunction) {
+        navigateFunction('/dashboard');
+      }
 
       if (onLoginSuccess) onLoginSuccess();
 
@@ -191,12 +224,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   const handleLoginDataChange = (field: keyof LoginFormData, value: string) => {
+    // Defensive programming: validate parameters
+    if (!field || typeof field !== 'string') {
+      console.warn('LoginForm: Invalid field name provided to handleLoginDataChange');
+      return;
+    }
+    
+    const safeValue = value ?? '';
+    
     setLoginForm(prev => {
-      const newFormData = { ...prev, [field]: value };
+      const safePrev = prev || { usernameOrEmail: '', password: '' };
+      const newFormData = { ...safePrev, [field]: safeValue };
 
       // Call form data change callback
-      if (onFormDataChange) {
-        onFormDataChange(newFormData);
+      if (onFormDataChange && typeof onFormDataChange === 'function') {
+        try {
+          onFormDataChange(newFormData);
+        } catch (error) {
+          console.error('LoginForm: Error in onFormDataChange callback:', error);
+        }
       }
 
       return newFormData;

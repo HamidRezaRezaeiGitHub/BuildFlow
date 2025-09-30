@@ -5,17 +5,22 @@ import FlexibleSignUpForm, {
     signUpFieldConfigs
 } from './FlexibleSignUpForm';
 
+// Mock functions
+const mockRegister = jest.fn();
+const mockNavigateToDashboard = jest.fn();
+
 // Mock the contexts
-jest.mock('@/contexts/AuthContext', () => ({
+jest.mock('../../contexts/AuthContext', () => ({
     useAuth: () => ({
-        register: jest.fn().mockResolvedValue({}),
-    }),
+        register: mockRegister,
+        isLoading: false,
+    })
 }));
 
-jest.mock('@/contexts/NavigationContext', () => ({
+jest.mock('../../contexts/NavigationContext', () => ({
     useNavigate: () => ({
-        navigate: jest.fn(),
-    }),
+        navigateToDashboard: mockNavigateToDashboard
+    })
 }));
 
 describe('FlexibleSignUpForm', () => {

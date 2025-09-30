@@ -1140,29 +1140,17 @@ Examples:
 
 ### 🐛 **Current Bugs**
 
-#### 1. **Hard-coded Import Path Dependencies** 
-- **Issue**: Files use `@/services/validation` imports which may not work in all projects
-- **Impact**: Package is not truly portable without path configuration
-- **Workaround**: Update import paths when copying to new projects
-- **Fix**: Use relative imports: `import { validationService } from './ValidationService'`
-
-#### 2. **Autofill Detection False Positives**
+#### 1. **Autofill Detection False Positives**
 - **Issue**: Large paste operations can be mistaken for autofill
 - **Impact**: Incorrect touched state management
 - **Workaround**: Adjust `minChangeThreshold` and `contentPatterns`
 - **Reproduce**: Paste a long string into an empty field
 
-#### 3. **Timer Memory Leaks in Edge Cases**
+#### 2. **Timer Memory Leaks in Edge Cases**
 - **Issue**: Rapid component unmounting during autofill detection may leave timers
 - **Impact**: Minor memory consumption increase
 - **Workaround**: Ensure proper component lifecycle management
 - **Fix**: Additional cleanup in useEffect dependency array
-
-#### 4. **Inconsistent Street Number Validation**
-- **Issue**: `STREET_NUMBER` pattern only allows digits, but some addresses need alphanumeric (e.g., "123A")
-- **Impact**: Valid addresses rejected
-- **Current Pattern**: `/^\d+$/` (numbers only)
-- **Suggested Fix**: `/^[0-9A-Za-z\-\/\s]*$/` (alphanumeric with common separators)
 
 ### ⚠️ **Potential Issues**
 
@@ -1207,16 +1195,7 @@ Examples:
 
 ### 🔧 **High Priority Improvements**
 
-#### 1. **Fix Import Path Dependencies**
-```typescript
-// Current (problematic)
-import { ValidationResult } from '@/services/validation';
-
-// Improved (portable)
-import { ValidationResult } from './types';
-```
-
-#### 2. **Enhanced Autofill Detection**
+#### 1. **Enhanced Autofill Detection**
 ```typescript
 // Add browser-specific detection patterns
 const autofillDetectionConfig = {
@@ -1228,7 +1207,7 @@ const autofillDetectionConfig = {
 };
 ```
 
-#### 3. **Async Validation Support**
+#### 2. **Async Validation Support**
 ```typescript
 interface AsyncValidationRule {
   name: string;
@@ -1238,7 +1217,7 @@ interface AsyncValidationRule {
 }
 ```
 
-#### 4. **Validation Result Caching**
+#### 3. **Validation Result Caching**
 ```typescript
 class ValidationService {
   private cache = new Map<string, ValidationResult>();

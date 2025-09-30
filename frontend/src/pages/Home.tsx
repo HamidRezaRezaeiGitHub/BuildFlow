@@ -1,5 +1,5 @@
-import { AuthSection } from '@/components/auth';
 import {
+  AuthSection,
   Brands,
   Contact,
   Features,

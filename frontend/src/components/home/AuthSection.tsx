@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LoginForm from './LoginForm';
-import FlexibleSignUpForm, { SignUpFieldConfig } from './FlexibleSignUpForm';
+import LoginForm from '../auth/LoginForm';
+import FlexibleSignUpForm, { SignUpFieldConfig } from '../auth/FlexibleSignUpForm';
 import { AddressFieldConfig } from '@/components/address';
 import React, { useState, useEffect } from 'react';
 

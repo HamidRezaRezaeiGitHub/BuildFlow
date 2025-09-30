@@ -1,7 +1,7 @@
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ValidationResult } from '@/services/validation';
-import { useSmartFieldValidation } from '@/services/validation/useSmartFieldValidation';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ValidationResult } from '../../services/validation';
+import { useSmartFieldValidation } from '../../services/validation/useSmartFieldValidation';
 import { User } from 'lucide-react';
 import { ChangeEvent, FC, useMemo } from 'react';
 import { AUTH_VALIDATION_RULES, BaseAuthFieldProps } from './';

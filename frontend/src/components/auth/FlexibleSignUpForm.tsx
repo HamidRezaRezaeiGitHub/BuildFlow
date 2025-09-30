@@ -1,11 +1,11 @@
-import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '@/components/address';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from '@/contexts/NavigationContext';
-import { AddressData } from '@/services/dtos';
-import { ValidationResult } from '@/services/validation';
+import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '../address';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from '../../contexts/NavigationContext';
+import { AddressData } from '../../services/dtos';
+import { ValidationResult } from '../../services/validation';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ConfirmPasswordField } from './ConfirmPassword';
@@ -170,6 +170,10 @@ export interface FlexibleSignUpFormProps {
     onSignUpSuccess?: () => void;
     onSignUpError?: (error: string) => void;
 
+    /** Context alternatives - provide either contexts or callback functions */
+    onRegister?: (signupData: FlexibleSignUpFormData & { address?: AddressData }) => Promise<void>;
+    onNavigate?: (path: string, options?: { replace?: boolean }) => void;
+
     /** Redirect configuration */
     redirectPath?: string;
     autoRedirect?: boolean;
@@ -218,11 +222,30 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     onFormSubmit,
     onSignUpSuccess,
     onSignUpError,
+    onRegister,
+    onNavigate,
     redirectPath = '/dashboard',
     autoRedirect = true
 }) => {
-    const { register } = useAuth();
-    const navigation = useNavigate();
+    // Try to use contexts, but allow optional usage via callbacks
+    let authRegisterContext: any;
+    let navigationContext: any;
+    
+    try {
+        authRegisterContext = useAuth?.();
+    } catch {
+        // Context not available, rely on callbacks
+    }
+    
+    try {
+        navigationContext = useNavigate?.();
+    } catch {
+        // Context not available, rely on callbacks
+    }
+    
+    // Use provided callbacks or context functions
+    const registerFunction = onRegister || authRegisterContext?.register;
+    const navigateFunction = onNavigate || navigationContext?.navigate;
 
     // Initialize form data with empty address
     const [signUpForm, setSignUpForm] = useState<FlexibleSignUpFormData>(() => {
@@ -339,33 +362,55 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
 
         try {
             onFormSubmit?.(signUpForm);
+            
+            // Ensure we have a register function available
+            if (!registerFunction) {
+                throw new Error('No register function available. Please provide either useAuth context or onRegister callback.');
+            }
 
-            // Call the signup API
-            await register({
-                username: signUpForm.username,
-                password: signUpForm.password,
-                contactRequestDto: {
-                    firstName: signUpForm.firstName,
-                    lastName: signUpForm.lastName,
-                    labels: [],
-                    email: signUpForm.email,
-                    phone: signUpForm.phone || undefined,
-                    addressRequestDto: includeAddress ? {
-                        unitNumber: signUpForm.unitNumber || undefined,
-                        streetNumber: signUpForm.streetNumber,
-                        streetName: signUpForm.streetName,
-                        city: signUpForm.city,
-                        stateOrProvince: signUpForm.stateOrProvince,
-                        postalOrZipCode: signUpForm.postalOrZipCode,
-                        country: signUpForm.country
-                    } : undefined
-                }
-            });
+            // Call the signup API - use callback if provided, otherwise use context
+            if (onRegister) {
+                const addressData = includeAddress ? {
+                    unitNumber: signUpForm.unitNumber || undefined,
+                    streetNumber: signUpForm.streetNumber,
+                    streetName: signUpForm.streetName,
+                    city: signUpForm.city,
+                    stateOrProvince: signUpForm.stateOrProvince,
+                    postalOrZipCode: signUpForm.postalOrZipCode,
+                    country: signUpForm.country
+                } : undefined;
+                
+                await onRegister({
+                    ...signUpForm,
+                    address: addressData
+                });
+            } else {
+                await authRegisterContext?.register({
+                    username: signUpForm.username,
+                    password: signUpForm.password,
+                    contactRequestDto: {
+                        firstName: signUpForm.firstName,
+                        lastName: signUpForm.lastName,
+                        labels: [],
+                        email: signUpForm.email,
+                        phone: signUpForm.phone || undefined,
+                        addressRequestDto: includeAddress ? {
+                            unitNumber: signUpForm.unitNumber || undefined,
+                            streetNumber: signUpForm.streetNumber,
+                            streetName: signUpForm.streetName,
+                            city: signUpForm.city,
+                            stateOrProvince: signUpForm.stateOrProvince,
+                            postalOrZipCode: signUpForm.postalOrZipCode,
+                            country: signUpForm.country
+                        } : undefined
+                    }
+                });
+            }
 
             onSignUpSuccess?.();
 
-            if (autoRedirect) {
-                navigation.navigate(redirectPath);
+            if (autoRedirect && navigateFunction) {
+                navigateFunction(redirectPath);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An error occurred during signup';
