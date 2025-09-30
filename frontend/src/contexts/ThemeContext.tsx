@@ -14,27 +14,38 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: Theme;
+  storageKey?: string; // Customizable localStorage key
+  enableClassToggle?: boolean; // Option to disable automatic CSS class management
 }
 
 /**
  * ThemeProvider component that manages application theme state.
- * Supports light, dark, and system themes with persistence in localStorage.
- * Integrates with Tailwind CSS dark mode classes.
+ * Supports light, dark, and system themes with automatic persistence in localStorage.
+ * Automatically manages CSS classes on document element for styling frameworks like Tailwind CSS.
+ * 
+ * Features:
+ * - Light, dark, and system theme support
+ * - Automatic system theme detection and updates
+ * - localStorage persistence with customizable key
+ * - CSS class management for styling frameworks
+ * - Theme toggle functionality
  */
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
   children, 
-  defaultTheme = 'system' 
+  defaultTheme = 'system',
+  storageKey = 'app-theme',
+  enableClassToggle = true
 }) => {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
 
   // Initialize theme from localStorage or default
   useEffect(() => {
-    const savedTheme = localStorage.getItem('buildflow-theme') as Theme;
+    const savedTheme = localStorage.getItem(storageKey) as Theme;
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       setThemeState(savedTheme);
     }
-  }, []);
+  }, [storageKey]);
 
   // Update actual theme based on theme setting and system preference
   useEffect(() => {
@@ -49,10 +60,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
       setActualTheme(resolvedTheme);
 
-      // Update document class for Tailwind CSS
-      const root = document.documentElement;
-      root.classList.remove('light', 'dark');
-      root.classList.add(resolvedTheme);
+      // Update document class for CSS frameworks (e.g., Tailwind CSS)
+      if (enableClassToggle) {
+        const root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(resolvedTheme);
+      }
     };
 
     updateActualTheme();
@@ -69,7 +82,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('buildflow-theme', newTheme);
+    localStorage.setItem(storageKey, newTheme);
   };
 
   const toggleTheme = () => {

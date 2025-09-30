@@ -2,12 +2,12 @@
  * Tests for ThemeContext and ThemeProvider
  * 
  * Tests theme management functionality including localStorage persistence,
- * system theme detection, and theme toggling
+ * system theme detection, theme toggling, and customization options.
  */
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './ThemeContext';
 
 // Mock localStorage
 const localStorageMock = {
@@ -102,7 +102,7 @@ describe('ThemeProvider', () => {
     );
     
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('buildflow-theme');
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('app-theme');
   });
 
   test('ThemeProvider_shouldIgnoreInvalidStoredTheme_whenInvalidThemeInStorage', () => {
@@ -129,7 +129,7 @@ describe('ThemeProvider', () => {
     
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('dark');
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('buildflow-theme', 'dark');
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('app-theme', 'dark');
   });
 
   test('setTheme_shouldUpdateDocumentClass_whenThemeChanged', async () => {
@@ -292,5 +292,45 @@ describe('ThemeProvider system theme detection', () => {
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('light');
     expect(document.documentElement.classList.contains('light')).toBe(true);
+  });
+
+  test('ThemeProvider_shouldUseCustomStorageKey_whenStorageKeyProvided', () => {
+    localStorageMock.getItem.mockReturnValue('dark');
+    
+    render(
+      <ThemeProvider storageKey="custom-theme">
+        <TestComponent />
+      </ThemeProvider>
+    );
+    
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('custom-theme');
+  });
+
+  test('ThemeProvider_shouldNotManageClasses_whenClassToggleDisabled', async () => {
+    const user = userEvent.setup();
+    render(
+      <ThemeProvider enableClassToggle={false}>
+        <TestComponent />
+      </ThemeProvider>
+    );
+    
+    await user.click(screen.getByText('Set Dark'));
+    
+    // Classes should not be added when enableClassToggle is false
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.classList.contains('light')).toBe(false);
+  });
+
+  test('setTheme_shouldUseCustomStorageKey_whenCustomKeyProvided', async () => {
+    const user = userEvent.setup();
+    render(
+      <ThemeProvider storageKey="my-app-theme">
+        <TestComponent />
+      </ThemeProvider>
+    );
+    
+    await user.click(screen.getByText('Set Dark'));
+    
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('my-app-theme', 'dark');
   });
 });
