@@ -56,8 +56,22 @@ class ApiService {
     private readonly baseUrl: string;
 
     constructor() {
-        // Default to localhost, can be configured via environment variables
-        this.baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
+        // Support both Vite (import.meta.env) and Jest (process.env)
+        let baseUrl = 'http://localhost:8080/api';
+        if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
+            baseUrl = process.env.VITE_API_BASE_URL;
+        } else {
+            // Use eval to avoid TypeScript parsing import.meta
+            try {
+                const viteEnv = eval('import.meta.env');
+                if (viteEnv && viteEnv.VITE_API_BASE_URL) {
+                    baseUrl = viteEnv.VITE_API_BASE_URL;
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
+        this.baseUrl = baseUrl;
     }
 
     /**

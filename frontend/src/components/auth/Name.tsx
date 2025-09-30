@@ -50,11 +50,11 @@ export const NameField: FC<NameFieldProps> = ({
     onValidationChange
 }) => {
     // Get configuration for the specific name type
-    const config = nameConfig[nameType];
-    
+    const config = useMemo(() => nameConfig[nameType], [nameType]);
+
     // Use default ID if not provided
     const fieldId = id || config.fieldName;
-    
+
     // Use default placeholder if not provided
     const fieldPlaceholder = placeholder || config.defaultPlaceholder;
 
@@ -74,7 +74,7 @@ export const NameField: FC<NameFieldProps> = ({
                 validator: (val: string) => !val || val.length <= 100
             }
         ];
-    }, [enableValidation, validationMode, config]);
+    }, [enableValidation, validationMode, config.requiredMessage, config.maxLengthMessage, config.fieldName]);
 
     // Memoized config for the hook to prevent infinite re-renders
     const hookConfig = useMemo(() => ({

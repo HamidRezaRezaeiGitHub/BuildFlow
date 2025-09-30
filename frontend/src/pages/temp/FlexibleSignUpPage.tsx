@@ -259,7 +259,7 @@ const FlexibleSignUpPage: React.FC = () => {
                                                             onCheckedChange={(checked) => updatePersonalFieldState(field, { show: checked })}
                                                         />
                                                         <span className="text-sm capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                                        {(['username', 'password', 'confirmPassword'].includes(field)) && (
+                                                        {(['email', 'password', 'confirmPassword'].includes(field)) && (
                                                             <Badge variant="secondary" className="text-xs">Mandatory</Badge>
                                                         )}
                                                     </div>

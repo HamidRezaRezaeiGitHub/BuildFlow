@@ -121,6 +121,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     });
   }, [onValidationStateChange, isFormValid]);
 
+  // Create memoized validation change handlers per field to prevent infinite re-renders
+  const validationHandlers = React.useMemo(() => {
+    const handlers: Record<string, ((result: ValidationResult) => void) | undefined> = {};
+
+    return (fieldName: string) => {
+      if (!enableValidation) return undefined;
+
+      if (!handlers[fieldName]) {
+        handlers[fieldName] = (result: ValidationResult) => handleFieldValidationChange(fieldName, result);
+      }
+      return handlers[fieldName];
+    };
+  }, [enableValidation, handleFieldValidationChange]);
+
   const isFormValidForSubmit = React.useMemo(() => {
     if (!enableValidation) {
       // Without validation, just check that fields have content
@@ -200,7 +214,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         onChange={(value) => handleLoginDataChange('usernameOrEmail', value)}
         enableValidation={enableValidation}
         validationMode="required"
-        onValidationChange={(validationResult) => handleFieldValidationChange('usernameOrEmail', validationResult)}
+        onValidationChange={validationHandlers('usernameOrEmail')}
         errors={errors.usernameOrEmail}
         placeholder="username or email@company.com"
       />
@@ -217,7 +231,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         enableValidation={enableValidation}
         validationMode="required"
         validationType="login"
-        onValidationChange={(validationResult) => handleFieldValidationChange('password', validationResult)}
+        onValidationChange={validationHandlers('password')}
         errors={errors.password}
       />
 

@@ -77,6 +77,16 @@ export const addressFieldConfigs = {
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true },
         { field: 'country' as keyof AddressData, colSpan: 1, required: true }
+    ] as AddressFieldConfig[],
+
+    // Configuration optimized for embedding in other forms (no form wrapper, no buttons)
+    embedded: [
+        { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
+        { field: 'streetNumberName' as 'streetNumberName', colSpan: 2, required: false },
+        { field: 'city' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'country' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true }
     ] as AddressFieldConfig[]
 };
 
@@ -178,6 +188,12 @@ export interface FlexibleAddressFormProps {
 
     /** Maximum columns for grid layout (default: 2) */
     maxColumns?: 1 | 2 | 3 | 4;
+
+    /** Whether to render without form wrapper (for embedding in other forms) */
+    noFormWrapper?: boolean;
+
+    /** Whether to show submit/action buttons */
+    showActionButtons?: boolean;
 }
 
 /**
@@ -188,6 +204,8 @@ export interface FlexibleAddressFormProps {
  * - Predefined layout presets (full, minimal, shipping, international)
  * - Dynamic validation based on selected fields
  * - Flexible grid layout with customizable column spans
+ * - Optional form wrapper (can be embedded in other forms)
+ * - Optional action buttons (for embedded use cases)
  * - All features from original AddressForm
  */
 const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
@@ -216,7 +234,9 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     resetButtonVariant = 'secondary',
     isSkippable = false,
     enableValidation = false,
-    maxColumns = 2
+    maxColumns = 2,
+    noFormWrapper = false,
+    showActionButtons = true
 }) => {
     // Track validation state for each field
     const [fieldValidationState, setFieldValidationState] = React.useState<{
@@ -508,8 +528,9 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
         }
     };
 
-    const formContent = (
-        <form role="form" onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
+    // Content that goes inside the form or standalone div
+    const addressFieldsContent = (
+        <>
             {/* Optional Form Header */}
             {(title || description) && !inline && (
                 <div className="text-center space-y-2">
@@ -551,46 +572,59 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex gap-3 ${buttonLayout === 'vertical'
-                ? 'flex-col'
-                : 'flex-col sm:flex-row'
-                }`}>
-                {/* Submit Button */}
-                <Button
-                    type="submit"
-                    disabled={disabled || isSubmitting || (enableValidation && !isFormValidForSubmit)}
-                    variant={submitButtonVariant}
-                    className="flex-1"
-                >
-                    {isSubmitting ? submittingText : submitButtonText}
-                </Button>
-
-                {/* Skip Button */}
-                {onSkip && (
+            {showActionButtons && (
+                <div className={`flex gap-3 ${buttonLayout === 'vertical'
+                    ? 'flex-col'
+                    : 'flex-col sm:flex-row'
+                    }`}>
+                    {/* Submit Button */}
                     <Button
-                        type="button"
-                        variant={skipButtonVariant}
-                        onClick={handleSkip}
-                        disabled={disabled || isSubmitting}
+                        type="submit"
+                        disabled={disabled || isSubmitting || (enableValidation && !isFormValidForSubmit)}
+                        variant={submitButtonVariant}
                         className="flex-1"
                     >
-                        {skipButtonText}
+                        {isSubmitting ? submittingText : submitButtonText}
                     </Button>
-                )}
 
-                {/* Reset Button */}
-                {onReset && (
-                    <Button
-                        type="button"
-                        variant={resetButtonVariant}
-                        onClick={handleReset}
-                        disabled={disabled || isSubmitting}
-                        className="flex-1"
-                    >
-                        {resetButtonText}
-                    </Button>
-                )}
-            </div>
+                    {/* Skip Button */}
+                    {onSkip && (
+                        <Button
+                            type="button"
+                            variant={skipButtonVariant}
+                            onClick={handleSkip}
+                            disabled={disabled || isSubmitting}
+                            className="flex-1"
+                        >
+                            {skipButtonText}
+                        </Button>
+                    )}
+
+                    {/* Reset Button */}
+                    {onReset && (
+                        <Button
+                            type="button"
+                            variant={resetButtonVariant}
+                            onClick={handleReset}
+                            disabled={disabled || isSubmitting}
+                            className="flex-1"
+                        >
+                            {resetButtonText}
+                        </Button>
+                    )}
+                </div>
+            )}
+        </>
+    );
+
+    // Conditional wrapper: form or div
+    const formContent = noFormWrapper ? (
+        <div className={`space-y-6 ${className}`}>
+            {addressFieldsContent}
+        </div>
+    ) : (
+        <form role="form" onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
+            {addressFieldsContent}
         </form>
     );
 

@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoginForm from './LoginForm';
-import SignUpForm from './SignUpForm';
+import FlexibleSignUpForm, { SignUpFieldConfig } from './FlexibleSignUpForm';
+import { AddressFieldConfig } from '@/components/address';
 import React, { useState, useEffect } from 'react';
 
 interface AuthSectionProps {
@@ -17,9 +18,31 @@ interface AuthSectionProps {
  * - Responsive design
  */
 const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('signup');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Custom field configuration for signup form
+  // Required: firstName, lastName, email, password, confirmPassword, city, stateOrProvince, country, postalOrZipCode
+  const signUpFieldsConfig: SignUpFieldConfig[] = [
+    { field: 'firstName', colSpan: 1, required: true, show: true },
+    { field: 'lastName', colSpan: 1, required: true, show: true },
+    { field: 'email', colSpan: 1, required: true, show: true },
+    { field: 'phone', colSpan: 1, required: false, show: true },
+    { field: 'password', colSpan: 1, required: true, show: true },
+    { field: 'confirmPassword', colSpan: 1, required: true, show: true }
+  ];
+
+  // Address configuration: unitNumber, streetNumberName (combined), city, stateOrProvince, country, postalOrZipCode
+  // Required: city, stateOrProvince, country, postalOrZipCode
+  // Optional: unitNumber, streetNumberName
+  const addressFieldsConfig: AddressFieldConfig[] = [
+    { field: 'unitNumber', colSpan: 1, required: false, show: true },
+    { field: 'streetNumberName' as any, colSpan: 1, required: false, show: true },
+    { field: 'city', colSpan: 1, required: true, show: true },
+    { field: 'stateOrProvince', colSpan: 1, required: true, show: true },
+    { field: 'country', colSpan: 1, required: true, show: true },
+    { field: 'postalOrZipCode', colSpan: 1, required: true, show: true }
+  ];
 
   // Listen for URL hash changes and navigation events
   useEffect(() => {
@@ -52,7 +75,6 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
   }, []); // Empty dependency array ensures this runs once on mount
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   return (
     <section id="auth" className={`py-24 bg-background ${className}`}>
@@ -69,7 +91,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
         </div>
 
         {/* Authentication Forms */}
-        <div className="max-w-md mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger
@@ -90,13 +112,16 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
 
             {/* Sign Up Tab */}
             <TabsContent value="signup" className="space-y-6" id="auth-signup">
-              <SignUpForm
-                showPassword={showPassword}
-                showConfirmPassword={showConfirmPassword}
-                onTogglePassword={togglePasswordVisibility}
-                onToggleConfirmPassword={toggleConfirmPasswordVisibility}
+              <FlexibleSignUpForm
+                fieldsConfig={signUpFieldsConfig}
+                addressFieldsConfig={addressFieldsConfig}
                 onSignUpSuccess={() => setActiveTab('login')}
                 inline={true}
+                enableValidation={true}
+                includeAddress={true}
+                addressCollapsible={false}
+                showPersonalInfoHeader={false}
+                showAddressPanelHeader={false}
               />
             </TabsContent>
 

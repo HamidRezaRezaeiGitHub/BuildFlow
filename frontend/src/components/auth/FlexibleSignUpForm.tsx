@@ -181,7 +181,7 @@ export interface FlexibleSignUpFormProps {
  * Features:
  * - Configurable field selection and layout for personal info section
  * - Predefined layout presets (full, minimal, essential, extended)
- * - Mandatory fields: username, password, confirmPassword (always included)
+ * - Mandatory fields: email, password, confirmPassword (always included)
  * - Optional address section with FlexibleAddressForm integration
  * - Collapsible address section with configurable default state
  * - Dynamic validation based on selected fields
@@ -271,9 +271,9 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
 
     // Ensure mandatory fields are always included
     const processedFields = useMemo(() => {
-        const mandatoryFields: (keyof FlexibleSignUpFormData)[] = ['username', 'password', 'confirmPassword'];
+        const mandatoryFields: (keyof FlexibleSignUpFormData)[] = ['email', 'password', 'confirmPassword'];
         const fieldMap = new Map(fieldsToShow.map(field => [field.field, field]));
-        
+
         // Add mandatory fields if not present
         mandatoryFields.forEach(fieldName => {
             if (!fieldMap.has(fieldName)) {
@@ -321,7 +321,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     useEffect(() => {
         const personalInfoValid = Object.values(personalInfoValidation).every(validation => validation.isValid);
         const newIsValid = personalInfoValid;
-        
+
         setIsFormValid(newIsValid);
         onValidationStateChange?.(newIsValid);
     }, [personalInfoValidation, onValidationStateChange]);
@@ -329,7 +329,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!isFormValid && enableValidation) {
             return;
         }
@@ -339,7 +339,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
 
         try {
             onFormSubmit?.(signUpForm);
-            
+
             // Call the signup API
             await register({
                 username: signUpForm.username,
@@ -396,6 +396,20 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
         }
     };
 
+    // Create memoized validation change handler per field, so each field gets a stable reference
+    const validationHandlers = useMemo(() => {
+        const handlers: Record<string, ((result: ValidationResult) => void) | undefined> = {};
+
+        return (fieldName: keyof FlexibleSignUpFormData) => {
+            if (!enableValidation) return undefined;
+
+            if (!handlers[fieldName]) {
+                handlers[fieldName] = (result: ValidationResult) => handleFieldValidation(fieldName, result);
+            }
+            return handlers[fieldName];
+        };
+    }, [enableValidation, handleFieldValidation]);
+
     // Render individual field
     const renderField = (fieldConfig: SignUpFieldConfig) => {
         if (fieldConfig.show === false) return null;
@@ -407,7 +421,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             errors: errors[fieldConfig.field] || [],
             enableValidation,
             validationMode: fieldConfig.required ? 'required' as const : 'optional' as const,
-            onValidationChange: enableValidation ? (result: ValidationResult) => handleFieldValidation(fieldConfig.field, result) : undefined,
+            onValidationChange: validationHandlers(fieldConfig.field),
             placeholder: fieldConfig.placeholder
         };
 
@@ -476,7 +490,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 return (
                     <div key={fieldConfig.field} className={colSpanClass}>
                         <ConfirmPasswordField
-                            id="confirmPassword" 
+                            id="confirmPassword"
                             originalPassword={signUpForm.password}
                             showPassword={showConfirmPassword}
                             onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -526,7 +540,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                             <CollapsibleTrigger asChild>
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant="ghost"
                                     className="w-full justify-between"
                                     disabled={disabled || isSubmitting}
                                 >
@@ -550,7 +564,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                         country: signUpForm.country
                                     }}
                                     onAddressChange={handleAddressChange}
-                                    onSubmit={() => {}} // No-op since this is integrated
+                                    onSubmit={() => { }} // No-op since this is integrated
                                     fieldsConfig={addressFieldsConfig}
                                     showAddressPanelHeader={showAddressPanelHeader}
                                     addressPanelHeaderText={addressPanelHeaderText}
@@ -566,6 +580,8 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                         country: errors.country
                                     }}
                                     enableValidation={enableValidation}
+                                    noFormWrapper={true}
+                                    showActionButtons={false}
                                 />
                             </CollapsibleContent>
                         </Collapsible>
@@ -583,7 +599,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     country: signUpForm.country
                                 }}
                                 onAddressChange={handleAddressChange}
-                                onSubmit={() => {}} // No-op since this is integrated
+                                onSubmit={() => { }} // No-op since this is integrated
                                 fieldsConfig={addressFieldsConfig}
                                 showAddressPanelHeader={showAddressPanelHeader}
                                 addressPanelHeaderText={addressPanelHeaderText}
@@ -599,6 +615,8 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     country: errors.country
                                 }}
                                 enableValidation={enableValidation}
+                                noFormWrapper={true}
+                                showActionButtons={false}
                             />
                         </div>
                     )}

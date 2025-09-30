@@ -26,7 +26,7 @@ jest.mock('./UsernameEmail', () => ({
                 id={id}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                onBlur={() => onValidationChange && onValidationChange(true)}
+                onBlur={() => onValidationChange && onValidationChange({ isValid: value && value.trim() !== '', errors: value && value.trim() !== '' ? [] : ['Required'] })}
                 data-testid={id}
             />
         </div>
@@ -42,7 +42,7 @@ jest.mock('./Password', () => ({
                 type={showPassword ? 'text' : 'password'}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                onBlur={() => onValidationChange && onValidationChange(true)}
+                onBlur={() => onValidationChange && onValidationChange({ isValid: value && value.trim() !== '', errors: value && value.trim() !== '' ? [] : ['Required'] })}
                 data-testid={id}
             />
             <button onClick={onToggleVisibility} data-testid={`${id}-toggle`}>
@@ -80,7 +80,7 @@ describe('LoginForm Component', () => {
         fireEvent.focus(usernameField);
         fireEvent.change(usernameField, { target: { value: username } });
         fireEvent.blur(usernameField);
-        
+
         // Fill password field with focus/change/blur pattern
         fireEvent.focus(passwordField);
         fireEvent.change(passwordField, { target: { value: password } });

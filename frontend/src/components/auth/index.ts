@@ -48,10 +48,6 @@ export { ConfirmPasswordField } from './ConfirmPassword';
 
 // Form components following address pattern
 export { default as LoginForm } from './LoginForm';
-export { default as SignUpForm } from './SignUpForm';
-export { CompactSignUpForm } from './CompactSignUpForm';
-export { ShortSignUpForm } from './ShortSignUpForm';
-export { LongSignUpForm } from './LongSignUpForm';
 export { default as FlexibleSignUpForm } from './FlexibleSignUpForm';
 
 // Base types and interfaces
@@ -64,9 +60,5 @@ export type { UsernameEmailFieldProps } from './UsernameEmail';
 export type { PasswordFieldProps } from './Password';
 export type { ConfirmPasswordFieldProps } from './ConfirmPassword';
 export type { LoginFormData, LoginFormProps } from './LoginForm';
-export type { SignUpFormData, SignUpFormProps } from './SignUpForm';
-export type { CompactSignUpFormData, CompactSignUpFormProps } from './CompactSignUpForm';
-export type { ShortSignUpFormData, ShortSignUpFormProps } from './ShortSignUpForm';
-export type { LongSignUpFormData, LongSignUpFormProps } from './LongSignUpForm';
 export type { FlexibleSignUpFormData, FlexibleSignUpFormProps, SignUpFieldConfig } from './FlexibleSignUpForm';
 export { signUpFieldConfigs } from './FlexibleSignUpForm';

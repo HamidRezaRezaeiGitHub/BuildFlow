@@ -71,6 +71,192 @@ describe('useSmartFieldValidation', () => {
         });
     });
 
+    describe('Initial Validation (Bug Tests)', () => {
+        test('useSmartFieldValidation_shouldValidateEmptyRequiredField_onMount', () => {
+            const mockResult: ValidationResult = { isValid: false, errors: ['Email is required'] };
+            mockValidationService.validateField.mockReturnValue(mockResult);
+
+            const config = createEmailConfig();
+            
+            renderHook(() =>
+                useSmartFieldValidation({
+                    value: '', // Empty value
+                    config,    // Required field
+                    enableValidation: true
+                })
+            );
+
+            // Should call validation service immediately on mount
+            expect(mockValidationService.validateField).toHaveBeenCalledWith(
+                'email',
+                '', // Empty value should be validated
+                expect.objectContaining({
+                    fieldName: 'email',
+                    fieldType: 'email',
+                    required: true,
+                    rules: config.validationRules
+                })
+            );
+        });
+
+        test('useSmartFieldValidation_shouldCallOnValidationChange_withInitialValidationResult', () => {
+            const mockOnValidationChange = jest.fn();
+            const mockResult: ValidationResult = { isValid: false, errors: ['Email is required'] };
+            mockValidationService.validateField.mockReturnValue(mockResult);
+
+            const config = createEmailConfig();
+            
+            renderHook(() =>
+                useSmartFieldValidation({
+                    value: '',
+                    config,
+                    enableValidation: true,
+                    onValidationChange: mockOnValidationChange
+                })
+            );
+
+            // Should call onValidationChange with the validation result from the empty field
+            expect(mockOnValidationChange).toHaveBeenCalledWith(mockResult);
+        });
+
+        test('useSmartFieldValidation_shouldValidateNonEmptyInitialValue_onMount', () => {
+            const mockResult: ValidationResult = { isValid: false, errors: ['Invalid email format'] };
+            mockValidationService.validateField.mockReturnValue(mockResult);
+
+            const config = createEmailConfig();
+            
+            renderHook(() =>
+                useSmartFieldValidation({
+                    value: 'invalid-email', // Non-empty but invalid value
+                    config,
+                    enableValidation: true
+                })
+            );
+
+            // Should validate the initial value immediately
+            expect(mockValidationService.validateField).toHaveBeenCalledWith(
+                'email',
+                'invalid-email',
+                expect.objectContaining({
+                    fieldName: 'email',
+                    fieldType: 'email',
+                    required: true,
+                    rules: config.validationRules
+                })
+            );
+        });
+
+        test('useSmartFieldValidation_shouldValidateValidInitialValue_onMount', () => {
+            const mockResult: ValidationResult = { isValid: true, errors: [] };
+            mockValidationService.validateField.mockReturnValue(mockResult);
+
+            const config = createEmailConfig();
+            
+            const { result } = renderHook(() =>
+                useSmartFieldValidation({
+                    value: 'valid@email.com', // Valid initial value
+                    config,
+                    enableValidation: true
+                })
+            );
+
+            // Should validate the valid initial value
+            expect(mockValidationService.validateField).toHaveBeenCalledWith(
+                'email',
+                'valid@email.com',
+                expect.objectContaining({
+                    fieldName: 'email',
+                    fieldType: 'email',
+                    required: true,
+                    rules: config.validationRules
+                })
+            );
+
+            expect(result.current.state.validationResult).toEqual(mockResult);
+        });
+
+        test('useSmartFieldValidation_shouldNotValidateInitialValue_whenValidationDisabled', () => {
+            const config = createEmailConfig();
+            
+            renderHook(() =>
+                useSmartFieldValidation({
+                    value: '', // Empty value
+                    config,
+                    enableValidation: false // Validation disabled
+                })
+            );
+
+            // Should not call validation service when validation is disabled
+            expect(mockValidationService.validateField).not.toHaveBeenCalled();
+        });
+
+        test('useSmartFieldValidation_shouldUpdateValidationResult_whenInitialValueChanges', () => {
+            const mockValidResults = [
+                { isValid: false, errors: ['Email is required'] },     // For empty value
+                { isValid: false, errors: ['Invalid email format'] },  // For 'test'
+                { isValid: true, errors: [] }                          // For 'test@example.com'
+            ];
+
+            mockValidationService.validateField
+                .mockReturnValueOnce(mockValidResults[0])
+                .mockReturnValueOnce(mockValidResults[1])
+                .mockReturnValueOnce(mockValidResults[2]);
+
+            const config = createEmailConfig();
+            
+            const { result, rerender } = renderHook(
+                ({ value }) => useSmartFieldValidation({
+                    value,
+                    config,
+                    enableValidation: true
+                }),
+                { initialProps: { value: '' } }
+            );
+
+            // Initial validation for empty value
+            expect(result.current.state.validationResult).toEqual(mockValidResults[0]);
+
+            // Change to invalid value
+            rerender({ value: 'test' });
+            expect(result.current.state.validationResult).toEqual(mockValidResults[1]);
+
+            // Change to valid value
+            rerender({ value: 'test@example.com' });
+            expect(result.current.state.validationResult).toEqual(mockValidResults[2]);
+
+            expect(mockValidationService.validateField).toHaveBeenCalledTimes(3);
+        });
+
+        test('useSmartFieldValidation_shouldMaintainCorrectValidationState_forFormSubmissionLogic', () => {
+            const mockOnValidationChange = jest.fn();
+            
+            // Test the specific scenario that causes button to be incorrectly enabled
+            const mockResult: ValidationResult = { isValid: false, errors: ['Email is required'] };
+            mockValidationService.validateField.mockReturnValue(mockResult);
+
+            const config = createEmailConfig();
+            
+            const { result } = renderHook(() =>
+                useSmartFieldValidation({
+                    value: '', // Empty required field
+                    config,
+                    enableValidation: true,
+                    onValidationChange: mockOnValidationChange
+                })
+            );
+
+            // The validation result should correctly reflect that an empty required field is invalid
+            expect(result.current.state.validationResult.isValid).toBe(false);
+            expect(result.current.state.validationResult.errors).toContain('Email is required');
+            
+            // The parent form should receive this invalid state immediately
+            expect(mockOnValidationChange).toHaveBeenCalledWith(mockResult);
+            
+            // This ensures the form's personalInfoValidation won't be empty,
+            // preventing the Object.values({}).every() === true bug
+        });
+    });
+
     describe('Validation Integration', () => {
         test('useSmartFieldValidation_shouldCallValidationService_whenValueChanges', () => {
             const mockResult: ValidationResult = { isValid: false, errors: ['Email is required'] };
