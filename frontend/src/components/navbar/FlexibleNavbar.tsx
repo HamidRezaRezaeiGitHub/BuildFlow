@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+// Note: These imports should be configured by the consuming project
+// See dependencies.ts for interface requirements
+// Example: import { Button } from '@/components/ui/button';
+// Example: import { cn } from '@/lib/utils';  
+// Example: import { Menu, X } from 'lucide-react';
+
+// TODO: Replace these with your project's actual imports
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
 import { Menu, X } from 'lucide-react';
@@ -6,27 +13,12 @@ import { Logo } from './Logo';
 import { LoginButton } from './LoginButton';
 import { SignUpButton } from './SignUpButton';
 import { Avatar } from './Avatar';
-import {
-  DropdownThemeToggle,
-  SwitchThemeToggle,
-  SingleChangingIconThemeToggle,
-  ToggleGroupThemeToggle,
-  ButtonThemeToggle,
-  SegmentedThemeToggle,
-  CompactThemeToggle
-} from '@/components/theme';
-import { User } from '@/services/dtos';
+import { NavbarUser } from './types';
 
-// Theme toggle component mapping
-const themeToggleComponents = {
-  compact: CompactThemeToggle,
-  dropdown: DropdownThemeToggle,
-  switch: SwitchThemeToggle,
-  singleIcon: SingleChangingIconThemeToggle,
-  toggleGroup: ToggleGroupThemeToggle,
-  button: ButtonThemeToggle,
-  segmented: SegmentedThemeToggle,
-};
+// Type for theme toggle component
+export type ThemeToggleComponent = React.ComponentType<{
+  showLabel?: boolean;
+}>;
 
 export interface NavItem {
   label: string;
@@ -34,17 +26,19 @@ export interface NavItem {
   onClick?: () => void;
 }
 
-export interface ConfigurableNavbarProps {
+export interface FlexibleNavbarProps {
   className?: string;
   
   // Brand configuration
   showLogo?: boolean;
   logoSize?: 'sm' | 'md' | 'lg';
   showBrandText?: boolean;
+  brandText?: string;
+  logoSvg?: React.ReactNode;
   
   // Authentication state
   isAuthenticated?: boolean;
-  user?: User | null;
+  user?: NavbarUser | null;
   
   // Navigation items
   navItems?: NavItem[];
@@ -60,7 +54,7 @@ export interface ConfigurableNavbarProps {
   onAvatarClick?: () => void;
   
   // Theme toggle configuration
-  themeToggleType?: keyof typeof themeToggleComponents;
+  ThemeToggleComponent?: ThemeToggleComponent;
   showThemeToggle?: boolean;
   
   // Mobile menu
@@ -68,23 +62,25 @@ export interface ConfigurableNavbarProps {
 }
 
 /**
- * ConfigurableNavbar - A highly configurable navbar component
+ * FlexibleNavbar - A highly flexible navbar component
  * 
  * Features:
- * - Configurable logo and branding
- * - Authentication state handling (login/signup buttons vs user avatar)
- * - Flexible navigation items
- * - Multiple theme toggle options
- * - Responsive mobile menu
- * - Customizable styling
+ * - Logo with customizable size
+ * - Navigation items with onClick handlers 
+ * - Authentication state handling (login/signup buttons or user avatar)
+ * - Theme toggle with multiple styles (compact, dropdown, switch, etc.)
+ * - Mobile responsive with hamburger menu
+ * - Fully customizable through props
  */
-export const ConfigurableNavbar: React.FC<ConfigurableNavbarProps> = ({
+export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
   className = '',
   
   // Brand props
   showLogo = true,
   logoSize = 'md',
   showBrandText = true,
+  brandText,
+  logoSvg,
   
   // Auth props
   isAuthenticated = false,
@@ -104,7 +100,7 @@ export const ConfigurableNavbar: React.FC<ConfigurableNavbarProps> = ({
   onAvatarClick,
   
   // Theme toggle props
-  themeToggleType = 'compact',
+  ThemeToggleComponent,
   showThemeToggle = true,
   
   // Mobile menu props
@@ -126,22 +122,14 @@ export const ConfigurableNavbar: React.FC<ConfigurableNavbarProps> = ({
 
   // Helper function to render theme toggle with appropriate props
   const renderThemeToggle = (showLabel: boolean = false) => {
-    if (themeToggleType === 'dropdown') {
-      return <DropdownThemeToggle showLabel={showLabel} />;
-    } else if (themeToggleType === 'switch') {
-      return <SwitchThemeToggle showLabel={showLabel} />;
-    } else if (themeToggleType === 'button') {
-      return <ButtonThemeToggle showLabel={showLabel} />;
-    } else if (themeToggleType === 'singleIcon') {
-      return <SingleChangingIconThemeToggle />;
-    } else if (themeToggleType === 'toggleGroup') {
-      return <ToggleGroupThemeToggle />;
-    } else if (themeToggleType === 'segmented') {
-      return <SegmentedThemeToggle />;
-    } else {
-      // Default to compact
-      return <CompactThemeToggle />;
+    if (!ThemeToggleComponent) {
+      return (
+        <div className="text-sm text-muted-foreground">
+          Theme Toggle (Configure ThemeToggleComponent prop)
+        </div>
+      );
     }
+    return <ThemeToggleComponent showLabel={showLabel} />;
   };
 
   return (
@@ -157,6 +145,8 @@ export const ConfigurableNavbar: React.FC<ConfigurableNavbarProps> = ({
             <Logo 
               size={logoSize}
               showText={showBrandText}
+              brandText={brandText}
+              logoSvg={logoSvg}
               className="flex-shrink-0"
             />
           )}
@@ -293,4 +283,4 @@ export const ConfigurableNavbar: React.FC<ConfigurableNavbarProps> = ({
   );
 };
 
-export default ConfigurableNavbar;
+export default FlexibleNavbar;

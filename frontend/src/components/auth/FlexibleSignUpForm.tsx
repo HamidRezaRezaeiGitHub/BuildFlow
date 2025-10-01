@@ -1,13 +1,12 @@
-import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '../address';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from '../../contexts/NavigationContext';
+import { ValidationResult } from '../../services/validation';
+import { AddressData, AddressFieldConfig, FlexibleAddressForm, addressFieldConfigs, createEmptyAddress } from '../address';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from '../../contexts/NavigationContext';
-import { AddressData } from '../../services/dtos';
-import { ValidationResult } from '../../services/validation';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ConfirmPasswordField } from './ConfirmPassword';
 import { EmailField } from './Email';
 import { NameField } from './Name';
@@ -230,19 +229,19 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     // Try to use contexts, but allow optional usage via callbacks
     let authRegisterContext: any;
     let navigationContext: any;
-    
+
     try {
         authRegisterContext = useAuth?.();
     } catch {
         // Context not available, rely on callbacks
     }
-    
+
     try {
         navigationContext = useNavigate?.();
     } catch {
         // Context not available, rely on callbacks
     }
-    
+
     // Use provided callbacks or context functions
     const registerFunction = onRegister || authRegisterContext?.register;
     const navigateFunction = onNavigate || navigationContext?.navigate;
@@ -362,7 +361,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
 
         try {
             onFormSubmit?.(signUpForm);
-            
+
             // Ensure we have a register function available
             if (!registerFunction) {
                 throw new Error('No register function available. Please provide either useAuth context or onRegister callback.');
@@ -379,7 +378,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                     postalOrZipCode: signUpForm.postalOrZipCode,
                     country: signUpForm.country
                 } : undefined;
-                
+
                 await onRegister({
                     ...signUpForm,
                     address: addressData

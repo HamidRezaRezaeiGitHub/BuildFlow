@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { AddressData } from '@/services/dtos';
 import { ValidationResult } from '@/services/validation';
 import { MapPin } from 'lucide-react';
 import React from 'react';
+import { AddressData } from '.';
 import { CityField } from './City';
 import { CountryField } from './Country';
 import { PostalCodeField } from './PostalCode';

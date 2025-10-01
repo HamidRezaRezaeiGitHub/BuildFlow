@@ -1,5 +1,6 @@
 import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '@/components/address';
-import { ConfigurableNavbar } from '@/components/navbar';
+import { FlexibleNavbar } from '@/components/navbar';
+import { CompactThemeToggle } from '@/components/theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +10,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useNavigate } from '@/contexts';
 import { AddressData } from '@/services/dtos';
 import React, { useState } from 'react';
+
+// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
+const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
+    return (
+        <div className="flex items-center gap-2">
+            <CompactThemeToggle />
+            {showLabel && (
+                <span className="text-sm font-medium text-muted-foreground">
+                    Theme
+                </span>
+            )}
+        </div>
+    );
+};
 
 // Types for field configuration UI
 type FormType = 'fixed' | 'flexible';
@@ -162,13 +177,14 @@ const AddressPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <ConfigurableNavbar
+            <FlexibleNavbar
                 navItems={[
                     { label: 'Home', onClick: () => navigation.navigateToHome() },
                     { label: 'Addresses', onClick: () => console.log('Current page') },
                     { label: 'Contact', onClick: () => navigation.scrollToSection('contact') }
                 ]}
-                themeToggleType="compact"
+                brandText="BuildFlow"
+                ThemeToggleComponent={NavbarThemeToggle}
                 onLoginClick={() => navigation.navigateToAuth('login')}
                 onSignUpClick={() => navigation.navigateToAuth('signup')}
             />

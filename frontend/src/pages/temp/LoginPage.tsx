@@ -1,10 +1,25 @@
 import { LoginForm } from '@/components/auth/LoginForm';
-import { ConfigurableNavbar } from '@/components/navbar';
+import { FlexibleNavbar } from '@/components/navbar';
+import { CompactThemeToggle } from '@/components/theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from '@/contexts';
 import React, { useState } from 'react';
+
+// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
+const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
+    return (
+        <div className="flex items-center gap-2">
+            <CompactThemeToggle />
+            {showLabel && (
+                <span className="text-sm font-medium text-muted-foreground">
+                    Theme
+                </span>
+            )}
+        </div>
+    );
+};
 
 /**
  * Temporary LoginPage for testing the LoginForm component
@@ -20,7 +35,7 @@ import React, { useState } from 'react';
  */
 const LoginPage: React.FC = () => {
     const navigation = useNavigate();
-    
+
     // Form state and settings
     const [enableValidation, setEnableValidation] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -102,11 +117,14 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <ConfigurableNavbar />
-            
+            <FlexibleNavbar
+                brandText="BuildFlow"
+                ThemeToggleComponent={NavbarThemeToggle}
+            />
+
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-6xl mx-auto space-y-8">
-                    
+
                     {/* Page Header */}
                     <Card>
                         <CardHeader>
@@ -185,7 +203,7 @@ const LoginPage: React.FC = () => {
                     </Card>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        
+
                         {/* Card Mode Form */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-semibold">Card Mode (Default)</h3>

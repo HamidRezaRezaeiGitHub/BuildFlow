@@ -61,10 +61,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       setActualTheme(resolvedTheme);
 
       // Update document class for CSS frameworks (e.g., Tailwind CSS)
+      const root = document.documentElement;
       if (enableClassToggle) {
-        const root = document.documentElement;
         root.classList.remove('light', 'dark');
         root.classList.add(resolvedTheme);
+      } else {
+        // Remove theme classes when class toggle is disabled
+        root.classList.remove('light', 'dark');
       }
     };
 
@@ -78,7 +81,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, [theme]);
+  }, [theme, enableClassToggle]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

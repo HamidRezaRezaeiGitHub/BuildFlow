@@ -1,8 +1,23 @@
 import React from 'react';
 import { cn } from '@/utils/utils';
-import { ConfigurableNavbar } from '@/components/navbar';
+import { FlexibleNavbar, adaptUserForNavbar } from '@/components/navbar';
+import { CompactThemeToggle } from '@/components/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts';
+
+// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
+const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
+    return (
+        <div className="flex items-center gap-2">
+            <CompactThemeToggle />
+            {showLabel && (
+                <span className="text-sm font-medium text-muted-foreground">
+                    Theme
+                </span>
+            )}
+        </div>
+    );
+};
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -22,17 +37,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, className }) => {
     const { user, isAuthenticated } = useAuth();
     const navigation = useNavigate();
 
+    // Convert BuildFlow user to NavbarUser format
+    const navbarUser = user ? adaptUserForNavbar(user) : null;
+
     return (
         <div className={cn("min-h-screen bg-background", className)}>
-            <ConfigurableNavbar 
+            <FlexibleNavbar 
                 isAuthenticated={isAuthenticated}
-                user={user}
+                user={navbarUser}
+                brandText="BuildFlow Admin"
                 navItems={[
                     { label: 'Dashboard', onClick: () => navigation.navigateToDashboard() },
                     { label: 'Admin Panel', onClick: () => console.log('Current page') },
                     { label: 'Home', onClick: () => navigation.navigateToHome() }
                 ]}
-                themeToggleType="compact"
+                ThemeToggleComponent={NavbarThemeToggle}
                 onAvatarClick={() => console.log('Show user menu')}
                 onLoginClick={() => navigation.navigateToHome()}
                 onSignUpClick={() => navigation.navigateToHome()}

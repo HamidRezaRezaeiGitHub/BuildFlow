@@ -10,9 +10,20 @@ export type { LoginButtonProps } from './LoginButton';
 export type { SignUpButtonProps } from './SignUpButton';
 export type { AvatarProps } from './Avatar';
 
-// Main configurable navbar component
-export { ConfigurableNavbar } from './ConfigurableNavbar';
-export type { ConfigurableNavbarProps, NavItem } from './ConfigurableNavbar';
+// Generic types for cross-project compatibility
+export type { NavbarUser, GenericUser, GenericContact } from './types';
+export { adaptUserForNavbar } from './types';
+
+// Dependency interfaces for external libraries
+export type { NavbarDependencies } from './dependencies';
+
+// Main flexible navbar component
+export { FlexibleNavbar } from './FlexibleNavbar';
+export type { FlexibleNavbarProps, NavItem, ThemeToggleComponent } from './FlexibleNavbar';
 
 // Default export for convenience
-export { default as Navbar } from './ConfigurableNavbar';
+export { default as Navbar } from './FlexibleNavbar';
+
+// Legacy export for backwards compatibility (deprecated)
+export { FlexibleNavbar as ConfigurableNavbar } from './FlexibleNavbar';
+export type { FlexibleNavbarProps as ConfigurableNavbarProps } from './FlexibleNavbar';

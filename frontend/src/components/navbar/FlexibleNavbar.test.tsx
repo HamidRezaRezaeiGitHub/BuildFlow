@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ConfigurableNavbar } from './ConfigurableNavbar';
-import { User } from '@/services/dtos';
+import { FlexibleNavbar } from './FlexibleNavbar';
+import { NavbarUser } from './types';
 
 // Mock the theme context
 const mockSetTheme = jest.fn();
@@ -15,53 +15,37 @@ jest.mock('@/contexts/ThemeContext', () => ({
   }),
 }));
 
-// Mock user data
-const mockUser: User = {
+// Mock user data using generic NavbarUser interface
+const mockUser: NavbarUser = {
   id: '1',
-  username: 'testuser',
+  firstName: 'John',
+  lastName: 'Doe',
   email: 'test@example.com',
-  registered: true,
-  contactDto: {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    labels: ['Builder'],
-    email: 'test@example.com',
-    phone: '+1234567890',
-    addressDto: {
-      id: '1',
-      streetNumber: '123',
-      streetName: 'Main St',
-      city: 'Anytown',
-      stateOrProvince: 'CA',
-      postalOrZipCode: '12345',
-      country: 'USA'
-    }
-  }
+  avatarUrl: undefined
 };
 
-describe('ConfigurableNavbar', () => {
+describe('FlexibleNavbar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('ConfigurableNavbar_shouldRenderWithDefaultProps', () => {
-    render(<ConfigurableNavbar />);
+  test('FlexibleNavbar_shouldRenderWithDefaultProps', () => {
+    render(<FlexibleNavbar />);
     
-    // Should show logo and brand text by default
-    expect(screen.getByText('BuildFlow')).toBeInTheDocument();
+        // Logo should be displayed by default with default brand text
+    expect(screen.getByText('Brand')).toBeInTheDocument();
     
     // Should show auth buttons when not authenticated
     expect(screen.getByText('Login')).toBeInTheDocument();
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
     
-    // Should show compact theme toggle by default (moon icon button)
-    expect(screen.getByText('🌙')).toBeInTheDocument();
+    // Should show placeholder text when no theme component is provided
+    expect(screen.getByText(/Theme Toggle.*Configure ThemeToggleComponent prop/)).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldShowUserAvatar_whenAuthenticated', () => {
+  test('FlexibleNavbar_shouldShowUserAvatar_whenAuthenticated', () => {
     render(
-      <ConfigurableNavbar 
+      <FlexibleNavbar 
         isAuthenticated={true}
         user={mockUser}
       />
@@ -75,38 +59,38 @@ describe('ConfigurableNavbar', () => {
     expect(screen.getByText('JD')).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldRenderNavigationItems', () => {
+  test('FlexibleNavbar_shouldRenderNavigationItems', () => {
     const navItems = [
       { label: 'Home', onClick: jest.fn() },
       { label: 'About', onClick: jest.fn() },
       { label: 'Contact', onClick: jest.fn() }
     ];
 
-    render(<ConfigurableNavbar navItems={navItems} />);
+    render(<FlexibleNavbar navItems={navItems} />);
     
     navItems.forEach(item => {
       expect(screen.getByText(item.label)).toBeInTheDocument();
     });
   });
 
-  test('ConfigurableNavbar_shouldCallNavItemOnClick_whenNavItemClicked', () => {
+  test('FlexibleNavbar_shouldCallNavItemOnClick_whenNavItemClicked', () => {
     const mockOnClick = jest.fn();
     const navItems = [
       { label: 'Home', onClick: mockOnClick }
     ];
 
-    render(<ConfigurableNavbar navItems={navItems} />);
+    render(<FlexibleNavbar navItems={navItems} />);
     
     fireEvent.click(screen.getByText('Home'));
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
 
-  test('ConfigurableNavbar_shouldCallAuthCallbacks_whenAuthButtonsClicked', () => {
+  test('FlexibleNavbar_shouldCallAuthCallbacks_whenAuthButtonsClicked', () => {
     const mockOnLoginClick = jest.fn();
     const mockOnSignUpClick = jest.fn();
 
     render(
-      <ConfigurableNavbar 
+      <FlexibleNavbar 
         onLoginClick={mockOnLoginClick}
         onSignUpClick={mockOnSignUpClick}
       />
@@ -119,11 +103,11 @@ describe('ConfigurableNavbar', () => {
     expect(mockOnSignUpClick).toHaveBeenCalledTimes(1);
   });
 
-  test('ConfigurableNavbar_shouldCallAvatarCallback_whenAvatarClicked', () => {
+  test('FlexibleNavbar_shouldCallAvatarCallback_whenAvatarClicked', () => {
     const mockOnAvatarClick = jest.fn();
 
     render(
-      <ConfigurableNavbar 
+      <FlexibleNavbar 
         isAuthenticated={true}
         user={mockUser}
         onAvatarClick={mockOnAvatarClick}
@@ -135,28 +119,28 @@ describe('ConfigurableNavbar', () => {
     expect(mockOnAvatarClick).toHaveBeenCalledTimes(1);
   });
 
-  test('ConfigurableNavbar_shouldHideLogo_whenShowLogoIsFalse', () => {
-    render(<ConfigurableNavbar showLogo={false} />);
+  test('FlexibleNavbar_shouldHideLogo_whenShowLogoIsFalse', () => {
+    render(<FlexibleNavbar showLogo={false} />);
     
-    expect(screen.queryByText('BuildFlow')).not.toBeInTheDocument();
+    expect(screen.queryByText('Brand')).not.toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldHideAuthButtons_whenShowAuthButtonsIsFalse', () => {
-    render(<ConfigurableNavbar showAuthButtons={false} />);
+  test('FlexibleNavbar_shouldHideAuthButtons_whenShowAuthButtonsIsFalse', () => {
+    render(<FlexibleNavbar showAuthButtons={false} />);
     
     expect(screen.queryByText('Login')).not.toBeInTheDocument();
     expect(screen.queryByText('Sign Up')).not.toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldHideThemeToggle_whenShowThemeToggleIsFalse', () => {
-    render(<ConfigurableNavbar showThemeToggle={false} />);
+  test('FlexibleNavbar_shouldHideThemeToggle_whenShowThemeToggleIsFalse', () => {
+    render(<FlexibleNavbar showThemeToggle={false} />);
     
     expect(screen.queryByText('🌙')).not.toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldUseCustomButtonText', () => {
+  test('FlexibleNavbar_shouldUseCustomButtonText', () => {
     render(
-      <ConfigurableNavbar 
+      <FlexibleNavbar 
         loginButtonText="Sign In"
         signUpButtonText="Get Started"
       />
@@ -166,21 +150,20 @@ describe('ConfigurableNavbar', () => {
     expect(screen.getByText('Get Started')).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldShowDropdownThemeToggle_whenThemeToggleTypeIsDropdown', () => {
-    render(<ConfigurableNavbar themeToggleType="dropdown" />);
+  test('FlexibleNavbar_shouldShowThemeTogglePlaceholder_whenNoThemeComponentProvided', () => {
+    render(<FlexibleNavbar showThemeToggle={true} />);
     
-    // Should show dropdown theme toggle (since showLabel is false for desktop, no "Theme:" text)
-    // But we can check for the dropdown select element
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    // Should show placeholder text when no theme component is provided
+    expect(screen.getByText(/Theme Toggle.*Configure ThemeToggleComponent prop/)).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldShowMobileMenu_whenMobileMenuButtonClicked', () => {
+  test('FlexibleNavbar_shouldShowMobileMenu_whenMobileMenuButtonClicked', () => {
     const navItems = [
       { label: 'Home', onClick: jest.fn() },
       { label: 'About', onClick: jest.fn() }
     ];
 
-    render(<ConfigurableNavbar navItems={navItems} />);
+    render(<FlexibleNavbar navItems={navItems} />);
     
     // Find mobile menu button (should be hidden on desktop but testable)
     const mobileMenuButton = screen.getByLabelText('Toggle mobile menu');
@@ -192,30 +175,25 @@ describe('ConfigurableNavbar', () => {
     expect(mobileMenuButton).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldRenderWithAllThemeToggleTypes', () => {
-    const themeToggleTypes = ['compact', 'dropdown', 'switch', 'singleIcon', 'toggleGroup', 'button', 'segmented'] as const;
+  test('FlexibleNavbar_shouldRenderWithCustomThemeToggleComponent', () => {
+    const MockThemeToggle = ({ showLabel }: { showLabel?: boolean }) => (
+      <div data-testid="custom-theme-toggle">
+        Custom Theme Toggle {showLabel && '(with label)'}
+      </div>
+    );
     
-    themeToggleTypes.forEach(type => {
-      const { unmount } = render(<ConfigurableNavbar themeToggleType={type} />);
-      
-      // Each theme toggle type should render without errors
-      expect(screen.getByText('BuildFlow')).toBeInTheDocument();
-      
-      unmount();
-    });
+    render(<FlexibleNavbar ThemeToggleComponent={MockThemeToggle} />);
+    
+    // Custom theme toggle should be rendered
+    expect(screen.getByTestId('custom-theme-toggle')).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldHandleUserWithoutContactDto', () => {
-    const userWithoutContact: User = {
-      id: '1',
-      username: 'testuser',
-      email: 'test@example.com',
-      registered: true,
-      contactDto: undefined as any
-    };
-
-    render(
-      <ConfigurableNavbar 
+  test('FlexibleNavbar_shouldHandleUserWithoutContactDto', () => {
+    const userWithoutContact: NavbarUser = {
+      id: '2',
+      email: 'nocontact@example.com'
+    };    render(
+      <FlexibleNavbar 
         isAuthenticated={true}
         user={userWithoutContact}
       />
@@ -225,8 +203,8 @@ describe('ConfigurableNavbar', () => {
     expect(screen.getByText('U')).toBeInTheDocument();
   });
 
-  test('ConfigurableNavbar_shouldApplyCustomClassName', () => {
-    const { container } = render(<ConfigurableNavbar className="custom-navbar" />);
+  test('FlexibleNavbar_shouldApplyCustomClassName', () => {
+    const { container } = render(<FlexibleNavbar className="custom-navbar" />);
     
     const header = container.querySelector('header');
     expect(header).toHaveClass('custom-navbar');

@@ -1,11 +1,14 @@
 import React from 'react';
+// TODO: Replace with your project's UI components and utilities  
+// Example: import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+// Example: import { cn } from '@/lib/utils';
 import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/utils/utils';
-import { User } from '@/services/dtos';
+import { NavbarUser } from './types';
 
 export interface AvatarProps {
   className?: string;
-  user: User | null;
+  user: NavbarUser | null;
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
 }
@@ -26,17 +29,15 @@ export const Avatar: React.FC<AvatarProps> = ({
     lg: 'h-12 w-12'
   };
 
-  const getInitials = (user: User | null): string => {
-    if (!user?.contactDto) return 'U';
-    const firstName = user.contactDto.firstName || '';
-    const lastName = user.contactDto.lastName || '';
+  const getInitials = (user: NavbarUser | null): string => {
+    if (!user) return 'U';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
   };
 
-  const getAvatarImage = (_user: User | null): string | undefined => {
-    // For now, return undefined as we don't have avatar URLs
-    // This could be extended to support profile images in the future
-    return undefined;
+  const getAvatarImage = (user: NavbarUser | null): string | undefined => {
+    return user?.avatarUrl;
   };
 
   return (
@@ -50,7 +51,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     >
       <AvatarImage 
         src={getAvatarImage(user)} 
-        alt={user?.contactDto ? `${user.contactDto.firstName} ${user.contactDto.lastName}` : 'User'} 
+        alt={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User' : 'User'} 
       />
       <AvatarFallback className="bg-primary text-primary-foreground font-medium">
         {getInitials(user)}

@@ -1,6 +1,7 @@
 import { FlexibleSignUpForm, FlexibleSignUpFormData, SignUpFieldConfig, signUpFieldConfigs } from '@/components/auth';
 import { AddressFieldConfig, addressFieldConfigs } from '@/components/address';
-import { ConfigurableNavbar } from '@/components/navbar';
+import { FlexibleNavbar } from '@/components/navbar';
+import { CompactThemeToggle } from '@/components/theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -8,6 +9,20 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import React, { useState } from 'react';
+
+// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
+const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
+    return (
+        <div className="flex items-center gap-2">
+            <CompactThemeToggle />
+            {showLabel && (
+                <span className="text-sm font-medium text-muted-foreground">
+                    Theme
+                </span>
+            )}
+        </div>
+    );
+};
 
 // Types for form configuration UI
 type FormType = 'fixed' | 'flexible';
@@ -171,7 +186,10 @@ const FlexibleSignUpPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <ConfigurableNavbar />
+            <FlexibleNavbar
+                brandText="BuildFlow"
+                ThemeToggleComponent={NavbarThemeToggle}
+            />
             
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-8">

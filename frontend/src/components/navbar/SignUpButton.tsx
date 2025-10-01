@@ -1,4 +1,7 @@
 import React from 'react';
+// TODO: Replace with your project's UI components and utilities
+// Example: import { Button } from '@/components/ui/button';
+// Example: import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
 
