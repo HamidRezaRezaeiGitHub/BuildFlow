@@ -59,6 +59,11 @@ export interface FlexibleNavbarProps {
   
   // Mobile menu
   enableMobileMenu?: boolean;
+  
+  // Mobile width behavior
+  // 'fixed' - navbar maintains fixed width on mobile (doesn't go full width)
+  // 'responsive' - navbar width adapts to screen size (default)
+  mobileWidthBehavior?: 'fixed' | 'responsive';
 }
 
 /**
@@ -71,6 +76,8 @@ export interface FlexibleNavbarProps {
  * - Theme toggle with multiple styles (compact, dropdown, switch, etc.)
  * - Mobile responsive with hamburger menu
  * - Fully customizable through props
+ * - Uniform height across all pages (64px / h-16)
+ * - Mobile-first design with configurable width behavior
  */
 export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
   className = '',
@@ -105,6 +112,9 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
   
   // Mobile menu props
   enableMobileMenu = true,
+  
+  // Mobile width behavior
+  mobileWidthBehavior = 'responsive',
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -137,7 +147,10 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
       "sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
       className
     )}>
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className={cn(
+        "px-4 h-16 flex items-center justify-between",
+        mobileWidthBehavior === 'fixed' ? "container mx-auto" : "mx-auto"
+      )}>
         
         {/* Left side - Logo and Brand */}
         <div className="flex items-center gap-8">
@@ -227,7 +240,10 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
       {/* Mobile Menu */}
       {enableMobileMenu && isMobileMenuOpen && (
         <div className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur">
-          <div className="container mx-auto px-4 py-4 space-y-4">
+          <div className={cn(
+            "px-4 py-4 space-y-4",
+            mobileWidthBehavior === 'fixed' ? "container mx-auto" : "mx-auto"
+          )}>
             
             {/* Mobile Navigation */}
             {navItems.length > 0 && (
