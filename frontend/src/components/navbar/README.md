@@ -77,6 +77,8 @@ This approach ensures:
   - **Navigation Items**: Flexible menu items with click handlers
   - **Mobile Responsive**: Collapsible mobile menu with hamburger button
   - **Logo & Branding**: Flexible logo display and sizing
+  - **Uniform Height**: Fixed 64px (h-16) height across all pages and screen sizes
+  - **Mobile Width Control**: Configurable width behavior on mobile devices
   - **Accessibility**: Proper ARIA labels and keyboard navigation
 
 ## 🎛️ FlexibleNavbar Configuration
@@ -125,14 +127,34 @@ This approach ensures:
 />
 ```
 
-### Mobile Responsive
+### Mobile Responsive with Width Control
 ```tsx
 <FlexibleNavbar 
   // All features automatically adapt to mobile
   navItems={navItems}
   isAuthenticated={true}
   user={user}
+  // Control navbar width behavior on mobile
+  mobileWidthBehavior="responsive" // or "fixed"
 />
+```
+
+### Mobile Width Behavior (NEW)
+```tsx
+// Responsive width (default) - navbar width adapts to screen size
+<FlexibleNavbar 
+  mobileWidthBehavior="responsive"
+  // Navbar spans full width on mobile, uses container on desktop
+/>
+
+// Fixed width - navbar maintains container width on all screens
+<FlexibleNavbar 
+  mobileWidthBehavior="fixed"
+  // Navbar uses container width consistently across all breakpoints
+/>
+```
+
+**Note**: Height remains uniform at 64px (h-16) across all screen sizes regardless of width behavior.
 
 // For authenticated users
 <ConfigurableNavbar 
