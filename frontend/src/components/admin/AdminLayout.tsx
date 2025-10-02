@@ -55,6 +55,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, className }) => {
                 onAvatarClick={() => console.log('Show user menu')}
                 onLoginClick={() => navigation.navigateToHome()}
                 onSignUpClick={() => navigation.navigateToHome()}
+                mobileWidthBehavior="responsive"
             />
 
             {/* Main content area */}

@@ -1,14 +1,36 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { FlexibleNavbar, adaptUserForNavbar } from '@/components/navbar';
+import { useNavigate } from '@/contexts';
 
 /**
  * Dashboard page - protected page for authenticated users
  */
 export const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigation = useNavigate();
+  
+  // Convert BuildFlow user to NavbarUser format
+  const navbarUser = user ? adaptUserForNavbar(user) : null;
 
   return (
     <div className="min-h-screen bg-background">
+      <FlexibleNavbar 
+        isAuthenticated={isAuthenticated}
+        user={navbarUser}
+        brandText="BuildFlow"
+        navItems={[
+          { label: 'Dashboard', onClick: () => console.log('Current page') },
+          { label: 'Projects', onClick: () => console.log('Navigate to projects') },
+          { label: 'Home', onClick: () => navigation.navigateToHome() }
+        ]}
+        showThemeToggle={false}
+        onAvatarClick={() => console.log('Show user menu')}
+        onLoginClick={() => navigation.navigateToHome()}
+        onSignUpClick={() => navigation.navigateToHome()}
+        mobileWidthBehavior="responsive"
+      />
+      
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-primary mb-4">

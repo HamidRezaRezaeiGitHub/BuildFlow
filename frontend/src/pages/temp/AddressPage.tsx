@@ -187,6 +187,7 @@ const AddressPage: React.FC = () => {
                 ThemeToggleComponent={NavbarThemeToggle}
                 onLoginClick={() => navigation.navigateToAuth('login')}
                 onSignUpClick={() => navigation.navigateToAuth('signup')}
+                mobileWidthBehavior="responsive"
             />
 
             <div className="container mx-auto px-4 py-8 max-w-6xl">

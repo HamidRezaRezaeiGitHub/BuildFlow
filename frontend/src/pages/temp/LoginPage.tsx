@@ -120,6 +120,7 @@ const LoginPage: React.FC = () => {
             <FlexibleNavbar
                 brandText="BuildFlow"
                 ThemeToggleComponent={NavbarThemeToggle}
+                mobileWidthBehavior="responsive"
             />
 
             <div className="container mx-auto px-4 py-8">

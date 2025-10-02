@@ -7,7 +7,8 @@ import {
   Hero
 } from '@/components/home';
 import HomeLayout from '@/components/home/HomeLayout';
-import Navbar from '@/components/home/Navbar';
+import { FlexibleNavbar } from '@/components/navbar';
+import { useNavigate } from '@/contexts';
 import React from 'react';
 
 /**
@@ -17,9 +18,25 @@ import React from 'react';
  * so we don't need to wrap it here anymore.
  */
 export const Home: React.FC = () => {
+  const { navigateToSignup, navigateToLogin, scrollToSection } = useNavigate();
+
   return (
     <HomeLayout>
-      <Navbar />
+      <FlexibleNavbar
+        brandText="BuildFlow"
+        navItems={[
+          { label: 'Features', onClick: () => scrollToSection('features') },
+          { label: 'About', onClick: () => scrollToSection('brands') },
+          { label: 'Contact', onClick: () => scrollToSection('contact') }
+        ]}
+        showAuthButtons={true}
+        onLoginClick={() => navigateToLogin()}
+        onSignUpClick={() => navigateToSignup()}
+        loginButtonText="Sign In"
+        signUpButtonText="Get Started"
+        showThemeToggle={false}
+        mobileWidthBehavior="responsive"
+      />
       <Hero />
       <Features />
       <AuthSection />
