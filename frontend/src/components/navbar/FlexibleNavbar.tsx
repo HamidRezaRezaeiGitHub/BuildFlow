@@ -144,7 +144,7 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
     if (!ThemeToggleComponent) {
       return (
         <div className="text-sm text-muted-foreground">
-          Theme Toggle (Configure ThemeToggleComponent prop)
+          (Configure ThemeToggleComponent prop)
         </div>
       );
     }
@@ -165,8 +165,8 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
             : "mx-auto"
       )}>
 
-        {/* Left side - Logo and Brand */}
-        <div className="flex items-center gap-8">
+        {/* Left side - Logo */}
+        <div className="flex items-center">
           {showLogo && (
             <Logo
               size={logoSize}
@@ -176,29 +176,29 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
               className="flex-shrink-0"
             />
           )}
-
-          {/* Desktop Navigation */}
-          {navItems.length > 0 && (
-            <nav className="hidden md:flex items-center gap-6">
-              {navItems.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleNavItemClick(item)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-          )}
         </div>
+
+        {/* Center - Desktop Navigation */}
+        {navItems.length > 0 && (
+          <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+            {navItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => handleNavItemClick(item)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        )}
 
         {/* Right side - Theme Toggle and Auth */}
         <div className="flex items-center gap-4">
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle - Always visible on navbar (mobile and desktop) */}
           {showThemeToggle && (
-            <div className="hidden sm:block">
+            <div>
               {renderThemeToggle(false)}
             </div>
           )}
@@ -213,7 +213,7 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
             />
           ) : showAuthButtons ? (
             // Not Authenticated: Show Login/SignUp buttons
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <LoginButton
                 onClick={onLoginClick}
                 variant="ghost"
@@ -250,9 +250,9 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Overlay */}
       {enableMobileMenu && isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur">
+        <div className="md:hidden absolute top-16 left-0 right-0 border-t border-border/20 bg-background/95 backdrop-blur shadow-lg z-50">
           <div className={cn(
             "px-4 py-4 space-y-4",
             mobileWidthBehavior === 'fixed'
@@ -264,12 +264,12 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
 
             {/* Mobile Navigation */}
             {navItems.length > 0 && (
-              <nav className="space-y-2">
+              <nav className="space-y-1">
                 {navItems.map((item, index) => (
                   <button
                     key={index}
                     onClick={() => handleNavItemClick(item)}
-                    className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                    className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors py-2.5 px-3 rounded-md"
                   >
                     {item.label}
                   </button>
@@ -277,36 +277,27 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
               </nav>
             )}
 
-            {/* Mobile Theme Toggle */}
-            {showThemeToggle && (
-              <div className="py-2">
-                {renderThemeToggle(true)}
-              </div>
-            )}
-
             {/* Mobile Auth Buttons */}
             {!isAuthenticated && showAuthButtons && (
-              <div className="flex flex-col space-y-2 pt-2 border-t border-border/20">
-                <LoginButton
+              <div className="space-y-1 border-t border-border/20">
+                <button
                   onClick={() => {
                     onLoginClick?.();
                     setIsMobileMenuOpen(false);
                   }}
-                  variant="ghost"
-                  className="justify-start w-full"
+                  className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors py-2.5 px-3 rounded-md"
                 >
                   {loginButtonText}
-                </LoginButton>
-                <SignUpButton
+                </button>
+                <button
                   onClick={() => {
                     onSignUpClick?.();
                     setIsMobileMenuOpen(false);
                   }}
-                  variant="default"
-                  className="justify-start w-full"
+                  className="block w-full text-left text-sm font-medium text-primary hover:text-primary/90 bg-primary/10 hover:bg-primary/20 transition-colors py-2.5 px-3 rounded-md"
                 >
                   {signUpButtonText}
-                </SignUpButton>
+                </button>
               </div>
             )}
           </div>
