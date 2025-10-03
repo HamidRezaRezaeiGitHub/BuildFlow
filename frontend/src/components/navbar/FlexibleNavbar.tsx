@@ -9,10 +9,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
 import { Menu, X } from 'lucide-react';
-import { Logo } from './Logo';
-import { LoginButton } from './LoginButton';
-import { SignUpButton } from './SignUpButton';
 import { Avatar } from './Avatar';
+import { LoginButton } from './LoginButton';
+import { Logo } from './Logo';
+import { SignUpButton } from './SignUpButton';
 import { NavbarUser } from './types';
 
 // Type for theme toggle component
@@ -28,42 +28,47 @@ export interface NavItem {
 
 export interface FlexibleNavbarProps {
   className?: string;
-  
+
   // Brand configuration
   showLogo?: boolean;
   logoSize?: 'sm' | 'md' | 'lg';
   showBrandText?: boolean;
   brandText?: string;
   logoSvg?: React.ReactNode;
-  
+
   // Authentication state
   isAuthenticated?: boolean;
   user?: NavbarUser | null;
-  
+
   // Navigation items
   navItems?: NavItem[];
-  
+
   // Authentication buttons (when not authenticated)
   showAuthButtons?: boolean;
   onLoginClick?: () => void;
   onSignUpClick?: () => void;
   loginButtonText?: string;
   signUpButtonText?: string;
-  
+
   // User menu (when authenticated)
   onAvatarClick?: () => void;
-  
+
   // Theme toggle configuration
   ThemeToggleComponent?: ThemeToggleComponent;
   showThemeToggle?: boolean;
-  
+
   // Mobile menu
   enableMobileMenu?: boolean;
-  
+
   // Mobile width behavior
   // 'fixed' - navbar maintains fixed width on mobile (doesn't go full width)
   // 'responsive' - navbar width adapts to screen size (default)
   mobileWidthBehavior?: 'fixed' | 'responsive';
+
+  // Maximum width when mobileWidthBehavior is 'responsive'
+  // Allows parent to constrain navbar width to match other page components
+  // Examples: 'max-w-7xl', 'max-w-6xl', 'max-w-5xl', etc.
+  maxWidth?: string;
 }
 
 /**
@@ -78,50 +83,54 @@ export interface FlexibleNavbarProps {
  * - Fully customizable through props
  * - Uniform height across all pages (64px / h-16)
  * - Mobile-first design with configurable width behavior
+ * - Configurable maximum width for responsive behavior to match page layouts
  */
 export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
   className = '',
-  
+
   // Brand props
   showLogo = true,
   logoSize = 'md',
   showBrandText = true,
   brandText,
   logoSvg,
-  
+
   // Auth props
   isAuthenticated = false,
   user = null,
-  
+
   // Navigation props
   navItems = [],
-  
+
   // Auth button props
   showAuthButtons = true,
   onLoginClick,
   onSignUpClick,
   loginButtonText = 'Login',
   signUpButtonText = 'Sign Up',
-  
+
   // User menu props
   onAvatarClick,
-  
+
   // Theme toggle props
   ThemeToggleComponent,
   showThemeToggle = true,
-  
+
   // Mobile menu props
   enableMobileMenu = true,
-  
+
   // Mobile width behavior
   mobileWidthBehavior = 'responsive',
+
+  // Max width prop
+  maxWidth,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-  
+
   const handleNavItemClick = (item: NavItem) => {
     if (item.onClick) {
       item.onClick();
@@ -149,13 +158,17 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
     )}>
       <div className={cn(
         "px-4 h-16 flex items-center justify-between",
-        mobileWidthBehavior === 'fixed' ? "container mx-auto" : "mx-auto"
+        mobileWidthBehavior === 'fixed'
+          ? "container mx-auto"
+          : maxWidth
+            ? `${maxWidth} mx-auto`
+            : "mx-auto"
       )}>
-        
+
         {/* Left side - Logo and Brand */}
         <div className="flex items-center gap-8">
           {showLogo && (
-            <Logo 
+            <Logo
               size={logoSize}
               showText={showBrandText}
               brandText={brandText}
@@ -163,7 +176,7 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
               className="flex-shrink-0"
             />
           )}
-          
+
           {/* Desktop Navigation */}
           {navItems.length > 0 && (
             <nav className="hidden md:flex items-center gap-6">
@@ -182,18 +195,18 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
 
         {/* Right side - Theme Toggle and Auth */}
         <div className="flex items-center gap-4">
-          
+
           {/* Theme Toggle */}
           {showThemeToggle && (
             <div className="hidden sm:block">
               {renderThemeToggle(false)}
             </div>
           )}
-          
+
           {/* Authentication Section */}
           {isAuthenticated && user ? (
             // Authenticated: Show Avatar
-            <Avatar 
+            <Avatar
               user={user}
               onClick={onAvatarClick}
               size="md"
@@ -201,14 +214,14 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
           ) : showAuthButtons ? (
             // Not Authenticated: Show Login/SignUp buttons
             <div className="hidden sm:flex items-center gap-2">
-              <LoginButton 
+              <LoginButton
                 onClick={onLoginClick}
                 variant="ghost"
                 size="sm"
               >
                 {loginButtonText}
               </LoginButton>
-              <SignUpButton 
+              <SignUpButton
                 onClick={onSignUpClick}
                 variant="default"
                 size="sm"
@@ -217,7 +230,7 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
               </SignUpButton>
             </div>
           ) : null}
-          
+
           {/* Mobile Menu Button */}
           {enableMobileMenu && (navItems.length > 0 || showAuthButtons) && (
             <Button
@@ -242,9 +255,13 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
         <div className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur">
           <div className={cn(
             "px-4 py-4 space-y-4",
-            mobileWidthBehavior === 'fixed' ? "container mx-auto" : "mx-auto"
+            mobileWidthBehavior === 'fixed'
+              ? "container mx-auto"
+              : maxWidth
+                ? `${maxWidth} mx-auto`
+                : "mx-auto"
           )}>
-            
+
             {/* Mobile Navigation */}
             {navItems.length > 0 && (
               <nav className="space-y-2">
@@ -259,18 +276,18 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
                 ))}
               </nav>
             )}
-            
+
             {/* Mobile Theme Toggle */}
             {showThemeToggle && (
               <div className="py-2">
                 {renderThemeToggle(true)}
               </div>
             )}
-            
+
             {/* Mobile Auth Buttons */}
             {!isAuthenticated && showAuthButtons && (
               <div className="flex flex-col space-y-2 pt-2 border-t border-border/20">
-                <LoginButton 
+                <LoginButton
                   onClick={() => {
                     onLoginClick?.();
                     setIsMobileMenuOpen(false);
@@ -280,7 +297,7 @@ export const FlexibleNavbar: React.FC<FlexibleNavbarProps> = ({
                 >
                   {loginButtonText}
                 </LoginButton>
-                <SignUpButton 
+                <SignUpButton
                   onClick={() => {
                     onSignUpClick?.();
                     setIsMobileMenuOpen(false);

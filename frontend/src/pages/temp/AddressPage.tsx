@@ -1,29 +1,14 @@
-import { FlexibleAddressForm, createEmptyAddress, AddressFieldConfig, addressFieldConfigs } from '@/components/address';
-import { FlexibleNavbar } from '@/components/navbar';
-import { CompactThemeToggle } from '@/components/theme';
+import { AddressFieldConfig, FlexibleAddressForm, addressFieldConfigs, createEmptyAddress } from '@/components/address';
+import { StandardNavbar } from '@/components/navbar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useNavigate } from '@/contexts';
 import { AddressData } from '@/services/dtos';
 import React, { useState } from 'react';
-
-// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
-const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
-    return (
-        <div className="flex items-center gap-2">
-            <CompactThemeToggle />
-            {showLabel && (
-                <span className="text-sm font-medium text-muted-foreground">
-                    Theme
-                </span>
-            )}
-        </div>
-    );
-};
 
 // Types for field configuration UI
 type FormType = 'fixed' | 'flexible';
@@ -58,7 +43,7 @@ const AddressPage: React.FC = () => {
     // Form type and configuration
     const [formType, setFormType] = useState<FormType>('fixed');
     const [presetLayout, setPresetLayout] = useState<PresetLayout>('full');
-    
+
     // Individual field states for custom configuration
     const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData | 'streetNumberName']: FieldState }>({
         unitNumber: { show: true, required: false, colSpan: 1 },
@@ -128,7 +113,7 @@ const AddressPage: React.FC = () => {
         if (layout !== 'custom' && layout in addressFieldConfigs) {
             const preset = addressFieldConfigs[layout];
             const newFieldStates = { ...fieldStates };
-            
+
             // Reset all fields to hidden first
             Object.keys(newFieldStates).forEach(field => {
                 newFieldStates[field as keyof AddressData | 'streetNumberName'] = {
@@ -137,7 +122,7 @@ const AddressPage: React.FC = () => {
                     colSpan: 1
                 };
             });
-            
+
             // Apply preset configuration
             preset.forEach(config => {
                 newFieldStates[config.field] = {
@@ -146,7 +131,7 @@ const AddressPage: React.FC = () => {
                     colSpan: config.colSpan || 1
                 };
             });
-            
+
             setFieldStates(newFieldStates);
         }
     };
@@ -177,17 +162,15 @@ const AddressPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <FlexibleNavbar
+            <StandardNavbar
                 navItems={[
                     { label: 'Home', onClick: () => navigation.navigateToHome() },
                     { label: 'Addresses', onClick: () => console.log('Current page') },
                     { label: 'Contact', onClick: () => navigation.scrollToSection('contact') }
                 ]}
                 brandText="BuildFlow"
-                ThemeToggleComponent={NavbarThemeToggle}
                 onLoginClick={() => navigation.navigateToAuth('login')}
                 onSignUpClick={() => navigation.navigateToAuth('signup')}
-                mobileWidthBehavior="responsive"
             />
 
             <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -255,8 +238,8 @@ const AddressPage: React.FC = () => {
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="outline" className="w-full justify-between">
-                                                {presetLayout === 'custom' ? 'Custom Layout' : 
-                                                 presetLayout.charAt(0).toUpperCase() + presetLayout.slice(1)}
+                                                {presetLayout === 'custom' ? 'Custom Layout' :
+                                                    presetLayout.charAt(0).toUpperCase() + presetLayout.slice(1)}
                                                 <span className="ml-auto">▼</span>
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -290,33 +273,33 @@ const AddressPage: React.FC = () => {
                                                 const fieldKey = field as keyof AddressData | 'streetNumberName';
                                                 const state = fieldStates[fieldKey];
                                                 if (!state) return null;
-                                                
+
                                                 return (
                                                     <div key={field} className="border rounded p-3 space-y-2">
                                                         <div className="flex items-center justify-between">
                                                             <Label className="text-xs font-medium">{label}</Label>
                                                             <Switch
                                                                 checked={state.show}
-                                                                onCheckedChange={(checked) => 
+                                                                onCheckedChange={(checked) =>
                                                                     updateFieldState(fieldKey, { show: checked })
                                                                 }
                                                                 disabled={isSubmitting}
                                                             />
                                                         </div>
-                                                        
+
                                                         {state.show && (
                                                             <div className="space-y-2">
                                                                 <div className="flex items-center justify-between">
                                                                     <span className="text-xs">Required</span>
                                                                     <Switch
                                                                         checked={state.required}
-                                                                        onCheckedChange={(checked) => 
+                                                                        onCheckedChange={(checked) =>
                                                                             updateFieldState(fieldKey, { required: checked })
                                                                         }
                                                                         disabled={isSubmitting}
                                                                     />
                                                                 </div>
-                                                                
+
                                                                 <div className="flex items-center justify-between">
                                                                     <span className="text-xs">Col Span</span>
                                                                     <div className="flex gap-1">
@@ -380,14 +363,14 @@ const AddressPage: React.FC = () => {
                     <Card className="lg:col-span-2">
                         <CardHeader>
                             <CardTitle className={`text-xl font-bold ${isSkippable ? 'text-green-600' : 'text-red-600'}`}>
-                                {formType === 'fixed' ? 'FlexibleAddressForm (Fixed Preset)' : 'FlexibleAddressForm (Custom Config)'} 
+                                {formType === 'fixed' ? 'FlexibleAddressForm (Fixed Preset)' : 'FlexibleAddressForm (Custom Config)'}
                                 <Badge variant={isSkippable ? 'secondary' : 'destructive'} className="ml-2">
                                     {isSkippable ? 'Optional' : 'Required'}
                                 </Badge>
                             </CardTitle>
                             <CardDescription>
-                                {formType === 'fixed' 
-                                    ? 'Standard address form with all fields' 
+                                {formType === 'fixed'
+                                    ? 'Standard address form with all fields'
                                     : `Customizable form - ${presetLayout === 'custom' ? 'Custom Layout' : presetLayout + ' preset'}`
                                 }
                             </CardDescription>

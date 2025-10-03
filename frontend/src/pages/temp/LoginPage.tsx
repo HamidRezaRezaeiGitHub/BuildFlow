@@ -1,25 +1,10 @@
 import { LoginForm } from '@/components/auth/LoginForm';
-import { FlexibleNavbar } from '@/components/navbar';
-import { CompactThemeToggle } from '@/components/theme';
+import { StandardNavbar } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from '@/contexts';
 import React, { useState } from 'react';
-
-// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
-const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
-    return (
-        <div className="flex items-center gap-2">
-            <CompactThemeToggle />
-            {showLabel && (
-                <span className="text-sm font-medium text-muted-foreground">
-                    Theme
-                </span>
-            )}
-        </div>
-    );
-};
 
 /**
  * Temporary LoginPage for testing the LoginForm component
@@ -117,10 +102,8 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <FlexibleNavbar
+            <StandardNavbar
                 brandText="BuildFlow"
-                ThemeToggleComponent={NavbarThemeToggle}
-                mobileWidthBehavior="responsive"
             />
 
             <div className="container mx-auto px-4 py-8">

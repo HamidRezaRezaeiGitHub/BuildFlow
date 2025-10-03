@@ -1,28 +1,13 @@
-import { FlexibleSignUpForm, FlexibleSignUpFormData, SignUpFieldConfig, signUpFieldConfigs } from '@/components/auth';
 import { AddressFieldConfig, addressFieldConfigs } from '@/components/address';
-import { FlexibleNavbar } from '@/components/navbar';
-import { CompactThemeToggle } from '@/components/theme';
+import { FlexibleSignUpForm, FlexibleSignUpFormData, SignUpFieldConfig, signUpFieldConfigs } from '@/components/auth';
+import { StandardNavbar } from '@/components/navbar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import React, { useState } from 'react';
-
-// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
-const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
-    return (
-        <div className="flex items-center gap-2">
-            <CompactThemeToggle />
-            {showLabel && (
-                <span className="text-sm font-medium text-muted-foreground">
-                    Theme
-                </span>
-            )}
-        </div>
-    );
-};
 
 // Types for form configuration UI
 type FormType = 'fixed' | 'flexible';
@@ -58,7 +43,7 @@ const FlexibleSignUpPage: React.FC = () => {
     const [formType, setFormType] = useState<FormType>('flexible');
     const [personalInfoPreset, setPersonalInfoPreset] = useState<PersonalInfoPreset>('full');
     const [addressPreset, setAddressPreset] = useState<AddressPreset>('full');
-    
+
     // Form behavior settings
     const [enableValidation, setEnableValidation] = useState(true);
     const [includeAddress, setIncludeAddress] = useState(true);
@@ -186,12 +171,10 @@ const FlexibleSignUpPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <FlexibleNavbar
+            <StandardNavbar
                 brandText="BuildFlow"
-                ThemeToggleComponent={NavbarThemeToggle}
-                mobileWidthBehavior="responsive"
             />
-            
+
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">Flexible Sign Up Form Testing</h1>
@@ -239,9 +222,9 @@ const FlexibleSignUpPage: React.FC = () => {
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="outline" className="w-full justify-between">
                                                     {personalInfoPreset === 'full' ? 'Full (All fields)' :
-                                                     personalInfoPreset === 'minimal' ? 'Minimal' :
-                                                     personalInfoPreset === 'essential' ? 'Essential (Username, Email, Password only)' :
-                                                     personalInfoPreset === 'extended' ? 'Extended' : 'Custom'}
+                                                        personalInfoPreset === 'minimal' ? 'Minimal' :
+                                                            personalInfoPreset === 'essential' ? 'Essential (Username, Email, Password only)' :
+                                                                personalInfoPreset === 'extended' ? 'Extended' : 'Custom'}
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="w-full">
@@ -294,8 +277,8 @@ const FlexibleSignUpPage: React.FC = () => {
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            onClick={() => updatePersonalFieldState(field, { 
-                                                                colSpan: personalFieldStates[field].colSpan === 1 ? 2 : 1 
+                                                            onClick={() => updatePersonalFieldState(field, {
+                                                                colSpan: personalFieldStates[field].colSpan === 1 ? 2 : 1
                                                             })}
                                                             className="text-xs px-2 py-1"
                                                         >
@@ -336,10 +319,10 @@ const FlexibleSignUpPage: React.FC = () => {
                                                         <DropdownMenuTrigger asChild>
                                                             <Button variant="outline" className="w-full justify-between">
                                                                 {addressPreset === 'full' ? 'Full' :
-                                                                 addressPreset === 'minimal' ? 'Minimal' :
-                                                                 addressPreset === 'shipping' ? 'Shipping' :
-                                                                 addressPreset === 'international' ? 'International' :
-                                                                 addressPreset === 'combined' ? 'Combined' : 'Custom'}
+                                                                    addressPreset === 'minimal' ? 'Minimal' :
+                                                                        addressPreset === 'shipping' ? 'Shipping' :
+                                                                            addressPreset === 'international' ? 'International' :
+                                                                                addressPreset === 'combined' ? 'Combined' : 'Custom'}
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className="w-full">
@@ -372,7 +355,7 @@ const FlexibleSignUpPage: React.FC = () => {
                                 {/* Form Behavior Settings */}
                                 <div className="space-y-3 border-t pt-3">
                                     <Label className="text-sm font-medium">Form Behavior</Label>
-                                    
+
                                     <div className="flex items-center space-x-2">
                                         <Switch checked={enableValidation} onCheckedChange={setEnableValidation} />
                                         <Label>Enable Validation</Label>
@@ -469,7 +452,7 @@ const FlexibleSignUpPage: React.FC = () => {
                             <CardHeader>
                                 <CardTitle>FlexibleSignUpForm Preview</CardTitle>
                                 <CardDescription>
-                                    {formType === 'flexible' 
+                                    {formType === 'flexible'
                                         ? 'Interactive preview of the flexible sign up form with current configuration'
                                         : 'Standard fixed sign up form for comparison'
                                     }
@@ -480,7 +463,7 @@ const FlexibleSignUpPage: React.FC = () => {
                                     <FlexibleSignUpForm
                                         fieldsConfig={getCurrentPersonalInfoConfig()}
                                         addressFieldsConfig={getCurrentAddressConfig()}
-                                        title={inline ? undefined : "Create Your Account"}  
+                                        title={inline ? undefined : "Create Your Account"}
                                         description={inline ? undefined : "Enter your details to get started"}
                                         submitButtonText="Create Account"
                                         showPersonalInfoHeader={showPersonalInfoHeader}

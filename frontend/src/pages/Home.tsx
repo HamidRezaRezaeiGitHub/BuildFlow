@@ -7,7 +7,7 @@ import {
   Hero
 } from '@/components/home';
 import HomeLayout from '@/components/home/HomeLayout';
-import { FlexibleNavbar } from '@/components/navbar';
+import { StandardNavbar } from '@/components/navbar';
 import { useNavigate } from '@/contexts';
 import React from 'react';
 
@@ -22,7 +22,7 @@ export const Home: React.FC = () => {
 
   return (
     <HomeLayout>
-      <FlexibleNavbar
+      <StandardNavbar
         brandText="BuildFlow"
         navItems={[
           { label: 'Features', onClick: () => scrollToSection('features') },
@@ -34,8 +34,7 @@ export const Home: React.FC = () => {
         onSignUpClick={() => navigateToSignup()}
         loginButtonText="Sign In"
         signUpButtonText="Get Started"
-        showThemeToggle={false}
-        mobileWidthBehavior="responsive"
+        showThemeToggle={true}
       />
       <Hero />
       <Features />

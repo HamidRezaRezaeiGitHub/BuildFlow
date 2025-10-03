@@ -1,7 +1,7 @@
+import { StandardNavbar, adaptUserForNavbar } from '@/components/navbar';
+import { useNavigate } from '@/contexts';
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { FlexibleNavbar, adaptUserForNavbar } from '@/components/navbar';
-import { useNavigate } from '@/contexts';
 
 /**
  * Dashboard page - protected page for authenticated users
@@ -9,13 +9,13 @@ import { useNavigate } from '@/contexts';
 export const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigation = useNavigate();
-  
+
   // Convert BuildFlow user to NavbarUser format
   const navbarUser = user ? adaptUserForNavbar(user) : null;
 
   return (
     <div className="min-h-screen bg-background">
-      <FlexibleNavbar 
+      <StandardNavbar
         isAuthenticated={isAuthenticated}
         user={navbarUser}
         brandText="BuildFlow"
@@ -30,7 +30,7 @@ export const Dashboard: React.FC = () => {
         onSignUpClick={() => navigation.navigateToHome()}
         mobileWidthBehavior="responsive"
       />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-primary mb-4">
@@ -42,7 +42,7 @@ export const Dashboard: React.FC = () => {
             </p>
           )}
         </div>
-        
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="p-6 bg-card rounded-lg border border-border">
             <h3 className="text-lg font-semibold text-primary mb-2">
@@ -52,7 +52,7 @@ export const Dashboard: React.FC = () => {
               Manage your construction projects
             </p>
           </div>
-          
+
           <div className="p-6 bg-card rounded-lg border border-border">
             <h3 className="text-lg font-semibold text-primary mb-2">
               Estimates
@@ -61,7 +61,7 @@ export const Dashboard: React.FC = () => {
               Create and manage project estimates
             </p>
           </div>
-          
+
           <div className="p-6 bg-card rounded-lg border border-border">
             <h3 className="text-lg font-semibold text-primary mb-2">
               Reports
