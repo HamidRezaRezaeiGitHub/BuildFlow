@@ -112,6 +112,7 @@ export const UsernameEmailField: FC<UsernameEmailFieldProps> = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
+                    autoComplete="username"
                 />
             </div>
             {hasErrors && (

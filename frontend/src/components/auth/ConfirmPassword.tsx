@@ -108,6 +108,7 @@ export const ConfirmPasswordField: FC<ConfirmPasswordFieldProps> = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
+                    autoComplete="new-password"
                 />
                 <button
                     type="button"

@@ -134,6 +134,7 @@ export const NameField: FC<NameFieldProps> = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
+                    autoComplete={nameType === 'firstName' ? 'given-name' : 'family-name'}
                 />
             </div>
             {hasErrors && (

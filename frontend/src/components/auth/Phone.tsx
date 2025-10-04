@@ -113,6 +113,7 @@ export const PhoneField: FC<PhoneFieldProps> = ({
                     onChange={handleChange}
                     onBlur={handleBlur}
                     disabled={disabled}
+                    autoComplete="tel"
                 />
             </div>
             {hasErrors && (

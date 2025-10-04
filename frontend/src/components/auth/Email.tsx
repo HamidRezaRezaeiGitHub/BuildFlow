@@ -127,6 +127,7 @@ export const EmailField: FC<EmailFieldProps> = ({
                     disabled={disabled}
                     aria-describedby={ariaDescribedBy}
                     aria-invalid={hasErrors}
+                    autoComplete="email"
                 />
             </div>
             {hasErrors && (

@@ -175,6 +175,7 @@ export const PasswordField: FC<PasswordFieldProps> = ({
                     disabled={disabled}
                     aria-describedby={ariaDescribedBy}
                     aria-invalid={hasErrors}
+                    autoComplete={validationType === 'login' ? 'current-password' : 'new-password'}
                 />
                 <button
                     type="button"

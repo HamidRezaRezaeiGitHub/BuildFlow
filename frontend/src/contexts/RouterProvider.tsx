@@ -16,10 +16,19 @@ interface RouterProviderProps {
  * - Better SEO support
  * - History API integration
  * - Proper back/forward button behavior
+ * 
+ * Future Flags:
+ * - v7_startTransition: Wraps state updates in React.startTransition for better performance
+ * - v7_relativeSplatPath: Updates relative route resolution within splat routes
  */
 export const RouterProvider: React.FC<RouterProviderProps> = ({ children }) => {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       {children}
     </BrowserRouter>
   );
