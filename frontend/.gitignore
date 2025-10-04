@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment variables - local overrides only
+# Profile-specific .env files are committed for team consistency
+.env.local
+.env.*.local
+
 # Testing
 coverage
 
