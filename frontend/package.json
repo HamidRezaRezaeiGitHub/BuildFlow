@@ -9,8 +9,10 @@
     "build": "tsc && vite build",
     "build:uat": "tsc && vite build --mode uat",
     "build:production": "tsc && vite build --mode production",
+    "build:github-pages": "tsc && vite build --mode github-pages",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "preview:github-pages": "vite preview --mode github-pages",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

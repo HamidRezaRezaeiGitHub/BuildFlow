@@ -131,7 +131,16 @@ npm run preview      # Preview production build locally
 
 ### Building
 ```bash
-npm run build        # Build for production (TypeScript check + Vite build)
+npm run build                 # Build for production (TypeScript check + Vite build)
+npm run build:uat             # Build for UAT environment
+npm run build:production      # Build for production environment
+npm run build:github-pages    # Build for GitHub Pages deployment
+```
+
+### Preview
+```bash
+npm run preview               # Preview production build locally
+npm run preview:github-pages  # Preview GitHub Pages build locally
 ```
 
 ### Code Quality
@@ -245,6 +254,36 @@ Built on **Radix UI** primitives with **Tailwind CSS** styling:
 - **`@/pages`** → `src/pages`
 
 ## 🚀 Deployment
+
+### GitHub Pages Deployment (Automatic)
+
+The frontend is automatically deployed to GitHub Pages on every push to `main` or `master` branch:
+
+**Live Demo**: [https://hamidrezarezaeigithub.github.io/BuildFlow/](https://hamidrezarezaeigithub.github.io/BuildFlow/)
+
+#### Deployment Configuration
+- **Profile**: Development mode with mock authentication and data
+- **Backend**: Not integrated - uses mock users and data from `src/mocks/`
+- **Auto-deploy**: Triggered on push to main/master branch
+- **Mock Users**: Available for testing (see `src/mocks/authMocks.ts`)
+  - Username: `admin` / Password: `password123`
+  - Username: `testuser` / Password: `password123`
+
+#### How It Works
+1. GitHub Actions workflow detects changes to `frontend/` directory
+2. Builds frontend with `.env.github-pages` configuration
+3. Deploys static assets to GitHub Pages
+4. Available at repository URL with `/BuildFlow/` base path
+
+#### Local GitHub Pages Testing
+```bash
+npm run build:github-pages    # Build with GitHub Pages profile
+npm run preview:github-pages  # Preview locally at http://localhost:4173
+```
+
+### Manual Production Build
+
+For integrated backend deployment or local testing:
 
 ### Build Process
 ```bash
