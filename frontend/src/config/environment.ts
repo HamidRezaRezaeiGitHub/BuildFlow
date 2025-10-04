@@ -19,16 +19,17 @@ interface EnvironmentConfig {
   appMode: AppMode;
   isStandalone: boolean;
   isIntegrated: boolean;
-  
+
   // Backend Integration
   backendEnabled: boolean;
   apiBaseUrl: string;
-  
+  basePath: string;
+
   // Feature Flags
   enableMockAuth: boolean;
   enableMockData: boolean;
   enableConsoleLogs: boolean;
-  
+
   // Environment Info
   environment: Environment;
   isDevelopment: boolean;
@@ -64,16 +65,17 @@ class Config implements EnvironmentConfig {
   readonly appMode: AppMode;
   readonly isStandalone: boolean;
   readonly isIntegrated: boolean;
-  
+
   // Backend Integration
   readonly backendEnabled: boolean;
   readonly apiBaseUrl: string;
-  
+  readonly basePath: string;
+
   // Feature Flags
   readonly enableMockAuth: boolean;
   readonly enableMockData: boolean;
   readonly enableConsoleLogs: boolean;
-  
+
   // Environment Info
   readonly environment: Environment;
   readonly isDevelopment: boolean;
@@ -85,28 +87,54 @@ class Config implements EnvironmentConfig {
     this.appMode = (getEnvVar('VITE_APP_MODE', 'standalone') as AppMode);
     this.isStandalone = this.appMode === 'standalone';
     this.isIntegrated = this.appMode === 'integrated';
-    
+
     // Backend Integration
     this.backendEnabled = getBooleanEnvVar('VITE_BACKEND_ENABLED', false);
     this.apiBaseUrl = getEnvVar('VITE_API_BASE_URL', '/api');
-    
+    this.basePath = this.calculateBasePath();
+
     // Feature Flags
     this.enableMockAuth = getBooleanEnvVar('VITE_ENABLE_MOCK_AUTH', true);
     this.enableMockData = getBooleanEnvVar('VITE_ENABLE_MOCK_DATA', true);
     this.enableConsoleLogs = getBooleanEnvVar('VITE_ENABLE_CONSOLE_LOGS', true);
-    
+
     // Environment Info
     this.environment = (getEnvVar('VITE_ENVIRONMENT', 'development') as Environment);
     this.isDevelopment = this.environment.startsWith('development');
     this.isProduction = this.environment === 'production';
     this.isUAT = this.environment === 'uat';
-    
+
     // Log configuration in development
     if (this.isDevelopment && this.enableConsoleLogs) {
       this.logConfig();
     }
   }
-  
+
+  /**
+   * Calculate base path for routing based on deployment environment
+   * - Development: '/'
+   * - GitHub Pages: '/BuildFlow/'
+   * - Production: '/' or custom path from VITE_BASE_PATH
+   */
+  private calculateBasePath(): string {
+    // Check if VITE_BASE_PATH is explicitly set in environment
+    const envBasePath = getEnvVar('VITE_BASE_PATH');
+    if (envBasePath) {
+      return envBasePath;
+    }
+
+    // For GitHub Pages deployment, detect from hostname
+    if (typeof window !== 'undefined') {
+      const isGitHubPages = window.location.hostname === 'hamidrezarezaeigithub.github.io';
+      if (isGitHubPages) {
+        return '/BuildFlow/';
+      }
+    }
+
+    // Default to root path
+    return '/';
+  }
+
   /**
    * Log current configuration (development only)
    */
@@ -116,26 +144,27 @@ class Config implements EnvironmentConfig {
     console.log('Environment:', this.environment);
     console.log('Backend Enabled:', this.backendEnabled);
     console.log('API Base URL:', this.apiBaseUrl);
+    console.log('Base Path:', this.basePath);
     console.log('Mock Auth:', this.enableMockAuth);
     console.log('Mock Data:', this.enableMockData);
     console.groupEnd();
   }
-  
+
   /**
    * Get full API endpoint URL
    */
   getApiEndpoint(path: string): string {
     // Ensure path starts with /
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    
+
     // If apiBaseUrl already ends with /, remove it
-    const baseUrl = this.apiBaseUrl.endsWith('/') 
-      ? this.apiBaseUrl.slice(0, -1) 
+    const baseUrl = this.apiBaseUrl.endsWith('/')
+      ? this.apiBaseUrl.slice(0, -1)
       : this.apiBaseUrl;
-    
+
     return `${baseUrl}${normalizedPath}`;
   }
-  
+
   /**
    * Check if a feature is enabled
    */

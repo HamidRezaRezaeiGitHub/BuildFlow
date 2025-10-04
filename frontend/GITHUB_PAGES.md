@@ -53,12 +53,24 @@ This allows:
 
 ## Mock Users
 
-Pre-configured accounts for testing (defined in `src/mocks/authMocks.ts`):
+Pre-configured Canadian accounts for testing (defined in `src/mocks/authMocks.ts`):
 
-| Username   | Password     | Role  |
-|------------|--------------|-------|
-| `admin`    | `password123` | Admin |
-| `testuser` | `password123` | User  |
+| Username   | Role  | Name             | Location      |
+| ---------- | ----- | ---------------- | ------------- |
+| `admin`    | Admin | Alexandre Dubois | Vancouver, BC |
+| `testuser` | User  | Sarah MacDonald  | Toronto, ON   |
+
+**Note**: Passwords are configured in the source code and meet validation requirements (8+ chars, uppercase, lowercase, digit, special character).
+
+### User Registration
+
+In addition to the pre-configured accounts above, users can **register new accounts** directly through the signup form. These dynamically created accounts:
+- Are stored in browser memory for the session
+- Can be used to login immediately after registration
+- Persist until page refresh or browser close
+- Provide a complete testing experience without backend integration
+
+This allows for comprehensive testing of both registration and login flows on GitHub Pages.
 
 ## Local Testing
 

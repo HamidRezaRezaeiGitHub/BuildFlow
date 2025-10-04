@@ -16,19 +16,42 @@ Mock authentication data and utilities:
 - **Mock Auth Responses**: Generates AuthResponse objects
 - **User Management**: Create, find, and validate mock users
 
-## Mock Users
+## Mock Users (Canadian)
 
 ### Admin User
 - **Username**: `admin`
-- **Password**: `password123`
 - **Email**: `admin@buildflow.com`
 - **Role**: Administrator
+- **Name**: Alexandre Dubois
+- **Location**: Vancouver, BC, Canada
+- **Phone**: +1-604-555-0100
 
 ### Test User
 - **Username**: `testuser`
-- **Password**: `password123`
 - **Email**: `test@buildflow.com`
 - **Role**: Builder
+- **Name**: Sarah MacDonald
+- **Location**: Toronto, ON, Canada
+- **Phone**: +1-416-555-0200
+
+**Password Requirements**: All passwords meet signup validation requirements:
+- Minimum 8 characters
+- Contains uppercase letter (A-Z)
+- Contains lowercase letter (a-z)
+- Contains digit (0-9)
+- Contains special character (@$!%*?&_)
+
+**Note**: Passwords are configured in the source code and not displayed for security reasons.
+
+### Dynamic User Registration
+
+When running in mock mode, users can register new accounts through the signup form. These new accounts:
+- ✅ **Are stored in browser memory** during the session
+- ✅ **Can be used to login** immediately after registration  
+- ✅ **Persist until page refresh** or browser close
+- ✅ **Work exactly like real registration** but without backend storage
+
+**For Testing**: Your co-founder can register a new account on GitHub Pages and then login with those credentials to test the full user flow.
 
 ## Usage
 

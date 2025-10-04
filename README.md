@@ -8,11 +8,6 @@ A Spring Boot REST API for construction project management with comprehensive es
 
 The frontend is automatically deployed to GitHub Pages in standalone mode with mock authentication and data. No backend required - perfect for exploring the UI and features.
 
-**Test Accounts**:
-- Username: `admin` / Password: `password123`
-- Username: `testuser` / Password: `password123`
-
-See [frontend/GITHUB_PAGES.md](frontend/GITHUB_PAGES.md) for deployment details.
 
 ## 🚀 Quick Start
 
@@ -95,12 +90,12 @@ java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar --spring.profiles.active=productio
 
 ## 📋 Available Maven Commands
 
-| Command                    | Description                              |
-| -------------------------- | ---------------------------------------- |
-| `./mvnw clean package`     | **Build backend JAR** (copy pre-built frontend if available) |
-| `./mvnw spring-boot:run`   | Start development server with hot reload |
-| `./mvnw test`              | Run backend test suite                  |
-| `./mvnw clean compile`     | Compile backend only (no frontend copy) |
+| Command                  | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `./mvnw clean package`   | **Build backend JAR** (copy pre-built frontend if available) |
+| `./mvnw spring-boot:run` | Start development server with hot reload                     |
+| `./mvnw test`            | Run backend test suite                                       |
+| `./mvnw clean compile`   | Compile backend only (no frontend copy)                      |
 
 ## 🏗️ Full-Stack Architecture
 

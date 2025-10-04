@@ -1,7 +1,7 @@
-import type { AuthResponse, CreateUserResponse, User } from '../services/dtos';
+import type { AuthResponse, CreateUserResponse, User, ContactRequest } from '../services/dtos';
 
 /**
- * Mock Users Database
+ * Mock Users Database - Canadian Users
  * Used when running in standalone mode (config.enableMockAuth = true)
  */
 export const mockUsers: User[] = [
@@ -12,19 +12,19 @@ export const mockUsers: User[] = [
         registered: true,
         contactDto: {
             id: '1',
-            firstName: 'Admin',
-            lastName: 'User',
+            firstName: 'Alexandre',
+            lastName: 'Dubois',
             labels: ['Administrator'],
             email: 'admin@buildflow.com',
-            phone: '+1-555-0100',
+            phone: '+1-604-555-0100',
             addressDto: {
                 id: '1',
-                streetNumber: '123',
-                streetName: 'Admin St',
-                city: 'San Francisco',
-                stateOrProvince: 'CA',
-                postalOrZipCode: '94102',
-                country: 'USA',
+                streetNumber: '1250',
+                streetName: 'Granville Street',
+                city: 'Vancouver',
+                stateOrProvince: 'BC',
+                postalOrZipCode: 'V6Z 1M9',
+                country: 'Canada',
             },
         },
     },
@@ -35,19 +35,19 @@ export const mockUsers: User[] = [
         registered: true,
         contactDto: {
             id: '2',
-            firstName: 'Test',
-            lastName: 'User',
+            firstName: 'Sarah',
+            lastName: 'MacDonald',
             labels: ['Builder'],
             email: 'test@buildflow.com',
-            phone: '+1-555-0200',
+            phone: '+1-416-555-0200',
             addressDto: {
                 id: '2',
-                streetNumber: '456',
-                streetName: 'Test Ave',
-                city: 'Los Angeles',
-                stateOrProvince: 'CA',
-                postalOrZipCode: '90001',
-                country: 'USA',
+                streetNumber: '789',
+                streetName: 'King Street West',
+                city: 'Toronto',
+                stateOrProvince: 'ON',
+                postalOrZipCode: 'M5V 1N1',
+                country: 'Canada',
             },
         },
     },
@@ -55,12 +55,56 @@ export const mockUsers: User[] = [
 
 /**
  * Mock credentials for testing
- * Password for all mock users: 'password123'
+ * Passwords meet validation requirements:
+ * - At least 8 characters
+ * - Contains uppercase, lowercase, digit, and special character (@$!%*?&_)
+ * 
+ * Note: This object is mutable and gets updated when new users register in mock mode
  */
-export const mockCredentials = {
-    admin: { username: 'admin', password: 'password123' },
-    user: { username: 'testuser', password: 'password123' },
+export const mockCredentials: Record<string, { username: string; password: string }> = {
+    admin: { username: 'admin', password: 'BuildFlow2024!' },
+    user: { username: 'testuser', password: 'TestUser123&' },
 };
+
+/**
+ * Store new user credentials for mock authentication
+ * Called when a new user registers in mock mode
+ */
+export function storeMockCredentials(username: string, password: string): void {
+    // Use username as the key for the credentials
+    mockCredentials[username] = { username, password };
+    
+    // Log for development (will only show if console logs are enabled)
+    console.log(`[Mock Auth] Stored credentials for new user: ${username}`);
+}
+
+/**
+ * Get all available mock credentials (for development/debugging)
+ * Useful for seeing what users can log in during testing
+ */
+export function getAvailableMockCredentials(): string[] {
+    return Object.keys(mockCredentials);
+}
+
+/**
+ * Reset mock credentials to default state
+ * Useful for testing or clearing session data
+ */
+export function resetMockCredentials(): void {
+    // Clear all dynamic credentials, keep only defaults
+    const defaultCredentials = {
+        admin: { username: 'admin', password: 'BuildFlow2024!' },
+        user: { username: 'testuser', password: 'TestUser123&' },
+    };
+    
+    // Clear the object
+    Object.keys(mockCredentials).forEach(key => delete mockCredentials[key]);
+    
+    // Restore defaults
+    Object.assign(mockCredentials, defaultCredentials);
+    
+    console.log('[Mock Auth] Reset credentials to defaults');
+}
 
 /**
  * Generate a mock JWT token
@@ -134,36 +178,46 @@ export function validateMockCredentials(username: string, password: string): Use
 
 /**
  * Create a new mock user (simulates registration)
+ * Uses the actual contact data provided in signUpData
+ * Also stores the credentials for future login
  */
-export function createMockUser(
-    username: string,
-    email: string,
-    firstName: string,
-    lastName: string,
-    phone?: string
-): User {
+export function createMockUser(contactRequestDto: ContactRequest, username: string, password: string): User {
     const newUser: User = {
         id: String(mockUsers.length + 1),
         username,
-        email,
+        email: contactRequestDto.email,
         registered: true,
         contactDto: {
             id: String(mockUsers.length + 1),
-            firstName,
-            lastName,
-            labels: ['Builder'],
-            email,
-            phone: phone || '',
-            addressDto: {
+            firstName: contactRequestDto.firstName,
+            lastName: contactRequestDto.lastName,
+            labels: contactRequestDto.labels,
+            email: contactRequestDto.email,
+            phone: contactRequestDto.phone || '',
+            addressDto: contactRequestDto.addressRequestDto ? {
                 id: String(mockUsers.length + 1),
-                streetName: 'Main St',
-                city: 'Unknown',
-                stateOrProvince: 'CA',
-                country: 'USA',
+                streetNumber: contactRequestDto.addressRequestDto.streetNumber || '',
+                streetName: contactRequestDto.addressRequestDto.streetName || '',
+                city: contactRequestDto.addressRequestDto.city || '',
+                stateOrProvince: contactRequestDto.addressRequestDto.stateOrProvince || '',
+                postalOrZipCode: contactRequestDto.addressRequestDto.postalOrZipCode || '',
+                country: contactRequestDto.addressRequestDto.country || '',
+            } : {
+                id: String(mockUsers.length + 1),
+                streetNumber: '',
+                streetName: '',
+                city: '',
+                stateOrProvince: '',
+                postalOrZipCode: '',
+                country: '',
             },
         },
     };
 
+    // Store credentials for future login
+    storeMockCredentials(username, password);
+    
+    // Add to mock users array
     mockUsers.push(newUser);
     return newUser;
 }

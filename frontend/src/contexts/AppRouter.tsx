@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AddressPage, Admin, Dashboard, FlexibleSignUpPage, Home, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
@@ -12,6 +12,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuth();
+    const location = useLocation();
 
     if (isLoading) {
         return (
@@ -22,7 +23,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/" replace />;
+        // Store the intended destination in state for redirect after login
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;

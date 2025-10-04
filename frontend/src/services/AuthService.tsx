@@ -69,14 +69,8 @@ class AuthService {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     try {
-                        const { username, password: _password, contactRequestDto } = signUpData;
-                        const newUser = createMockUser(
-                            username,
-                            contactRequestDto.email,
-                            contactRequestDto.firstName,
-                            contactRequestDto.lastName,
-                            contactRequestDto.phone
-                        );
+                        const { username, password, contactRequestDto } = signUpData;
+                        const newUser = createMockUser(contactRequestDto, username, password);
                         resolve(generateMockCreateUserResponse(newUser));
                     } catch (error) {
                         reject(new Error('Registration failed'));
