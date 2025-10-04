@@ -54,7 +54,6 @@ src/
 │   │   └── ...
 │   ├── layouts/        # Layout components
 │   │   ├── AppLayout.tsx    # Authenticated app layout
-│   │   ├── HomeLayout.tsx   # Public page layout
 │   │   └── AdminLayout.tsx  # Admin panel layout
 │   ├── theme/          # Theme system components
 │   │   ├── ThemeToggle.tsx  # 7+ toggle variants
@@ -222,7 +221,7 @@ npx jest src/contexts/ThemeContext.test.tsx         # Test theme context
 ## 🏗️ Component Architecture
 
 ### Layout System
-- **HomeLayout** - For public pages (landing, theme showcase)
+- **HomePage** - Self-contained public landing page with integrated layout
 - **AppLayout** - For authenticated app pages with resizable sidebar
 - **AdminLayout** - For admin panel with restricted access header
 

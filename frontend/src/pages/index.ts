@@ -1,7 +1,7 @@
 // Export all pages for easy importing
 export { default as Admin } from './AdminPage';
-export { default as Dashboard } from './Dashboard';
-export { default as Home } from './Home';
+export { default as DashboardPage } from './DashboardPage';
+export { default as HomePage } from './HomePage';
 
 // Project pages
 export * from './project';

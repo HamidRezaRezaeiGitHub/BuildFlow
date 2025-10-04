@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { AddressPage, Admin, Dashboard, FlexibleSignUpPage, Home, LoginPage, Theme } from '../pages';
+import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { useAuth } from './AuthContext';
@@ -59,7 +59,7 @@ export const AppRouter: React.FC = () => {
     return (
         <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/temp/theme" element={<Theme />} />
             <Route path="/temp/address" element={<AddressPage />} />
             <Route path="/temp/login" element={<LoginPage />} />
@@ -71,7 +71,7 @@ export const AppRouter: React.FC = () => {
                 path="/dashboard"
                 element={
                     <ProtectedRoute>
-                        <Dashboard />
+                        <DashboardPage />
                     </ProtectedRoute>
                 }
             />

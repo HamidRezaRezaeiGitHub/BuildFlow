@@ -1,24 +1,9 @@
-import { FlexibleNavbar, adaptUserForNavbar } from '@/components/navbar';
-import { CompactThemeToggle } from '@/components/theme';
+import { StandardNavbar, adaptUserForNavbar } from '@/components/navbar';
 import { useNavigate } from '@/contexts';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/utils';
 import React from 'react';
 import { UsersTable } from '../components/admin';
-
-// Wrapper component to make CompactThemeToggle compatible with FlexibleNavbar
-const NavbarThemeToggle: React.FC<{ showLabel?: boolean }> = ({ showLabel }) => {
-    return (
-        <div className="flex items-center gap-2">
-            <CompactThemeToggle />
-            {showLabel && (
-                <span className="text-sm font-medium text-muted-foreground">
-                    Theme
-                </span>
-            )}
-        </div>
-    );
-};
 
 /**
  * AdminPage - Admin panel for managing users and system settings
@@ -34,7 +19,7 @@ const AdminPage: React.FC = () => {
 
     return (
         <div className={cn("min-h-screen bg-background")}>
-            <FlexibleNavbar
+            <StandardNavbar
                 isAuthenticated={isAuthenticated}
                 user={navbarUser}
                 brandText="BuildFlow Admin"
@@ -43,11 +28,10 @@ const AdminPage: React.FC = () => {
                     { label: 'Admin Panel', onClick: () => console.log('Current page') },
                     { label: 'Home', onClick: () => navigation.navigateToHome() }
                 ]}
-                ThemeToggleComponent={NavbarThemeToggle}
+                showThemeToggle={true}
                 onAvatarClick={() => console.log('Show user menu')}
                 onLoginClick={() => navigation.navigateToHome()}
                 onSignUpClick={() => navigation.navigateToHome()}
-                mobileWidthBehavior="responsive"
             />
 
             {/* Main content area */}

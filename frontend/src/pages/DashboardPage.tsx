@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 /**
  * Dashboard page - protected page for authenticated users
  */
-export const Dashboard: React.FC = () => {
+export const DashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigation = useNavigate();
 
@@ -76,4 +76,4 @@ export const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
