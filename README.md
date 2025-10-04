@@ -2,6 +2,18 @@
 
 A Spring Boot REST API for construction project management with comprehensive estimate and project tracking capabilities. **This backend includes an integrated React frontend, creating a single deployable JAR for the complete full-stack application.**
 
+## 🌐 Live Demo
+
+**Frontend Demo on GitHub Pages**: [https://hamidrezarezaeigithub.github.io/BuildFlow/](https://hamidrezarezaeigithub.github.io/BuildFlow/)
+
+The frontend is automatically deployed to GitHub Pages in standalone mode with mock authentication and data. No backend required - perfect for exploring the UI and features.
+
+**Test Accounts**:
+- Username: `admin` / Password: `password123`
+- Username: `testuser` / Password: `password123`
+
+See [frontend/GITHUB_PAGES.md](frontend/GITHUB_PAGES.md) for deployment details.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
