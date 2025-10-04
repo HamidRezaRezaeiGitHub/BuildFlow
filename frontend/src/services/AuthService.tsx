@@ -1,4 +1,13 @@
 import { apiService } from './ApiService';
+import { config } from '@/config/environment';
+import {
+  validateMockCredentials,
+  generateMockAuthResponse,
+  createMockUser,
+  generateMockCreateUserResponse,
+  getUserFromMockToken,
+  isValidMockToken,
+} from '@/mocks/authMocks';
 import type {
     LoginCredentials,
     SignUpData,
@@ -11,6 +20,8 @@ import type {
 /**
  * Authentication Service class that handles all auth-related API operations
  * Uses the generic ApiService for HTTP communications while focusing on auth business logic
+ * 
+ * Environment-aware: Uses mock data when config.enableMockAuth is true (standalone mode)
  */
 class AuthService {
 
@@ -20,6 +31,26 @@ class AuthService {
      * @returns Promise with JWT authentication response
      */
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
+        // Use mock authentication in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Using mock authentication');
+            }
+            
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const user = validateMockCredentials(credentials.username, credentials.password);
+                    
+                    if (user) {
+                        resolve(generateMockAuthResponse(user));
+                    } else {
+                        reject(new Error('Invalid username or password'));
+                    }
+                }, 500); // Simulate network delay
+            });
+        }
+        
+        // Real API call in integrated mode
         return await apiService.post<AuthResponse>('/auth/login', credentials);
     }
 
@@ -29,7 +60,32 @@ class AuthService {
      * @returns Promise with CreateUserResponse containing the created user data
      */
     async register(signUpData: SignUpData): Promise<CreateUserResponse> {
-        // Use the create method since registration should return 201 CREATED
+        // Use mock registration in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Using mock registration');
+            }
+            
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    try {
+                        const { username, password: _password, contactRequestDto } = signUpData;
+                        const newUser = createMockUser(
+                            username,
+                            contactRequestDto.email,
+                            contactRequestDto.firstName,
+                            contactRequestDto.lastName,
+                            contactRequestDto.phone
+                        );
+                        resolve(generateMockCreateUserResponse(newUser));
+                    } catch (error) {
+                        reject(new Error('Registration failed'));
+                    }
+                }, 500); // Simulate network delay
+            });
+        }
+        
+        // Real API call in integrated mode
         return await apiService.create<CreateUserResponse>('/auth/register', signUpData);
     }
 
@@ -39,6 +95,25 @@ class AuthService {
      * @returns Promise with current user data
      */
     async getCurrentUser(token: string): Promise<User> {
+        // Use mock user in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Getting mock user from token');
+            }
+            
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const user = getUserFromMockToken(token);
+                    if (user) {
+                        resolve(user);
+                    } else {
+                        reject(new Error('Invalid token'));
+                    }
+                }, 300); // Simulate network delay
+            });
+        }
+        
+        // Real API call in integrated mode
         return await apiService.get<User>('/auth/current', token);
     }
 
@@ -48,6 +123,25 @@ class AuthService {
      * @returns Promise with new JWT authentication response
      */
     async refreshToken(token: string): Promise<AuthResponse> {
+        // Use mock token refresh in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Refreshing mock token');
+            }
+            
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const user = getUserFromMockToken(token);
+                    if (user) {
+                        resolve(generateMockAuthResponse(user));
+                    } else {
+                        reject(new Error('Invalid token'));
+                    }
+                }, 300); // Simulate network delay
+            });
+        }
+        
+        // Real API call in integrated mode
         return await apiService.post<AuthResponse>('/auth/refresh', undefined, token);
     }
 
@@ -57,6 +151,15 @@ class AuthService {
      * @returns Promise that resolves when logout is complete
      */
     async logout(token: string): Promise<void> {
+        // In standalone mode, just simulate logout
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Mock logout');
+            }
+            return Promise.resolve();
+        }
+        
+        // Real API call in integrated mode
         try {
             await apiService.post<void>('/auth/logout', undefined, token);
         } catch (error) {
@@ -72,6 +175,23 @@ class AuthService {
      * @returns Promise with validation response
      */
     async validateToken(token: string): Promise<ValidationResponse> {
+        // Use mock validation in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Validating mock token');
+            }
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const isValid = isValidMockToken(token);
+                    resolve({
+                        message: isValid ? 'Token is valid' : 'Token is invalid',
+                    });
+                }, 200); // Simulate network delay
+            });
+        }
+        
+        // Real API call in integrated mode
         return await apiService.get<ValidationResponse>('/auth/validate', token);
     }
 

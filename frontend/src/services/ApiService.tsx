@@ -1,4 +1,5 @@
-import { ApiMessageResponse, ApiErrorResponse } from './dtos';
+import { config } from '@/config/environment';
+import { ApiErrorResponse, ApiMessageResponse } from './dtos';
 import { ResponseErrorType } from './dtos/MvcDtos';
 
 /**
@@ -51,36 +52,20 @@ export class StructuredApiError extends ApiError {
  * Generic API Service class for handling all HTTP communications
  * Provides a centralized place for HTTP requests, error handling, and request configuration
  * Can be used by any domain-specific service (AuthService, ProjectService, etc.)
+ * 
+ * Uses the environment configuration system to determine API base URL and behavior
  */
 class ApiService {
     private readonly baseUrl: string;
 
     constructor() {
-        // Support both Vite (import.meta.env) and Jest (process.env)
-        let baseUrl = 'http://localhost:8080/api';
-        
-        // Check for environment variables in different environments
-        if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
-            // Node.js environment (including Jest)
-            baseUrl = process.env.VITE_API_BASE_URL;
-        } else if (typeof window !== 'undefined' && typeof globalThis !== 'undefined') {
-            // Browser environment - safely access Vite variables
-            try {
-                // Only access import.meta if we're not in a test environment
-                const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
-                if (!isTestEnv && typeof eval === 'function') {
-                    // Use eval to avoid TypeScript compilation issues with import.meta in Jest
-                    const viteEnv = eval('import.meta').env;
-                    if (viteEnv && viteEnv.VITE_API_BASE_URL) {
-                        baseUrl = viteEnv.VITE_API_BASE_URL;
-                    }
-                }
-            } catch (e) {
-                // Ignore error if import.meta is not available
-                console.debug('Vite environment variables not available:', e);
-            }
+        // Use centralized environment configuration
+        this.baseUrl = config.apiBaseUrl;
+
+        // Log API configuration in development mode
+        if (config.isDevelopment && config.enableConsoleLogs) {
+            console.log(`Initialized ApiService with base URL: ${this.baseUrl}`);
         }
-        this.baseUrl = baseUrl;
     }
 
     /**
@@ -167,7 +152,7 @@ class ApiService {
         options: RequestInit = {},
         token?: string | null
     ): Promise<T> {
-        const url = `${this.baseUrl}${endpoint}`;
+        const url = `${this.baseUrl}` + (endpoint.startsWith('/') ? endpoint : `/${endpoint}`);
 
         const headers = new Headers(options.headers);
         headers.set('Content-Type', 'application/json');
