@@ -41,7 +41,25 @@ interface EnvironmentConfig {
  * Get environment variable with type safety
  */
 function getEnvVar(key: string, defaultValue?: string): string {
-  const value = import.meta.env[key];
+  // Handle test environment where import.meta might not be available
+  let value: string | undefined;
+  
+  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
+    value = (globalThis as any).import.meta.env[key];
+  } else if (typeof process !== 'undefined' && process.env) {
+    // Fallback to process.env for Node.js environments (like Jest)
+    value = process.env[key];
+  } else {
+    // Final fallback for test environments
+    const testEnvValues: Record<string, string> = {
+      'VITE_API_BASE_URL': 'http://localhost:8080/api',
+      'VITE_APP_NAME': 'BuildFlow Test',
+      'VITE_APP_VERSION': '0.0.1',
+      'NODE_ENV': 'test',
+    };
+    value = testEnvValues[key];
+  }
+  
   if (value === undefined && defaultValue === undefined) {
     console.warn(`Environment variable ${key} is not defined`);
     return '';

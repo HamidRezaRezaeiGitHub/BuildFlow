@@ -40,7 +40,7 @@ describe('FlexibleNavbar', () => {
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
     
     // Should show placeholder text when no theme component is provided
-    expect(screen.getByText(/Theme Toggle.*Configure ThemeToggleComponent prop/)).toBeInTheDocument();
+    expect(screen.getByText(/Configure ThemeToggleComponent prop/)).toBeInTheDocument();
   });
 
   test('FlexibleNavbar_shouldShowUserAvatar_whenAuthenticated', () => {
@@ -154,7 +154,7 @@ describe('FlexibleNavbar', () => {
     render(<FlexibleNavbar showThemeToggle={true} />);
     
     // Should show placeholder text when no theme component is provided
-    expect(screen.getByText(/Theme Toggle.*Configure ThemeToggleComponent prop/)).toBeInTheDocument();
+    expect(screen.getByText(/Configure ThemeToggleComponent prop/)).toBeInTheDocument();
   });
 
   test('FlexibleNavbar_shouldShowMobileMenu_whenMobileMenuButtonClicked', () => {

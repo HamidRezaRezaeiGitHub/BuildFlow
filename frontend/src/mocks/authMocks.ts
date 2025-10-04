@@ -1,4 +1,4 @@
-import type { AuthResponse, CreateUserResponse, User, ContactRequest } from '../services/dtos';
+import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication } from '../services/dtos';
 
 /**
  * Mock Users Database - Canadian Users
@@ -54,6 +54,30 @@ export const mockUsers: User[] = [
 ];
 
 /**
+ * Mock User Authentication Database - Matching the mockUsers
+ * Used when running in standalone mode (config.enableMockAuth = true)
+ * These authentication objects correspond to the users in mockUsers array
+ */
+export const mockUserAuthentications: UserAuthentication[] = [
+    {
+        id: '1',
+        username: 'admin',
+        role: 'ADMIN',
+        enabled: true,
+        createdAt: '2024-01-15T10:30:00.000Z',
+        lastLogin: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() // Within last 7 days
+    },
+    {
+        id: '2',
+        username: 'testuser',
+        role: 'USER',
+        enabled: true,
+        createdAt: '2024-02-20T14:45:00.000Z',
+        lastLogin: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() // Within last 30 days
+    },
+];
+
+/**
  * Mock credentials for testing
  * Passwords meet validation requirements:
  * - At least 8 characters
@@ -73,7 +97,7 @@ export const mockCredentials: Record<string, { username: string; password: strin
 export function storeMockCredentials(username: string, password: string): void {
     // Use username as the key for the credentials
     mockCredentials[username] = { username, password };
-    
+
     // Log for development (will only show if console logs are enabled)
     console.log(`[Mock Auth] Stored credentials for new user: ${username}`);
 }
@@ -96,13 +120,13 @@ export function resetMockCredentials(): void {
         admin: { username: 'admin', password: 'BuildFlow2024!' },
         user: { username: 'testuser', password: 'TestUser123&' },
     };
-    
+
     // Clear the object
     Object.keys(mockCredentials).forEach(key => delete mockCredentials[key]);
-    
+
     // Restore defaults
     Object.assign(mockCredentials, defaultCredentials);
-    
+
     console.log('[Mock Auth] Reset credentials to defaults');
 }
 
@@ -162,6 +186,20 @@ export function findUserByEmail(email: string): User | undefined {
 }
 
 /**
+ * Find user authentication by username
+ */
+export function findUserAuthenticationByUsername(username: string): UserAuthentication | undefined {
+    return mockUserAuthentications.find(u => u.username === username);
+}
+
+/**
+ * Find user authentication by id
+ */
+export function findUserAuthenticationById(id: string): UserAuthentication | undefined {
+    return mockUserAuthentications.find(u => u.id === id);
+}
+
+/**
  * Validate mock credentials
  */
 export function validateMockCredentials(username: string, password: string): User | null {
@@ -214,11 +252,23 @@ export function createMockUser(contactRequestDto: ContactRequest, username: stri
         },
     };
 
+    // Create corresponding authentication object
+    const newUserAuthentication: UserAuthentication = {
+        id: String(mockUserAuthentications.length + 1),
+        username,
+        role: contactRequestDto.labels.includes('Administrator') ? 'ADMIN' : 'USER',
+        enabled: true,
+        createdAt: new Date().toISOString(),
+        lastLogin: undefined // New user hasn't logged in yet
+    };
+
     // Store credentials for future login
     storeMockCredentials(username, password);
-    
-    // Add to mock users array
+
+    // Add to mock arrays
     mockUsers.push(newUser);
+    mockUserAuthentications.push(newUserAuthentication);
+
     return newUser;
 }
 

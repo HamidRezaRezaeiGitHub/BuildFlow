@@ -1,5 +1,7 @@
+import { config } from '@/config/environment';
+import { findUserAuthenticationByUsername, mockUsers } from '@/mocks/authMocks';
 import { apiService } from './ApiService';
-import { User, UserAuthentication, CreateUserRequest, CreateUserResponse } from './dtos';
+import { CreateUserRequest, CreateUserResponse, User, UserAuthentication } from './dtos';
 import { UserDetails } from './dtos/UserDtos';
 
 /**
@@ -89,32 +91,95 @@ class AdminService {
     /**
      * Get user details (User + UserAuthentication combined)
      * This method combines user profile data with authentication data
+     * Environment-aware: Uses mock data when config.enableMockAuth is true
      * 
      * @param username - Username to get details for
-     * @param token - JWT authentication token
+     * @param token - JWT authentication token (ignored in mock mode)
      * @returns Promise with user details
      */
     async getUserDetails(username: string, token: string): Promise<UserDetails> {
+        // Use mock data in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AdminService] Getting mock user details for:', username);
+            }
+
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const user = mockUsers.find(u => u.username === username);
+                    const userAuthentication = findUserAuthenticationByUsername(username);
+
+                    if (!user) {
+                        reject(new Error(`User not found: ${username}`));
+                        return;
+                    }
+
+                    if (!userAuthentication) {
+                        reject(new Error(`User authentication not found: ${username}`));
+                        return;
+                    }
+
+                    const userDetails: UserDetails = {
+                        username,
+                        user,
+                        userAuthentication
+                    };
+
+                    resolve(userDetails);
+                }, 300); // Simulate network delay
+            });
+        }
+
+        // Real API calls in integrated mode
         const [user, userAuthentication] = await Promise.all([
             apiService.get<User>(`/v1/users/${encodeURIComponent(username)}`, token),
             apiService.get<UserAuthentication>(`/auth/user-auth/${encodeURIComponent(username)}`, token)
         ]);
 
-        return { 
+        return {
             username,
-            user, 
-            userAuthentication 
+            user,
+            userAuthentication
         };
     }
 
     /**
      * Get all user details (All Users + UserAuthentications combined)
      * This method fetches all users and their authentication data efficiently
+     * Environment-aware: Uses mock data when config.enableMockAuth is true
      * 
-     * @param token - JWT authentication token
+     * @param token - JWT authentication token (ignored in mock mode)
      * @returns Promise with array of user details
      */
     async getAllUserDetails(token: string): Promise<UserDetails[]> {
+        // Use mock data in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AdminService] Using mock user data');
+            }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Combine mock users with their corresponding authentication data
+                    const mockUserDetailsList: UserDetails[] = mockUsers.map(user => {
+                        const userAuthentication = findUserAuthenticationByUsername(user.username);
+                        if (!userAuthentication) {
+                            throw new Error(`Authentication data not found for user: ${user.username}`);
+                        }
+
+                        return {
+                            username: user.username,
+                            user: user,
+                            userAuthentication
+                        };
+                    });
+
+                    resolve(mockUserDetailsList);
+                }, 800); // Simulate network delay
+            });
+        }
+
+        // Real API calls in integrated mode
         // Fetch both datasets in parallel using bulk APIs
         const [authentications, users] = await Promise.all([
             apiService.get<UserAuthentication[]>('/auth/user-auth', token),
@@ -187,7 +252,7 @@ class AdminService {
             adminUsers: authentications.filter(auth => auth.role === 'ADMIN').length,
             regularUsers: authentications.filter(auth => auth.role === 'USER').length,
             premiumUsers: authentications.filter(auth => auth.role === 'PREMIUM_USER').length,
-            recentLogins: authentications.filter(auth => 
+            recentLogins: authentications.filter(auth =>
                 auth.lastLogin && new Date(auth.lastLogin) > sevenDaysAgo
             ).length
         };

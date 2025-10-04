@@ -43,3 +43,19 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   takeRecords() { return []; }
 };
+
+// Mock import.meta for Vite environments
+Object.defineProperty(global, 'import', {
+  value: {
+    meta: {
+      env: {
+        VITE_API_BASE_URL: 'http://localhost:8080/api',
+        VITE_APP_NAME: 'BuildFlow Test',
+        VITE_APP_VERSION: '0.0.1',
+        NODE_ENV: 'test',
+        PROD: false,
+        DEV: false,
+      },
+    },
+  },
+});

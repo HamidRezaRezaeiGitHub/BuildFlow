@@ -6,7 +6,7 @@ import { BaseAddressDto } from "./AddressDtos";
  */
 export const contactLabelOptions = [
     'Builder',
-    'Owner', 
+    'Owner',
     'Lender',
     'Supplier',
     'Subcontractor',

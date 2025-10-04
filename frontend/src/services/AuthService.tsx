@@ -1,20 +1,21 @@
-import { apiService } from './ApiService';
 import { config } from '@/config/environment';
 import {
-  validateMockCredentials,
-  generateMockAuthResponse,
-  createMockUser,
-  generateMockCreateUserResponse,
-  getUserFromMockToken,
-  isValidMockToken,
+    createMockUser,
+    findUserAuthenticationByUsername,
+    generateMockAuthResponse,
+    generateMockCreateUserResponse,
+    getUserFromMockToken,
+    isValidMockToken,
+    validateMockCredentials,
 } from '@/mocks/authMocks';
+import { apiService } from './ApiService';
 import type {
+    AuthResponse,
+    CreateUserResponse,
     LoginCredentials,
     SignUpData,
-    AuthResponse,
-    ValidationResponse,
     User,
-    CreateUserResponse
+    ValidationResponse
 } from './dtos';
 
 /**
@@ -36,12 +37,18 @@ class AuthService {
             if (config.enableConsoleLogs) {
                 console.log('[AuthService] Using mock authentication');
             }
-            
+
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     const user = validateMockCredentials(credentials.username, credentials.password);
-                    
+
                     if (user) {
+                        // Update lastLogin timestamp for successful login
+                        const userAuth = findUserAuthenticationByUsername(credentials.username);
+                        if (userAuth) {
+                            userAuth.lastLogin = new Date().toISOString();
+                        }
+
                         resolve(generateMockAuthResponse(user));
                     } else {
                         reject(new Error('Invalid username or password'));
@@ -49,7 +56,7 @@ class AuthService {
                 }, 500); // Simulate network delay
             });
         }
-        
+
         // Real API call in integrated mode
         return await apiService.post<AuthResponse>('/auth/login', credentials);
     }
@@ -65,7 +72,7 @@ class AuthService {
             if (config.enableConsoleLogs) {
                 console.log('[AuthService] Using mock registration');
             }
-            
+
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     try {
@@ -78,7 +85,7 @@ class AuthService {
                 }, 500); // Simulate network delay
             });
         }
-        
+
         // Real API call in integrated mode
         return await apiService.create<CreateUserResponse>('/auth/register', signUpData);
     }
@@ -94,7 +101,7 @@ class AuthService {
             if (config.enableConsoleLogs) {
                 console.log('[AuthService] Getting mock user from token');
             }
-            
+
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     const user = getUserFromMockToken(token);
@@ -106,7 +113,7 @@ class AuthService {
                 }, 300); // Simulate network delay
             });
         }
-        
+
         // Real API call in integrated mode
         return await apiService.get<User>('/auth/current', token);
     }
@@ -122,7 +129,7 @@ class AuthService {
             if (config.enableConsoleLogs) {
                 console.log('[AuthService] Refreshing mock token');
             }
-            
+
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     const user = getUserFromMockToken(token);
@@ -134,7 +141,7 @@ class AuthService {
                 }, 300); // Simulate network delay
             });
         }
-        
+
         // Real API call in integrated mode
         return await apiService.post<AuthResponse>('/auth/refresh', undefined, token);
     }
@@ -152,7 +159,7 @@ class AuthService {
             }
             return Promise.resolve();
         }
-        
+
         // Real API call in integrated mode
         try {
             await apiService.post<void>('/auth/logout', undefined, token);
@@ -174,7 +181,7 @@ class AuthService {
             if (config.enableConsoleLogs) {
                 console.log('[AuthService] Validating mock token');
             }
-            
+
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const isValid = isValidMockToken(token);
@@ -184,7 +191,7 @@ class AuthService {
                 }, 200); // Simulate network delay
             });
         }
-        
+
         // Real API call in integrated mode
         return await apiService.get<ValidationResponse>('/auth/validate', token);
     }
@@ -192,10 +199,37 @@ class AuthService {
     /**
      * Create admin user (requires admin privileges)
      * @param signUpData - Admin user registration data
-     * @param token - JWT token with admin privileges
+     * @param token - JWT token with admin privileges (ignored in mock mode)
      * @returns Promise with admin user creation response
      */
     async createAdminUser(signUpData: SignUpData, token: string): Promise<User> {
+        // Use mock admin creation in standalone mode
+        if (config.enableMockAuth) {
+            if (config.enableConsoleLogs) {
+                console.log('[AuthService] Using mock admin creation');
+            }
+
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    try {
+                        const { username, password, contactRequestDto } = signUpData;
+
+                        // Ensure admin label is present
+                        const adminContactDto = {
+                            ...contactRequestDto,
+                            labels: [...(contactRequestDto.labels || []), 'Administrator']
+                        };
+
+                        const newAdminUser = createMockUser(adminContactDto, username, password);
+                        resolve(newAdminUser);
+                    } catch (error) {
+                        reject(new Error('Admin creation failed'));
+                    }
+                }, 500); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
         return await apiService.post<User>('/auth/admin', signUpData, token);
     }
 
