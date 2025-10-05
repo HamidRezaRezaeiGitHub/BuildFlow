@@ -10,6 +10,7 @@ import type {
 interface AuthContextType {
   // State
   user: User | null;
+  role: string | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -37,6 +38,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('jwt_token'));
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTimerId, setRefreshTimerId] = useState<TimerId | null>(null);
@@ -48,6 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('jwt_token');
     setToken(null);
     setUser(null);
+    setRole(null);
 
     // Clear any scheduled refresh timer
     if (refreshTimerId) {
@@ -140,8 +143,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Get current user with specific token
   const getCurrentUserWithToken = async (specificToken: string): Promise<void> => {
     try {
-      const userData = await authService.getCurrentUser(specificToken);
+      const userSummary = await authService.getCurrentUser(specificToken);
+      
+      // Extract values from UserSummary to populate User state
+      // Note: The User object won't have all properties filled (like contactDto)
+      // Those can be fetched later when needed (e.g., profile page)
+      const userData: User = {
+        id: userSummary.id,
+        username: userSummary.username,
+        email: userSummary.email,
+        registered: true, // Authenticated users are registered
+        contactDto: {
+          id: '',
+          firstName: '',
+          lastName: '',
+          labels: [],
+          email: userSummary.email,
+          phone: '',
+          addressDto: {
+            id: '',
+            streetNumber: '',
+            streetName: '',
+            city: '',
+            stateOrProvince: '',
+            postalOrZipCode: '',
+            country: ''
+          }
+        }
+      };
+      
       setUser(userData);
+      setRole(userSummary.role);
     } catch (error) {
       console.error('Get current user error:', error);
       handleLogout();
@@ -216,6 +248,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     // State
     user,
+    role,
     token,
     isAuthenticated,
     isLoading,

@@ -1,6 +1,17 @@
 import type { ContactRequestDto, UserDto } from './UserDtos';
 
 /**
+ * User roles enum
+ * Matches backend Role.java enum
+ */
+export enum Role {
+  VIEWER = 'VIEWER',
+  USER = 'USER',
+  PREMIUM_USER = 'PREMIUM_USER',
+  ADMIN = 'ADMIN'
+}
+
+/**
  * User registration request DTO
  * Matches backend SignUpRequest.java
  */
@@ -64,10 +75,22 @@ export interface AuthResponse {
   expiresInSeconds: number;
 }
 
+/**
+ * User summary response DTO
+ * Matches backend UserSummaryResponse.java
+ * Returned by the /auth/current endpoint
+ */
 export interface UserSummary {
+    /** User unique identifier */
     id: string;
+    
+    /** Username */
     username: string;
+    
+    /** Email address */
     email: string;
+    
+    /** User role */
     role: string;
 }
 

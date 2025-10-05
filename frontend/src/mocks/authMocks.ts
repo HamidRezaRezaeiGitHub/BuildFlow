@@ -1,4 +1,5 @@
-import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication } from '../services/dtos';
+import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication, UserSummary } from '../services/dtos';
+import { Role } from '../services/dtos';
 
 /**
  * Mock Users Database - Canadian Users
@@ -54,28 +55,14 @@ export const mockUsers: User[] = [
 ];
 
 /**
- * Mock User Authentication Database - Matching the mockUsers
+ * Mock User Roles Database - Matching the mockUsers
  * Used when running in standalone mode (config.enableMockAuth = true)
- * These authentication objects correspond to the users in mockUsers array
+ * Stores role information separately for each user
  */
-export const mockUserAuthentications: UserAuthentication[] = [
-    {
-        id: '1',
-        username: 'admin',
-        role: 'ADMIN',
-        enabled: true,
-        createdAt: '2024-01-15T10:30:00.000Z',
-        lastLogin: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() // Within last 7 days
-    },
-    {
-        id: '2',
-        username: 'testuser',
-        role: 'USER',
-        enabled: true,
-        createdAt: '2024-02-20T14:45:00.000Z',
-        lastLogin: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() // Within last 30 days
-    },
-];
+export const mockUserRoles: Record<string, string> = {
+    'admin': Role.ADMIN,
+    'testuser': Role.USER,
+};
 
 /**
  * Mock credentials for testing
@@ -186,20 +173,6 @@ export function findUserByEmail(email: string): User | undefined {
 }
 
 /**
- * Find user authentication by username
- */
-export function findUserAuthenticationByUsername(username: string): UserAuthentication | undefined {
-    return mockUserAuthentications.find(u => u.username === username);
-}
-
-/**
- * Find user authentication by id
- */
-export function findUserAuthenticationById(id: string): UserAuthentication | undefined {
-    return mockUserAuthentications.find(u => u.id === id);
-}
-
-/**
  * Validate mock credentials
  */
 export function validateMockCredentials(username: string, password: string): User | null {
@@ -212,6 +185,51 @@ export function validateMockCredentials(username: string, password: string): Use
     }
 
     return null;
+}
+
+/**
+ * Get user role by username
+ */
+export function getUserRole(username: string): string {
+    return mockUserRoles[username] || Role.USER;
+}
+
+/**
+ * Find user authentication by username
+ * Creates UserAuthentication DTO from User and Role data
+ * This is used by AdminService for backend API compatibility
+ */
+export function findUserAuthenticationByUsername(username: string): UserAuthentication | undefined {
+    const user = findUserByUsername(username);
+    if (!user) return undefined;
+    
+    return {
+        id: user.id,
+        username: user.username,
+        role: getUserRole(username),
+        enabled: true,
+        createdAt: '2024-01-15T10:30:00.000Z',
+        lastLogin: new Date().toISOString()
+    };
+}
+
+/**
+ * Find user authentication by id
+ * Creates UserAuthentication DTO from User and Role data
+ * This is used by AdminService for backend API compatibility
+ */
+export function findUserAuthenticationById(id: string): UserAuthentication | undefined {
+    const user = mockUsers.find(u => u.id === id);
+    if (!user) return undefined;
+    
+    return {
+        id: user.id,
+        username: user.username,
+        role: getUserRole(user.username),
+        enabled: true,
+        createdAt: '2024-01-15T10:30:00.000Z',
+        lastLogin: new Date().toISOString()
+    };
 }
 
 /**
@@ -252,22 +270,15 @@ export function createMockUser(contactRequestDto: ContactRequest, username: stri
         },
     };
 
-    // Create corresponding authentication object
-    const newUserAuthentication: UserAuthentication = {
-        id: String(mockUserAuthentications.length + 1),
-        username,
-        role: contactRequestDto.labels.includes('Administrator') ? 'ADMIN' : 'USER',
-        enabled: true,
-        createdAt: new Date().toISOString(),
-        lastLogin: undefined // New user hasn't logged in yet
-    };
+    // Determine role based on labels
+    const role = contactRequestDto.labels.includes('Administrator') ? Role.ADMIN : Role.USER;
+    mockUserRoles[username] = role;
 
     // Store credentials for future login
     storeMockCredentials(username, password);
 
     // Add to mock arrays
     mockUsers.push(newUser);
-    mockUserAuthentications.push(newUserAuthentication);
 
     return newUser;
 }
@@ -292,14 +303,25 @@ export function isValidMockToken(token: string): boolean {
 
 /**
  * Get user from mock token
+ * Returns UserSummary containing id, username, email, and role
  */
-export function getUserFromMockToken(token: string): User | null {
+export function getUserFromMockToken(token: string): UserSummary | null {
     try {
         const parts = token.split('.');
         if (parts.length !== 3) return null;
 
         const payload = JSON.parse(atob(parts[1]));
-        return findUserByUsername(payload.sub) || null;
+        const user = findUserByUsername(payload.sub);
+        
+        if (!user) return null;
+        
+        // Return UserSummary instead of full User
+        return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: getUserRole(user.username)
+        };
     } catch {
         return null;
     }
