@@ -1,10 +1,139 @@
+import { DevPanel } from '@/components/dev';
 import React from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
+
+// Define access levels for routes
+export type AccessLevel = 'public' | 'protected' | 'admin';
+
+// Route definition interface
+export interface RouteDefinition {
+    path: string;
+    name: string;
+    description: string;
+    accessLevel: AccessLevel;
+    component: React.ComponentType<any>;
+}
+
+// Complete list of available routes with access levels
+export const AVAILABLE_ROUTES: RouteDefinition[] = [
+    // Public routes
+    {
+        path: '/',
+        name: 'Home',
+        description: 'Landing page with login and app overview',
+        accessLevel: 'public',
+        component: HomePage
+    },
+    {
+        path: '/temp/theme',
+        name: 'Theme Demo',
+        description: 'Theme and styling demonstration page',
+        accessLevel: 'public',
+        component: Theme
+    },
+    {
+        path: '/temp/address',
+        name: 'Address Demo',
+        description: 'Address form components demonstration',
+        accessLevel: 'public',
+        component: AddressPage
+    },
+    {
+        path: '/temp/login',
+        name: 'Login Demo',
+        description: 'Login component demonstration',
+        accessLevel: 'public',
+        component: LoginPage
+    },
+    {
+        path: '/temp/flexible-sign-up',
+        name: 'Sign Up Demo',
+        description: 'Flexible sign-up form demonstration',
+        accessLevel: 'public',
+        component: FlexibleSignUpPage
+    },
+    {
+        path: '/temp/new-project',
+        name: 'New Project Demo',
+        description: 'Project creation form demonstration',
+        accessLevel: 'public',
+        component: NewProjectDemo
+    },
+
+    // Protected routes (requires authentication)
+    {
+        path: '/dashboard',
+        name: 'Dashboard',
+        description: 'Main user dashboard with project overview',
+        accessLevel: 'protected',
+        component: DashboardPage
+    },
+    {
+        path: '/projects/new',
+        name: 'New Project',
+        description: 'Create a new construction project',
+        accessLevel: 'protected',
+        component: NewProject
+    },
+
+    // Admin routes (requires admin privileges)
+    {
+        path: '/admin',
+        name: 'Admin Panel',
+        description: 'Administrative interface for user management',
+        accessLevel: 'admin',
+        component: Admin
+    }
+];
+
+// Helper function to get routes by access level
+export const getRoutesByAccessLevel = (accessLevel: AccessLevel): RouteDefinition[] => {
+    return AVAILABLE_ROUTES.filter(route => route.accessLevel === accessLevel);
+};
+
+// Helper function to get accessible routes for current user
+export const getAccessibleRoutes = (isAuthenticated: boolean, isAdmin: boolean = false): RouteDefinition[] => {
+    if (!isAuthenticated) {
+        return getRoutesByAccessLevel('public');
+    }
+
+    if (isAdmin) {
+        return AVAILABLE_ROUTES; // Admin can access all routes
+    }
+
+    // Authenticated user can access public and protected routes
+    return AVAILABLE_ROUTES.filter(route =>
+        route.accessLevel === 'public' || route.accessLevel === 'protected'
+    );
+};
+
+// DevPanel wrapper that provides routing context and navigation
+const DevPanelWithRouting: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { isAuthenticated } = useAuth();
+
+    // TODO: Add role-based checking for admin privileges
+    // For development purposes, treat all authenticated users as potential admins
+    // This will need to be updated when proper role system is implemented
+    const isAdmin = isAuthenticated; // Show admin routes in dev panel for testing
+
+    const accessibleRoutes = getAccessibleRoutes(isAuthenticated, isAdmin);
+    const currentRoute = AVAILABLE_ROUTES.find(route => route.path === location.pathname);
+
+    return (
+        <DevPanel
+            availableRoutes={accessibleRoutes}
+            currentRoute={currentRoute}
+            onNavigate={navigate}
+        />
+    );
+};
 
 // Protected Route component
 interface ProtectedRouteProps {
@@ -62,48 +191,53 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
 export const AppRouter: React.FC = () => {
     return (
-        <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/temp/theme" element={<Theme />} />
-            <Route path="/temp/address" element={<AddressPage />} />
-            <Route path="/temp/login" element={<LoginPage />} />
-            <Route path="/temp/flexible-sign-up" element={<FlexibleSignUpPage />} />
-            <Route path="/temp/new-project" element={<NewProjectDemo />} />
+        <>
+            <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/temp/theme" element={<Theme />} />
+                <Route path="/temp/address" element={<AddressPage />} />
+                <Route path="/temp/login" element={<LoginPage />} />
+                <Route path="/temp/flexible-sign-up" element={<FlexibleSignUpPage />} />
+                <Route path="/temp/new-project" element={<NewProjectDemo />} />
 
-            {/* Protected routes */}
-            <Route
-                path="/dashboard"
-                element={
-                    <ProtectedRoute>
-                        <DashboardPage />
-                    </ProtectedRoute>
-                }
-            />
+                {/* Protected routes */}
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <DashboardPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-            {/* Project routes */}
-            <Route
-                path="/projects/new"
-                element={
-                    <ProtectedRoute>
-                        <NewProject />
-                    </ProtectedRoute>
-                }
-            />
+                {/* Project routes */}
+                <Route
+                    path="/projects/new"
+                    element={
+                        <ProtectedRoute>
+                            <NewProject />
+                        </ProtectedRoute>
+                    }
+                />
 
-            {/* Admin routes */}
-            <Route
-                path="/admin"
-                element={
-                    <AdminRoute>
-                        <Admin />
-                    </AdminRoute>
-                }
-            />
+                {/* Admin routes */}
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <Admin />
+                        </AdminRoute>
+                    }
+                />
 
-            {/* Catch-all route - redirect any undefined path to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+                {/* Catch-all route - redirect any undefined path to home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+
+            {/* Development Panel - Has access to routing context */}
+            <DevPanelWithRouting />
+        </>
     );
 };
 
