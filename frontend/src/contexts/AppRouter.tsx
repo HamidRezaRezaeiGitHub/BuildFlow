@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import NewProjectDemo from '../pages/temp/NewProjectDemo';
+import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
 
 // Protected Route component
@@ -30,13 +31,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <>{children}</>;
 };
 
-// Admin Route component - for now just checks authentication, role check will be enhanced later
+// Admin Route component - checks authentication and admin role
 interface AdminRouteProps {
     children: React.ReactNode;
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, role } = useAuth();
 
     if (isLoading) {
         return (
@@ -50,8 +51,12 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
         return <Navigate to="/" replace />;
     }
 
-    // TODO: Add role-based checking here once role information is available in auth context
-    // For now, all authenticated users can access admin (will be restricted in backend)
+    // Check if user has admin role
+    if (role !== Role.ADMIN) {
+        // Redirect non-admin users to dashboard
+        return <Navigate to="/dashboard" replace />;
+    }
+
     return <>{children}</>;
 };
 

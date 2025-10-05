@@ -1,7 +1,6 @@
 import { config } from '@/config/environment';
 import {
     createMockUser,
-    findUserAuthenticationByUsername,
     generateMockAuthResponse,
     generateMockCreateUserResponse,
     getUserFromMockToken,
@@ -15,6 +14,7 @@ import type {
     LoginCredentials,
     SignUpData,
     User,
+    UserSummary,
     ValidationResponse
 } from './dtos';
 
@@ -43,12 +43,6 @@ class AuthService {
                     const user = validateMockCredentials(credentials.username, credentials.password);
 
                     if (user) {
-                        // Update lastLogin timestamp for successful login
-                        const userAuth = findUserAuthenticationByUsername(credentials.username);
-                        if (userAuth) {
-                            userAuth.lastLogin = new Date().toISOString();
-                        }
-
                         resolve(generateMockAuthResponse(user));
                     } else {
                         reject(new Error('Invalid username or password'));
@@ -93,9 +87,9 @@ class AuthService {
     /**
      * Get current authenticated user information
      * @param token - JWT authentication token
-     * @returns Promise with current user data
+     * @returns Promise with current user summary data
      */
-    async getCurrentUser(token: string): Promise<User> {
+    async getCurrentUser(token: string): Promise<UserSummary> {
         // Use mock user in standalone mode
         if (config.enableMockAuth) {
             if (config.enableConsoleLogs) {
@@ -104,9 +98,9 @@ class AuthService {
 
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
-                    const user = getUserFromMockToken(token);
-                    if (user) {
-                        resolve(user);
+                    const userSummary = getUserFromMockToken(token);
+                    if (userSummary) {
+                        resolve(userSummary);
                     } else {
                         reject(new Error('Invalid token'));
                     }
@@ -115,7 +109,7 @@ class AuthService {
         }
 
         // Real API call in integrated mode
-        return await apiService.get<User>('/auth/current', token);
+        return await apiService.get<UserSummary>('/auth/current', token);
     }
 
     /**

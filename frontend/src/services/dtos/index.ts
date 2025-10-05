@@ -24,8 +24,11 @@ export type {
     CreateUserRequest,
     CreateUserResponse,
     AuthResponse as AuthResponse,
-    ValidationResponse as ValidationResponse
+    ValidationResponse as ValidationResponse,
+    UserSummary
 } from './AuthDtos';
+
+export { Role } from './AuthDtos';
 
 export type {
     BaseAddressDto as AddressData

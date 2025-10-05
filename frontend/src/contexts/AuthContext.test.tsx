@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { authService } from '../services';
-import type { AuthResponse, User } from '../services/dtos';
+import type { AuthResponse, UserSummary } from '../services/dtos';
 import { AuthProvider, useAuth } from './AuthContext';
 
 // Mock the auth service
@@ -37,6 +37,7 @@ const { timerService } = require('../services');
 const TestComponent = () => {
     const {
         user,
+        role,
         token,
         isAuthenticated,
         isLoading,
@@ -50,6 +51,7 @@ const TestComponent = () => {
     return (
         <div>
             <div data-testid="user">{user ? JSON.stringify(user) : 'null'}</div>
+            <div data-testid="role">{role || 'null'}</div>
             <div data-testid="token">{token || 'null'}</div>
             <div data-testid="isAuthenticated">{isAuthenticated.toString()}</div>
             <div data-testid="isLoading">{isLoading.toString()}</div>
@@ -86,28 +88,11 @@ const renderWithAuthProvider = (ui: React.ReactElement) => {
 };
 
 describe('AuthProvider', () => {
-    const mockUser: User = {
+    const mockUserSummary: UserSummary = {
         id: '1',
         username: 'johndoe',
         email: 'test@example.com',
-        registered: true,
-        contactDto: {
-            id: '1',
-            firstName: 'John',
-            lastName: 'Doe',
-            labels: ['Builder'],
-            email: 'test@example.com',
-            phone: '+1234567890',
-            addressDto: {
-                id: '1',
-                streetNumber: '123',
-                streetName: 'Main St',
-                city: 'Anytown',
-                stateOrProvince: 'CA',
-                postalOrZipCode: '12345',
-                country: 'USA'
-            }
-        }
+        role: 'USER'
     };
 
     const mockAuthResponse: AuthResponse = {
@@ -150,7 +135,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldFetchCurrentUser_whenTokenExists', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             renderWithAuthProvider(<TestComponent />);
 
@@ -159,7 +144,8 @@ describe('AuthProvider', () => {
             });
 
             await waitFor(() => {
-                expect(screen.getByTestId('user')).toHaveTextContent(JSON.stringify(mockUser));
+                expect(screen.getByTestId('user')).toHaveTextContent('johndoe');
+                expect(screen.getByTestId('role')).toHaveTextContent('USER');
                 expect(screen.getByTestId('isAuthenticated')).toHaveTextContent('true');
                 expect(screen.getByTestId('isLoading')).toHaveTextContent('false');
             });
@@ -183,7 +169,7 @@ describe('AuthProvider', () => {
     describe('login', () => {
         test('AuthProvider_shouldLoginSuccessfully_whenCredentialsValid', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -201,14 +187,15 @@ describe('AuthProvider', () => {
             await waitFor(() => {
                 expect(mockLocalStorage.setItem).toHaveBeenCalledWith('jwt_token', 'mock-jwt-token');
                 expect(screen.getByTestId('token')).toHaveTextContent('mock-jwt-token');
-                expect(screen.getByTestId('user')).toHaveTextContent(JSON.stringify(mockUser));
+                expect(screen.getByTestId('user')).toHaveTextContent('johndoe');
+                expect(screen.getByTestId('role')).toHaveTextContent('USER');
                 expect(screen.getByTestId('isAuthenticated')).toHaveTextContent('true');
             });
         });
 
         test('AuthProvider_shouldScheduleTokenRefresh_whenLoginSuccessful', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -288,7 +275,7 @@ describe('AuthProvider', () => {
     describe('logout', () => {
         test('AuthProvider_shouldLogoutSuccessfully_whenUserAuthenticated', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.logout as jest.Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
@@ -307,13 +294,14 @@ describe('AuthProvider', () => {
                 expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('jwt_token');
                 expect(screen.getByTestId('token')).toHaveTextContent('null');
                 expect(screen.getByTestId('user')).toHaveTextContent('null');
+                expect(screen.getByTestId('role')).toHaveTextContent('null');
                 expect(screen.getByTestId('isAuthenticated')).toHaveTextContent('false');
             });
         });
 
         test('AuthProvider_shouldClearLocalState_whenBackendLogoutFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.logout as jest.Mock).mockRejectedValue(new Error('Network error'));
 
             const user = userEvent.setup();
@@ -343,7 +331,7 @@ describe('AuthProvider', () => {
             };
 
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.refreshToken as jest.Mock).mockResolvedValue(newAuthResponse);
 
             const user = userEvent.setup();
@@ -366,7 +354,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenTokenRefreshFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.refreshToken as jest.Mock).mockRejectedValue(new Error('Token expired'));
 
             const user = userEvent.setup();
@@ -396,7 +384,7 @@ describe('AuthProvider', () => {
             };
 
             (authService.login as jest.Mock).mockResolvedValue(longExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -421,7 +409,7 @@ describe('AuthProvider', () => {
             };
 
             (authService.login as jest.Mock).mockResolvedValue(shortExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -439,7 +427,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldRefreshAutomatically_whenTimerTriggers', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -462,7 +450,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenAutomaticRefreshFails', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -494,7 +482,7 @@ describe('AuthProvider', () => {
     describe('timer cleanup', () => {
         test('AuthProvider_shouldClearTimer_whenComponentUnmounts', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -521,7 +509,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearPreviousTimer_whenNewRefreshScheduled', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 

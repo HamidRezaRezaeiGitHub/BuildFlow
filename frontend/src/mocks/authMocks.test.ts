@@ -1,4 +1,4 @@
-import type { ContactRequest, User, UserAuthentication } from '../services/dtos';
+import type { ContactRequest, User } from '../services/dtos';
 import {
   createMockUser,
   findUserAuthenticationById,
@@ -12,7 +12,6 @@ import {
   getUserFromMockToken,
   isValidMockToken,
   mockCredentials,
-  mockUserAuthentications,
   mockUsers,
   resetMockCredentials,
   storeMockCredentials,
@@ -22,13 +21,11 @@ import {
 describe('authMocks', () => {
   // Store original data to restore after each test
   let originalMockUsers: User[];
-  let originalMockUserAuthentications: UserAuthentication[];
   let originalMockCredentials: Record<string, { username: string; password: string }>;
 
   beforeEach(() => {
     // Create deep copies to restore original state
     originalMockUsers = JSON.parse(JSON.stringify(mockUsers));
-    originalMockUserAuthentications = JSON.parse(JSON.stringify(mockUserAuthentications));
     originalMockCredentials = JSON.parse(JSON.stringify(mockCredentials));
   });
 
@@ -36,9 +33,6 @@ describe('authMocks', () => {
     // Restore original state
     mockUsers.length = 0;
     mockUsers.push(...originalMockUsers);
-
-    mockUserAuthentications.length = 0;
-    mockUserAuthentications.push(...originalMockUserAuthentications);
 
     Object.keys(mockCredentials).forEach(key => delete mockCredentials[key]);
     Object.assign(mockCredentials, originalMockCredentials);
@@ -69,24 +63,20 @@ describe('authMocks', () => {
       expect(testUser?.contactDto.addressDto.country).toBe('Canada');
     });
 
-    test('mockUserAuthentications should match mockUsers', () => {
-      expect(mockUserAuthentications).toHaveLength(2);
-
-      const adminAuth = mockUserAuthentications.find(a => a.username === 'admin');
+    test('findUserAuthenticationByUsername should return correct auth data', () => {
+      const adminAuth = findUserAuthenticationByUsername('admin');
       expect(adminAuth).toBeDefined();
       expect(adminAuth?.id).toBe('1');
+      expect(adminAuth?.username).toBe('admin');
       expect(adminAuth?.role).toBe('ADMIN');
       expect(adminAuth?.enabled).toBe(true);
-      expect(adminAuth?.createdAt).toBe('2024-01-15T10:30:00.000Z');
-      expect(adminAuth?.lastLogin).toBeDefined();
 
-      const userAuth = mockUserAuthentications.find(a => a.username === 'testuser');
+      const userAuth = findUserAuthenticationByUsername('testuser');
       expect(userAuth).toBeDefined();
       expect(userAuth?.id).toBe('2');
+      expect(userAuth?.username).toBe('testuser');
       expect(userAuth?.role).toBe('USER');
       expect(userAuth?.enabled).toBe(true);
-      expect(userAuth?.createdAt).toBe('2024-02-20T14:45:00.000Z');
-      expect(userAuth?.lastLogin).toBeDefined();
     });
 
     test('mockCredentials should contain default credentials', () => {
@@ -98,15 +88,9 @@ describe('authMocks', () => {
 
     test('users and authentications should have matching usernames', () => {
       mockUsers.forEach(user => {
-        const auth = mockUserAuthentications.find(a => a.username === user.username);
+        const auth = findUserAuthenticationByUsername(user.username);
         expect(auth).toBeDefined();
         expect(auth?.username).toBe(user.username);
-      });
-
-      mockUserAuthentications.forEach(auth => {
-        const user = mockUsers.find(u => u.username === auth.username);
-        expect(user).toBeDefined();
-        expect(user?.username).toBe(auth.username);
       });
     });
   });
@@ -406,8 +390,6 @@ describe('authMocks', () => {
       };
 
       const initialUserCount = mockUsers.length;
-      const initialAuthCount = mockUserAuthentications.length;
-
       const newUser = createMockUser(contactRequest, 'johndoe', 'Password123!');
 
       expect(newUser.username).toBe('johndoe');
@@ -420,14 +402,12 @@ describe('authMocks', () => {
 
       // Verify user was added to arrays
       expect(mockUsers).toHaveLength(initialUserCount + 1);
-      expect(mockUserAuthentications).toHaveLength(initialAuthCount + 1);
 
-      // Verify authentication object was created
+      // Verify authentication object can be retrieved
       const auth = findUserAuthenticationByUsername('johndoe');
       expect(auth).toBeDefined();
       expect(auth?.role).toBe('USER');
       expect(auth?.enabled).toBe(true);
-      expect(auth?.lastLogin).toBeUndefined();
 
       // Verify credentials were stored
       expect(mockCredentials['johndoe']).toEqual({ username: 'johndoe', password: 'Password123!' });
@@ -483,7 +463,6 @@ describe('authMocks', () => {
     test('should generate sequential IDs', () => {
       const initialCount = mockUsers.length;
       const expectedUserId = String(initialCount + 1);
-      const expectedAuthId = String(mockUserAuthentications.length + 1);
 
       const contactRequest: ContactRequest = {
         firstName: 'Test',
@@ -498,7 +477,7 @@ describe('authMocks', () => {
       expect(newUser.contactDto.id).toBe(expectedUserId);
 
       const auth = findUserAuthenticationByUsername('sequential');
-      expect(auth?.id).toBe(expectedAuthId);
+      expect(auth?.id).toBe(expectedUserId); // Auth ID should match user ID
     });
   });
 
@@ -646,7 +625,8 @@ describe('authMocks', () => {
       // Generate token and verify admin context
       const adminAuthResponse = generateMockAuthResponse(validatedAdmin!);
       const tokenAdmin = getUserFromMockToken(adminAuthResponse.accessToken);
-      expect(tokenAdmin?.contactDto.labels).toContain('Administrator');
+      expect(tokenAdmin?.role).toBe('ADMIN');
+      expect(tokenAdmin?.username).toBe('superadmin');
     });
 
     test('credential management across multiple operations', () => {
