@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { authService } from '../services';
-import type { AuthResponse, User, UserSummary } from '../services/dtos';
+import type { AuthResponse, UserSummary } from '../services/dtos';
 import { AuthProvider, useAuth } from './AuthContext';
 
 // Mock the auth service
@@ -331,7 +331,7 @@ describe('AuthProvider', () => {
             };
 
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.refreshToken as jest.Mock).mockResolvedValue(newAuthResponse);
 
             const user = userEvent.setup();
@@ -354,7 +354,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenTokenRefreshFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
             (authService.refreshToken as jest.Mock).mockRejectedValue(new Error('Token expired'));
 
             const user = userEvent.setup();
@@ -384,7 +384,7 @@ describe('AuthProvider', () => {
             };
 
             (authService.login as jest.Mock).mockResolvedValue(longExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -409,7 +409,7 @@ describe('AuthProvider', () => {
             };
 
             (authService.login as jest.Mock).mockResolvedValue(shortExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -427,7 +427,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldRefreshAutomatically_whenTimerTriggers', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -450,7 +450,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenAutomaticRefreshFails', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -482,7 +482,7 @@ describe('AuthProvider', () => {
     describe('timer cleanup', () => {
         test('AuthProvider_shouldClearTimer_whenComponentUnmounts', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -509,7 +509,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearPreviousTimer_whenNewRefreshScheduled', async () => {
             (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 

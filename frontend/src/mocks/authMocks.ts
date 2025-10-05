@@ -135,9 +135,10 @@ export function generateMockToken(userId: string, username: string): string {
 
 /**
  * Generate mock AuthResponse
+ * Accepts either User or UserSummary
  */
-export function generateMockAuthResponse(user: User): AuthResponse {
-    const token = generateMockToken(user.id, user.username);
+export function generateMockAuthResponse(userOrSummary: User | UserSummary): AuthResponse {
+    const token = generateMockToken(userOrSummary.id, userOrSummary.username);
     const expiresInSeconds = 60 * 60 * 24; // 24 hours
     const expiryDate = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
 
