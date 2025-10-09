@@ -35,8 +35,7 @@ Abstract JPA entity that standardizes address handling across the entire applica
 
 **Structure:**
 - `unitNumber` (String, 20 chars): Apartment/unit number (optional)
-- `streetNumber` (String, 20 chars): Street number
-- `streetName` (String, 200 chars): Street name
+- `streetNumberAndName` (String, 220 chars): Combined street number and name (e.g., "123 Main Street")
 - `city` (String, 100 chars): City name
 - `stateOrProvince` (String, 100 chars): State or province
 - `postalOrZipCode` (String, 20 chars): Postal or ZIP code
