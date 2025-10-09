@@ -115,32 +115,31 @@ export const getAccessibleRoutes = (isAuthenticated: boolean, isAdmin: boolean =
 
 // DevPanel wrapper that provides routing context and navigation
 const DevPanelWithRouting: React.FC = () => {
-    // Enhanced condition for GitHub Pages: check multiple indicators
-    const shouldShowDevPanel = config.isDevelopment ||
-        config.environment === 'development' ||
-        config.enableConsoleLogs ||
-        window.location.hostname.includes('github.io');
-
-    // Debug logging for troubleshooting GitHub Pages
-    if (config.enableConsoleLogs) {
-        console.group('🔧 DevPanel Debug Info');
-        console.log('config.isDevelopment:', config.isDevelopment);
-        console.log('config.environment:', config.environment);
-        console.log('config.enableConsoleLogs:', config.enableConsoleLogs);
-        console.log('window.location.hostname:', window.location.hostname);
-        console.log('shouldShowDevPanel:', shouldShowDevPanel);
-        console.groupEnd();
-    }
-
-    if (!shouldShowDevPanel) {
-        return null;
-    }
-
     const navigate = useNavigate();
     const location = useLocation();
     const { isAuthenticated, role } = useAuth();
 
+    const shouldShowDevPanel = config.isDevelopment;
     const isAdmin = isAuthenticated && role === Role.ADMIN;
+
+    // Debug logging
+    React.useEffect(() => {
+        if (config.enableConsoleLogs) {
+            console.group('🔧 DevPanel Debug Info');
+            console.log('config.isDevelopment:', config.isDevelopment);
+            console.log('config.environment:', config.environment);
+            console.log('shouldShowDevPanel:', shouldShowDevPanel);
+            console.log('isAuthenticated:', isAuthenticated);
+            console.log('role:', role);
+            console.log('isAdmin:', isAdmin);
+            console.log('currentPath:', location.pathname);
+            console.groupEnd();
+        }
+    }, [shouldShowDevPanel, isAuthenticated, role, isAdmin, location.pathname]);
+
+    if (!shouldShowDevPanel) {
+        return null;
+    }
 
     const accessibleRoutes = getAccessibleRoutes(isAuthenticated, isAdmin);
     const currentRoute = AVAILABLE_ROUTES.find(route => route.path === location.pathname);
