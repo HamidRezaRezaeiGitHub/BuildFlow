@@ -1,34 +1,33 @@
-import { StandardNavbar, adaptUserForNavbar } from '@/components/navbar';
+import { StandardNavbar } from '@/components/navbar';
 import { useNavigate } from '@/contexts';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Dashboard page - protected page for authenticated users
  */
 export const DashboardPage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, role, isAuthenticated } = useAuth();
   const navigation = useNavigate();
 
-  // Convert BuildFlow user to NavbarUser format
-  const navbarUser = user ? adaptUserForNavbar(user) : null;
+  const showAdminItems = useMemo(() => {
+    return isAuthenticated && role && role.toLowerCase() === 'admin';
+  }, [isAuthenticated, role]);
+
+  const navItems = useMemo(() => {
+    const items = [
+      { label: 'Home', onClick: () => navigation.navigateToHome() }
+    ];
+    if (showAdminItems) {
+      items.push({ label: 'Admin Panel', onClick: () => navigation.navigateToAdmin() });
+    }
+    return items;
+  }, [navigation, showAdminItems]);
 
   return (
     <div className="min-h-screen bg-background">
       <StandardNavbar
-        isAuthenticated={isAuthenticated}
-        user={navbarUser}
-        brandText="BuildFlow"
-        navItems={[
-          { label: 'Dashboard', onClick: () => console.log('Current page') },
-          { label: 'Projects', onClick: () => console.log('Navigate to projects') },
-          { label: 'Home', onClick: () => navigation.navigateToHome() }
-        ]}
-        showThemeToggle={false}
-        onAvatarClick={() => console.log('Show user menu')}
-        onLoginClick={() => navigation.navigateToHome()}
-        onSignUpClick={() => navigation.navigateToHome()}
-        mobileWidthBehavior="responsive"
+        navItems={navItems}
       />
 
       <div className="container mx-auto px-4 py-8">

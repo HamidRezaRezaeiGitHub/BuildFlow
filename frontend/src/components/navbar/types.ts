@@ -30,9 +30,9 @@ export interface NavbarUser {
 export const adaptUserForNavbar = (user: GenericUser): NavbarUser => {
   return {
     id: user.id,
-    firstName: user.contact?.firstName,
-    lastName: user.contact?.lastName,
-    email: user.email || user.contact?.email,
+    firstName: user.contact?.firstName || user.contactDto?.firstName,
+    lastName: user.contact?.lastName || user.contactDto?.lastName,
+    email: user.email || user.contact?.email || user.contactDto?.email,
     avatarUrl: user.avatarUrl || user.profileImage || user.avatar,
   };
 };

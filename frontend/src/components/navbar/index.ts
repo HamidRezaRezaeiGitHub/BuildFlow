@@ -2,12 +2,14 @@
 export { Avatar } from './Avatar';
 export { LoginButton } from './LoginButton';
 export { Logo } from './Logo';
+export { LogoutButton } from './LogoutButton';
 export { SignUpButton } from './SignUpButton';
 
 // Component prop types
 export type { AvatarProps } from './Avatar';
 export type { LoginButtonProps } from './LoginButton';
 export type { LogoProps } from './Logo';
+export type { LogoutButtonProps } from './LogoutButton';
 export type { SignUpButtonProps } from './SignUpButton';
 
 // Generic types for cross-project compatibility

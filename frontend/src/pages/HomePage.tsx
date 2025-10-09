@@ -7,7 +7,7 @@ import {
     Hero
 } from '@/components/home';
 import { StandardNavbar } from '@/components/navbar';
-import { useNavigate } from '@/contexts';
+import { useAuth, useNavigate } from '@/contexts';
 import { cn } from '@/utils/utils';
 import React from 'react';
 
@@ -27,25 +27,32 @@ interface HomePageProps {
  * so we don't need to wrap it here anymore.
  */
 export const HomePage: React.FC<HomePageProps> = ({ className }) => {
-    const { navigateToSignup, navigateToLogin, scrollToSection } = useNavigate();
+    const { isAuthenticated } = useAuth();
+    const { navigateToLogin, navigateToDashboard, navigateToHome, scrollToSection } = useNavigate();
+
+    // Dashboard navigation handler - conditional based on authentication
+    const handleDashboardClick = () => {
+        if (isAuthenticated) {
+            navigateToDashboard();
+        } else {
+            navigateToLogin();
+        }
+    };
 
     return (
         <div className={cn("min-h-screen bg-background", className)}>
             {/* Main content area */}
             <main className="flex-1">
                 <StandardNavbar
-                    brandText="BuildFlow"
+                    onLogoClick={navigateToHome}
                     navItems={[
                         { label: 'Features', onClick: () => scrollToSection('features') },
                         { label: 'About', onClick: () => scrollToSection('brands') },
-                        { label: 'Contact', onClick: () => scrollToSection('contact') }
+                        { label: 'Contact', onClick: () => scrollToSection('contact') },
+                        { label: 'Dashboard', onClick: handleDashboardClick }
                     ]}
-                    showAuthButtons={true}
-                    onLoginClick={() => navigateToLogin()}
-                    onSignUpClick={() => navigateToSignup()}
                     loginButtonText="Sign In"
                     signUpButtonText="Get Started"
-                    showThemeToggle={true}
                 />
                 <Hero />
                 <Features />

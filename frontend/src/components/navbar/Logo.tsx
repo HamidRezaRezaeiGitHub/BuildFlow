@@ -9,23 +9,28 @@ export interface LogoProps {
   showText?: boolean;
   brandText?: string;
   logoSvg?: React.ReactNode;
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
 /**
  * Generic Logo component
  * Reusable logo that can be displayed with or without text, in different sizes
  * Supports custom brand text and SVG logo for maximum flexibility
+ * Can be made clickable for navigation purposes
  */
-export const Logo: React.FC<LogoProps> = ({ 
-  className = '', 
-  size = 'md', 
+export const Logo: React.FC<LogoProps> = ({
+  className = '',
+  size = 'md',
   showText = true,
   brandText = 'Brand',
-  logoSvg
+  logoSvg,
+  onClick,
+  clickable = !!onClick
 }) => {
   const sizeClasses = {
     sm: showText ? 'text-sm' : 'w-6 h-6',
-    md: showText ? 'text-lg' : 'w-8 h-8', 
+    md: showText ? 'text-lg' : 'w-8 h-8',
     lg: showText ? 'text-xl' : 'w-10 h-10'
   };
 
@@ -60,14 +65,35 @@ export const Logo: React.FC<LogoProps> = ({
     </svg>
   );
 
-  return (
-    <div className={cn('flex items-center gap-2', className)}>
+  const logoContent = (
+    <>
       {logoSvg || defaultLogoSvg}
       {showText && (
         <span className={cn('font-bold text-primary', sizeClasses[size])}>
           {brandText}
         </span>
       )}
+    </>
+  );
+
+  if (clickable && onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className={cn(
+          'flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer',
+          className
+        )}
+        aria-label="Navigate to main page"
+      >
+        {logoContent}
+      </button>
+    );
+  }
+
+  return (
+    <div className={cn('flex items-center gap-2', className)}>
+      {logoContent}
     </div>
   );
 };
