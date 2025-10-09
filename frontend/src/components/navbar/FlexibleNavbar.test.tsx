@@ -15,6 +15,43 @@ jest.mock('@/contexts/ThemeContext', () => ({
   }),
 }));
 
+// Mock the auth context
+const mockLogin = jest.fn();
+const mockRegister = jest.fn();
+const mockLogout = jest.fn();
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    role: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: false,
+    login: mockLogin,
+    register: mockRegister,
+    logout: mockLogout,
+    refreshToken: jest.fn(),
+    getCurrentUser: jest.fn(),
+  }),
+}));
+
+// Mock the navigation context
+const mockNavigateToHome = jest.fn();
+const mockNavigateToDashboard = jest.fn();
+const mockScrollToSection = jest.fn();
+const mockGoBack = jest.fn();
+const mockOpenExternalLink = jest.fn();
+
+jest.mock('@/contexts/NavigationContext', () => ({
+  useNavigate: () => ({
+    navigateToHome: mockNavigateToHome,
+    navigateToDashboard: mockNavigateToDashboard,
+    scrollToSection: mockScrollToSection,
+    goBack: mockGoBack,
+    openExternalLink: mockOpenExternalLink,
+  }),
+}));
+
 // Mock user data using generic NavbarUser interface
 const mockUser: NavbarUser = {
   id: '1',
@@ -27,6 +64,17 @@ const mockUser: NavbarUser = {
 describe('FlexibleNavbar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Clear specific mocks
+    mockSetTheme.mockClear();
+    mockToggleTheme.mockClear();
+    mockLogin.mockClear();
+    mockRegister.mockClear();
+    mockLogout.mockClear();
+    mockNavigateToHome.mockClear();
+    mockNavigateToDashboard.mockClear();
+    mockScrollToSection.mockClear();
+    mockGoBack.mockClear();
+    mockOpenExternalLink.mockClear();
   });
 
   test('FlexibleNavbar_shouldRenderWithDefaultProps', () => {
@@ -111,6 +159,7 @@ describe('FlexibleNavbar', () => {
         isAuthenticated={true}
         user={mockUser}
         onAvatarClick={mockOnAvatarClick}
+        showAuthButtons={false}  // Disable dropdown to allow onClick handler
       />
     );
     

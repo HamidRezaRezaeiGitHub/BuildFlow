@@ -1,5 +1,5 @@
 import { StandardNavbar } from '@/components/navbar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateProjectRequest } from '@/services/dtos';
 import { Building2 } from 'lucide-react';
 import React from 'react';
