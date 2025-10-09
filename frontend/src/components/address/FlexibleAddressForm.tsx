@@ -17,8 +17,8 @@ import { UnitNumberField } from './UnitNumber';
  * Configuration for address field display and behavior
  */
 export interface AddressFieldConfig {
-    /** The field name/key from AddressData, or special combined fields */
-    field: keyof AddressData | 'streetNumberAndName';
+    /** The field name/key from AddressData */
+    field: keyof AddressData;
     /** Display label for the field */
     label?: string;
     /** Custom placeholder text */
