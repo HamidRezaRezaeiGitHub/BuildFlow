@@ -1,4 +1,5 @@
 import { DevPanel } from '@/components/dev';
+import { config } from '@/config/environment';
 import React from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
@@ -114,14 +115,32 @@ export const getAccessibleRoutes = (isAuthenticated: boolean, isAdmin: boolean =
 
 // DevPanel wrapper that provides routing context and navigation
 const DevPanelWithRouting: React.FC = () => {
+    // Enhanced condition for GitHub Pages: check multiple indicators
+    const shouldShowDevPanel = config.isDevelopment ||
+        config.environment === 'development' ||
+        config.enableConsoleLogs ||
+        window.location.hostname.includes('github.io');
+
+    // Debug logging for troubleshooting GitHub Pages
+    if (config.enableConsoleLogs) {
+        console.group('🔧 DevPanel Debug Info');
+        console.log('config.isDevelopment:', config.isDevelopment);
+        console.log('config.environment:', config.environment);
+        console.log('config.enableConsoleLogs:', config.enableConsoleLogs);
+        console.log('window.location.hostname:', window.location.hostname);
+        console.log('shouldShowDevPanel:', shouldShowDevPanel);
+        console.groupEnd();
+    }
+
+    if (!shouldShowDevPanel) {
+        return null;
+    }
+
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, role } = useAuth();
 
-    // TODO: Add role-based checking for admin privileges
-    // For development purposes, treat all authenticated users as potential admins
-    // This will need to be updated when proper role system is implemented
-    const isAdmin = isAuthenticated; // Show admin routes in dev panel for testing
+    const isAdmin = isAuthenticated && role === Role.ADMIN;
 
     const accessibleRoutes = getAccessibleRoutes(isAuthenticated, isAdmin);
     const currentRoute = AVAILABLE_ROUTES.find(route => route.path === location.pathname);

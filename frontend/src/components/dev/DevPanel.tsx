@@ -43,11 +43,6 @@ export const DevPanel: React.FC<DevPanelProps> = ({
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // Only render in development mode
-    if (!config.isDevelopment) {
-        return null;
-    }
-
     return (
         <div className={cn("fixed bottom-4 right-4 z-50 max-w-md", className)}>
             <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
@@ -255,8 +250,8 @@ const NavigationSection: React.FC<{
                                                     key={route.path}
                                                     onClick={() => handleNavigate(route.path)}
                                                     className={`w-full text-left p-2 rounded border transition-colors text-xs ${currentRoute?.path === route.path
-                                                            ? 'bg-orange-100 border-orange-300 text-orange-900 shadow-sm'
-                                                            : 'bg-gray-50 border-gray-200 hover:bg-orange-50 hover:border-orange-200 text-gray-700'
+                                                        ? 'bg-orange-100 border-orange-300 text-orange-900 shadow-sm'
+                                                        : 'bg-gray-50 border-gray-200 hover:bg-orange-50 hover:border-orange-200 text-gray-700'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between mb-1">
