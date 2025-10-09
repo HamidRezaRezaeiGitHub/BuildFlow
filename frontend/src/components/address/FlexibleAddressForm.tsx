@@ -18,7 +18,7 @@ import { UnitNumberField } from './UnitNumber';
  */
 export interface AddressFieldConfig {
     /** The field name/key from AddressData, or special combined fields */
-    field: keyof AddressData | 'streetNumberName';
+    field: keyof AddressData | 'streetNumberAndName';
     /** Display label for the field */
     label?: string;
     /** Custom placeholder text */
@@ -37,8 +37,7 @@ export interface AddressFieldConfig {
 export const addressFieldConfigs = {
     full: [
         { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
-        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
-        { field: 'streetName' as keyof AddressData, colSpan: 2, required: true },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: true },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true },
@@ -46,33 +45,30 @@ export const addressFieldConfigs = {
     ] as AddressFieldConfig[],
 
     minimal: [
-        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
-        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: true },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'country' as keyof AddressData, colSpan: 1, required: true }
     ] as AddressFieldConfig[],
 
     shipping: [
-        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
-        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: true },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 2, required: true }
     ] as AddressFieldConfig[],
 
     international: [
-        { field: 'streetNumber' as keyof AddressData, colSpan: 1, required: true },
-        { field: 'streetName' as keyof AddressData, colSpan: 1, required: true },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: true },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: false },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: false },
         { field: 'country' as keyof AddressData, colSpan: 1, required: true }
     ] as AddressFieldConfig[],
 
-    // New configuration using combined street number and name field
+    // Legacy configuration name for backward compatibility
     combined: [
         { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
-        { field: 'streetNumberName' as 'streetNumberName', colSpan: 2, required: true },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: true },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true },
@@ -82,32 +78,12 @@ export const addressFieldConfigs = {
     // Configuration optimized for embedding in other forms (no form wrapper, no buttons)
     embedded: [
         { field: 'unitNumber' as keyof AddressData, colSpan: 1, required: false },
-        { field: 'streetNumberName' as 'streetNumberName', colSpan: 2, required: false },
+        { field: 'streetNumberAndName' as keyof AddressData, colSpan: 2, required: false },
         { field: 'city' as keyof AddressData, colSpan: 1, required: true },
         { field: 'stateOrProvince' as keyof AddressData, colSpan: 1, required: true },
         { field: 'country' as keyof AddressData, colSpan: 1, required: true },
         { field: 'postalOrZipCode' as keyof AddressData, colSpan: 1, required: true }
     ] as AddressFieldConfig[]
-};
-
-/**
- * Utility function to parse street number input and extract street name if present
- * @param input The street number input (e.g., "123 Main St")
- * @returns Object with parsed streetNumber and streetName
- */
-export const parseStreetNumber = (input: string): { streetNumber: string; streetName: string } => {
-    // If the input contains letters, try to separate number from street name
-    const match = input.match(/^(\d+)\s*(.*)$/);
-    if (match && match[2].trim()) {
-        return {
-            streetNumber: match[1],
-            streetName: match[2].trim()
-        };
-    }
-    return {
-        streetNumber: input,
-        streetName: ''
-    };
 };
 
 export interface FlexibleAddressFormProps {
@@ -271,10 +247,10 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     }, []);
 
     // Get required fields from configuration
-    const requiredFields: (keyof AddressData | 'streetNumberName')[] = React.useMemo(() => {
+    const requiredFields: (keyof AddressData)[] = React.useMemo(() => {
         return resolvedFieldsConfig
             .filter(config => config.required === true)
-            .map(config => config.field);
+            .map(config => config.field as keyof AddressData);
     }, [resolvedFieldsConfig]);
 
     // Check if form is valid for submission
@@ -295,11 +271,6 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
         // For non-skippable forms: check both completeness and validity
         // 1. All required fields must have values
         const allRequiredFieldsComplete = requiredFields.every(fieldName => {
-            if (fieldName === 'streetNumberName') {
-                // For combined field, check that either streetNumber or streetName has a value
-                return (addressData.streetNumber && addressData.streetNumber.trim() !== '') ||
-                       (addressData.streetName && addressData.streetName.trim() !== '');
-            }
             const fieldValue = addressData[fieldName as keyof AddressData];
             return fieldValue && fieldValue.trim() !== '';
         });
@@ -333,39 +304,6 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
     const renderField = (config: AddressFieldConfig) => {
         const { field, placeholder, required } = config;
         
-        // Handle special combined field case
-        if (field === 'streetNumberName') {
-            // Combine streetNumber and streetName for display value
-            const combinedValue = addressData.streetNumber && addressData.streetName 
-                ? `${addressData.streetNumber} ${addressData.streetName}` 
-                : addressData.streetNumber || addressData.streetName || '';
-            
-            const fieldRequired = isSkippable ? false : (required ?? true);
-            const fieldValidationMode: 'required' | 'optional' = fieldRequired ? 'required' : 'optional';
-            
-            return (
-                <StreetNumberNameField
-                    key={field}
-                    value={combinedValue}
-                    onChange={(value: string) => {
-                        onAddressChange('streetName', value);
-                    }}
-                    errors={errors.streetNumber || errors.streetName ? 
-                        [...(errors.streetNumber || []), ...(errors.streetName || [])] : 
-                        undefined}
-                    disabled={disabled || isSubmitting}
-                    enableValidation={enableValidation}
-                    validationMode={fieldValidationMode}
-                    onValidationChange={(validationResult: ValidationResult) => {
-                        // Update validation state for both related fields
-                        handleFieldValidationChange('streetNumber', validationResult);
-                        handleFieldValidationChange('streetName', validationResult);
-                    }}
-                    placeholder={placeholder || '123 Main Street'}
-                />
-            );
-        }
-        
         const fieldValue = addressData[field as keyof AddressData] || '';
         const fieldErrors = errors[field as keyof AddressData];
         const fieldRequired = isSkippable ? false : (required ?? true);
@@ -392,38 +330,9 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
                     />
                 );
 
-            case 'streetNumber':
+            case 'streetNumberAndName':
                 return (
-                    <StreetNumberField
-                        key={field}
-                        placeholder={placeholder}
-                        value={fieldValue}
-                        errors={fieldErrors}
-                        disabled={disabled || isSubmitting}
-                        enableValidation={enableValidation}
-                        validationMode={fieldValidationMode}
-                        onValidationChange={(validationResult: ValidationResult) =>
-                            handleFieldValidationChange(field, validationResult)
-                        }
-                        onChange={(value) => {
-                            // Auto-parse street number when it contains alphabetic parts and street name is empty
-                            if (value && !addressData.streetName.trim()) {
-                                const parsed = parseStreetNumber(value);
-                                if (parsed.streetName) {
-                                    // Auto-fill street name if parsing found one
-                                    onAddressChange('streetNumber', parsed.streetNumber);
-                                    onAddressChange('streetName', parsed.streetName);
-                                    return;
-                                }
-                            }
-                            onAddressChange(field, value);
-                        }}
-                    />
-                );
-
-            case 'streetName':
-                return (
-                    <StreetNameField
+                    <StreetNumberNameField
                         key={field}
                         {...commonProps}
                     />

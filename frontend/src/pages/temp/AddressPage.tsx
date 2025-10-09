@@ -45,11 +45,9 @@ const AddressPage: React.FC = () => {
     const [presetLayout, setPresetLayout] = useState<PresetLayout>('full');
 
     // Individual field states for custom configuration
-    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData | 'streetNumberName']: FieldState }>({
+    const [fieldStates, setFieldStates] = useState<{ [K in keyof AddressData]: FieldState }>({
         unitNumber: { show: true, required: false, colSpan: 1 },
-        streetNumber: { show: true, required: true, colSpan: 1 },
-        streetName: { show: true, required: true, colSpan: 2 },
-        streetNumberName: { show: false, required: true, colSpan: 2 }, // Combined field - disabled by default
+        streetNumberAndName: { show: true, required: true, colSpan: 2 },
         city: { show: true, required: true, colSpan: 1 },
         stateOrProvince: { show: true, required: true, colSpan: 1 },
         postalOrZipCode: { show: true, required: true, colSpan: 1 },
@@ -57,11 +55,9 @@ const AddressPage: React.FC = () => {
     });
 
     // Field labels for UI
-    const fieldLabels: { [K in keyof AddressData | 'streetNumberName']: string } = {
+    const fieldLabels: { [K in keyof AddressData]: string } = {
         unitNumber: 'Unit Number',
-        streetNumber: 'Street Number',
-        streetName: 'Street Name',
-        streetNumberName: 'Street Number & Name (Combined)',
+        streetNumberAndName: 'Street Number & Name',
         city: 'City',
         stateOrProvince: 'State/Province',
         postalOrZipCode: 'Postal/Zip Code',
@@ -85,8 +81,7 @@ const AddressPage: React.FC = () => {
             // Load partial sample for skippable form
             setAddressData({
                 unitNumber: '',
-                streetNumber: '456',
-                streetName: 'Oak Avenue',
+                streetNumberAndName: '456 Oak Avenue',
                 city: 'Vancouver',
                 stateOrProvince: 'BC',
                 postalOrZipCode: '',
@@ -96,8 +91,7 @@ const AddressPage: React.FC = () => {
             // Load complete sample for required form
             setAddressData({
                 unitNumber: '5A',
-                streetNumber: '123',
-                streetName: 'Main Street',
+                streetNumberAndName: '123 Main Street',
                 city: 'Toronto',
                 stateOrProvince: 'ON',
                 postalOrZipCode: 'M5V 3A8',
@@ -116,7 +110,7 @@ const AddressPage: React.FC = () => {
 
             // Reset all fields to hidden first
             Object.keys(newFieldStates).forEach(field => {
-                newFieldStates[field as keyof AddressData | 'streetNumberName'] = {
+                newFieldStates[field as keyof AddressData] = {
                     show: false,
                     required: false,
                     colSpan: 1
@@ -149,7 +143,7 @@ const AddressPage: React.FC = () => {
     };
 
     // Update individual field state
-    const updateFieldState = (field: keyof AddressData | 'streetNumberName', updates: Partial<FieldState>) => {
+    const updateFieldState = (field: keyof AddressData, updates: Partial<FieldState>) => {
         setFieldStates(prev => ({
             ...prev,
             [field]: { ...prev[field], ...updates }
@@ -270,7 +264,7 @@ const AddressPage: React.FC = () => {
                                         <Label className="text-sm font-medium">Field Configuration</Label>
                                         <div className="space-y-3 max-h-64 overflow-y-auto">
                                             {Object.entries(fieldLabels).map(([field, label]) => {
-                                                const fieldKey = field as keyof AddressData | 'streetNumberName';
+                                                const fieldKey = field as keyof AddressData;
                                                 const state = fieldStates[fieldKey];
                                                 if (!state) return null;
 

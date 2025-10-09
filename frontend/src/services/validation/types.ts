@@ -89,7 +89,7 @@ export interface BuiltInFieldConfigs {
     phone: FieldValidationConfig;
     firstName: FieldValidationConfig;
     lastName: FieldValidationConfig;
-    streetNumber: FieldValidationConfig;
+    streetNumberAndName: FieldValidationConfig;
     unitNumber: FieldValidationConfig;
     postalCode: FieldValidationConfig;
 }

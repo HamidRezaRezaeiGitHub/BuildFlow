@@ -20,8 +20,7 @@ export const mockUsers: User[] = [
             phone: '+1-604-555-0100',
             addressDto: {
                 id: '1',
-                streetNumber: '1250',
-                streetName: 'Granville Street',
+                streetNumberAndName: '1250 Granville Street',
                 city: 'Vancouver',
                 stateOrProvince: 'BC',
                 postalOrZipCode: 'V6Z 1M9',
@@ -43,8 +42,7 @@ export const mockUsers: User[] = [
             phone: '+1-416-555-0200',
             addressDto: {
                 id: '2',
-                streetNumber: '789',
-                streetName: 'King Street West',
+                streetNumberAndName: '789 King Street West',
                 city: 'Toronto',
                 stateOrProvince: 'ON',
                 postalOrZipCode: 'M5V 1N1',
@@ -253,16 +251,14 @@ export function createMockUser(contactRequestDto: ContactRequest, username: stri
             phone: contactRequestDto.phone || '',
             addressDto: contactRequestDto.addressRequestDto ? {
                 id: String(mockUsers.length + 1),
-                streetNumber: contactRequestDto.addressRequestDto.streetNumber || '',
-                streetName: contactRequestDto.addressRequestDto.streetName || '',
+                streetNumberAndName: contactRequestDto.addressRequestDto.streetNumberAndName || '',
                 city: contactRequestDto.addressRequestDto.city || '',
                 stateOrProvince: contactRequestDto.addressRequestDto.stateOrProvince || '',
                 postalOrZipCode: contactRequestDto.addressRequestDto.postalOrZipCode || '',
                 country: contactRequestDto.addressRequestDto.country || '',
             } : {
                 id: String(mockUsers.length + 1),
-                streetNumber: '',
-                streetName: '',
+                streetNumberAndName: '',
                 city: '',
                 stateOrProvince: '',
                 postalOrZipCode: '',
