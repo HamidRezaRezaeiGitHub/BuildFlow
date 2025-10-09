@@ -4,6 +4,51 @@
 
 This document provides a comprehensive analysis of the width-related Tailwind CSS attributes for both the FlexibleSignUpForm (used in the home page auth section) and the NewProjectForm (used in the new project page). The analysis traces each form from its innermost `formContent` variable through all wrapper components up to the root `AppRouter`.
 
+### Quick Visual Comparison
+
+```
+SignUp Form Hierarchy (Width Constraints):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HomePage (no width)
+  └─ Main (no width)
+      └─ AuthSection <section> (no width)
+          └─ Inner Container [max-w-screen-2xl px-4 lg:px-8 mx-auto] ← 1536px max
+              └─ Forms Wrapper [max-w-2xl mx-auto] ← 672px PRIMARY CONSTRAINT
+                  └─ Tabs [w-full] ← fills parent
+                      └─ TabsContent (no width)
+                          └─ FlexibleSignUpForm [inline]
+                              └─ <form> (no width)
+                                  ├─ Fields Grid [grid grid-cols-2]
+                                  └─ Button [w-full] ← spans form width
+
+New Project Form Hierarchy (Width Constraints):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NewProject (no width)
+  └─ Root <div> (no width)
+      └─ Gradient Section [px-4] (no width)
+          └─ Container [container mx-auto] ← 1400px max (responsive)
+              └─ Form Wrapper [max-w-2xl mx-auto] ← 672px PRIMARY CONSTRAINT
+                  └─ Card (inherits width)
+                      └─ CardContent (+ internal padding)
+                          └─ NewProjectForm [inline]
+                              └─ <form> (no width)
+                                  ├─ Address Grid [grid grid-cols-2]
+                                  └─ Button (auto-width) ← sized to content
+```
+
+### Quick Reference Table
+
+| Aspect | SignUp Form | New Project Form |
+|--------|-------------|------------------|
+| **Primary Width Constraint** | `max-w-2xl` (672px) | `max-w-2xl` (672px) |
+| **Outer Container Max Width** | 1536px (`max-w-screen-2xl`) | 1400px (`container` 2xl) |
+| **Horizontal Padding** | `px-4 lg:px-8` (responsive) | `px-4` (fixed) |
+| **Card Wrapper** | ❌ No | ✅ Yes (extra padding) |
+| **Tab System** | ✅ Yes (`Tabs` with `w-full`) | ❌ No |
+| **Submit Button Width** | `w-full` (spans form) | Auto (right-aligned) |
+| **Background** | Clean `bg-background` | Gradient `bg-gradient-to-br` |
+| **Extra Wrapper Divs** | Fewer (direct in tabs) | More (Card structure) |
+
 ---
 
 ## 1. SignUp Form Width Hierarchy (Home Page Auth Section)
