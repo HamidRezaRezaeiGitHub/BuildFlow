@@ -44,8 +44,7 @@ public abstract class AbstractModelTest {
     public void setUpEstimateModelObjects() {
         testBuilderUserContactAddress = ContactAddress.builder()
                 .unitNumber("1")
-                .streetNumber("100")
-                .streetName("Main St")
+                .streetNumberAndName("100 Main St")
                 .city("Testville")
                 .stateOrProvince("TS")
                 .postalOrZipCode("12345")
@@ -54,8 +53,7 @@ public abstract class AbstractModelTest {
 
         testOwnerUserContactAddress = ContactAddress.builder()
                 .unitNumber("2")
-                .streetNumber("200")
-                .streetName("Second St")
+                .streetNumberAndName("200 Second St")
                 .city("Testtown")
                 .stateOrProvince("TT")
                 .postalOrZipCode("67890")
@@ -104,8 +102,7 @@ public abstract class AbstractModelTest {
 
         testProjectLocation = ProjectLocation.builder()
                 .unitNumber("2")
-                .streetNumber("100")
-                .streetName("Main St")
+                .streetNumberAndName("100 Main St")
                 .city("Testville")
                 .stateOrProvince("TS")
                 .postalOrZipCode("123456")
@@ -191,8 +188,7 @@ public abstract class AbstractModelTest {
     protected ContactAddress createRandomContactAddress() {
         return ContactAddress.builder()
                 .unitNumber("Unit " + (int) (Math.random() * 100))
-                .streetNumber(String.valueOf((int) (Math.random() * 1000)))
-                .streetName("Street " + (int) (Math.random() * 100))
+                .streetNumberAndName(String.valueOf((int) (Math.random() * 1000)) + " Street " + (int) (Math.random() * 100))
                 .city("City " + (int) (Math.random() * 100))
                 .stateOrProvince("State " + (int) (Math.random() * 50))
                 .postalOrZipCode(String.valueOf((int) (Math.random() * 100000)))
@@ -256,8 +252,7 @@ public abstract class AbstractModelTest {
     protected ProjectLocation createRandomProjectLocation() {
         return ProjectLocation.builder()
                 .unitNumber("Unit " + (int) (Math.random() * 100))
-                .streetNumber(String.valueOf((int) (Math.random() * 1000)))
-                .streetName("Street " + (int) (Math.random() * 100))
+                .streetNumberAndName(String.valueOf((int) (Math.random() * 1000)) + " Street " + (int) (Math.random() * 100))
                 .city("City " + (int) (Math.random() * 100))
                 .stateOrProvince("State " + (int) (Math.random() * 50))
                 .postalOrZipCode(String.valueOf((int) (Math.random() * 100000)))

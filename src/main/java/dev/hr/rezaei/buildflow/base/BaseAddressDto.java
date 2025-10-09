@@ -18,14 +18,9 @@ public abstract class BaseAddressDto {
     @Size(max = 20, message = "Unit number must not exceed 20 characters")
     private String unitNumber;
 
-    @Schema(description = "Street number", example = "123")
-    @Size(max = 20, message = "Street number must not exceed 20 characters")
-    private String streetNumber;
-
-    @Schema(description = "Street name", example = "Main Street")
-    @NotBlank(message = "Street name is required")
-    @Size(max = 200, message = "Street name must not exceed 200 characters")
-    private String streetName;
+    @Schema(description = "Street number and name", example = "123 Main Street")
+    @Size(max = 220, message = "Street number and name must not exceed 220 characters")
+    private String streetNumberAndName;
 
     @Schema(description = "City name", example = "New York")
     @NotBlank(message = "City is required")

@@ -153,8 +153,7 @@ public class UserMockDataInitializer {
 
         return ContactAddress.builder()
                 .unitNumber(random.nextBoolean() ? "Unit " + (1 + random.nextInt(999)) : null)
-                .streetNumber(String.valueOf(1 + random.nextInt(9999)))
-                .streetName(generateStreetName())
+                .streetNumberAndName(String.valueOf(1 + random.nextInt(9999)) + " " + generateStreetName())
                 .city(selectedCity)
                 .stateOrProvince(selectedProvince)
                 .postalOrZipCode(generateCanadianPostalCode())

@@ -70,13 +70,14 @@ export class ValidationService {
             }
         });
 
-        // Street number rule (alphanumeric with common separators)
+        // Street number and name rule (combined field)
         this.registerRule({
-            name: 'streetNumber',
-            message: 'Street number contains invalid characters',
+            name: 'streetNumberAndName',
+            message: 'Street number and name contains invalid characters',
             validator: (value: string) => {
                 if (!value) return true;
-                return /^[0-9A-Za-z\-\/\s]*$/.test(value);
+                // Allow alphanumeric, spaces, hyphens, slashes, and common punctuation
+                return /^[0-9A-Za-z\-\/\s,.'#]*$/.test(value);
             }
         });
 
@@ -153,25 +154,15 @@ export class ValidationService {
             ]
         });
 
-        // Street number field
+        // Street number and name field (combined)
         this.registerFieldConfig({
-            fieldName: 'streetNumber',
-            fieldType: 'text',
-            required: false,
-            rules: [
-                this.getRule('streetNumber'),
-                this.createMaxLengthRule(20)
-            ]
-        });
-
-        // Street name field
-        this.registerFieldConfig({
-            fieldName: 'streetName',
+            fieldName: 'streetNumberAndName',
             fieldType: 'text',
             required: true,
             rules: [
                 this.getRule('required'),
-                this.createMaxLengthRule(200)
+                this.getRule('streetNumberAndName'),
+                this.createMaxLengthRule(220)
             ]
         });
 

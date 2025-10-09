@@ -30,8 +30,7 @@ public interface AuthServiceConsumer {
         int randomNum = (int) (Math.random() * 1000);
         return ContactAddressRequestDto.builder()
                 .unitNumber("Apt " + randomNum)
-                .streetNumber("" + randomNum)
-                .streetName("Main St " + randomNum)
+                .streetNumberAndName(randomNum + " Main St " + randomNum)
                 .city("City " + randomNum)
                 .country("Country " + randomNum)
                 .stateOrProvince("State " + randomNum)

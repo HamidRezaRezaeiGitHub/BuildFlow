@@ -16,11 +16,8 @@ public abstract class BaseAddress {
     @Column(length = 20)
     private String unitNumber;
 
-    @Column(length = 20)
-    private String streetNumber;
-
-    @Column(length = 200)
-    private String streetName;
+    @Column(length = 220)
+    private String streetNumberAndName;
 
     @Column(length = 100)
     private String city;

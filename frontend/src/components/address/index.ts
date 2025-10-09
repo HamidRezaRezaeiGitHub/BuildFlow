@@ -13,8 +13,7 @@ export interface BaseFieldProps {
 // Create an empty address data object
 export const createEmptyAddress = (): AddressData => ({
   unitNumber: '',
-  streetNumber: '',
-  streetName: '',
+  streetNumberAndName: '',
   city: '',
   stateOrProvince: '',
   postalOrZipCode: '',
@@ -26,7 +25,7 @@ export interface AddressData extends BaseAddressDto {
 }
 
 // Flexible Address Form Component (Primary Address Form)
-export { addressFieldConfigs, default as FlexibleAddressForm, parseStreetNumber } from './FlexibleAddressForm';
+export { addressFieldConfigs, default as FlexibleAddressForm } from './FlexibleAddressForm';
 export type { AddressFieldConfig, FlexibleAddressFormProps } from './FlexibleAddressForm';
 
 // Individual Address Field Components

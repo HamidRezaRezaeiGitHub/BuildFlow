@@ -68,14 +68,14 @@ public abstract class AbstractDtoTest {
     public void setUpDtoObjects() {
         // Request DTOs (without IDs)
         testBuilderContactAddressRequestDto = ContactAddressRequestDto.builder()
-                .streetName("123 Main St")
+                .streetNumberAndName("123 Main St")
                 .city("Test City")
                 .stateOrProvince("Test State")
                 .country("Test Country")
                 .build();
 
         testOwnerContactAddressRequestDto = ContactAddressRequestDto.builder()
-                .streetName("456 Oak Ave")
+                .streetNumberAndName("456 Oak Ave")
                 .city("Owner City")
                 .stateOrProvince("Owner State")
                 .country("Owner Country")
@@ -138,7 +138,7 @@ public abstract class AbstractDtoTest {
 
         // Project-specific test data
         testProjectLocationRequestDto = ProjectLocationRequestDto.builder()
-                .streetName("789 Project Lane")
+                .streetNumberAndName("789 Project Lane")
                 .city("Project City")
                 .stateOrProvince("Project State")
                 .postalOrZipCode("12345")
@@ -147,7 +147,7 @@ public abstract class AbstractDtoTest {
 
         testProjectLocationDto = ProjectLocationDto.builder()
                 .id(UUID.randomUUID())
-                .streetName("789 Project Lane")
+                .streetNumberAndName("789 Project Lane")
                 .city("Project City")
                 .stateOrProvince("Project State")
                 .postalOrZipCode("12345")
@@ -221,7 +221,7 @@ public abstract class AbstractDtoTest {
                 .build();
 
         testContactAddressRequestDtoWithLongStreetName = ContactAddressRequestDto.builder()
-                .streetName("a".repeat(201))  // Invalid: exceeds 200-character limit
+                .streetNumberAndName("a".repeat(221))  // Invalid: exceeds 220-character limit
                 .city("Test City")
                 .build();
 
@@ -249,7 +249,7 @@ public abstract class AbstractDtoTest {
                 .build();
 
         testProjectLocationRequestDtoWithLongStreetName = ProjectLocationRequestDto.builder()
-                .streetName("a".repeat(201))  // Invalid: exceeds 200-character limit
+                .streetNumberAndName("a".repeat(221))  // Invalid: exceeds 220-character limit
                 .city("Project City")
                 .stateOrProvince("Project State")
                 .country("Project Country")

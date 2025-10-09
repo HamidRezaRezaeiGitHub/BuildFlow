@@ -6,11 +6,8 @@ export interface BaseAddressDto {
   /** Unit or apartment number */
   unitNumber?: string;
   
-  /** Street number */
-  streetNumber?: string;
-  
-  /** Street name */
-  streetName: string;
+  /** Street number and name */
+  streetNumberAndName: string;
   
   /** City name */
   city: string;

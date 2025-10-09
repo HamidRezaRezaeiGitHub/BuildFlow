@@ -349,8 +349,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         // Create second project with different location data
         ProjectLocationRequestDto locationRequestDto2 = ProjectLocationRequestDto.builder()
                 .unitNumber("20")
-                .streetNumber("456")
-                .streetName("Second Street")
+                .streetNumberAndName("456 Second Street")
                 .city("Test City")
                 .stateOrProvince("TC")
                 .postalOrZipCode("67890")
@@ -404,8 +403,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         // Create second project with different location data
         ProjectLocationRequestDto locationRequestDto2 = ProjectLocationRequestDto.builder()
                 .unitNumber("30")
-                .streetNumber("789")
-                .streetName("Third Street")
+                .streetNumberAndName("789 Third Street")
                 .city("Test City")
                 .stateOrProvince("TC")
                 .postalOrZipCode("11111")

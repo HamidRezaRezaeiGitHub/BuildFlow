@@ -45,7 +45,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.projectDto.id").exists())
                 .andExpect(jsonPath("$.projectDto.builderId").value(builderResponse.getUserDto().getId().toString()))
                 .andExpect(jsonPath("$.projectDto.locationDto").exists())
-                .andExpect(jsonPath("$.projectDto.locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
+                .andExpect(jsonPath("$.projectDto.locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$.projectDto.locationDto.city").value(projectLocationRequestDto.getCity()))
                 .andExpect(jsonPath("$.projectDto.locationDto.stateOrProvince").value(projectLocationRequestDto.getStateOrProvince()))
                 .andExpect(jsonPath("$.projectDto.locationDto.country").value(projectLocationRequestDto.getCountry()));
@@ -78,7 +78,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
+                .andExpect(jsonPath("$[0].locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));
     }
 
@@ -109,7 +109,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].ownerId").value(ownerId.toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetName").value(projectLocationRequestDto.getStreetName()))
+                .andExpect(jsonPath("$[0].locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));
     }
 
