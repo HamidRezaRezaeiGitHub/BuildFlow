@@ -282,8 +282,7 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     private CreateUserRequest createValidCreateUserRequest() {
         ContactAddressRequestDto addressRequestDto = ContactAddressRequestDto.builder()
                 .unitNumber("1")
-                .streetNumber("123")
-                .streetName("Test Street")
+                .streetNumberAndName("123 Test Street")
                 .city("Test City")
                 .stateOrProvince("Test State")
                 .postalOrZipCode("12345")

@@ -120,8 +120,7 @@ public class UserMockDataInitializerTest {
         assertNotNull(UserMockDataInitializer.PROVINCE_CITIES_MAP.get(address.getStateOrProvince()));
         assertTrue(Arrays.asList(UserMockDataInitializer.PROVINCE_CITIES_MAP.get(address.getStateOrProvince()))
                 .contains(address.getCity()));
-        assertNotNull(address.getStreetNumber());
-        assertNotNull(address.getStreetName());
+        assertNotNull(address.getStreetNumberAndName());
         assertNotNull(address.getPostalOrZipCode());
         assertTrue(Pattern.matches("[A-Z]\\d[A-Z] \\d[A-Z]\\d", address.getPostalOrZipCode()));
     }

@@ -42,7 +42,7 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.projectDto.builderId").value(builderId.toString()))
                 .andExpect(jsonPath("$.projectDto.ownerId").value(ownerId.toString()))
                 .andExpect(jsonPath("$.projectDto.locationDto").exists())
-                .andExpect(jsonPath("$.projectDto.locationDto.streetName").value(locationDto.getStreetName()))
+                .andExpect(jsonPath("$.projectDto.locationDto.streetNumberAndName").value(locationDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$.projectDto.locationDto.city").value(locationDto.getCity()));
     }
 
