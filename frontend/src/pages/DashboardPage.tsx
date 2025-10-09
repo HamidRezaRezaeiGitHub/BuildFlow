@@ -1,34 +1,16 @@
 import { StandardNavbar } from '@/components/navbar';
-import { useNavigate } from '@/contexts';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Dashboard page - protected page for authenticated users
  */
 export const DashboardPage: React.FC = () => {
-  const { user, role, isAuthenticated } = useAuth();
-  const navigation = useNavigate();
-
-  const showAdminItems = useMemo(() => {
-    return isAuthenticated && role && role.toLowerCase() === 'admin';
-  }, [isAuthenticated, role]);
-
-  const navItems = useMemo(() => {
-    const items = [
-      { label: 'Home', onClick: () => navigation.navigateToHome() }
-    ];
-    if (showAdminItems) {
-      items.push({ label: 'Admin Panel', onClick: () => navigation.navigateToAdmin() });
-    }
-    return items;
-  }, [navigation, showAdminItems]);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
-      <StandardNavbar
-        navItems={navItems}
-      />
+      <StandardNavbar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">

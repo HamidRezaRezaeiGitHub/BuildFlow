@@ -4,7 +4,6 @@ import React from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
-import NewProjectDemo from '../pages/temp/NewProjectDemo';
 import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
 
@@ -57,13 +56,6 @@ export const AVAILABLE_ROUTES: RouteDefinition[] = [
         description: 'Flexible sign-up form demonstration',
         accessLevel: 'public',
         component: FlexibleSignUpPage
-    },
-    {
-        path: '/temp/new-project',
-        name: 'New Project Demo',
-        description: 'Project creation form demonstration',
-        accessLevel: 'public',
-        component: NewProjectDemo
     },
 
     // Protected routes (requires authentication)
@@ -217,7 +209,6 @@ export const AppRouter: React.FC = () => {
                 <Route path="/temp/address" element={<AddressPage />} />
                 <Route path="/temp/login" element={<LoginPage />} />
                 <Route path="/temp/flexible-sign-up" element={<FlexibleSignUpPage />} />
-                <Route path="/temp/new-project" element={<NewProjectDemo />} />
 
                 {/* Protected routes */}
                 <Route

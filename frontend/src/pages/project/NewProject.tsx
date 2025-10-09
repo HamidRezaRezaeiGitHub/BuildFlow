@@ -1,4 +1,7 @@
+import { StandardNavbar } from '@/components/navbar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateProjectRequest } from '@/services/dtos';
+import { Building2 } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NewProjectForm } from '../../components/project/NewProjectForm';
@@ -49,14 +52,18 @@ export const NewProject: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-background">
+      <StandardNavbar
+      />
+      
+      <div className="bg-gradient-to-br from-muted/20 to-muted/40 py-8 px-4">
+        <div className="container mx-auto">
         {/* Page Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Create New Project
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Start a new construction project by providing the basic information. 
             You can add more details and manage the project after creation.
           </p>
@@ -65,11 +72,11 @@ export const NewProject: React.FC = () => {
         {/* Error Display */}
         {error && (
           <div className="max-w-2xl mx-auto mb-6">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg 
-                    className="h-5 w-5 text-red-400" 
+                    className="h-5 w-5 text-destructive" 
                     viewBox="0 0 20 20" 
                     fill="currentColor"
                   >
@@ -81,10 +88,10 @@ export const NewProject: React.FC = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">
+                  <h3 className="text-sm font-medium text-destructive-foreground">
                     Error Creating Project
                   </h3>
-                  <div className="mt-2 text-sm text-red-700">
+                  <div className="mt-2 text-sm text-destructive-foreground/80">
                     <p>{error}</p>
                   </div>
                 </div>
@@ -94,19 +101,32 @@ export const NewProject: React.FC = () => {
         )}
 
         {/* New Project Form */}
-        <NewProjectForm
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isSubmitting={isSubmitting}
-          submittingText="Creating Project..."
-        />
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-6 w-6" />
+                Create New Project
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NewProjectForm
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                isSubmitting={isSubmitting}
+                submittingText="Creating Project..."
+                inline={true}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Help Text */}
         <div className="max-w-2xl mx-auto mt-8 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Need help? Contact support or check our{' '}
             <button 
-              className="text-primary hover:underline"
+              className="text-primary hover:text-primary/80 hover:underline transition-colors"
               onClick={() => console.log('Documentation clicked')}
             >
               documentation
@@ -114,6 +134,7 @@ export const NewProject: React.FC = () => {
             for guidance on setting up projects.
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

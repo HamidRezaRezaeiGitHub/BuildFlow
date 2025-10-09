@@ -43,6 +43,7 @@ export const HomePage: React.FC<HomePageProps> = ({ className }) => {
         <div className={cn("min-h-screen bg-background", className)}>
             {/* Main content area */}
             <main className="flex-1">
+                {/* StandardNavbar with complete override of navigation items for public home page */}
                 <StandardNavbar
                     onLogoClick={navigateToHome}
                     navItems={[

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AddressData, CreateProjectRequest, ProjectLocationRequestDto } from '@/services/dtos';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
-import { createEmptyAddress } from '../address';
+import { AddressFieldConfig, createEmptyAddress } from '../address';
 import { FlexibleAddressForm } from '../address';
 
 export interface NewProjectFormProps {
@@ -23,6 +23,9 @@ export interface NewProjectFormProps {
 
   /** Additional CSS classes for the form container */
   className?: string;
+
+  /** Whether to show form as inline (no card wrapper) */
+  inline?: boolean;
 }
 
 interface FormData {
@@ -52,9 +55,20 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   onCancel,
   isSubmitting = false,
   submittingText = 'Creating Project...',
-  className = ''
+  className = '',
+  inline = false
 }) => {
   const { user } = useAuth();
+
+  // Address field configuration following the signup form pattern
+  const addressFieldsConfig: AddressFieldConfig[] = [
+    { field: 'unitNumber', colSpan: 1, required: false, show: true },
+    { field: 'streetNumberName' as any, colSpan: 1, required: false, show: true },
+    { field: 'city', colSpan: 1, required: true, show: true },
+    { field: 'stateOrProvince', colSpan: 1, required: true, show: true },
+    { field: 'country', colSpan: 1, required: true, show: true },
+    { field: 'postalOrZipCode', colSpan: 1, required: true, show: true }
+  ];
 
   // Form state
   const [formData, setFormData] = React.useState<FormData>({
@@ -150,20 +164,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   // Form is valid when location is valid
   const isFormValid = isLocationValid;
 
-  return (
-    <Card className={`w-full max-w-2xl mx-auto ${className}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building2 className="h-6 w-6" />
-          Create New Project
-        </CardTitle>
-        <CardDescription>
-          Set up a new construction project by specifying your role and the project location.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+  const formContent = (
+    <form onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
           {/* User Role Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">I am the:</Label>
@@ -172,8 +174,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
                 type="button"
                 onClick={() => handleRoleChange('builder')}
                 className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
-                    ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-muted-foreground/20 hover:border-muted-foreground/40'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:border-border/60'
                   }`}
                 disabled={isSubmitting}
               >
@@ -190,8 +192,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
                 type="button"
                 onClick={() => handleRoleChange('owner')}
                 className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
-                    ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-muted-foreground/20 hover:border-muted-foreground/40'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:border-border/60'
                   }`}
                 disabled={isSubmitting}
               >
@@ -219,6 +221,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
               addressData={formData.projectLocation}
               onAddressChange={handleAddressChange}
               onSubmit={() => { }} // Not used - handled by parent form
+              fieldsConfig={addressFieldsConfig}
               inline={true}
               enableValidation={true}
               isSkippable={false}
@@ -249,7 +252,28 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
-  );
+    );
+
+    // Return inline version (just the form)
+    if (inline) {
+      return formContent;
+    }
+
+    // Return card version (with header)
+    return (
+      <Card className={`w-full max-w-2xl mx-auto`}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-6 w-6" />
+            Create New Project
+          </CardTitle>
+          <CardDescription>
+            Set up a new construction project by specifying your role and the project location.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {formContent}
+        </CardContent>
+      </Card>
+    );
 };

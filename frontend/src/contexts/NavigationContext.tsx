@@ -18,6 +18,11 @@ export interface NavigationContextType {
     navigateToDashboard: () => void;
     navigateToAdmin: () => void;
     
+    // Project navigation helpers
+    navigateToProjects: () => void;
+    navigateToNewProject: () => void;
+    navigateToEstimates: () => void;
+    
     // External navigation
     openExternalLink: (url: string, newTab?: boolean) => void;
 }
@@ -112,6 +117,19 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
         navigate('/admin');
     }, [navigate]);
 
+    // Project navigation helpers
+    const navigateToProjects = useCallback(() => {
+        navigate('/projects');
+    }, [navigate]);
+
+    const navigateToNewProject = useCallback(() => {
+        navigate('/projects/new');
+    }, [navigate]);
+
+    const navigateToEstimates = useCallback(() => {
+        navigate('/estimates');
+    }, [navigate]);
+
     // External navigation
     const openExternalLink = useCallback((url: string, newTab: boolean = true) => {
         if (newTab) {
@@ -132,6 +150,9 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
         navigateToHome,
         navigateToDashboard,
         navigateToAdmin,
+        navigateToProjects,
+        navigateToNewProject,
+        navigateToEstimates,
         openExternalLink,
     };
 
