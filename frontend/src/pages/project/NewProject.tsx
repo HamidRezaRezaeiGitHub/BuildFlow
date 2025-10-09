@@ -56,14 +56,14 @@ export const NewProject: React.FC = () => {
       <StandardNavbar
       />
       
-      <div className="bg-gradient-to-br from-muted/20 to-muted/40 py-8 px-4">
-        <div className="container mx-auto">
+      <section className="py-24 bg-background">
+        <div className="mx-auto max-w-screen-2xl px-4 lg:px-8">
         {/* Page Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+        <div className="text-center space-y-4 mb-16">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Create New Project
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Start a new construction project by providing the basic information. 
             You can add more details and manage the project after creation.
           </p>
@@ -103,13 +103,13 @@ export const NewProject: React.FC = () => {
         {/* New Project Form */}
         <div className="max-w-2xl mx-auto">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-6 w-6" />
+            <CardHeader className="p-4">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Building2 className="h-5 w-5" />
                 Create New Project
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0">
               <NewProjectForm
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
@@ -134,8 +134,8 @@ export const NewProject: React.FC = () => {
             for guidance on setting up projects.
           </p>
         </div>
-      </div>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };
