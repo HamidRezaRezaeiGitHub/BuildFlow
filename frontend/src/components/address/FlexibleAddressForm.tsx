@@ -8,8 +8,6 @@ import { CityField } from './City';
 import { CountryField } from './Country';
 import { PostalCodeField } from './PostalCode';
 import { StateProvinceField } from './StateProvince';
-import { StreetNameField } from './StreetName';
-import { StreetNumberField } from './StreetNumber';
 import { StreetNumberNameField } from './StreetNumberName';
 import { UnitNumberField } from './UnitNumber';
 

@@ -65,8 +65,7 @@ const FlexibleSignUpPage: React.FC = () => {
         confirmPassword: { show: true, required: true, colSpan: 1 },
         // Address fields (used when address is not collapsible)
         unitNumber: { show: true, required: false, colSpan: 1 },
-        streetNumber: { show: true, required: true, colSpan: 1 },
-        streetName: { show: true, required: true, colSpan: 2 },
+        streetNumberAndName: { show: true, required: true, colSpan: 2 },
         city: { show: true, required: true, colSpan: 1 },
         stateOrProvince: { show: true, required: true, colSpan: 1 },
         postalOrZipCode: { show: true, required: true, colSpan: 1 },

@@ -144,7 +144,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const getCurrentUserWithToken = async (specificToken: string): Promise<void> => {
     try {
       const userSummary = await authService.getCurrentUser(specificToken);
-      
+
       // Extract values from UserSummary to populate User state
       // Note: The User object won't have all properties filled (like contactDto)
       // Those can be fetched later when needed (e.g., profile page)
@@ -162,8 +162,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           phone: '',
           addressDto: {
             id: '',
-            streetNumber: '',
-            streetName: '',
+            unitNumber: '',
+            streetNumberAndName: '',
             city: '',
             stateOrProvince: '',
             postalOrZipCode: '',
@@ -171,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
       };
-      
+
       setUser(userData);
       setRole(userSummary.role);
     } catch (error) {

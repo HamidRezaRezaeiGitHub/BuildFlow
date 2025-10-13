@@ -83,8 +83,7 @@ export interface FlexibleSignUpFormData {
     phone: string;
     // Address fields
     unitNumber: string;
-    streetNumber: string;
-    streetName: string;
+    streetNumberAndName: string;
     city: string;
     stateOrProvince: string;
     postalOrZipCode: string;
@@ -258,8 +257,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             confirmPassword: '',
             phone: '',
             unitNumber: emptyAddress.unitNumber || '',
-            streetNumber: emptyAddress.streetNumber || '',
-            streetName: emptyAddress.streetName,
+            streetNumberAndName: emptyAddress.streetNumberAndName || '',
             city: emptyAddress.city,
             stateOrProvince: emptyAddress.stateOrProvince,
             postalOrZipCode: emptyAddress.postalOrZipCode || '',
@@ -371,8 +369,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             if (onRegister) {
                 const addressData = includeAddress ? {
                     unitNumber: signUpForm.unitNumber || undefined,
-                    streetNumber: signUpForm.streetNumber,
-                    streetName: signUpForm.streetName,
+                    streetNumberAndName: signUpForm.streetNumberAndName,
                     city: signUpForm.city,
                     stateOrProvince: signUpForm.stateOrProvince,
                     postalOrZipCode: signUpForm.postalOrZipCode,
@@ -395,8 +392,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                         phone: signUpForm.phone || undefined,
                         addressRequestDto: includeAddress ? {
                             unitNumber: signUpForm.unitNumber || undefined,
-                            streetNumber: signUpForm.streetNumber,
-                            streetName: signUpForm.streetName,
+                            streetNumberAndName: signUpForm.streetNumberAndName,
                             city: signUpForm.city,
                             stateOrProvince: signUpForm.stateOrProvince,
                             postalOrZipCode: signUpForm.postalOrZipCode,
@@ -600,8 +596,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                 <FlexibleAddressForm
                                     addressData={{
                                         unitNumber: signUpForm.unitNumber,
-                                        streetNumber: signUpForm.streetNumber,
-                                        streetName: signUpForm.streetName,
+                                        streetNumberAndName: signUpForm.streetNumberAndName,
                                         city: signUpForm.city,
                                         stateOrProvince: signUpForm.stateOrProvince,
                                         postalOrZipCode: signUpForm.postalOrZipCode,
@@ -616,8 +611,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     disabled={disabled || isSubmitting}
                                     errors={{
                                         unitNumber: errors.unitNumber,
-                                        streetNumber: errors.streetNumber,
-                                        streetName: errors.streetName,
+                                        streetNumberAndName: errors.streetNumberAndName,
                                         city: errors.city,
                                         stateOrProvince: errors.stateOrProvince,
                                         postalOrZipCode: errors.postalOrZipCode,
@@ -635,8 +629,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                             <FlexibleAddressForm
                                 addressData={{
                                     unitNumber: signUpForm.unitNumber,
-                                    streetNumber: signUpForm.streetNumber,
-                                    streetName: signUpForm.streetName,
+                                    streetNumberAndName: signUpForm.streetNumberAndName,
                                     city: signUpForm.city,
                                     stateOrProvince: signUpForm.stateOrProvince,
                                     postalOrZipCode: signUpForm.postalOrZipCode,
@@ -651,8 +644,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                 disabled={disabled || isSubmitting}
                                 errors={{
                                     unitNumber: errors.unitNumber,
-                                    streetNumber: errors.streetNumber,
-                                    streetName: errors.streetName,
+                                    streetNumberAndName: errors.streetNumberAndName,
                                     city: errors.city,
                                     stateOrProvince: errors.stateOrProvince,
                                     postalOrZipCode: errors.postalOrZipCode,

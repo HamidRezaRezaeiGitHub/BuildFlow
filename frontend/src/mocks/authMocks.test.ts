@@ -355,8 +355,8 @@ describe('authMocks', () => {
           phone: '',
           addressDto: {
             id: '3',
-            streetNumber: '',
-            streetName: '',
+            unitNumber: '',
+            streetNumberAndName: '',
             city: '',
             stateOrProvince: '',
             postalOrZipCode: '',
@@ -380,8 +380,7 @@ describe('authMocks', () => {
         email: 'john.doe@example.com',
         phone: '+1-555-0123',
         addressRequestDto: {
-          streetNumber: '123',
-          streetName: 'Main Street',
+          streetNumberAndName: '123 Main Street',
           city: 'Toronto',
           stateOrProvince: 'ON',
           postalOrZipCode: 'M1M 1M1',
@@ -398,7 +397,7 @@ describe('authMocks', () => {
       expect(newUser.contactDto.lastName).toBe('Doe');
       expect(newUser.contactDto.labels).toEqual(['Builder']);
       expect(newUser.contactDto.phone).toBe('+1-555-0123');
-      expect(newUser.contactDto.addressDto.streetNumber).toBe('123');
+      expect(newUser.contactDto.addressDto.streetNumberAndName).toBe('123 Main Street');
 
       // Verify user was added to arrays
       expect(mockUsers).toHaveLength(initialUserCount + 1);
@@ -440,8 +439,7 @@ describe('authMocks', () => {
       const newUser = createMockUser(contactRequest, 'janesmith', 'Password123!');
 
       expect(newUser.contactDto.addressDto).toBeDefined();
-      expect(newUser.contactDto.addressDto.streetNumber).toBe('');
-      expect(newUser.contactDto.addressDto.streetName).toBe('');
+      expect(newUser.contactDto.addressDto.streetNumberAndName).toBe('');
       expect(newUser.contactDto.addressDto.city).toBe('');
     });
 

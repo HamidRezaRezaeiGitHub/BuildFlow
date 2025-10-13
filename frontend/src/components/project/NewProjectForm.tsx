@@ -5,8 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AddressData, CreateProjectRequest, ProjectLocationRequestDto } from '@/services/dtos';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
-import { AddressFieldConfig, createEmptyAddress } from '../address';
-import { FlexibleAddressForm } from '../address';
+import { AddressFieldConfig, createEmptyAddress, FlexibleAddressForm } from '../address';
 
 export interface NewProjectFormProps {
   /** Callback when form is submitted successfully */
@@ -86,7 +85,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   // Basic address validation - check if required fields are filled
   const validateAddress = React.useCallback((address: AddressData) => {
     const requiredFields: (keyof AddressData)[] = [
-      'streetName', 'city', 'stateOrProvince', 'country'
+      'streetNumberAndName', 'city', 'stateOrProvince', 'country'
     ];
 
     return requiredFields.every(field => {
@@ -144,8 +143,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     // Create project request
     const locationRequest: ProjectLocationRequestDto = {
       unitNumber: formData.projectLocation.unitNumber,
-      streetNumber: formData.projectLocation.streetNumber,
-      streetName: formData.projectLocation.streetName,
+      streetNumberAndName: formData.projectLocation.streetNumberAndName,
       city: formData.projectLocation.city,
       stateOrProvince: formData.projectLocation.stateOrProvince,
       postalOrZipCode: formData.projectLocation.postalOrZipCode,
@@ -166,114 +164,114 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
 
   const formContent = (
     <form onSubmit={handleSubmit} className={`space-y-6 ${className}`}>
-          {/* User Role Selection */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">I am the:</Label>
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => handleRoleChange('builder')}
-                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border hover:border-border/60'
-                  }`}
-                disabled={isSubmitting}
-              >
-                <div className="flex items-center gap-2 justify-center">
-                  <Building2 className="h-5 w-5" />
-                  <span className="font-medium">Builder</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  I will be constructing this project
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoleChange('owner')}
-                className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border hover:border-border/60'
-                  }`}
-                disabled={isSubmitting}
-              >
-                <div className="flex items-center gap-2 justify-center">
-                  <User className="h-5 w-5" />
-                  <span className="font-medium">Owner</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  I own the property for this project
-                </p>
-              </button>
+      {/* User Role Selection */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">I am the:</Label>
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => handleRoleChange('builder')}
+            className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-border hover:border-border/60'
+              }`}
+            disabled={isSubmitting}
+          >
+            <div className="flex items-center gap-2 justify-center">
+              <Building2 className="h-5 w-5" />
+              <span className="font-medium">Builder</span>
             </div>
-          </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              I will be constructing this project
+            </p>
+          </button>
 
-          {/* Project Location */}
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium">Project Location</Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Enter the complete address where the construction project will take place.
-              </p>
+          <button
+            type="button"
+            onClick={() => handleRoleChange('owner')}
+            className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-border hover:border-border/60'
+              }`}
+            disabled={isSubmitting}
+          >
+            <div className="flex items-center gap-2 justify-center">
+              <User className="h-5 w-5" />
+              <span className="font-medium">Owner</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              I own the property for this project
+            </p>
+          </button>
+        </div>
+      </div>
 
-            <FlexibleAddressForm
-              addressData={formData.projectLocation}
-              onAddressChange={handleAddressChange}
-              onSubmit={() => { }} // Not used - handled by parent form
-              fieldsConfig={addressFieldsConfig}
-              inline={true}
-              enableValidation={true}
-              isSkippable={false}
-              showAddressPanelHeader={false}
-              disabled={isSubmitting}
-              noFormWrapper={true}
-              showActionButtons={false}
-            />
-          </div>
+      {/* Project Location */}
+      <div className="space-y-4">
+        <div>
+          <Label className="text-sm font-medium">Project Location</Label>
+          <p className="text-xs text-muted-foreground mt-1">
+            Enter the complete address where the construction project will take place.
+          </p>
+        </div>
 
-          {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            )}
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isFormValid}
-            >
-              {isSubmitting ? submittingText : 'Create Project'}
-            </Button>
-          </div>
-        </form>
-    );
+        <FlexibleAddressForm
+          addressData={formData.projectLocation}
+          onAddressChange={handleAddressChange}
+          onSubmit={() => { }} // Not used - handled by parent form
+          fieldsConfig={addressFieldsConfig}
+          inline={true}
+          enableValidation={true}
+          isSkippable={false}
+          showAddressPanelHeader={false}
+          disabled={isSubmitting}
+          noFormWrapper={true}
+          showActionButtons={false}
+        />
+      </div>
 
-    // Return inline version (just the form)
-    if (inline) {
-      return formContent;
-    }
+      {/* Form Actions */}
+      <div className="flex justify-end gap-3 pt-4">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button
+          type="submit"
+          disabled={isSubmitting || !isFormValid}
+        >
+          {isSubmitting ? submittingText : 'Create Project'}
+        </Button>
+      </div>
+    </form>
+  );
 
-    // Return card version (with header)
-    return (
-      <Card className={`w-full max-w-2xl mx-auto`}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-6 w-6" />
-            Create New Project
-          </CardTitle>
-          <CardDescription>
-            Set up a new construction project by specifying your role and the project location.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {formContent}
-        </CardContent>
-      </Card>
-    );
+  // Return inline version (just the form)
+  if (inline) {
+    return formContent;
+  }
+
+  // Return card version (with header)
+  return (
+    <Card className={`w-full max-w-2xl mx-auto`}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building2 className="h-6 w-6" />
+          Create New Project
+        </CardTitle>
+        <CardDescription>
+          Set up a new construction project by specifying your role and the project location.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {formContent}
+      </CardContent>
+    </Card>
+  );
 };
