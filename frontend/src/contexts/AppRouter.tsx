@@ -2,7 +2,7 @@ import { DevPanel } from '@/components/dev';
 import { config } from '@/config/environment';
 import React from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { AddressPage, Admin, DashboardPage, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
+import { AddressPage, Admin, DashboardPage, FlexibleBottomNavbarDemo, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject } from '../pages/project';
 import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
@@ -56,6 +56,13 @@ export const AVAILABLE_ROUTES: RouteDefinition[] = [
         description: 'Flexible sign-up form demonstration',
         accessLevel: 'public',
         component: FlexibleSignUpPage
+    },
+    {
+        path: '/temp/bottom-navbar',
+        name: 'Bottom Navbar Demo',
+        description: 'Flexible bottom navbar with FAB cutout demonstration',
+        accessLevel: 'public',
+        component: FlexibleBottomNavbarDemo
     },
 
     // Protected routes (requires authentication)
@@ -209,6 +216,7 @@ export const AppRouter: React.FC = () => {
                 <Route path="/temp/address" element={<AddressPage />} />
                 <Route path="/temp/login" element={<LoginPage />} />
                 <Route path="/temp/flexible-sign-up" element={<FlexibleSignUpPage />} />
+                <Route path="/temp/bottom-navbar" element={<FlexibleBottomNavbarDemo />} />
 
                 {/* Protected routes */}
                 <Route

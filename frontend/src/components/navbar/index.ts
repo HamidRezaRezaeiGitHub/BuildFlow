@@ -23,6 +23,14 @@ export type { NavbarDependencies } from './dependencies';
 export { FlexibleNavbar } from './FlexibleNavbar';
 export type { FlexibleNavbarProps, NavItem, ThemeToggleComponent } from './FlexibleNavbar';
 
+// Flexible bottom navbar component
+export { FlexibleBottomNavbar } from './FlexibleBottomNavbar';
+export type { 
+  FlexibleBottomNavbarProps, 
+  BottomNavItem, 
+  FloatingActionButton
+} from './FlexibleBottomNavbar';
+
 // Standard navbar with consistent configuration
 export { StandardNavbar } from './StandardNavbar';
 export type { StandardNavbarProps } from './StandardNavbar';

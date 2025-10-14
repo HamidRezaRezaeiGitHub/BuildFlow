@@ -4,7 +4,7 @@ import { config } from '@/config/environment';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/utils';
 import { AlertTriangle, Bug, ChevronDown, ChevronUp, Code, Database, Monitor, Navigation, Settings, User, Zap } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 
 // Import RouteDefinition type from AppRouter
@@ -22,6 +22,238 @@ interface DevPanelProps {
     currentRoute?: RouteDefinition;
     onNavigate?: NavigateFunction;
 }
+
+// Custom hook for drag functionality
+const useDraggable = () => {
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const dragRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseDown = useCallback((e: React.MouseEvent, allowOnButton = false) => {
+        if (!dragRef.current) return;
+
+        // Don't start dragging if clicking on interactive elements (unless explicitly allowed on buttons)
+        const target = e.target as HTMLElement;
+        const isButton = target.tagName === 'BUTTON' || target.closest('button');
+        const isOtherInteractive = target.tagName === 'INPUT' || target.tagName === 'SELECT' ||
+            target.tagName === 'TEXTAREA' || target.closest('input') ||
+            target.closest('select') || target.closest('textarea');
+
+        if (isOtherInteractive || (isButton && !allowOnButton)) {
+            return;
+        }
+
+        const rect = dragRef.current.getBoundingClientRect();
+        setIsDragging(true);
+        setDragStart({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        });
+        e.preventDefault();
+    }, []);
+
+    const handleTouchStart = useCallback((e: React.TouchEvent, allowOnButton = false) => {
+        if (!dragRef.current || e.touches.length !== 1) return;
+
+        // Don't start dragging if touching interactive elements (unless explicitly allowed on buttons)
+        const target = e.target as HTMLElement;
+        const isButton = target.tagName === 'BUTTON' || target.closest('button');
+        const isOtherInteractive = target.tagName === 'INPUT' || target.tagName === 'SELECT' ||
+            target.tagName === 'TEXTAREA' || target.closest('input') ||
+            target.closest('select') || target.closest('textarea');
+
+        if (isOtherInteractive || (isButton && !allowOnButton)) {
+            return;
+        }
+
+        const rect = dragRef.current.getBoundingClientRect();
+        const touch = e.touches[0];
+        setIsDragging(true);
+        setDragStart({
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top
+        });
+        e.preventDefault();
+    }, []);
+
+    const updatePosition = useCallback((clientX: number, clientY: number) => {
+        const newX = clientX - dragStart.x;
+        const newY = clientY - dragStart.y;
+
+        // Allow dragging anywhere on the page with minimal constraints
+        // Only ensure the button doesn't go completely off-screen
+        const buttonSize = 48; // w-12 h-12 = 48px
+        const minPadding = 8; // Smaller padding for more freedom
+
+        setPosition({
+            x: Math.max(-buttonSize + minPadding, Math.min(newX, window.innerWidth - minPadding)),
+            y: Math.max(-buttonSize + minPadding, Math.min(newY, window.innerHeight - minPadding))
+        });
+    }, [dragStart]);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isDragging) return;
+        updatePosition(e.clientX, e.clientY);
+    }, [isDragging, updatePosition]);
+
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        updatePosition(touch.clientX, touch.clientY);
+        e.preventDefault();
+    }, [isDragging, updatePosition]);
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+        if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleMouseUp);
+            document.body.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+        } else {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
+
+    // Initialize position to bottom-right corner
+    useEffect(() => {
+        const initializePosition = () => {
+            const buttonSize = 48; // w-12 h-12 = 48px
+            const minPadding = 16;
+            setPosition({
+                x: window.innerWidth - buttonSize - minPadding,
+                y: window.innerHeight - buttonSize - minPadding
+            });
+        };
+
+        // Only initialize if position is at default (0,0)
+        if (position.x === 0 && position.y === 0) {
+            initializePosition();
+        }
+    }, [position.x, position.y]);
+
+    // Handle window resize to keep button in bounds
+    useEffect(() => {
+        const handleResize = () => {
+            const buttonSize = 48;
+            const minPadding = 8;
+
+            setPosition(prev => ({
+                x: Math.max(-buttonSize + minPadding, Math.min(prev.x, window.innerWidth - minPadding)),
+                y: Math.max(-buttonSize + minPadding, Math.min(prev.y, window.innerHeight - minPadding))
+            }));
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const resetPosition = useCallback(() => {
+        const buttonSize = 48;
+        const minPadding = 16;
+        setPosition({
+            x: window.innerWidth - buttonSize - minPadding,
+            y: window.innerHeight - buttonSize - minPadding
+        });
+    }, []);
+
+    // Position detection functions
+    const getQuadrant = useCallback(() => {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const isLeft = position.x < centerX;
+        const isTop = position.y < centerY;
+
+        if (isTop && isLeft) return 'top-left';
+        if (isTop && !isLeft) return 'top-right';
+        if (!isTop && isLeft) return 'bottom-left';
+        return 'bottom-right';
+    }, [position.x, position.y]);
+
+    const calculatePanelPosition = useCallback(() => {
+        const quadrant = getQuadrant();
+        const buttonSize = 48; // w-12 h-12 = 48px
+        const panelWidth = 384; // w-96 = 384px
+        const panelHeight = 600; // Approximate max panel height
+        const gap = 8; // Gap between button and panel
+
+        let panelX = position.x;
+        let panelY = position.y;
+
+        switch (quadrant) {
+            case 'top-left':
+                // Panel opens to the right and down from button
+                panelX = position.x + buttonSize + gap;
+                panelY = position.y;
+                break;
+            case 'top-right':
+                // Panel opens to the left and down from button
+                panelX = position.x - panelWidth - gap;
+                panelY = position.y;
+                break;
+            case 'bottom-left':
+                // Panel opens to the right and up from button
+                panelX = position.x + buttonSize + gap;
+                panelY = position.y - panelHeight + buttonSize;
+                break;
+            case 'bottom-right':
+                // Panel opens to the left and up from button
+                panelX = position.x - panelWidth - gap;
+                panelY = position.y - panelHeight + buttonSize;
+                break;
+        }
+
+        // Ensure panel stays within viewport bounds
+        const minPadding = 16;
+        panelX = Math.max(minPadding, Math.min(panelX, window.innerWidth - panelWidth - minPadding));
+        panelY = Math.max(minPadding, Math.min(panelY, window.innerHeight - panelHeight - minPadding));
+
+        return { x: panelX, y: panelY, quadrant };
+    }, [position.x, position.y, getQuadrant]);
+
+    // Button-specific drag handlers that allow dragging on buttons
+    const handleButtonMouseDown = useCallback((e: React.MouseEvent) => {
+        handleMouseDown(e, true);
+    }, [handleMouseDown]);
+
+    const handleButtonTouchStart = useCallback((e: React.TouchEvent) => {
+        handleTouchStart(e, true);
+    }, [handleTouchStart]);
+
+    return {
+        position,
+        isDragging,
+        dragRef,
+        handleMouseDown,
+        handleTouchStart,
+        handleButtonMouseDown,
+        handleButtonTouchStart,
+        resetPosition,
+        getQuadrant,
+        calculatePanelPosition
+    };
+};
 
 /**
  * DevPanel - Development tools and debugging information panel
@@ -42,31 +274,83 @@ export const DevPanel: React.FC<DevPanelProps> = ({
     onNavigate
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { position, isDragging, dragRef, handleMouseDown, handleTouchStart, handleButtonMouseDown, handleButtonTouchStart, resetPosition, getQuadrant, calculatePanelPosition } = useDraggable();
+
+    const panelPosition = calculatePanelPosition();
+    const currentQuadrant = getQuadrant();
 
     return (
-        <div className={cn("fixed bottom-4 right-4 z-50 max-w-md", className)}>
-            <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-                {/* Toggle Button */}
-                <CollapsibleTrigger asChild>
-                    <button className="mb-2 w-12 h-12 flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg border-2 border-orange-300 transition-all duration-200 hover:scale-105">
-                        <Code className="h-5 w-5" />
-                    </button>
-                </CollapsibleTrigger>
+        <>
+            {/* Toggle Button */}
+            <div
+                ref={dragRef}
+                className="fixed z-50"
+                style={{
+                    left: position.x,
+                    top: position.y,
+                    cursor: isDragging ? 'grabbing' : 'grab'
+                }}
+            >
+                <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+                    <CollapsibleTrigger asChild>
+                        <button
+                            className={cn(
+                                "w-12 h-12 flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg border-2 border-orange-300 transition-all duration-200 select-none",
+                                isDragging ? "scale-105" : "hover:scale-105"
+                            )}
+                            onMouseDown={handleButtonMouseDown}
+                            onTouchStart={handleButtonTouchStart}
+                            title={`Drag to move panel • Currently in ${currentQuadrant}`}
+                        >
+                            <Code className="h-5 w-5" />
+                        </button>
+                    </CollapsibleTrigger>
+                </Collapsible>
+            </div>
 
-                {/* Expanded Panel */}
-                <CollapsibleContent>
-                    <Card className="w-96 border-2 border-orange-200 shadow-xl bg-gradient-to-br from-orange-50 to-amber-50 max-h-[80vh]">
-                        <CardHeader className="pb-2">
+            {/* Expanded Panel */}
+            {isExpanded && (
+                <div
+                    className={cn("fixed z-40", className)}
+                    style={{
+                        left: panelPosition.x,
+                        top: panelPosition.y
+                    }}
+                >
+                    <Card className={cn(
+                        "w-96 border-2 border-orange-200 shadow-xl bg-gradient-to-br from-orange-50 to-amber-50 max-h-[80vh] transition-shadow duration-200",
+                        isDragging && "shadow-2xl ring-2 ring-orange-300 ring-opacity-50"
+                    )}>
+                        <CardHeader
+                            className="pb-2 cursor-grab active:cursor-grabbing select-none"
+                            onMouseDown={handleMouseDown}
+                            onTouchStart={handleTouchStart}
+                            title="Drag to move panel"
+                        >
                             <div className="flex items-center gap-2">
                                 <AlertTriangle className="h-5 w-5 text-orange-500" />
                                 <CardTitle className="text-lg text-orange-800">
                                     Development Panel
                                 </CardTitle>
+                                <div className="ml-auto flex items-center gap-2">
+                                    <button
+                                        onClick={resetPosition}
+                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-orange-200 hover:bg-orange-300 transition-colors"
+                                        title="Reset position"
+                                    >
+                                        <Navigation className="w-3 h-3 text-orange-700" />
+                                    </button>
+                                    <div className="flex gap-1">
+                                        <div className="w-2 h-2 bg-orange-400 rounded-full opacity-60"></div>
+                                        <div className="w-2 h-2 bg-orange-400 rounded-full opacity-60"></div>
+                                        <div className="w-2 h-2 bg-orange-400 rounded-full opacity-60"></div>
+                                    </div>
+                                </div>
                             </div>
                             <CardDescription className="flex items-center gap-2 text-orange-600">
                                 <Monitor className="h-4 w-4" />
                                 <span className="font-medium">
-                                    Not visible in production
+                                    Position: {currentQuadrant} • Drag to move
                                 </span>
                             </CardDescription>
                         </CardHeader>
@@ -85,9 +369,9 @@ export const DevPanel: React.FC<DevPanelProps> = ({
                             <ToolsSection />
                         </CardContent>
                     </Card>
-                </CollapsibleContent>
-            </Collapsible>
-        </div>
+                </div>
+            )}
+        </>
     );
 };
 

@@ -8,6 +8,7 @@ export * from './project';
 
 // Temp pages for testing
 export { default as AddressPage } from './temp/AddressPage';
+export { default as FlexibleBottomNavbarDemo } from './temp/FlexibleBottomNavbarDemo';
 export { default as FlexibleSignUpPage } from './temp/FlexibleSignUpPage';
 export { default as LoginPage } from './temp/LoginPage';
 export { default as Theme } from './temp/Theme';
