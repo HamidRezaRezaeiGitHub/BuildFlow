@@ -284,7 +284,7 @@ export const DevPanel: React.FC<DevPanelProps> = ({
             {/* Toggle Button */}
             <div
                 ref={dragRef}
-                className="fixed z-50"
+                className="fixed z-[150]"
                 style={{
                     left: position.x,
                     top: position.y,
@@ -311,7 +311,7 @@ export const DevPanel: React.FC<DevPanelProps> = ({
             {/* Expanded Panel */}
             {isExpanded && (
                 <div
-                    className={cn("fixed z-40", className)}
+                    className={cn("fixed z-[140]", className)}
                     style={{
                         left: panelPosition.x,
                         top: panelPosition.y

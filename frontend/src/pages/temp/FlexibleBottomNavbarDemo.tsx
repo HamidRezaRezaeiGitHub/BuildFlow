@@ -7,10 +7,7 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
         alert('Home button clicked! Check console for more details.');
     };
 
-    const handleSettingsClick = () => {
-        console.log('Demo: Settings button clicked');
-        alert('Settings button clicked! Check console for more details.');
-    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20 p-8 transition-colors duration-300">
@@ -56,7 +53,6 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
             {/* The navbar component */}
             <FlexibleBottomNavbar
                 onHomeClick={handleHomeClick}
-                onSettingsClick={handleSettingsClick}
             />
         </div>
     );

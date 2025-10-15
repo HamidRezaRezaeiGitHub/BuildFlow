@@ -1,7 +1,26 @@
 import { Button } from '@/components/ui/button';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/utils';
-import { Home, Plus, Settings } from 'lucide-react';
-import React, { useCallback } from 'react';
+import { FolderOpen, LogOut, Plus, MoreVertical, User, Settings, ChevronDown } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+
+// Type for theme toggle component
+export type ThemeToggleComponent = React.ComponentType<{
+    showLabel?: boolean;
+}>;
 
 export interface BottomNavItem {
     label: string;
@@ -27,8 +46,13 @@ export interface FlexibleBottomNavbarProps {
     showFab?: boolean;
 
     // Click handlers for default items
-    onHomeClick?: () => void;
-    onSettingsClick?: () => void;
+    onProjectsClick?: () => void;
+    onProfileClick?: () => void;
+    onLogoutClick?: () => void;
+
+    // Theme toggle configuration
+    ThemeToggleComponent?: ThemeToggleComponent;
+    showThemeToggle?: boolean;
 
     // Visibility control
     isVisible?: boolean;
@@ -45,29 +69,120 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     showFab = true,
 
     // Click handlers
-    onHomeClick,
-    onSettingsClick,
+    onProjectsClick,
+    onProfileClick,
+    onLogoutClick,
+
+    // Theme toggle props
+    ThemeToggleComponent,
+    showThemeToggle = false,
 
     // Visibility
     isVisible = true,
 }) => {
-    // Handle Home click with default behavior
-    const handleHomeClick = useCallback(() => {
-        if (onHomeClick) {
-            onHomeClick();
-        } else {
-            console.log('Home clicked - no handler provided');
-        }
-    }, [onHomeClick]);
+    // Get logout from AuthContext as fallback
+    const { logout: authLogout } = useAuth();
 
-    // Handle Settings click with default behavior
-    const handleSettingsClick = useCallback(() => {
-        if (onSettingsClick) {
-            onSettingsClick();
+    // State for collapsible preferences
+    const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+
+    // Handle Projects click with default behavior
+    const handleProjectsClick = useCallback(() => {
+        if (onProjectsClick) {
+            onProjectsClick();
         } else {
-            console.log('Settings clicked - no handler provided');
+            console.log('Projects clicked - no handler provided');
         }
-    }, [onSettingsClick]);
+    }, [onProjectsClick]);
+
+    // Settings menu handlers
+    const handleProfile = useCallback(() => {
+        if (onProfileClick) {
+            onProfileClick();
+        } else {
+            console.log('Profile clicked - no handler provided');
+        }
+    }, [onProfileClick]);
+
+    const handleLogout = useCallback(async () => {
+        if (onLogoutClick) {
+            onLogoutClick();
+        } else {
+            // Use AuthContext logout as fallback
+            console.log('Logout clicked - using AuthContext logout');
+            await authLogout();
+        }
+    }, [onLogoutClick, authLogout]);
+
+    // Helper function to render theme toggle with appropriate props
+    const renderThemeToggle = (showLabel: boolean = false) => {
+        if (!ThemeToggleComponent) {
+            return null;
+        }
+        return <ThemeToggleComponent showLabel={showLabel} />;
+    };
+
+    // Build preference items list - scalable for future additions
+    const buildPreferenceItems = () => {
+        const items: React.ReactNode[] = [];
+
+        // Add theme toggle if enabled
+        if (showThemeToggle) {
+            items.push(
+                <div key="theme-toggle" className="flex items-center justify-between py-2">
+                    <span className="text-sm">Theme</span>
+                    <div className="flex items-center">
+                        {renderThemeToggle(false)}
+                    </div>
+                </div>
+            );
+        }
+
+        // Future preference items can be added here
+        // Example:
+        // if (showNotifications) {
+        //     items.push(<NotificationToggle key="notifications" />);
+        // }
+
+        return items;
+    };
+
+    const preferenceItems = buildPreferenceItems();
+    const hasPreferences = preferenceItems.length > 0;
+
+    // Render Preferences collapsible section
+    const renderPreferences = () => {
+        if (!hasPreferences) {
+            return null;
+        }
+
+        return (
+            <Collapsible
+                open={isPreferencesOpen}
+                onOpenChange={setIsPreferencesOpen}
+            >
+                <CollapsibleTrigger asChild>
+                    <button
+                        className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-accent transition-colors"
+                    >
+                        <div className="flex items-center">
+                            <Settings className="mr-3 h-5 w-5" />
+                            <span className="text-sm font-medium">Preferences</span>
+                        </div>
+                        <ChevronDown 
+                            className={cn(
+                                "h-4 w-4 transition-transform duration-200",
+                                isPreferencesOpen && "transform rotate-180"
+                            )}
+                        />
+                    </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-11 pr-3 space-y-2">
+                    {preferenceItems}
+                </CollapsibleContent>
+            </Collapsible>
+        );
+    };
 
     // Handle FAB click
     const handleFabClick = useCallback(() => {
@@ -76,24 +191,75 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         }
     }, [fab]);
 
-    // Define default items: Home on left, Settings on right
+    // Define default items: Projects on left, More on right
     const leftItems = [
         {
-            label: 'Home',
-            icon: <Home className="h-5 w-5" />,
-            onClick: handleHomeClick,
+            label: 'Projects',
+            icon: <FolderOpen className="h-5 w-5" />,
+            onClick: handleProjectsClick,
             isActive: false,
         }
     ];
 
-    const rightItems = [
-        {
-            label: 'Settings',
-            icon: <Settings className="h-5 w-5" />,
-            onClick: handleSettingsClick,
-            isActive: false,
-        }
-    ];
+    // Render more options sheet menu
+    const renderMoreMenu = () => (
+        <Sheet>
+            <SheetTrigger asChild>
+                <button
+                    className={cn(
+                        "flex flex-col items-center justify-center p-1 sm:p-2 min-w-0 max-w-16 relative",
+                        "transition-all duration-200 ease-in-out",
+                        "rounded-lg hover:bg-accent/50 active:bg-accent/70",
+                        "text-muted-foreground hover:text-foreground"
+                    )}
+                    aria-label="More options menu"
+                >
+                    <div className="transition-transform duration-200">
+                        <MoreVertical className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs mt-1 truncate w-full text-center transition-colors duration-200 font-normal">
+                        More
+                    </span>
+                </button>
+            </SheetTrigger>
+            <SheetContent 
+                side="bottom" 
+                className="max-h-[70vh] pb-[env(safe-area-inset-bottom)] z-[130]"
+            >
+                <SheetHeader>
+                    <SheetTitle>My Account</SheetTitle>
+                    <SheetDescription className="sr-only">
+                        Manage your account settings and preferences
+                    </SheetDescription>
+                </SheetHeader>
+                <div className="mt-4 space-y-1">
+                    {/* Profile */}
+                    <button
+                        onClick={handleProfile}
+                        className="flex items-center w-full p-3 rounded-lg hover:bg-accent transition-colors"
+                    >
+                        <User className="mr-3 h-5 w-5" />
+                        <span className="text-sm font-medium">Profile</span>
+                    </button>
+
+                    {/* Preferences - Conditionally rendered based on available items */}
+                    {renderPreferences()}
+
+                    {/* Separator */}
+                    <div className="my-2 border-t border-border" />
+
+                    {/* Log out */}
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full p-3 rounded-lg hover:bg-accent transition-colors text-destructive"
+                    >
+                        <LogOut className="mr-3 h-5 w-5" />
+                        <span className="text-sm font-medium">Log out</span>
+                    </button>
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
 
     // Generate cutout path based on style
     const getCutoutPath = () => {
@@ -142,8 +308,6 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         </button>
     );
 
-
-
     // Don't render if not visible
     if (!isVisible) return null;
 
@@ -171,7 +335,7 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
             
             {/* Bottom Navigation Bar */}
             <div className={cn(
-                "fixed bottom-0 left-0 right-0 z-[100] transition-transform duration-300 max-w-full",
+                "fixed bottom-0 left-0 right-0 z-[100] transition-transform duration-300 max-w-full overflow-visible",
                 isVisible ? "translate-y-0" : "translate-y-full"
             )}
                 style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -216,11 +380,9 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
 
                             {/* Right side items */}
                             <div className="flex flex-1 justify-around min-w-0">
-                                {rightItems.map((item, index) => (
-                                    <div key={`right-${index}`} className="flex-shrink-0">
-                                        {renderNavItem(item, `right-${index}`)}
-                                    </div>
-                                ))}
+                                <div className="flex-shrink-0">
+                                    {renderMoreMenu()}
+                                </div>
                             </div>
                         </div>
                     </div>
