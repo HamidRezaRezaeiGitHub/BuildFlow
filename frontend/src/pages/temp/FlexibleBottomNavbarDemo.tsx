@@ -2,13 +2,6 @@ import { FlexibleBottomNavbar } from '@/components/navbar/FlexibleBottomNavbar';
 import React from 'react';
 
 export const FlexibleBottomNavbarDemo: React.FC = () => {
-    const handleHomeClick = () => {
-        console.log('Demo: Home button clicked');
-        alert('Home button clicked! Check console for more details.');
-    };
-
-
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20 p-8 transition-colors duration-300">
             <div className="max-w-md mx-auto">
@@ -51,9 +44,7 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
             </div>
             
             {/* The navbar component */}
-            <FlexibleBottomNavbar
-                onHomeClick={handleHomeClick}
-            />
+            <FlexibleBottomNavbar/>
         </div>
     );
 };
