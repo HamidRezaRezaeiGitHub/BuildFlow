@@ -135,14 +135,20 @@ const useDraggable = () => {
         };
     }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
-    // Initialize position to bottom-right corner
+    // Initialize position to bottom-right corner with mobile-friendly constraints
     useEffect(() => {
         const initializePosition = () => {
             const buttonSize = 48; // w-12 h-12 = 48px
             const minPadding = 16;
+            
+            // On mobile, position slightly higher to avoid overlap with bottom navigation
+            // Bottom navigation typically takes 64-80px (16-20 in Tailwind units)
+            const isMobile = window.innerWidth < 768;
+            const bottomOffset = isMobile ? 80 : minPadding; // Extra clearance on mobile
+            
             setPosition({
                 x: window.innerWidth - buttonSize - minPadding,
-                y: window.innerHeight - buttonSize - minPadding
+                y: window.innerHeight - buttonSize - bottomOffset
             });
         };
 
@@ -152,15 +158,17 @@ const useDraggable = () => {
         }
     }, [position.x, position.y]);
 
-    // Handle window resize to keep button in bounds
+    // Handle window resize to keep button in bounds with mobile-aware constraints
     useEffect(() => {
         const handleResize = () => {
             const buttonSize = 48;
             const minPadding = 8;
+            const isMobile = window.innerWidth < 768;
+            const bottomClearance = isMobile ? 80 : minPadding; // Extra space for mobile nav
 
             setPosition(prev => ({
                 x: Math.max(-buttonSize + minPadding, Math.min(prev.x, window.innerWidth - minPadding)),
-                y: Math.max(-buttonSize + minPadding, Math.min(prev.y, window.innerHeight - minPadding))
+                y: Math.max(-buttonSize + minPadding, Math.min(prev.y, window.innerHeight - bottomClearance))
             }));
         };
 
@@ -171,9 +179,12 @@ const useDraggable = () => {
     const resetPosition = useCallback(() => {
         const buttonSize = 48;
         const minPadding = 16;
+        const isMobile = window.innerWidth < 768;
+        const bottomOffset = isMobile ? 80 : minPadding; // Extra clearance on mobile
+        
         setPosition({
             x: window.innerWidth - buttonSize - minPadding,
-            y: window.innerHeight - buttonSize - minPadding
+            y: window.innerHeight - buttonSize - bottomOffset
         });
     }, []);
 
@@ -197,6 +208,12 @@ const useDraggable = () => {
         const panelWidth = 384; // w-96 = 384px
         const panelHeight = 600; // Approximate max panel height
         const gap = 8; // Gap between button and panel
+        const isMobile = window.innerWidth < 768;
+        
+        // On mobile, use smaller panel width if needed
+        const effectivePanelWidth = isMobile && window.innerWidth < panelWidth + 32 
+            ? window.innerWidth - 32 // Leave 16px padding on each side
+            : panelWidth;
 
         let panelX = position.x;
         let panelY = position.y;
@@ -209,7 +226,7 @@ const useDraggable = () => {
                 break;
             case 'top-right':
                 // Panel opens to the left and down from button
-                panelX = position.x - panelWidth - gap;
+                panelX = position.x - effectivePanelWidth - gap;
                 panelY = position.y;
                 break;
             case 'bottom-left':
@@ -219,17 +236,19 @@ const useDraggable = () => {
                 break;
             case 'bottom-right':
                 // Panel opens to the left and up from button
-                panelX = position.x - panelWidth - gap;
+                panelX = position.x - effectivePanelWidth - gap;
                 panelY = position.y - panelHeight + buttonSize;
                 break;
         }
 
-        // Ensure panel stays within viewport bounds
+        // Ensure panel stays within viewport bounds with mobile-aware constraints
         const minPadding = 16;
-        panelX = Math.max(minPadding, Math.min(panelX, window.innerWidth - panelWidth - minPadding));
-        panelY = Math.max(minPadding, Math.min(panelY, window.innerHeight - panelHeight - minPadding));
+        const maxPaddingBottom = isMobile ? 80 : minPadding; // Extra clearance for mobile nav
+        
+        panelX = Math.max(minPadding, Math.min(panelX, window.innerWidth - effectivePanelWidth - minPadding));
+        panelY = Math.max(minPadding, Math.min(panelY, window.innerHeight - panelHeight - maxPaddingBottom));
 
-        return { x: panelX, y: panelY, quadrant };
+        return { x: panelX, y: panelY, quadrant, effectivePanelWidth };
     }, [position.x, position.y, getQuadrant]);
 
     // Button-specific drag handlers that allow dragging on buttons
@@ -314,11 +333,12 @@ export const DevPanel: React.FC<DevPanelProps> = ({
                     className={cn("fixed z-[140]", className)}
                     style={{
                         left: panelPosition.x,
-                        top: panelPosition.y
+                        top: panelPosition.y,
+                        width: panelPosition.effectivePanelWidth
                     }}
                 >
                     <Card className={cn(
-                        "w-96 border-2 border-orange-200 shadow-xl bg-gradient-to-br from-orange-50 to-amber-50 max-h-[80vh] transition-shadow duration-200",
+                        "border-2 border-orange-200 shadow-xl bg-gradient-to-br from-orange-50 to-amber-50 max-h-[80vh] transition-shadow duration-200 w-full",
                         isDragging && "shadow-2xl ring-2 ring-orange-300 ring-opacity-50"
                     )}>
                         <CardHeader

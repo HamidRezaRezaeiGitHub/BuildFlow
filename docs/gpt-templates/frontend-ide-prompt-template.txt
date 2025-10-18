@@ -1,0 +1,53 @@
+[frontend][TASK] <short, imperative title>
+
+Objective:
+<Describe what should be implemented or fixed, in one sentence.>
+
+Read before acting:
+- Inspect or update these files:
+  - src/components/layout/<File>.tsx
+  - src/pages/<Page>.tsx
+  - src/components/ui/<Component>.tsx
+
+Acceptance Criteria:
+- <AC1: measurable behavior or result>
+- <AC2: responsive design expectation (mobile vs. desktop)>
+- <AC3: accessibility or usability goal>
+- 'npm run test', 'npm run lint', and 'npm run build' complete without errors.
+
+Constraints & Hints:
+- <Constraint 1>
+- <Constraint 2>
+- <Hint 1>
+- <Hint 2>
+
+Deliverables:
+- List of changed/created files with reasoning.
+- Brief test plan (no test code, just what to verify).
+
+---
+
+### 🧩 Example
+
+[frontend][TASK] Fix DevPanel visibility on small screens
+
+Objective:
+Ensure DevPanel appears when config flag is true, even on mobile viewports.
+
+Read before acting:
+- src/router/AppRouter.tsx
+- src/components/DevPanel.tsx
+
+Acceptance Criteria:
+- DevPanel displays when config condition is true, regardless of screen width.
+- Layout remains functional on small devices.
+- New tests added for DevPanel visibility logic.
+- 'npm run test', 'npm run lint', and 'npm run build' complete without errors.
+
+Constraints & Hints:
+- Check Tailwind responsive utilities (`hidden sm:block` etc.).
+- No UI regressions to existing components.
+
+Deliverables:
+- List of updated files.
+- Manual test: open DevPanel on mobile and desktop widths.

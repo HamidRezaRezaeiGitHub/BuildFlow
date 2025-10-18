@@ -1,0 +1,54 @@
+[backend][TASK] <short, imperative title>
+
+Objective:
+<Describe what the backend should implement or change, in one sentence.>
+
+Read before acting:
+- Inspect or update these files:
+  - src/main/java/dev/hr/rezaei/buildflow/<module>/<File>.java
+  - src/test/java/dev/hr/rezaei/buildflow/<module>/<TestFile>.java
+  - (If applicable) src/main/resources/<config>.yml
+
+Acceptance Criteria:
+- <AC1: implemented behavior or endpoint contract>
+- <AC2: validation or business rule>
+- <AC3: unit/integration test expectation>
+- 'mvn -q -DskipTests=false clean test' and 'mvn -q -DskipTests=true package' complete without errors.
+
+Constraints & Hints:
+- <Constraint 1>
+- <Constraint 2>
+- <Hint 1>
+- <Hint 2>
+
+Deliverables:
+- List of changed/created files with reasoning.
+- Brief test plan (no test code, just what to verify).
+
+---
+### 🧩 Example
+
+[backend][TASK] Add ProjectService with CRUD and validation
+
+Objective:
+Introduce a ProjectService that encapsulates CRUD operations and validates builder/owner references.
+
+Read before acting:
+- src/main/java/dev/hr/rezaei/buildflow/project/Project.java
+- src/main/java/dev/hr/rezaei/buildflow/project/ProjectRepository.java
+- src/main/java/dev/hr/rezaei/buildflow/project/ProjectService.java
+- src/test/java/dev/hr/rezaei/buildflow/project/ProjectServiceTest.java
+
+Acceptance Criteria:
+- Service exposes create/read/update/delete methods for Project.
+- Validates presence of builder and owner; rejects invalid references.
+- Unit tests cover happy paths and validation errors.
+- 'mvn -q -DskipTests=false clean test' and 'mvn -q -DskipTests=true package' complete without errors.
+
+Constraints & Hints:
+- Keep controller thin; place logic in the service layer.
+- Use DTOs at I/O boundaries to avoid entity leakage.
+
+Deliverables:
+- File list with rationale.
+- Test plan outlining cases and expected outcomes.

@@ -1,0 +1,54 @@
+Title:
+[frontend] <short action> — <area/component>
+
+Context:
+<Current behavior/problem (1–2 lines).>
+<Desired behavior in one line.>
+
+Read before acting:
+- Inspect or update these files:
+  - src/components/layout/<File>.tsx
+  - src/pages/<Page>.tsx
+  - src/components/ui/<Component>.tsx
+
+Acceptance Criteria:
+- <AC1: measurable behavior or result>
+- <AC2: responsive design expectation (mobile vs. desktop)>
+- <AC3: accessibility/usability goal>
+- 'npm run test', 'npm run lint', and 'npm run build' complete without errors.
+
+Constraints & Hints:
+- <Constraint 1>
+- <Constraint 2>
+- <Hint 1>
+- <Hint 2>
+
+Deliverables:
+- Short summary of changed/created files and why.
+- Brief test plan (what scenarios to verify).
+
+---
+### 🧩 Example
+
+Title:
+[frontend] Fix DevPanel visibility — AppRouter integration
+
+Context:
+DevPanel is rendered via AppRouter but disappears on small screens. Visibility should depend on the config flag only, not viewport size.
+
+Read before acting:
+- src/router/AppRouter.tsx
+- src/components/DevPanel.tsx
+
+Acceptance Criteria:
+- DevPanel visible when configuration is enabled across all breakpoints.
+- No overlap with bottom navbar or FAB on mobile.
+- 'npm run test', 'npm run lint', and 'npm run build' complete without errors.
+
+Constraints & Hints:
+- Likely hidden by responsive classes (`hidden sm:block`, etc.) or wrapper CSS.
+- Keep changes localized—avoid refactoring unrelated components.
+
+Deliverables:
+- List of modified files with a one-line rationale per file.
+- Test plan covering mobile (≤767px) and desktop (≥1024px) widths.
