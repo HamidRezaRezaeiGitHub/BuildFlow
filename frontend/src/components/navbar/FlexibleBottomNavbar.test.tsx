@@ -135,6 +135,83 @@ describe('FlexibleBottomNavbar', () => {
       const createButton = screen.getByText('Create New Project').closest('[role="menuitem"]');
       expect(createButton).toHaveAttribute('data-disabled');
     });
+
+    test('FlexibleBottomNavbar_shouldShowCreateNewEstimateByDefault', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldHideCreateNewEstimateWhenToggled', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar showCreateNewEstimate={false} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Menu should not have the Create New Estimate option
+      expect(screen.queryByText('Create New Estimate')).not.toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldCallHandlerWhenCreateNewEstimateClicked', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onCreateNewEstimate={mockHandler} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+      
+      const createButton = screen.getByText('Create New Estimate');
+      await user.click(createButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldDisableCreateNewEstimateWithoutHandler', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+      
+      // In dropdown, disabled items render with data-disabled attribute
+      const createButton = screen.getByText('Create New Estimate').closest('[role="menuitem"]');
+      expect(createButton).toHaveAttribute('data-disabled');
+    });
+
+    test('FlexibleBottomNavbar_shouldShowBothDefaultActions', async () => {
+      const user = userEvent.setup();
+      const mockProjectHandler = jest.fn();
+      const mockEstimateHandler = jest.fn();
+      render(
+        <FlexibleBottomNavbar 
+          onCreateNewProject={mockProjectHandler}
+          onCreateNewEstimate={mockEstimateHandler}
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+        expect(screen.getByText('Create New Estimate')).toBeInTheDocument();
+      });
+    });
   });
 
   describe('Plus Menu - Custom Actions', () => {

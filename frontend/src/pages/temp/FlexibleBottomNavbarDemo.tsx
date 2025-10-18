@@ -1,5 +1,4 @@
 import { FlexibleBottomNavbar } from '@/components/navbar/FlexibleBottomNavbar';
-import { FileText, Calendar, Users } from 'lucide-react';
 import React, { useState } from 'react';
 
 export const FlexibleBottomNavbarDemo: React.FC = () => {
@@ -10,19 +9,9 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
         console.log('Create New Project clicked');
     };
 
-    const handleCreateEstimate = () => {
-        setLastAction('Create Estimate clicked');
-        console.log('Create Estimate clicked');
-    };
-
-    const handleScheduleMeeting = () => {
-        setLastAction('Schedule Meeting clicked');
-        console.log('Schedule Meeting clicked');
-    };
-
-    const handleAddContact = () => {
-        setLastAction('Add Contact clicked');
-        console.log('Add Contact clicked');
+    const handleCreateNewEstimate = () => {
+        setLastAction('Create New Estimate clicked');
+        console.log('Create New Estimate clicked');
     };
 
     const handleProjectsClick = () => {
@@ -53,11 +42,7 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
                         </li>
                         <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
-                            <span><strong className="text-foreground">Default action:</strong> Create New Project (with handler)</span>
-                        </li>
-                        <li className="flex items-start">
-                            <span className="text-primary mr-2">•</span>
-                            <span><strong className="text-foreground">Custom actions:</strong> Create Estimate, Schedule Meeting, Add Contact</span>
+                            <span><strong className="text-foreground">Default actions:</strong> Create New Project and Create New Estimate</span>
                         </li>
                         <li className="flex items-start">
                             <span className="text-primary mr-2">•</span>
@@ -110,24 +95,8 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
             {/* The navbar component with Plus menu configuration */}
             <FlexibleBottomNavbar
                 onCreateNewProject={handleCreateNewProject}
+                onCreateNewEstimate={handleCreateNewEstimate}
                 onProjectsClick={handleProjectsClick}
-                plusMenuItems={[
-                    {
-                        label: 'Create Estimate',
-                        icon: <FileText className="h-5 w-5" />,
-                        onClick: handleCreateEstimate,
-                    },
-                    {
-                        label: 'Schedule Meeting',
-                        icon: <Calendar className="h-5 w-5" />,
-                        onClick: handleScheduleMeeting,
-                    },
-                    {
-                        label: 'Add Contact',
-                        icon: <Users className="h-5 w-5" />,
-                        onClick: handleAddContact,
-                    },
-                ]}
             />
         </div>
     );

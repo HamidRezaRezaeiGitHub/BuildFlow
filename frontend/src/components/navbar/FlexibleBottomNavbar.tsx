@@ -21,7 +21,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/utils';
 import { useMediaQuery } from '@/utils/useMediaQuery';
-import { FolderOpen, LogOut, Plus, MoreVertical, User, Settings, ChevronDown, PlusCircle } from 'lucide-react';
+import { FolderOpen, LogOut, Plus, MoreVertical, User, Settings, ChevronDown, PlusCircle, FileText } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
 // Type for theme toggle component
@@ -62,6 +62,8 @@ export interface FlexibleBottomNavbarProps {
     // Plus menu configuration
     showCreateNewProject?: boolean;
     onCreateNewProject?: () => void;
+    showCreateNewEstimate?: boolean;
+    onCreateNewEstimate?: () => void;
     plusMenuItems?: PlusMenuItem[];
     plusMenuVariant?: 'auto' | 'sheet' | 'dropdown';
 
@@ -91,6 +93,8 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     // Plus menu props
     showCreateNewProject = true,
     onCreateNewProject,
+    showCreateNewEstimate = true,
+    onCreateNewEstimate,
     plusMenuItems = [],
     plusMenuVariant = 'auto',
 
@@ -195,6 +199,14 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         setIsPlusMenuOpen(false);
     }, [onCreateNewProject]);
 
+    // Handle Create New Estimate action
+    const handleCreateNewEstimate = useCallback(() => {
+        if (onCreateNewEstimate) {
+            onCreateNewEstimate();
+        }
+        setIsPlusMenuOpen(false);
+    }, [onCreateNewEstimate]);
+
     // Build plus menu items
     const buildPlusMenuItems = useCallback(() => {
         const items: Array<PlusMenuItem & { key: string }> = [];
@@ -210,6 +222,17 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
             });
         }
 
+        // Add default "Create New Estimate" action
+        if (showCreateNewEstimate) {
+            items.push({
+                key: 'create-estimate',
+                label: 'Create New Estimate',
+                icon: <FileText className="h-5 w-5" />,
+                onClick: handleCreateNewEstimate,
+                disabled: !onCreateNewEstimate,
+            });
+        }
+
         // Add custom items
         plusMenuItems.forEach((item, index) => {
             items.push({
@@ -219,7 +242,7 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         });
 
         return items;
-    }, [showCreateNewProject, onCreateNewProject, handleCreateNewProject, plusMenuItems]);
+    }, [showCreateNewProject, onCreateNewProject, handleCreateNewProject, showCreateNewEstimate, onCreateNewEstimate, handleCreateNewEstimate, plusMenuItems]);
 
     const plusItems = buildPlusMenuItems();
 
