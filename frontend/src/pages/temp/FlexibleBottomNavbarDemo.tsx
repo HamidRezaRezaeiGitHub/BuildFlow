@@ -1,11 +1,75 @@
 import { FlexibleBottomNavbar } from '@/components/navbar/FlexibleBottomNavbar';
-import React from 'react';
+import { FileText, Calendar, Users } from 'lucide-react';
+import React, { useState } from 'react';
 
 export const FlexibleBottomNavbarDemo: React.FC = () => {
+    const [lastAction, setLastAction] = useState<string>('None');
+
+    const handleCreateNewProject = () => {
+        setLastAction('Create New Project clicked');
+        console.log('Create New Project clicked');
+    };
+
+    const handleCreateEstimate = () => {
+        setLastAction('Create Estimate clicked');
+        console.log('Create Estimate clicked');
+    };
+
+    const handleScheduleMeeting = () => {
+        setLastAction('Schedule Meeting clicked');
+        console.log('Schedule Meeting clicked');
+    };
+
+    const handleAddContact = () => {
+        setLastAction('Add Contact clicked');
+        console.log('Add Contact clicked');
+    };
+
+    const handleProjectsClick = () => {
+        setLastAction('Projects clicked');
+        console.log('Projects clicked');
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/20 p-8 transition-colors duration-300">
             <div className="max-w-md mx-auto">
-                <h1 className="text-2xl font-bold text-center mb-8 text-foreground">Bottom Navbar Demo</h1>
+                <h1 className="text-2xl font-bold text-center mb-4 text-foreground">Bottom Navbar Demo</h1>
+                <p className="text-center text-sm text-muted-foreground mb-8">
+                    Test the new Plus menu functionality
+                </p>
+                
+                {/* Last Action Display */}
+                <div className="bg-card border-2 border-primary/20 rounded-lg shadow-lg p-4 mb-6 transition-colors duration-300">
+                    <h2 className="text-sm font-semibold mb-2 text-card-foreground">Last Action:</h2>
+                    <p className="text-primary font-medium">{lastAction}</p>
+                </div>
+
+                <div className="bg-card border border-border rounded-lg shadow-lg p-6 mb-8 transition-colors duration-300">
+                    <h2 className="text-lg font-semibold mb-4 text-card-foreground">Features Demonstrated</h2>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <span>Click the <strong className="text-foreground">+</strong> button to open the Plus menu</span>
+                        </li>
+                        <li className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <span><strong className="text-foreground">Default action:</strong> Create New Project (with handler)</span>
+                        </li>
+                        <li className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <span><strong className="text-foreground">Custom actions:</strong> Create Estimate, Schedule Meeting, Add Contact</span>
+                        </li>
+                        <li className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <span><strong className="text-foreground">Responsive:</strong> Bottom sheet on mobile, dropdown on desktop</span>
+                        </li>
+                        <li className="flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            <span>Click <strong className="text-foreground">Projects</strong> or <strong className="text-foreground">More</strong> buttons</span>
+                        </li>
+                    </ul>
+                </div>
+
                 <div className="bg-card border border-border rounded-lg shadow-lg p-6 mb-8 transition-colors duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-card-foreground">Test Content</h2>
                     <p className="text-muted-foreground mb-4">
@@ -43,8 +107,28 @@ export const FlexibleBottomNavbarDemo: React.FC = () => {
                 </div>
             </div>
             
-            {/* The navbar component */}
-            <FlexibleBottomNavbar/>
+            {/* The navbar component with Plus menu configuration */}
+            <FlexibleBottomNavbar
+                onCreateNewProject={handleCreateNewProject}
+                onProjectsClick={handleProjectsClick}
+                plusMenuItems={[
+                    {
+                        label: 'Create Estimate',
+                        icon: <FileText className="h-5 w-5" />,
+                        onClick: handleCreateEstimate,
+                    },
+                    {
+                        label: 'Schedule Meeting',
+                        icon: <Calendar className="h-5 w-5" />,
+                        onClick: handleScheduleMeeting,
+                    },
+                    {
+                        label: 'Add Contact',
+                        icon: <Users className="h-5 w-5" />,
+                        onClick: handleAddContact,
+                    },
+                ]}
+            />
         </div>
     );
 };
