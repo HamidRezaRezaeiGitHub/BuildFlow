@@ -42,7 +42,7 @@ You'll see a dropdown with options:
 ### Step 6: Access Deployment
 Once complete, your branch is live at:
 ```
-https://hamidrezarezaeigithub.github.io/BuildFlow/
+https://<username>.github.io/<repository>/
 ```
 
 **Note**: This URL is shared with the automatic deployment. Each manual deployment overwrites the previous deployment.
@@ -85,8 +85,10 @@ Result: Deploys `fix/responsive-layout` for review
 
 ### Branch Requirements
 - Branch must exist in the repository
-- Branch must have a `frontend/` directory
-- Branch must have valid `package.json` and dependencies
+- Branch must have a properly structured `frontend/` directory with:
+  - Valid `package.json` with required dependencies
+  - `package-lock.json` for reproducible builds
+  - Source files in standard structure (src/, public/, etc.)
 
 ### Reverting
 To revert to main branch deployment:
@@ -113,7 +115,7 @@ To revert to main branch deployment:
 
 ### Wrong Branch Deployed
 - Double-check branch name spelling
-- Verify branch exists with: `git branch -r | grep <branch-name>`
+- Verify branch exists with: `git branch -r | grep "your-branch-name"`
 - Re-run workflow with correct branch name
 
 ## Comparison with Automatic Deployment
