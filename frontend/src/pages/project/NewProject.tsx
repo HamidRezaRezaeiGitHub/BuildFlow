@@ -1,9 +1,9 @@
-import { StandardNavbar } from '@/components/navbar';
+import { StandardBottomNavbar } from '@/components/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateProjectRequest } from '@/services/dtos';
 import { Building2 } from 'lucide-react';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import { NewProjectForm } from '../../components/project/NewProjectForm';
 
 /**
@@ -12,9 +12,11 @@ import { NewProjectForm } from '../../components/project/NewProjectForm';
  * This page provides a form for creating new construction projects.
  * It uses the NewProjectForm component and handles the form submission,
  * navigation, and error handling.
+ * 
+ * Mobile-first design with bottom navigation bar.
  */
 export const NewProject: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useReactRouterNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -52,11 +54,9 @@ export const NewProject: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <StandardNavbar
-      />
-      
-      <section className="py-24 bg-background">
+    <div className="min-h-screen bg-background pb-20">
+      {/* Content container with bottom padding to avoid overlap with bottom nav */}
+      <section className="py-8 bg-background">
         <div className="mx-auto max-w-screen-2xl px-4 lg:px-8">
         {/* Page Header */}
         <div className="text-center space-y-4 mb-16">
@@ -136,6 +136,9 @@ export const NewProject: React.FC = () => {
         </div>
         </div>
       </section>
+
+      {/* Bottom Navigation - Mobile-first design */}
+      <StandardBottomNavbar />
     </div>
   );
 };

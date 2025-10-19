@@ -188,7 +188,8 @@ export interface StandardBottomNavbarProps extends Omit<FlexibleBottomNavbarProp
  * 
  * Navigation Integration:
  * - Projects button navigates to Dashboard (/dashboard)
- * - onCreateNewProject and onCreateNewEstimate are placeholders until pages exist
+ * - onCreateNewProject uses navigateToNewProject from NavigationContext
+ * - onCreateNewEstimate is a placeholder until page exists
  * - Profile navigation not yet implemented (placeholder)
  * 
  * Use this instead of FlexibleBottomNavbar directly to ensure consistency
@@ -203,7 +204,7 @@ export const StandardBottomNavbar: React.FC<StandardBottomNavbarProps> = ({
     ...props
 }) => {
     const { logout } = useAuth();
-    const { navigateToDashboard } = useNavigate();
+    const { navigateToDashboard, navigateToNewProject } = useNavigate();
 
     // Default handler for Projects button - navigates to Dashboard
     const handleDefaultProjects = () => {
@@ -222,6 +223,11 @@ export const StandardBottomNavbar: React.FC<StandardBottomNavbarProps> = ({
         logout();
     };
 
+    // Default handler for Create New Project - uses NavigationContext
+    const handleDefaultCreateNewProject = () => {
+        navigateToNewProject();
+    };
+
     return (
         <FlexibleBottomNavbar
             {...props}
@@ -230,7 +236,7 @@ export const StandardBottomNavbar: React.FC<StandardBottomNavbarProps> = ({
             onProjectsClick={onProjectsClick || handleDefaultProjects}
             onProfileClick={onProfileClick || handleDefaultProfile}
             onLogoutClick={onLogoutClick || handleDefaultLogout}
-            onCreateNewProject={onCreateNewProject}
+            onCreateNewProject={onCreateNewProject || handleDefaultCreateNewProject}
             onCreateNewEstimate={onCreateNewEstimate}
         />
     );
