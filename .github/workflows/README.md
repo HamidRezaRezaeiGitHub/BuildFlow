@@ -37,7 +37,55 @@ This directory contains comprehensive CI/CD workflows for the BuildFlow applicat
 - Comprehensive deployment documentation
 - Package integrity validation
 
-### 3. Security Scan Workflow (`security.yml`)
+### 3. Deploy Frontend to GitHub Pages (`deploy-frontend.yml`)
+**Triggers:** Push to main/master branch (with frontend changes), manual dispatch
+
+**Purpose:** Automatic deployment of frontend to GitHub Pages for live demo
+
+**Jobs:**
+- **Build**: Builds frontend with GitHub Pages profile (standalone mode with mock data)
+- **Deploy**: Deploys to GitHub Pages environment
+
+**Key Features:**
+- Standalone frontend deployment (no backend required)
+- Mock authentication and data for demonstration
+- SPA routing support with 404.html fallback
+- Base path configuration for GitHub Pages subdirectory
+- Automatic deployment on frontend changes
+
+### 4. Deploy Frontend to GitHub Pages - Manual (`deploy-frontend-manual.yml`)
+**Triggers:** Manual dispatch only (with optional branch selection or latest PR)
+
+**Purpose:** Manual deployment of feature branches to GitHub Pages for review
+
+**Jobs:**
+- **Build**: Builds frontend from specified branch with GitHub Pages profile, runs tests and linting
+- **Deploy**: Deploys to same GitHub Pages environment/URL as automatic deployment
+
+**Key Features:**
+- Deploy any branch manually for preview/review
+- **NEW:** Deploy latest open PR head branch automatically
+- Uses same GitHub Pages URL as automatic deployment
+- Branch selection input (defaults to current branch if empty)
+- **NEW:** Runs tests before deployment (fails fast if tests fail)
+- **NEW:** Runs linting before deployment (fails fast if linting fails)
+- Useful for testing feature branches before merging
+- Same build configuration as automatic deployment
+
+**Usage:**
+```
+1. Go to Actions → Deploy Frontend to GitHub Pages (Manual)
+2. Click "Run workflow"
+3. Choose deployment method:
+   - Enter branch name to deploy, OR
+   - Check "Deploy the latest open PR head branch", OR
+   - Leave empty for current branch
+4. Click "Run workflow" button
+5. Monitor deployment progress (tests and linting run first)
+6. Access deployed frontend at: https://hamidrezarezaeigithub.github.io/BuildFlow/
+```
+
+### 5. Security Scan Workflow (`security.yml`)
 **Triggers:** Push/PR to master/main, weekly schedule (Sundays 2 AM UTC), manual dispatch
 
 **Purpose:** Security vulnerability scanning and code quality analysis
