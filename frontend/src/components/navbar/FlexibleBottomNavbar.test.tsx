@@ -455,6 +455,8 @@ describe('FlexibleBottomNavbar', () => {
 
   describe('More Menu Integration', () => {
     test('FlexibleBottomNavbar_shouldKeepMoreMenuFunctional', async () => {
+      // Mock mobile view to use Sheet variant which has "My Account" title
+      mockUseMediaQuery.mockReturnValue(true);
       render(<FlexibleBottomNavbar />);
       
       const moreButton = screen.getByText('More');
@@ -472,6 +474,111 @@ describe('FlexibleBottomNavbar', () => {
       
       const projectsButton = screen.getByText('Projects');
       fireEvent.click(projectsButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('More Menu - Responsive Behavior', () => {
+    test('FlexibleBottomNavbar_shouldUseSheetForMoreMenuOnMobile', async () => {
+      const user = userEvent.setup();
+      // Mock mobile view
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(<FlexibleBottomNavbar />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      // Sheet should be used (contains SheetTitle "My Account")
+      await waitFor(() => {
+        expect(screen.getByText('My Account')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldUseDropdownForMoreMenuOnDesktop', async () => {
+      const user = userEvent.setup();
+      // Mock desktop view
+      mockUseMediaQuery.mockReturnValue(false);
+      
+      render(<FlexibleBottomNavbar />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      // Dropdown should be used - Profile menu item should be present
+      await waitFor(() => {
+        expect(screen.getByText('Profile')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldRespectMoreMenuVariantSheet', async () => {
+      const user = userEvent.setup();
+      // Force sheet even on desktop
+      mockUseMediaQuery.mockReturnValue(false);
+      
+      render(<FlexibleBottomNavbar moreMenuVariant="sheet" />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      // Sheet should be used (contains SheetTitle)
+      await waitFor(() => {
+        expect(screen.getByText('My Account')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldRespectMoreMenuVariantDropdown', async () => {
+      const user = userEvent.setup();
+      // Force dropdown even on mobile
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(<FlexibleBottomNavbar moreMenuVariant="dropdown" />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      // Dropdown should be used (no "My Account" title in dropdown)
+      await waitFor(() => {
+        expect(screen.getByText('Profile')).toBeInTheDocument();
+      });
+      
+      // Sheet title should not be present
+      expect(screen.queryByText('My Account')).not.toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldCallProfileHandlerFromMoreMenu', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onProfileClick={mockHandler} />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Profile')).toBeInTheDocument();
+      });
+      
+      const profileButton = screen.getByText('Profile');
+      await user.click(profileButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldCallLogoutHandlerFromMoreMenu', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onLogoutClick={mockHandler} />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Log out')).toBeInTheDocument();
+      });
+      
+      const logoutButton = screen.getByText('Log out');
+      await user.click(logoutButton);
       
       expect(mockHandler).toHaveBeenCalledTimes(1);
     });

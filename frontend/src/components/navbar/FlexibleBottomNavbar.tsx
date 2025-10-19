@@ -67,6 +67,9 @@ export interface FlexibleBottomNavbarProps {
     plusMenuItems?: PlusMenuItem[];
     plusMenuVariant?: 'auto' | 'sheet' | 'dropdown';
 
+    // More menu configuration
+    moreMenuVariant?: 'auto' | 'sheet' | 'dropdown';
+
     // Click handlers for default items
     onProjectsClick?: () => void;
     onProfileClick?: () => void;
@@ -98,6 +101,9 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     plusMenuItems = [],
     plusMenuVariant = 'auto',
 
+    // More menu props
+    moreMenuVariant = 'auto',
+
     // Click handlers
     onProjectsClick,
     onProfileClick,
@@ -119,6 +125,9 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     // State for plus menu
     const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
 
+    // State for more menu
+    const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+
     // Detect mobile for responsive behavior
     const isMobile = useMediaQuery('(max-width: 767px)');
 
@@ -126,6 +135,11 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     const effectivePlusMenuVariant = plusMenuVariant === 'auto' 
         ? (isMobile ? 'sheet' : 'dropdown')
         : plusMenuVariant;
+
+    // Determine which variant to use for more menu
+    const effectiveMoreMenuVariant = moreMenuVariant === 'auto' 
+        ? (isMobile ? 'sheet' : 'dropdown')
+        : moreMenuVariant;
 
     // Handle Projects click with default behavior
     const handleProjectsClick = useCallback(() => {
@@ -401,9 +415,9 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         }
     ];
 
-    // Render more options sheet menu
-    const renderMoreMenu = () => (
-        <Sheet>
+    // Render more options menu as Sheet (mobile)
+    const renderMoreMenuSheet = () => (
+        <Sheet open={isMoreMenuOpen} onOpenChange={setIsMoreMenuOpen}>
             <SheetTrigger asChild>
                 <button
                     className={cn(
@@ -460,6 +474,77 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
             </SheetContent>
         </Sheet>
     );
+
+    // Render more options menu as Dropdown (desktop)
+    const renderMoreMenuDropdown = () => (
+        <DropdownMenu open={isMoreMenuOpen} onOpenChange={setIsMoreMenuOpen}>
+            <DropdownMenuTrigger asChild>
+                <button
+                    className={cn(
+                        "flex flex-col items-center justify-center p-1 sm:p-2 min-w-0 max-w-16 relative",
+                        "transition-all duration-200 ease-in-out",
+                        "rounded-lg hover:bg-accent/50 active:bg-accent/70",
+                        "text-muted-foreground hover:text-foreground"
+                    )}
+                    aria-label="More options menu"
+                >
+                    <div className="transition-transform duration-200">
+                        <MoreVertical className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs mt-1 truncate w-full text-center transition-colors duration-200 font-normal">
+                        More
+                    </span>
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+                align="end" 
+                side="top"
+                className="w-56 mb-2"
+                sideOffset={8}
+            >
+                {/* Profile */}
+                <DropdownMenuItem
+                    onClick={handleProfile}
+                    className="cursor-pointer"
+                >
+                    <User className="mr-2 h-5 w-5" />
+                    <span>Profile</span>
+                </DropdownMenuItem>
+
+                {/* Settings with theme toggle if available */}
+                {showThemeToggle && (
+                    <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        className="cursor-pointer"
+                    >
+                        <Settings className="mr-2 h-5 w-5" />
+                        <span className="flex-1">Theme</span>
+                        {renderThemeToggle(false)}
+                    </DropdownMenuItem>
+                )}
+
+                {/* Separator */}
+                <div className="my-1 border-t border-border" />
+
+                {/* Log out */}
+                <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                    <LogOut className="mr-2 h-5 w-5" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+
+    // Render more menu based on variant
+    const renderMoreMenu = () => {
+        if (effectiveMoreMenuVariant === 'sheet') {
+            return renderMoreMenuSheet();
+        }
+        return renderMoreMenuDropdown();
+    };
 
     // Generate cutout path based on style
     const getCutoutPath = () => {
