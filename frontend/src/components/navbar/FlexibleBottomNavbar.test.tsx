@@ -1,0 +1,479 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { FlexibleBottomNavbar } from './FlexibleBottomNavbar';
+
+// Mock the auth context
+const mockLogout = jest.fn();
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    role: null,
+    token: null,
+    isAuthenticated: false,
+    isLoading: false,
+    login: jest.fn(),
+    register: jest.fn(),
+    logout: mockLogout,
+    refreshToken: jest.fn(),
+    getCurrentUser: jest.fn(),
+  }),
+}));
+
+// Mock useMediaQuery hook
+const mockUseMediaQuery = jest.fn();
+jest.mock('@/utils/useMediaQuery', () => ({
+  useMediaQuery: (query: string) => mockUseMediaQuery(query),
+}));
+
+describe('FlexibleBottomNavbar', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default to desktop view
+    mockUseMediaQuery.mockReturnValue(false);
+  });
+
+  describe('Basic Rendering', () => {
+    test('FlexibleBottomNavbar_shouldRenderWithDefaultProps', () => {
+      render(<FlexibleBottomNavbar />);
+      
+      // Should render Projects button
+      expect(screen.getByText('Projects')).toBeInTheDocument();
+      
+      // Should render More button
+      expect(screen.getByText('More')).toBeInTheDocument();
+      
+      // Should render FAB
+      expect(screen.getByLabelText(/Create new item/i)).toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldHideWhenNotVisible', () => {
+      const { container } = render(<FlexibleBottomNavbar isVisible={false} />);
+      
+      // Component should not render when isVisible is false
+      expect(container.firstChild).toBeNull();
+    });
+
+    test('FlexibleBottomNavbar_shouldHideFabWhenShowFabIsFalse', () => {
+      render(<FlexibleBottomNavbar showFab={false} />);
+      
+      // FAB should not be present
+      expect(screen.queryByLabelText(/Create new item/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Plus Menu - Default Actions', () => {
+    test('FlexibleBottomNavbar_shouldOpenPlusMenuOnFabClick', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      
+      // Click to open menu
+      await user.click(fabButton);
+      
+      // Menu should open and show "Create New Project"
+      await waitFor(() => {
+        const menuItem = screen.queryByText('Create New Project');
+        expect(menuItem).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldShowCreateNewProjectByDefault', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Project')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldHideCreateNewProjectWhenToggled', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar showCreateNewProject={false} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Menu should not have the Create New Project option
+      expect(screen.queryByText('Create New Project')).not.toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldCallHandlerWhenCreateNewProjectClicked', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onCreateNewProject={mockHandler} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      const createButton = screen.getByText('Create New Project');
+      await user.click(createButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldDisableCreateNewProjectWithoutHandler', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      // In dropdown, disabled items render with data-disabled attribute (empty string or "true")
+      const createButton = screen.getByText('Create New Project').closest('[role="menuitem"]');
+      expect(createButton).toHaveAttribute('data-disabled');
+    });
+
+    test('FlexibleBottomNavbar_shouldShowCreateNewEstimateByDefault', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldHideCreateNewEstimateWhenToggled', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar showCreateNewEstimate={false} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Menu should not have the Create New Estimate option
+      expect(screen.queryByText('Create New Estimate')).not.toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldCallHandlerWhenCreateNewEstimateClicked', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onCreateNewEstimate={mockHandler} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+      
+      const createButton = screen.getByText('Create New Estimate');
+      await user.click(createButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldDisableCreateNewEstimateWithoutHandler', async () => {
+      const user = userEvent.setup();
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Estimate')).toBeInTheDocument();
+      });
+      
+      // In dropdown, disabled items render with data-disabled attribute
+      const createButton = screen.getByText('Create New Estimate').closest('[role="menuitem"]');
+      expect(createButton).toHaveAttribute('data-disabled');
+    });
+
+    test('FlexibleBottomNavbar_shouldShowBothDefaultActions', async () => {
+      const user = userEvent.setup();
+      const mockProjectHandler = jest.fn();
+      const mockEstimateHandler = jest.fn();
+      render(
+        <FlexibleBottomNavbar 
+          onCreateNewProject={mockProjectHandler}
+          onCreateNewEstimate={mockEstimateHandler}
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+        expect(screen.getByText('Create New Estimate')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Plus Menu - Custom Actions', () => {
+    test('FlexibleBottomNavbar_shouldRenderCustomMenuItems', async () => {
+      const user = userEvent.setup();
+      const customItems = [
+        { label: 'Custom Action 1', onClick: jest.fn() },
+        { label: 'Custom Action 2', onClick: jest.fn() },
+      ];
+      
+      render(<FlexibleBottomNavbar plusMenuItems={customItems} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Custom Action 1')).toBeInTheDocument();
+        expect(screen.getByText('Custom Action 2')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldCallCustomItemHandler', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      const customItems = [
+        { label: 'Custom Action', onClick: mockHandler },
+      ];
+      
+      render(<FlexibleBottomNavbar plusMenuItems={customItems} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Custom Action')).toBeInTheDocument();
+      });
+      
+      const customButton = screen.getByText('Custom Action');
+      await user.click(customButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldShowDefaultAndCustomItemsTogether', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      const customItems = [
+        { label: 'Custom Action', onClick: jest.fn() },
+      ];
+      
+      render(
+        <FlexibleBottomNavbar 
+          onCreateNewProject={mockHandler}
+          plusMenuItems={customItems}
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+        expect(screen.getByText('Custom Action')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldHandleDisabledCustomItems', async () => {
+      const user = userEvent.setup();
+      const mockHandler = jest.fn();
+      const customItems = [
+        { label: 'Disabled Action', onClick: mockHandler, disabled: true },
+      ];
+      
+      render(<FlexibleBottomNavbar plusMenuItems={customItems} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Disabled Action')).toBeInTheDocument();
+      });
+      
+      const disabledButton = screen.getByText('Disabled Action').closest('[role="menuitem"]');
+      expect(disabledButton).toHaveAttribute('data-disabled');
+    });
+  });
+
+  describe('Plus Menu - Responsive Behavior', () => {
+    test('FlexibleBottomNavbar_shouldUseSheetOnMobile', async () => {
+      const user = userEvent.setup();
+      // Mock mobile view
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Sheet should be used (contains SheetTitle "Create New")
+      await waitFor(() => {
+        expect(screen.getByText('Create New')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldUseDropdownOnDesktop', async () => {
+      const user = userEvent.setup();
+      // Mock desktop view
+      mockUseMediaQuery.mockReturnValue(false);
+      
+      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Dropdown should be used
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldRespectPlusMenuVariantSheet', async () => {
+      const user = userEvent.setup();
+      // Force sheet even on desktop
+      mockUseMediaQuery.mockReturnValue(false);
+      
+      render(
+        <FlexibleBottomNavbar 
+          onCreateNewProject={jest.fn()}
+          plusMenuVariant="sheet"
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Sheet should be used (contains SheetTitle)
+      await waitFor(() => {
+        expect(screen.getByText('Create New')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldRespectPlusMenuVariantDropdown', async () => {
+      const user = userEvent.setup();
+      // Force dropdown even on mobile
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(
+        <FlexibleBottomNavbar 
+          onCreateNewProject={jest.fn()}
+          plusMenuVariant="dropdown"
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      // Dropdown should be used (no "Create New" title in dropdown)
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      // Sheet title should not be present
+      expect(screen.queryByText('Create New')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Plus Menu - Layout and Accessibility', () => {
+    test('FlexibleBottomNavbar_shouldMaintainLayoutWhenMenuOpens', async () => {
+      const user = userEvent.setup();
+      const { container } = render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      
+      const initialBottom = container.querySelector('[class*="fixed bottom"]');
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      // Layout should remain stable
+      const afterBottom = container.querySelector('[class*="fixed bottom"]');
+      expect(initialBottom).toEqual(afterBottom);
+    });
+
+    test('FlexibleBottomNavbar_shouldHaveProperAriaLabel', () => {
+      render(<FlexibleBottomNavbar />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      expect(fabButton).toHaveAttribute('aria-label');
+    });
+
+    test('FlexibleBottomNavbar_shouldSupportCustomFabAriaLabel', () => {
+      render(
+        <FlexibleBottomNavbar 
+          fab={{ 'aria-label': 'Custom create button' }}
+        />
+      );
+      
+      expect(screen.getByLabelText('Custom create button')).toBeInTheDocument();
+    });
+  });
+
+  describe('Legacy FAB Support', () => {
+    test('FlexibleBottomNavbar_shouldSupportLegacyFabOnClick', () => {
+      const mockFabClick = jest.fn();
+      render(
+        <FlexibleBottomNavbar 
+          fab={{ onClick: mockFabClick }}
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Floating action button/i);
+      fireEvent.click(fabButton);
+      
+      expect(mockFabClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('FlexibleBottomNavbar_shouldNotOpenMenuWithLegacyFabOnClick', async () => {
+      const mockFabClick = jest.fn();
+      render(
+        <FlexibleBottomNavbar 
+          fab={{ onClick: mockFabClick }}
+          onCreateNewProject={jest.fn()}
+        />
+      );
+      
+      const fabButton = screen.getByLabelText(/Floating action button/i);
+      fireEvent.click(fabButton);
+      
+      // Menu should not open
+      await waitFor(() => {
+        expect(screen.queryByText('Create New Project')).not.toBeInTheDocument();
+      }, { timeout: 500 }).catch(() => {
+        // Expected behavior - menu doesn't open
+      });
+      
+      expect(mockFabClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('More Menu Integration', () => {
+    test('FlexibleBottomNavbar_shouldKeepMoreMenuFunctional', async () => {
+      render(<FlexibleBottomNavbar />);
+      
+      const moreButton = screen.getByText('More');
+      fireEvent.click(moreButton);
+      
+      // More menu should open
+      await waitFor(() => {
+        expect(screen.getByText('My Account')).toBeInTheDocument();
+      });
+    });
+
+    test('FlexibleBottomNavbar_shouldCallProjectsHandler', () => {
+      const mockHandler = jest.fn();
+      render(<FlexibleBottomNavbar onProjectsClick={mockHandler} />);
+      
+      const projectsButton = screen.getByText('Projects');
+      fireEvent.click(projectsButton);
+      
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+});

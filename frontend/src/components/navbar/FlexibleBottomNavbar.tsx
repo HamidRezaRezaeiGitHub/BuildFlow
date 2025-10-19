@@ -8,13 +8,20 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/utils';
-import { FolderOpen, LogOut, Plus, MoreVertical, User, Settings, ChevronDown } from 'lucide-react';
+import { useMediaQuery } from '@/utils/useMediaQuery';
+import { FolderOpen, LogOut, Plus, MoreVertical, User, Settings, ChevronDown, PlusCircle, FileText } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
 // Type for theme toggle component
@@ -38,12 +45,27 @@ export interface FloatingActionButton {
     className?: string;
 }
 
+export interface PlusMenuItem {
+    label: string;
+    icon?: React.ReactNode;
+    onClick: () => void;
+    disabled?: boolean;
+}
+
 export interface FlexibleBottomNavbarProps {
     className?: string;
 
     // Floating Action Button (FAB) configuration
     fab?: FloatingActionButton;
     showFab?: boolean;
+
+    // Plus menu configuration
+    showCreateNewProject?: boolean;
+    onCreateNewProject?: () => void;
+    showCreateNewEstimate?: boolean;
+    onCreateNewEstimate?: () => void;
+    plusMenuItems?: PlusMenuItem[];
+    plusMenuVariant?: 'auto' | 'sheet' | 'dropdown';
 
     // Click handlers for default items
     onProjectsClick?: () => void;
@@ -68,6 +90,14 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     fab,
     showFab = true,
 
+    // Plus menu props
+    showCreateNewProject = true,
+    onCreateNewProject,
+    showCreateNewEstimate = true,
+    onCreateNewEstimate,
+    plusMenuItems = [],
+    plusMenuVariant = 'auto',
+
     // Click handlers
     onProjectsClick,
     onProfileClick,
@@ -85,6 +115,17 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
 
     // State for collapsible preferences
     const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+
+    // State for plus menu
+    const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
+
+    // Detect mobile for responsive behavior
+    const isMobile = useMediaQuery('(max-width: 767px)');
+
+    // Determine which variant to use for plus menu
+    const effectivePlusMenuVariant = plusMenuVariant === 'auto' 
+        ? (isMobile ? 'sheet' : 'dropdown')
+        : plusMenuVariant;
 
     // Handle Projects click with default behavior
     const handleProjectsClick = useCallback(() => {
@@ -150,6 +191,61 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
     const preferenceItems = buildPreferenceItems();
     const hasPreferences = preferenceItems.length > 0;
 
+    // Handle Create New Project action
+    const handleCreateNewProject = useCallback(() => {
+        if (onCreateNewProject) {
+            onCreateNewProject();
+        }
+        setIsPlusMenuOpen(false);
+    }, [onCreateNewProject]);
+
+    // Handle Create New Estimate action
+    const handleCreateNewEstimate = useCallback(() => {
+        if (onCreateNewEstimate) {
+            onCreateNewEstimate();
+        }
+        setIsPlusMenuOpen(false);
+    }, [onCreateNewEstimate]);
+
+    // Build plus menu items
+    const buildPlusMenuItems = useCallback(() => {
+        const items: Array<PlusMenuItem & { key: string }> = [];
+
+        // Add default "Create New Project" action
+        if (showCreateNewProject) {
+            items.push({
+                key: 'create-project',
+                label: 'Create New Project',
+                icon: <PlusCircle className="h-5 w-5" />,
+                onClick: handleCreateNewProject,
+                disabled: !onCreateNewProject,
+            });
+        }
+
+        // Add default "Create New Estimate" action
+        if (showCreateNewEstimate) {
+            items.push({
+                key: 'create-estimate',
+                label: 'Create New Estimate',
+                icon: <FileText className="h-5 w-5" />,
+                onClick: handleCreateNewEstimate,
+                disabled: !onCreateNewEstimate,
+            });
+        }
+
+        // Add custom items
+        plusMenuItems.forEach((item, index) => {
+            items.push({
+                ...item,
+                key: `custom-${index}`,
+            });
+        });
+
+        return items;
+    }, [showCreateNewProject, onCreateNewProject, handleCreateNewProject, showCreateNewEstimate, onCreateNewEstimate, handleCreateNewEstimate, plusMenuItems]);
+
+    const plusItems = buildPlusMenuItems();
+
     // Render Preferences collapsible section
     const renderPreferences = () => {
         if (!hasPreferences) {
@@ -184,10 +280,114 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
         );
     };
 
-    // Handle FAB click
+    // Render Plus menu as Sheet (mobile)
+    const renderPlusMenuSheet = () => (
+        <Sheet open={isPlusMenuOpen} onOpenChange={setIsPlusMenuOpen}>
+            <SheetTrigger asChild>
+                <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[120]">
+                    <Button
+                        size="lg"
+                        className={cn(
+                            "w-14 h-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200",
+                            "bg-primary hover:bg-primary/90 text-primary-foreground",
+                            "ring-4 ring-primary/20 hover:ring-primary/30",
+                            "border-2 border-primary/10 hover:border-primary/20",
+                            fab?.className
+                        )}
+                        aria-label={fab?.['aria-label'] || 'Create new item'}
+                    >
+                        {fab?.icon || <Plus className="h-6 w-6" />}
+                    </Button>
+                </div>
+            </SheetTrigger>
+            <SheetContent 
+                side="bottom" 
+                className="max-h-[70vh] pb-[env(safe-area-inset-bottom)] z-[130]"
+            >
+                <SheetHeader>
+                    <SheetTitle>Create New</SheetTitle>
+                    <SheetDescription className="sr-only">
+                        Select an action to create a new item
+                    </SheetDescription>
+                </SheetHeader>
+                <div className="mt-4 space-y-1">
+                    {plusItems.map((item) => (
+                        <button
+                            key={item.key}
+                            onClick={item.onClick}
+                            disabled={item.disabled}
+                            className={cn(
+                                "flex items-center w-full p-3 rounded-lg transition-colors",
+                                item.disabled
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:bg-accent"
+                            )}
+                        >
+                            {item.icon && <span className="mr-3">{item.icon}</span>}
+                            <span className="text-sm font-medium">{item.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+
+    // Render Plus menu as Dropdown (desktop)
+    const renderPlusMenuDropdown = () => (
+        <DropdownMenu open={isPlusMenuOpen} onOpenChange={setIsPlusMenuOpen}>
+            <DropdownMenuTrigger asChild>
+                <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[120]">
+                    <Button
+                        size="lg"
+                        className={cn(
+                            "w-14 h-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200",
+                            "bg-primary hover:bg-primary/90 text-primary-foreground",
+                            "ring-4 ring-primary/20 hover:ring-primary/30",
+                            "border-2 border-primary/10 hover:border-primary/20",
+                            fab?.className
+                        )}
+                        aria-label={fab?.['aria-label'] || 'Create new item'}
+                    >
+                        {fab?.icon || <Plus className="h-6 w-6" />}
+                    </Button>
+                </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+                align="center" 
+                side="top"
+                className="w-56 mb-2"
+                sideOffset={8}
+            >
+                {plusItems.map((item) => (
+                    <DropdownMenuItem
+                        key={item.key}
+                        onClick={item.onClick}
+                        disabled={item.disabled}
+                        className="cursor-pointer"
+                    >
+                        {item.icon && <span className="mr-2">{item.icon}</span>}
+                        <span>{item.label}</span>
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+
+    // Render Plus menu based on variant
+    const renderPlusMenu = () => {
+        if (effectivePlusMenuVariant === 'sheet') {
+            return renderPlusMenuSheet();
+        }
+        return renderPlusMenuDropdown();
+    };
+
+    // Handle FAB click - legacy support
     const handleFabClick = useCallback(() => {
         if (fab?.onClick) {
             fab.onClick();
+        } else {
+            // If no custom FAB onClick, open plus menu
+            setIsPlusMenuOpen(true);
         }
     }, [fab]);
 
@@ -313,8 +513,9 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
 
     return (
         <>
-            {/* Floating Action Button - positioned half in/half out of bottom bar */}
-            {showFab && (
+            {/* Floating Action Button with Plus Menu */}
+            {showFab && (fab?.onClick ? (
+                // Legacy: Direct FAB with custom onClick
                 <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[120]">
                     <Button
                         size="lg"
@@ -331,7 +532,10 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
                         {fab?.icon || <Plus className="h-6 w-6" />}
                     </Button>
                 </div>
-            )}
+            ) : (
+                // New: Plus menu with configurable actions
+                renderPlusMenu()
+            ))}
             
             {/* Bottom Navigation Bar */}
             <div className={cn(
