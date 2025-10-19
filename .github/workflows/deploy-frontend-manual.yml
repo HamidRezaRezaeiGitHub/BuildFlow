@@ -1,0 +1,84 @@
+name: Deploy Frontend to GitHub Pages (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy from (leave empty to use current branch)'
+        required: false
+        default: ''
+        type: string
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Frontend for GitHub Pages (Manual Deploy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine branch to deploy
+        id: branch-info
+        run: |
+          if [ -n "${{ github.event.inputs.branch }}" ]; then
+            DEPLOY_BRANCH="${{ github.event.inputs.branch }}"
+          else
+            DEPLOY_BRANCH="${{ github.ref_name }}"
+          fi
+          echo "branch=$DEPLOY_BRANCH" >> $GITHUB_OUTPUT
+          echo "Deploying from branch: $DEPLOY_BRANCH"
+
+      - name: Checkout specified branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.branch-info.outputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build frontend with GitHub Pages profile
+        working-directory: ./frontend
+        env:
+          VITE_BASE_PATH: /BuildFlow/
+        run: npm run build -- --mode github-pages
+
+      - name: Create 404.html for SPA routing
+        working-directory: ./frontend
+        run: cp dist/index.html dist/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './frontend/dist'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
