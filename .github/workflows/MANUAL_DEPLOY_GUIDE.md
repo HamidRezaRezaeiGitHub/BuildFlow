@@ -29,9 +29,14 @@ You'll see a dropdown with options:
 - **Leave empty** (default): Deploys the currently selected branch in the dropdown
 - **Enter branch name**: Deploys the specified branch (e.g., `feature/new-ui`, `fix/bug-123`)
 
+**Latest Open PR Option:**
+- **Checkbox: Deploy the latest open PR head branch**: When checked, automatically deploys the most recently updated open PR's head branch, ignoring any manual branch input
+
 ### Step 4: Execute
 1. Select the base branch from the "Use workflow from" dropdown (if different from main)
-2. Enter a branch name in the "Branch to deploy from" field (optional)
+2. Either:
+   - Enter a branch name in the "Branch to deploy from" field (optional), OR
+   - Check "Deploy the latest open PR head branch" to auto-deploy the latest PR
 3. Click **"Run workflow"** button
 
 ### Step 5: Monitor Progress
@@ -53,6 +58,7 @@ https://<username>.github.io/<repository>/
 ```
 Use workflow from: feature/new-dashboard
 Branch to deploy from: [leave empty]
+Deploy the latest open PR head branch: [ ] unchecked
 ```
 Result: Deploys `feature/new-dashboard`
 
@@ -60,13 +66,23 @@ Result: Deploys `feature/new-dashboard`
 ```
 Use workflow from: main
 Branch to deploy from: feature/experimental-ui
+Deploy the latest open PR head branch: [ ] unchecked
 ```
 Result: Deploys `feature/experimental-ui`
 
-### Example 3: Deploy PR Branch
+### Example 3: Deploy Latest Open PR
+```
+Use workflow from: main
+Branch to deploy from: [ignored]
+Deploy the latest open PR head branch: [✓] checked
+```
+Result: Automatically finds and deploys the most recently updated open PR's head branch
+
+### Example 4: Deploy PR Branch Manually
 ```
 Use workflow from: main
 Branch to deploy from: fix/responsive-layout
+Deploy the latest open PR head branch: [ ] unchecked
 ```
 Result: Deploys `fix/responsive-layout` for review
 
@@ -77,6 +93,8 @@ Result: Deploys `fix/responsive-layout` for review
 - ✅ **Overwrites** current GitHub Pages content
 - ✅ Uses **standalone mode** with mock data (no backend)
 - ✅ Same configuration as automatic deployment
+- ✅ **Runs tests before deployment** - deployment fails if tests fail
+- ✅ **Runs linting before deployment** - deployment fails if linting fails
 
 ### Concurrency
 - Only **one deployment at a time** (uses "pages" concurrency group)
@@ -89,6 +107,8 @@ Result: Deploys `fix/responsive-layout` for review
   - Valid `package.json` with required dependencies
   - `package-lock.json` for reproducible builds
   - Source files in standard structure (src/, public/, etc.)
+- **All tests must pass** (npm test)
+- **Linting must pass** (npm run lint)
 
 ### Reverting
 To revert to main branch deployment:
@@ -106,6 +126,8 @@ To revert to main branch deployment:
 ### Build Fails
 - Check if branch name is correct
 - Verify frontend dependencies are up to date
+- **Check if tests are passing locally** (run `npm test` in frontend/)
+- **Check if linting passes locally** (run `npm run lint` in frontend/)
 - Review workflow logs for specific errors
 
 ### Deployment Doesn't Update
