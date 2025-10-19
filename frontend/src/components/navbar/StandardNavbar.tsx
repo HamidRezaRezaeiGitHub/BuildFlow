@@ -2,6 +2,7 @@ import { CompactThemeToggle } from '@/components';
 import { useAuth, useNavigate } from '@/contexts';
 import React, { useMemo } from 'react';
 import { FlexibleNavbar, FlexibleNavbarProps, NavItem } from './FlexibleNavbar';
+import { FlexibleBottomNavbar, FlexibleBottomNavbarProps } from './FlexibleBottomNavbar';
 
 /**
  * NavbarThemeToggle - Wrapper component for CompactThemeToggle to be compatible with FlexibleNavbar
@@ -157,3 +158,80 @@ export const StandardNavbar: React.FC<StandardNavbarProps> = ({
 };
 
 export default StandardNavbar;
+
+/**
+ * StandardBottomNavbar Props
+ * Extends FlexibleBottomNavbarProps with standard defaults
+ */
+export interface StandardBottomNavbarProps extends Omit<FlexibleBottomNavbarProps, 'ThemeToggleComponent' | 'onProjectsClick' | 'onProfileClick' | 'onLogoutClick'> {
+    // Override with standard defaults
+    showThemeToggle?: boolean;
+    
+    // Optional override handlers - if not provided, will use context-based defaults
+    onProjectsClick?: () => void;
+    onProfileClick?: () => void;
+    onLogoutClick?: () => void;
+    onCreateNewProject?: () => void;
+    onCreateNewEstimate?: () => void;
+}
+
+/**
+ * StandardBottomNavbar - FlexibleBottomNavbar with consistent configuration and integrated authentication
+ * 
+ * This component provides:
+ * - Centralized theme toggle integration (CompactThemeToggle)
+ * - Built-in navigation handlers using NavigationContext
+ * - Projects button routes to Dashboard via NavigationContext
+ * - Profile handler placeholder (console.log until page exists)
+ * - Logout handler using AuthContext
+ * - Standard configuration across all pages
+ * 
+ * Navigation Integration:
+ * - Projects button navigates to Dashboard (/dashboard)
+ * - onCreateNewProject and onCreateNewEstimate are placeholders until pages exist
+ * - Profile navigation not yet implemented (placeholder)
+ * 
+ * Use this instead of FlexibleBottomNavbar directly to ensure consistency
+ */
+export const StandardBottomNavbar: React.FC<StandardBottomNavbarProps> = ({
+    showThemeToggle = true,
+    onProjectsClick,
+    onProfileClick,
+    onLogoutClick,
+    onCreateNewProject,
+    onCreateNewEstimate,
+    ...props
+}) => {
+    const { logout } = useAuth();
+    const { navigateToDashboard } = useNavigate();
+
+    // Default handler for Projects button - navigates to Dashboard
+    const handleDefaultProjects = () => {
+        navigateToDashboard();
+    };
+
+    // Default handler for Profile - placeholder until profile page exists
+    const handleDefaultProfile = () => {
+        console.log('Profile clicked - Profile page not yet implemented');
+        // TODO: Navigate to profile page when available
+        // navigateToProfile();
+    };
+
+    // Default handler for Logout - uses AuthContext
+    const handleDefaultLogout = () => {
+        logout();
+    };
+
+    return (
+        <FlexibleBottomNavbar
+            {...props}
+            showThemeToggle={showThemeToggle}
+            ThemeToggleComponent={showThemeToggle ? NavbarThemeToggle : undefined}
+            onProjectsClick={onProjectsClick || handleDefaultProjects}
+            onProfileClick={onProfileClick || handleDefaultProfile}
+            onLogoutClick={onLogoutClick || handleDefaultLogout}
+            onCreateNewProject={onCreateNewProject}
+            onCreateNewEstimate={onCreateNewEstimate}
+        />
+    );
+};

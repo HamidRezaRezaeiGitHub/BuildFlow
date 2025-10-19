@@ -32,8 +32,8 @@ export type {
 } from './FlexibleBottomNavbar';
 
 // Standard navbar with consistent configuration
-export { StandardNavbar } from './StandardNavbar';
-export type { StandardNavbarProps } from './StandardNavbar';
+export { StandardNavbar, StandardBottomNavbar } from './StandardNavbar';
+export type { StandardNavbarProps, StandardBottomNavbarProps } from './StandardNavbar';
 
 // Default export for convenience
 export { default as Navbar } from './FlexibleNavbar';
