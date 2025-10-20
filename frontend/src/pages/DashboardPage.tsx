@@ -1,4 +1,5 @@
 import { StandardBottomNavbar } from '@/components/navbar';
+import { ProjectList } from '@/components/project';
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -24,33 +25,12 @@ export const DashboardPage: React.FC = () => {
           )}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-lg font-semibold text-primary mb-2">
-              Projects
-            </h3>
-            <p className="text-muted-foreground">
-              Manage your construction projects
-            </p>
-          </div>
-
-          <div className="p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-lg font-semibold text-primary mb-2">
-              Estimates
-            </h3>
-            <p className="text-muted-foreground">
-              Create and manage project estimates
-            </p>
-          </div>
-
-          <div className="p-6 bg-card rounded-lg border border-border">
-            <h3 className="text-lg font-semibold text-primary mb-2">
-              Reports
-            </h3>
-            <p className="text-muted-foreground">
-              View project insights and analytics
-            </p>
-          </div>
+        {/* Projects Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-semibold text-primary mb-6">
+            Your Projects
+          </h2>
+          <ProjectList />
         </div>
       </div>
 

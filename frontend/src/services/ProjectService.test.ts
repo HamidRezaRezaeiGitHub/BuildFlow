@@ -51,6 +51,8 @@ describe('ProjectService', () => {
             postalOrZipCode: '62701',
             country: 'USA',
         },
+        createdAt: '2024-01-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-18T14:20:00Z',
     };
 
     const mockCreateResponse: CreateProjectResponse = {

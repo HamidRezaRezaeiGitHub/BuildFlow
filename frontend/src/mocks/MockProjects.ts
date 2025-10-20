@@ -26,6 +26,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'V5K 2N1',
             country: 'Canada',
         },
+        createdAt: '2024-01-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-18T14:20:00Z',
     },
     {
         id: '2',
@@ -40,6 +42,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'M4B 1B3',
             country: 'Canada',
         },
+        createdAt: '2024-02-20T08:15:00Z',
+        lastUpdatedAt: '2024-10-19T16:45:00Z',
     },
     {
         id: '3',
@@ -54,6 +58,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'T2P 1J9',
             country: 'Canada',
         },
+        createdAt: '2024-03-10T11:00:00Z',
+        lastUpdatedAt: '2024-10-17T09:30:00Z',
     },
     {
         id: '4',
@@ -68,6 +74,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'H3A 1A1',
             country: 'Canada',
         },
+        createdAt: '2024-04-05T14:20:00Z',
+        lastUpdatedAt: '2024-10-20T11:15:00Z',
     },
     {
         id: '5',
@@ -82,6 +90,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'K1A 0B1',
             country: 'Canada',
         },
+        createdAt: '2024-05-12T09:45:00Z',
+        lastUpdatedAt: '2024-10-16T13:50:00Z',
     },
     // Testuser as builder (6 projects)
     {
@@ -97,6 +107,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'V6B 1H6',
             country: 'Canada',
         },
+        createdAt: '2024-01-25T13:10:00Z',
+        lastUpdatedAt: '2024-10-19T10:25:00Z',
     },
     {
         id: '7',
@@ -111,6 +123,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'M4Y 2A5',
             country: 'Canada',
         },
+        createdAt: '2024-02-18T15:30:00Z',
+        lastUpdatedAt: '2024-10-20T08:45:00Z',
     },
     {
         id: '8',
@@ -125,6 +139,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'T2T 0A3',
             country: 'Canada',
         },
+        createdAt: '2024-03-22T12:00:00Z',
+        lastUpdatedAt: '2024-10-18T17:10:00Z',
     },
     {
         id: '9',
@@ -139,6 +155,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'H2Y 1C6',
             country: 'Canada',
         },
+        createdAt: '2024-04-14T10:15:00Z',
+        lastUpdatedAt: '2024-10-17T14:30:00Z',
     },
     {
         id: '10',
@@ -153,6 +171,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'K1N 5Y8',
             country: 'Canada',
         },
+        createdAt: '2024-05-03T16:40:00Z',
+        lastUpdatedAt: '2024-10-19T12:55:00Z',
     },
     {
         id: '11',
@@ -167,6 +187,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'V5T 3A8',
             country: 'Canada',
         },
+        createdAt: '2024-06-08T11:20:00Z',
+        lastUpdatedAt: '2024-10-20T15:40:00Z',
     },
     // Builder1 as builder (5 projects)
     {
@@ -182,6 +204,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'M5S 1X5',
             country: 'Canada',
         },
+        createdAt: '2024-02-05T09:25:00Z',
+        lastUpdatedAt: '2024-10-18T11:40:00Z',
     },
     {
         id: '13',
@@ -196,6 +220,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'T2G 2M7',
             country: 'Canada',
         },
+        createdAt: '2024-03-18T14:35:00Z',
+        lastUpdatedAt: '2024-10-19T09:20:00Z',
     },
     {
         id: '14',
@@ -210,6 +236,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'H2X 1X7',
             country: 'Canada',
         },
+        createdAt: '2024-04-22T08:50:00Z',
+        lastUpdatedAt: '2024-10-20T13:15:00Z',
     },
     {
         id: '15',
@@ -224,6 +252,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'K1P 5K7',
             country: 'Canada',
         },
+        createdAt: '2024-05-28T12:05:00Z',
+        lastUpdatedAt: '2024-10-17T16:25:00Z',
     },
     {
         id: '16',
@@ -238,6 +268,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'V5Z 1K1',
             country: 'Canada',
         },
+        createdAt: '2024-06-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-19T14:50:00Z',
     },
     // Owner1 as builder (4 projects)
     {
@@ -253,6 +285,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'M5G 1L7',
             country: 'Canada',
         },
+        createdAt: '2024-03-08T11:45:00Z',
+        lastUpdatedAt: '2024-10-18T10:05:00Z',
     },
     {
         id: '18',
@@ -267,6 +301,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'T3C 2E6',
             country: 'Canada',
         },
+        createdAt: '2024-04-12T15:20:00Z',
+        lastUpdatedAt: '2024-10-20T12:35:00Z',
     },
     {
         id: '19',
@@ -281,6 +317,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'H2J 1W8',
             country: 'Canada',
         },
+        createdAt: '2024-05-20T09:10:00Z',
+        lastUpdatedAt: '2024-10-19T15:45:00Z',
     },
     {
         id: '20',
@@ -295,6 +333,8 @@ export const mockProjects: ProjectDto[] = [
             postalOrZipCode: 'K1P 6M7',
             country: 'Canada',
         },
+        createdAt: '2024-06-25T13:30:00Z',
+        lastUpdatedAt: '2024-10-20T09:55:00Z',
     },
 ];
 
@@ -332,6 +372,7 @@ export function createMockProject(
     locationRequestDto: ProjectLocationRequestDto
 ): ProjectDto {
     const newProjectId = String(mockProjects.length + 1);
+    const now = new Date().toISOString();
     const newProject: ProjectDto = {
         id: newProjectId,
         builderId,
@@ -345,6 +386,8 @@ export function createMockProject(
             postalOrZipCode: locationRequestDto.postalOrZipCode || '',
             country: locationRequestDto.country,
         },
+        createdAt: now,
+        lastUpdatedAt: now,
     };
 
     // Add to mock projects array
