@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-interface ProjectListProps {
+export interface ProjectListProps {
   /** Optional filter to show only projects for a specific user role */
   filterByRole?: 'builder' | 'owner';
 }
