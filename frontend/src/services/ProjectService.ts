@@ -1,3 +1,10 @@
+import { config } from '@/config/environment';
+import {
+    createMockProject,
+    findProjectsByBuilderId,
+    findProjectsByOwnerId,
+    generateMockCreateProjectResponse,
+} from '@/mocks/MockProjects';
 import { apiService } from './ApiService';
 import { 
     CreateProjectRequest, 
@@ -13,6 +20,8 @@ import {
  * ProjectService class that handles all project-related API operations
  * Uses the generic ApiService for HTTP communications while focusing on project business logic
  * 
+ * Environment-aware: Uses mock data when config.enableMockData is true (standalone mode)
+ * 
  * This service provides functions for project endpoints including:
  * - Creating new projects
  * - Retrieving projects by builder ID (with pagination support)
@@ -26,16 +35,74 @@ import {
  * - Response includes pagination metadata from backend headers
  */
 class ProjectService {
+    /**
+     * Default pagination values
+     */
+    private static readonly DEFAULT_PAGE = 0;
+    private static readonly DEFAULT_SIZE = 25;
+
+    /**
+     * Simulates pagination for mock data
+     * @param allProjects - Complete list of projects to paginate
+     * @param params - Optional pagination parameters
+     * @returns Paginated response with metadata
+     */
+    private simulatePagination(allProjects: ProjectDto[], params?: PaginationParams): PagedResponse<ProjectDto> {
+        const page = params?.page || ProjectService.DEFAULT_PAGE;
+        const size = params?.size || ProjectService.DEFAULT_SIZE;
+        const start = page * size;
+        const end = start + size;
+        const paginatedProjects = allProjects.slice(start, end);
+        
+        const totalElements = allProjects.length;
+        const totalPages = Math.ceil(totalElements / size);
+        
+        return {
+            content: paginatedProjects,
+            pagination: {
+                page,
+                size,
+                totalElements,
+                totalPages,
+                hasNext: page < totalPages - 1,
+                hasPrevious: page > 0,
+                isFirst: page === 0,
+                isLast: page >= totalPages - 1 || totalPages === 0,
+            }
+        };
+    }
 
     /**
      * Create a new project
      * Requires CREATE_PROJECT authority
+     * Environment-aware: Uses mock data when config.enableMockData is true
      * 
      * @param request - Project creation request data
-     * @param token - JWT authentication token
+     * @param token - JWT authentication token (ignored in mock mode)
      * @returns Promise<CreateProjectResponse> - Created project response with project details
      */
     async createProject(request: CreateProjectRequest, token: string): Promise<CreateProjectResponse> {
+        // Use mock project creation in standalone mode
+        if (config.enableMockData) {
+            if (config.enableConsoleLogs) {
+                console.log('[ProjectService] Using mock project creation');
+            }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const { userId, isBuilder, locationRequestDto } = request;
+                    
+                    // Determine builderId and ownerId based on isBuilder flag
+                    const builderId = isBuilder ? userId : '1'; // Default to admin as builder
+                    const ownerId = isBuilder ? '1' : userId; // Default to admin as owner
+                    
+                    const newProject = createMockProject(builderId, ownerId, locationRequestDto);
+                    resolve(generateMockCreateProjectResponse(newProject));
+                }, 500); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
         return apiService.create<CreateProjectResponse>('/api/v1/projects', request, token);
     }
 
@@ -57,9 +124,10 @@ class ProjectService {
     /**
      * Get paginated projects for a specific builder
      * Requires VIEW_PROJECT authority
+     * Environment-aware: Uses mock data when config.enableMockData is true
      * 
      * @param builderId - ID of the builder whose projects to retrieve
-     * @param token - JWT authentication token
+     * @param token - JWT authentication token (ignored in mock mode)
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
      * @returns Promise<PagedResponse<ProjectDto>> - Paginated response with projects and metadata
      */
@@ -68,6 +136,21 @@ class ProjectService {
         token: string,
         params?: PaginationParams
     ): Promise<PagedResponse<ProjectDto>> {
+        // Use mock data in standalone mode
+        if (config.enableMockData) {
+            if (config.enableConsoleLogs) {
+                console.log('[ProjectService] Getting mock projects for builder:', builderId);
+            }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const allProjects = findProjectsByBuilderId(builderId);
+                    resolve(this.simulatePagination(allProjects, params));
+                }, 300); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
         const endpoint = `/api/v1/projects/builder/${encodeURIComponent(builderId)}${buildPaginationQuery(params)}`;
         
         const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(
@@ -100,9 +183,10 @@ class ProjectService {
     /**
      * Get paginated projects for a specific owner
      * Requires VIEW_PROJECT authority
+     * Environment-aware: Uses mock data when config.enableMockData is true
      * 
      * @param ownerId - ID of the owner whose projects to retrieve
-     * @param token - JWT authentication token
+     * @param token - JWT authentication token (ignored in mock mode)
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
      * @returns Promise<PagedResponse<ProjectDto>> - Paginated response with projects and metadata
      */
@@ -111,6 +195,21 @@ class ProjectService {
         token: string,
         params?: PaginationParams
     ): Promise<PagedResponse<ProjectDto>> {
+        // Use mock data in standalone mode
+        if (config.enableMockData) {
+            if (config.enableConsoleLogs) {
+                console.log('[ProjectService] Getting mock projects for owner:', ownerId);
+            }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const allProjects = findProjectsByOwnerId(ownerId);
+                    resolve(this.simulatePagination(allProjects, params));
+                }, 300); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
         const endpoint = `/api/v1/projects/owner/${encodeURIComponent(ownerId)}${buildPaginationQuery(params)}`;
         
         const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(

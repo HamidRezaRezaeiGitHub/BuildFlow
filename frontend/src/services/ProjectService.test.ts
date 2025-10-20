@@ -2,6 +2,15 @@ import { apiService } from './ApiService';
 import { projectService, ProjectServiceWithAuth } from './ProjectService';
 import { CreateProjectRequest, CreateProjectResponse, ProjectDto } from './dtos';
 
+// Mock the config module to disable mock data in tests
+jest.mock('@/config/environment', () => ({
+    config: {
+        enableMockData: false,
+        enableConsoleLogs: false,
+        isDevelopment: true,
+    },
+}));
+
 // Mock the ApiService
 jest.mock('./ApiService', () => ({
     apiService: {

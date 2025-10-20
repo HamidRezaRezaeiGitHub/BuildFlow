@@ -40,7 +40,7 @@ describe('authMocks', () => {
 
   describe('Static Data Integrity', () => {
     test('mockUsers should contain expected default users', () => {
-      expect(mockUsers).toHaveLength(2);
+      expect(mockUsers).toHaveLength(12);
 
       const adminUser = mockUsers.find(u => u.username === 'admin');
       expect(adminUser).toBeDefined();
@@ -131,7 +131,7 @@ describe('authMocks', () => {
       const keys = getAvailableMockCredentials();
       expect(keys).toContain('admin');
       expect(keys).toContain('user');
-      expect(keys).toHaveLength(2);
+      expect(keys).toHaveLength(12);
     });
 
     test('should return updated keys after adding credentials', () => {
@@ -140,7 +140,7 @@ describe('authMocks', () => {
       expect(keys).toContain('admin');
       expect(keys).toContain('user');
       expect(keys).toContain('newuser');
-      expect(keys).toHaveLength(3);
+      expect(keys).toHaveLength(13);
     });
   });
 
@@ -149,13 +149,13 @@ describe('authMocks', () => {
       // Add some extra credentials
       storeMockCredentials('extra1', 'pass1');
       storeMockCredentials('extra2', 'pass2');
-      expect(Object.keys(mockCredentials)).toHaveLength(4);
+      expect(Object.keys(mockCredentials)).toHaveLength(14);
 
       // Reset
       resetMockCredentials();
 
       // Should only have defaults
-      expect(Object.keys(mockCredentials)).toHaveLength(2);
+      expect(Object.keys(mockCredentials)).toHaveLength(12);
       expect(mockCredentials).toHaveProperty('admin');
       expect(mockCredentials).toHaveProperty('user');
       expect(mockCredentials.admin).toEqual({ username: 'admin', password: 'BuildFlow2024!' });
@@ -642,7 +642,7 @@ describe('authMocks', () => {
 
       // Reset credentials
       resetMockCredentials();
-      expect(Object.keys(mockCredentials)).toHaveLength(2); // Back to defaults
+      expect(Object.keys(mockCredentials)).toHaveLength(12); // Back to defaults
 
       // Original users should still be able to authenticate with defaults
       expect(validateMockCredentials('admin', 'BuildFlow2024!')).toBeDefined();

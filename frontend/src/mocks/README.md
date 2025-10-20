@@ -157,7 +157,35 @@ Mock data is ideal for:
 ## Future Enhancements
 
 Planned mock modules:
-- `projectMocks.ts` - Project data
+- ✅ `MockProjects.ts` - Project data (COMPLETED)
 - `estimateMocks.ts` - Estimate data
 - `workItemMocks.ts` - Work item data
 - `quoteMocks.ts` - Quote data
+
+## Mock Projects
+
+### Overview
+`MockProjects.ts` provides mock project data for standalone development mode. Projects are linked to the mock users (admin and testuser) with realistic Canadian addresses.
+
+### Mock Project Data
+The module contains 5 sample projects distributed across:
+- **Builder ID '1'** (Alexandre Dubois - admin): 2 projects
+- **Builder ID '2'** (Sarah MacDonald - testuser): 3 projects
+- **Owner ID '1'** (Alexandre Dubois - admin): 3 projects  
+- **Owner ID '2'** (Sarah MacDonald - testuser): 2 projects
+
+All projects have Canadian addresses in various provinces (BC, ON, AB, QC).
+
+### Available Functions
+- `findProjectById(id)` - Find a project by its ID
+- `findProjectsByBuilderId(builderId)` - Get all projects for a builder
+- `findProjectsByOwnerId(ownerId)` - Get all projects for an owner
+- `createMockProject(builderId, ownerId, locationRequestDto)` - Create a new mock project
+- `generateMockCreateProjectResponse(project)` - Generate mock API response
+
+### Usage in ProjectService
+The ProjectService automatically uses mock projects when `config.enableMockData = true`:
+- `createProject()` - Creates and stores new mock projects
+- `getProjectsByBuilderId()` - Returns filtered mock projects by builder
+- `getProjectsByOwnerId()` - Returns filtered mock projects by owner
+- All methods simulate network delays (300-500ms) for realistic behavior
