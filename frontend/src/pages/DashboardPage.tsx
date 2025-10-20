@@ -1,6 +1,6 @@
 import { StandardBottomNavbar } from '@/components/navbar';
-import { ProjectList } from '@/components/project';
-import { DashboardLayout, DashboardSection } from '@/components/dashboard';
+import { ProjectsSection } from '@/components/project';
+import { DashboardLayout } from '@/components/dashboard';
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -24,13 +24,11 @@ export const DashboardPage: React.FC = () => {
         }
         variant="single"
       >
-        {/* Projects Section */}
-        <DashboardSection
+        {/* Projects Section - now uses auth-aware container component */}
+        <ProjectsSection
           title="Your Projects"
           description="View and manage all your construction projects"
-        >
-          <ProjectList />
-        </DashboardSection>
+        />
       </DashboardLayout>
 
       {/* Bottom Navigation - Mobile-first design */}
