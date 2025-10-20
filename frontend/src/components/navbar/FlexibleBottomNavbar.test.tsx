@@ -583,4 +583,32 @@ describe('FlexibleBottomNavbar', () => {
       expect(mockHandler).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('Visual Separation', () => {
+    test('FlexibleBottomNavbar_shouldHaveBorderAndShadowForVisualSeparation', () => {
+      const { container } = render(<FlexibleBottomNavbar />);
+      
+      // Find the border overlay element
+      const borderOverlay = container.querySelector('.border-t.border-border.shadow-sm');
+      expect(borderOverlay).toBeInTheDocument();
+    });
+
+    test('FlexibleBottomNavbar_shouldMaintainVisualSeparationAcrossThemes', () => {
+      const { container } = render(<FlexibleBottomNavbar />);
+      
+      // Border should use theme-adaptive border color token
+      const borderOverlay = container.querySelector('.border-border');
+      expect(borderOverlay).toBeInTheDocument();
+      expect(borderOverlay).toHaveClass('border-t');
+      expect(borderOverlay).toHaveClass('shadow-sm');
+    });
+
+    test('FlexibleBottomNavbar_shouldNotAffectNavbarHeight', () => {
+      const { container } = render(<FlexibleBottomNavbar />);
+      
+      // Content container should maintain h-16 height
+      const contentContainer = container.querySelector('.h-16');
+      expect(contentContainer).toBeInTheDocument();
+    });
+  });
 });
