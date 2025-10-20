@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
 import { ProjectDto, PagedResponse } from '@/services/dtos';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +35,7 @@ export interface ProjectListProps {
  */
 export const ProjectList: React.FC<ProjectListProps> = ({ filterByRole }) => {
   const { user, token } = useAuth();
+  const { navigateToNewProject } = useNavigate();
   const [projects, setProjects] = useState<ProjectDto[]>([]);
   const [pagination, setPagination] = useState<PagedResponse<ProjectDto>['pagination'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,13 +133,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({ filterByRole }) => {
         title="No Projects Yet"
         description="Get started by creating your first construction project. Click the + button in the bottom navigation to begin."
         action={
-          <Button onClick={() => {
-            // This will be handled by the Plus menu in the bottom navbar
-            const plusButton = document.querySelector('[data-testid="plus-button"]') as HTMLElement;
-            if (plusButton) {
-              plusButton.click();
-            }
-          }}>
+          <Button onClick={navigateToNewProject}>
             Create Project
           </Button>
         }
