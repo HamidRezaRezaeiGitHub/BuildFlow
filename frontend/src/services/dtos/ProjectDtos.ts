@@ -25,7 +25,8 @@ export interface CreateProjectRequest {
 
 /**
  * Project DTO for representing project information
- * Simplified version for frontend use
+ * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Matches backend ProjectDto structure
  */
 export interface ProjectDto {
   /** Project ID */
@@ -39,6 +40,12 @@ export interface ProjectDto {
 
   /** Project location */
   location: ProjectLocationDto;
+
+  /** Creation timestamp (ISO 8601 format) - inherited from UpdatableEntityDto */
+  createdAt: string;
+
+  /** Last update timestamp (ISO 8601 format) - inherited from UpdatableEntityDto */
+  lastUpdatedAt: string;
 }
 
 /**
