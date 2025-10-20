@@ -16,5 +16,8 @@ export * from './address';
 // Project components
 export * from './project';
 
+// Dashboard components
+export * from './dashboard';
+
 // Development components (only available in dev mode)
 export * from './dev';
