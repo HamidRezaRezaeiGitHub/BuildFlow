@@ -84,8 +84,8 @@ export interface DashboardLayoutProps {
   className?: string;
   /** Layout variant - single column or grid */
   variant?: 'single' | 'grid';
-  /** Custom grid columns for md+ breakpoint (default: 2) */
-  gridCols?: number;
+  /** Custom grid columns for md+ breakpoint (1-4, default: 2) */
+  gridCols?: 1 | 2 | 3 | 4;
 }
 
 /**
@@ -113,6 +113,15 @@ export interface DashboardLayoutProps {
  * </DashboardLayout>
  * ```
  */
+// Predefined mapping for grid column classes
+// Tailwind JIT requires complete class names to be present in source code
+const GRID_COLS_CLASSES: Record<number, string> = {
+  1: 'md:grid md:grid-cols-1 md:gap-6',
+  2: 'md:grid md:grid-cols-2 md:gap-6',
+  3: 'md:grid md:grid-cols-3 md:gap-6',
+  4: 'md:grid md:grid-cols-4 md:gap-6',
+};
+
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   title,
   subtitle,
@@ -121,9 +130,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   variant = 'single',
   gridCols = 2,
 }) => {
-  // Generate grid classes based on columns
+  // Get grid classes from predefined mapping
   const gridClasses = variant === 'grid' 
-    ? `md:grid md:grid-cols-${gridCols} md:gap-6`
+    ? GRID_COLS_CLASSES[gridCols] || GRID_COLS_CLASSES[2]
     : '';
 
   return (

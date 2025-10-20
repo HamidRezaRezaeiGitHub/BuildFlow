@@ -106,6 +106,39 @@ describe('DashboardLayout', () => {
       const sectionsContainer = container.querySelector('.md\\:grid-cols-3');
       expect(sectionsContainer).toBeInTheDocument();
     });
+
+    test('applies default grid columns of 2 when not specified', () => {
+      const { container } = render(
+        <DashboardLayout variant="grid">
+          <div>Content</div>
+        </DashboardLayout>
+      );
+      
+      const sectionsContainer = container.querySelector('.md\\:grid-cols-2');
+      expect(sectionsContainer).toBeInTheDocument();
+    });
+
+    test('handles grid columns of 1', () => {
+      const { container } = render(
+        <DashboardLayout variant="grid" gridCols={1}>
+          <div>Content</div>
+        </DashboardLayout>
+      );
+      
+      const sectionsContainer = container.querySelector('.md\\:grid-cols-1');
+      expect(sectionsContainer).toBeInTheDocument();
+    });
+
+    test('handles grid columns of 4', () => {
+      const { container } = render(
+        <DashboardLayout variant="grid" gridCols={4}>
+          <div>Content</div>
+        </DashboardLayout>
+      );
+      
+      const sectionsContainer = container.querySelector('.md\\:grid-cols-4');
+      expect(sectionsContainer).toBeInTheDocument();
+    });
   });
 
   describe('Safe Area and Spacing', () => {
