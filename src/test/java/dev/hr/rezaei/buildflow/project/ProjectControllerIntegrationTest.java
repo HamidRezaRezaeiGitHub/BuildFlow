@@ -2,11 +2,15 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerIntegrationTest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
+import dev.hr.rezaei.buildflow.project.dto.ProjectLocationRequestDto;
 import dev.hr.rezaei.buildflow.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -281,5 +285,318 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    // ==========================
+    // Pagination Tests
+    // ==========================
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnDefaultPage_whenNoPaginationParams() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 30 projects for the builder
+        for (int i = 0; i < 30; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            // Small delay to ensure different lastUpdatedAt timestamps
+            Thread.sleep(5);
+        }
+
+        String builderToken = login(builder);
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25)) // Default page size
+                .andExpect(header().string("X-Total-Count", "30"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "25"))
+                .andExpect(header().exists("Link"));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnCustomPageSize() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 15 projects
+        for (int i = 0; i < 15; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            Thread.sleep(5);
+        }
+
+        String builderToken = login(builder);
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(10))
+                .andExpect(header().string("X-Total-Count", "15"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "10"));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnSecondPage() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 15 projects
+        for (int i = 0; i < 15; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            Thread.sleep(5);
+        }
+
+        String builderToken = login(builder);
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("page", "1")
+                        .param("size", "10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(header().string("X-Total-Count", "15"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "1"))
+                .andExpect(header().string("X-Size", "10"));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldAcceptSortParameter() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 3 projects
+        for (int i = 0; i < 3; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            Thread.sleep(10);
+        }
+
+        String builderToken = login(builder);
+        // Test that sort parameter is accepted without errors
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("sort", "createdAt,ASC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldAcceptOrderByParameter() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 5 projects
+        for (int i = 0; i < 5; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            Thread.sleep(10);
+        }
+
+        String builderToken = login(builder);
+        // Test that orderBy parameter is accepted without errors
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("orderBy", "lastUpdatedAt")
+                        .param("direction", "DESC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnEmptyPageWithHeaders_whenPageOutOfBounds() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create only 5 projects
+        for (int i = 0; i < 5; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, locationDto);
+            Thread.sleep(5);
+        }
+
+        String builderToken = login(builder);
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("page", "10")
+                        .param("size", "10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0))
+                .andExpect(header().string("X-Total-Count", "5"))
+                .andExpect(header().string("X-Total-Pages", "1"))
+                .andExpect(header().string("X-Page", "10"))
+                .andExpect(header().string("X-Size", "10"));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnDefaultPage_whenNoPaginationParams() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User owner = registerOwner();
+        
+        // Create 30 projects for the owner
+        for (int i = 0; i < 30; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, owner.getId(), false, locationDto);
+            Thread.sleep(5);
+        }
+
+        String ownerToken = login(owner);
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
+                        .header("Authorization", "Bearer " + ownerToken))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(25))
+                .andExpect(header().string("X-Total-Count", "30"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "25"));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldReturnCustomPageSize() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User owner = registerOwner();
+        
+        // Create 15 projects
+        for (int i = 0; i < 15; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, owner.getId(), false, locationDto);
+            Thread.sleep(5);
+        }
+
+        String ownerToken = login(owner);
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
+                        .header("Authorization", "Bearer " + ownerToken)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(10))
+                .andExpect(header().string("X-Total-Count", "15"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "10"));
+    }
+
+    @Test
+    void getProjectsByOwnerId_shouldHandleInvalidSortField() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User owner = registerOwner();
+        
+        // Create 5 projects
+        for (int i = 0; i < 5; i++) {
+            var locationDto = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, owner.getId(), false, locationDto);
+            Thread.sleep(5);
+        }
+
+        String ownerToken = login(owner);
+        // Request with invalid sort field should fall back to default
+        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
+                        .header("Authorization", "Bearer " + ownerToken)
+                        .param("orderBy", "invalidField")
+                        .param("direction", "ASC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5));
+    }
+
+    @Test
+    void getProjectsByBuilderId_shouldReturnEmptyListWithPaginationHeaders_whenNoProjects() throws Exception {
+        User builder = registerBuilder();
+        String builderToken = login(builder);
+        
+        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0))
+                .andExpect(header().string("X-Total-Count", "0"))
+                .andExpect(header().string("X-Total-Pages", "0"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "10"));
     }
 }

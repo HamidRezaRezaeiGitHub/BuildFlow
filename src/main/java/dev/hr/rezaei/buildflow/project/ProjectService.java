@@ -7,6 +7,9 @@ import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -145,5 +148,65 @@ public class ProjectService {
         return projects.stream()
                 .map(ProjectDtoMapper::toProjectDto)
                 .toList();
+    }
+
+    /**
+     * Find projects by builder ID with pagination support.
+     * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
+     */
+    public Page<Project> findByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
+        Pageable pageableWithSort = ensureDefaultSort(pageable);
+        return projectRepository.findByBuilderUserId(builderId, pageableWithSort);
+    }
+
+    /**
+     * Find projects by owner ID with pagination support.
+     * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
+     */
+    public Page<Project> findByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
+        Pageable pageableWithSort = ensureDefaultSort(pageable);
+        return projectRepository.findByOwnerId(ownerId, pageableWithSort);
+    }
+
+    /**
+     * Get paginated project DTOs by builder ID with default sorting.
+     */
+    public Page<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
+        // Verify builder exists and is persisted
+        Optional<User> persistedBuilder = userService.findById(builderId);
+        if (persistedBuilder.isEmpty()) {
+            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
+        }
+
+        Page<Project> projects = findByBuilderId(builderId, pageable);
+        return projects.map(ProjectDtoMapper::toProjectDto);
+    }
+
+    /**
+     * Get paginated project DTOs by owner ID with default sorting.
+     */
+    public Page<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
+        // Verify owner exists and is persisted
+        Optional<User> persistedOwner = userService.findById(ownerId);
+        if (persistedOwner.isEmpty()) {
+            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
+        }
+
+        Page<Project> projects = findByOwnerId(ownerId, pageable);
+        return projects.map(ProjectDtoMapper::toProjectDto);
+    }
+
+    /**
+     * Ensures that the pageable has default sorting by lastUpdatedAt DESC if no sort is provided.
+     */
+    private Pageable ensureDefaultSort(Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            return org.springframework.data.domain.PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "lastUpdatedAt")
+            );
+        }
+        return pageable;
     }
 }
