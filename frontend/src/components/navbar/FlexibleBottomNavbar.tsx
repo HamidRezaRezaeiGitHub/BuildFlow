@@ -643,8 +643,8 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
                         />
                     </svg>
 
-                    {/* Border overlay - theme-aware */}
-                    <div className="absolute inset-0 border-t border-border/50" />
+                    {/* Border overlay with shadow - theme-aware */}
+                    <div className="absolute inset-0 border-t border-border shadow-sm" />
 
                     {/* Content */}
                     <div className={cn(
