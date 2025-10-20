@@ -8,7 +8,7 @@ import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
 
 // Define access levels for routes
-export type AccessLevel = 'public' | 'protected' | 'admin';
+export type AccessLevel = 'public' | 'protected' | 'admin' | 'temp';
 
 // Route definition interface
 export interface RouteDefinition {
@@ -33,35 +33,35 @@ export const AVAILABLE_ROUTES: RouteDefinition[] = [
         path: '/temp/theme',
         name: 'Theme Demo',
         description: 'Theme and styling demonstration page',
-        accessLevel: 'public',
+        accessLevel: 'temp',
         component: Theme
     },
     {
         path: '/temp/address',
         name: 'Address Demo',
         description: 'Address form components demonstration',
-        accessLevel: 'public',
+        accessLevel: 'temp',
         component: AddressPage
     },
     {
         path: '/temp/login',
         name: 'Login Demo',
         description: 'Login component demonstration',
-        accessLevel: 'public',
+        accessLevel: 'temp',
         component: LoginPage
     },
     {
         path: '/temp/flexible-sign-up',
         name: 'Sign Up Demo',
         description: 'Flexible sign-up form demonstration',
-        accessLevel: 'public',
+        accessLevel: 'temp',
         component: FlexibleSignUpPage
     },
     {
         path: '/temp/bottom-navbar',
         name: 'Bottom Navbar Demo',
         description: 'Flexible bottom navbar with FAB cutout demonstration',
-        accessLevel: 'public',
+        accessLevel: 'temp',
         component: FlexibleBottomNavbarDemo
     },
 
@@ -99,16 +99,18 @@ export const getRoutesByAccessLevel = (accessLevel: AccessLevel): RouteDefinitio
 // Helper function to get accessible routes for current user
 export const getAccessibleRoutes = (isAuthenticated: boolean, isAdmin: boolean = false): RouteDefinition[] => {
     if (!isAuthenticated) {
-        return getRoutesByAccessLevel('public');
+        return AVAILABLE_ROUTES.filter(route => 
+            route.accessLevel === 'public' || route.accessLevel === 'temp'
+        );
     }
 
     if (isAdmin) {
         return AVAILABLE_ROUTES; // Admin can access all routes
     }
 
-    // Authenticated user can access public and protected routes
+    // Authenticated user can access public, protected, and temp routes
     return AVAILABLE_ROUTES.filter(route =>
-        route.accessLevel === 'public' || route.accessLevel === 'protected'
+        route.accessLevel === 'public' || route.accessLevel === 'protected' || route.accessLevel === 'temp'
     );
 };
 
