@@ -105,7 +105,10 @@ class ProjectControllerTest extends AbstractControllerTest {
     @Test
     void getProjectsByBuilderId_shouldReturnOk_whenBuilderExists() throws Exception {
         // Given
-        when(projectService.getProjectsByBuilderId(any(UUID.class))).thenReturn(List.of(testProjectDto));
+        org.springframework.data.domain.Page<ProjectDto> page = 
+                new org.springframework.data.domain.PageImpl<>(List.of(testProjectDto));
+        when(projectService.getProjectsByBuilderId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(page);
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
@@ -123,7 +126,7 @@ class ProjectControllerTest extends AbstractControllerTest {
     void getProjectsByBuilderId_shouldReturnNotFound_whenBuilderNotFound() throws Exception {
         // Given
         UUID nonExistentBuilderId = UUID.randomUUID();
-        when(projectService.getProjectsByBuilderId(nonExistentBuilderId))
+        when(projectService.getProjectsByBuilderId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
                 .thenThrow(new UserNotFoundException("Builder with ID " + nonExistentBuilderId + " does not exist."));
 
         // When & Then
@@ -135,7 +138,10 @@ class ProjectControllerTest extends AbstractControllerTest {
     @Test
     void getProjectsByOwnerId_shouldReturnOk_whenOwnerExists() throws Exception {
         // Given
-        when(projectService.getProjectsByOwnerId(any(UUID.class))).thenReturn(List.of(testProjectDto));
+        org.springframework.data.domain.Page<ProjectDto> page = 
+                new org.springframework.data.domain.PageImpl<>(List.of(testProjectDto));
+        when(projectService.getProjectsByOwnerId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(page);
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
@@ -153,7 +159,7 @@ class ProjectControllerTest extends AbstractControllerTest {
     void getProjectsByOwnerId_shouldReturnNotFound_whenOwnerNotFound() throws Exception {
         // Given
         UUID nonExistentOwnerId = UUID.randomUUID();
-        when(projectService.getProjectsByOwnerId(nonExistentOwnerId))
+        when(projectService.getProjectsByOwnerId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
                 .thenThrow(new UserNotFoundException("Owner with ID " + nonExistentOwnerId + " does not exist."));
 
         // When & Then

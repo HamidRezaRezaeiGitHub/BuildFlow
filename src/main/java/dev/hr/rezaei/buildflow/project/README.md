@@ -189,6 +189,60 @@ Provides REST endpoints for project management:
 - **Location Management**: Handle project location operations
 - **Authorization**: Secure access to project operations
 - **Search and Filtering**: Find projects by various criteria
+- **Pagination**: Support for paginated project queries with default sorting
+
+#### Pagination Support
+The controller supports pagination for project queries with the following features:
+
+**Query Parameters:**
+- `page` - Page number (0-based, default: 0)
+- `size` - Page size (default: 25)
+- `sort` - Spring Data sort format: `field,direction` (e.g., `sort=createdAt,ASC`)
+- `orderBy` - Alternative sort field (e.g., `orderBy=lastUpdatedAt`)
+- `direction` - Sort direction when using orderBy (ASC or DESC, default: DESC)
+
+**Response Headers:**
+- `X-Total-Count` - Total number of projects
+- `X-Total-Pages` - Total number of pages
+- `X-Page` - Current page number
+- `X-Size` - Current page size
+- `Link` - RFC 5988 navigation links (first, prev, next, last)
+
+**Default Behavior:**
+- Default sort: `lastUpdatedAt,DESC` (latest updated projects first)
+- Default page size: 25
+- When pagination params omitted, returns first page with default size
+
+**Examples:**
+
+Get first page with default settings:
+```
+GET /api/v1/projects/builder/{builderId}
+```
+
+Get second page with custom page size:
+```
+GET /api/v1/projects/builder/{builderId}?page=1&size=10
+```
+
+Sort by creation date ascending:
+```
+GET /api/v1/projects/builder/{builderId}?sort=createdAt,ASC
+```
+
+Sort using orderBy parameter:
+```
+GET /api/v1/projects/owner/{ownerId}?orderBy=lastUpdatedAt&direction=DESC
+```
+
+**Sortable Fields:**
+- `lastUpdatedAt` - Last modification timestamp (default)
+- `createdAt` - Creation timestamp
+
+**Security:**
+- Sort field validation prevents SQL injection
+- Invalid sort fields fall back to default
+- All pagination endpoints require authentication
 
 ### Request/Response Patterns
 ```
@@ -196,6 +250,7 @@ Project Operations:
 - Create Project → Authorization → Service → Repository → Response
 - Access Project → Auth Check → Data Retrieval → DTO Mapping → Response
 - Update Project → Permission Check → Validation → Service → Response
+- Paginated Query → Auth Check → Pageable Creation → Service → Page Response + Headers
 ```
 
 ## Service Architecture
