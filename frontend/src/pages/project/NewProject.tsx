@@ -1,6 +1,7 @@
 import { StandardBottomNavbar } from '@/components/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreateProjectRequest } from '@/services/dtos';
+import { useAuth } from '@/contexts/AuthContext';
+import { CreateProjectRequest, projectService } from '@/services';
 import { Building2 } from 'lucide-react';
 import React from 'react';
 import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
@@ -17,27 +18,42 @@ import { NewProjectForm } from '../../components/project/NewProjectForm';
  */
 export const NewProject: React.FC = () => {
   const navigate = useReactRouterNavigate();
+  const { token } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   // Handle form submission
   const handleSubmit = async (request: CreateProjectRequest) => {
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
-      // TODO: Call API service to create project
+      // Ensure user is authenticated
+      if (!token) {
+        throw new Error('You must be logged in to create a project');
+      }
+
+      // Call API service to create project
       console.log('Creating project with request:', request);
+      const response = await projectService.createProject(request, token);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Project created successfully:', response);
       
-      // On success, navigate to projects list or dashboard
-      // navigate('/projects'); // Uncomment when projects page exists
-      console.log('Project created successfully!');
+      // Show success message
+      setSuccessMessage(`Project created successfully! Project ID: ${response.projectDto.id}`);
       
-      // For now, show success message
-      alert('Project created successfully! (This is a placeholder - backend integration pending)');
+      // Navigate to projects list after a brief delay to show success message
+      setTimeout(() => {
+        // Try to navigate to projects page, fallback to dashboard
+        try {
+          navigate('/projects');
+        } catch {
+          // If /projects route doesn't exist, go to dashboard
+          navigate('/dashboard');
+        }
+      }, 2000);
       
     } catch (err) {
       console.error('Error creating project:', err);
@@ -68,6 +84,37 @@ export const NewProject: React.FC = () => {
             You can add more details and manage the project after creation.
           </p>
         </div>
+
+        {/* Success Display */}
+        {successMessage && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg 
+                    className="h-5 w-5 text-green-500" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
+                  >
+                    <path 
+                      fillRule="evenodd" 
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                      clipRule="evenodd" 
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-500">
+                    Project Created Successfully
+                  </h3>
+                  <div className="mt-2 text-sm text-foreground/80">
+                    <p>{successMessage}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Display */}
         {error && (

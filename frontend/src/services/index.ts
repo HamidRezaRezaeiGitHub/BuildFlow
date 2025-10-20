@@ -10,6 +10,10 @@ export { authService as auth } from './AuthService';
 export * from './AdminService';
 export { adminService as admin } from './AdminService';
 
+// Re-export everything from ProjectService
+export * from './ProjectService';
+export { projectService as project } from './ProjectService';
+
 // Re-export timer service
 export * from './TimerService';
 export { timerService } from './TimerService';
