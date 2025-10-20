@@ -35,6 +35,42 @@ import {
  * - Response includes pagination metadata from backend headers
  */
 class ProjectService {
+    /**
+     * Default pagination values
+     */
+    private static readonly DEFAULT_PAGE = 0;
+    private static readonly DEFAULT_SIZE = 25;
+
+    /**
+     * Simulates pagination for mock data
+     * @param allProjects - Complete list of projects to paginate
+     * @param params - Optional pagination parameters
+     * @returns Paginated response with metadata
+     */
+    private simulatePagination(allProjects: ProjectDto[], params?: PaginationParams): PagedResponse<ProjectDto> {
+        const page = params?.page || ProjectService.DEFAULT_PAGE;
+        const size = params?.size || ProjectService.DEFAULT_SIZE;
+        const start = page * size;
+        const end = start + size;
+        const paginatedProjects = allProjects.slice(start, end);
+        
+        const totalElements = allProjects.length;
+        const totalPages = Math.ceil(totalElements / size);
+        
+        return {
+            content: paginatedProjects,
+            pagination: {
+                page,
+                size,
+                totalElements,
+                totalPages,
+                hasNext: page < totalPages - 1,
+                hasPrevious: page > 0,
+                isFirst: page === 0,
+                isLast: page >= totalPages - 1 || totalPages === 0,
+            }
+        };
+    }
 
     /**
      * Create a new project
@@ -109,30 +145,7 @@ class ProjectService {
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const allProjects = findProjectsByBuilderId(builderId);
-                    
-                    // Simple pagination simulation
-                    const page = params?.page || 0;
-                    const size = params?.size || 25;
-                    const start = page * size;
-                    const end = start + size;
-                    const paginatedProjects = allProjects.slice(start, end);
-                    
-                    const totalElements = allProjects.length;
-                    const totalPages = Math.ceil(totalElements / size);
-                    
-                    resolve({
-                        content: paginatedProjects,
-                        pagination: {
-                            page,
-                            size,
-                            totalElements,
-                            totalPages,
-                            hasNext: page < totalPages - 1,
-                            hasPrevious: page > 0,
-                            isFirst: page === 0,
-                            isLast: page >= totalPages - 1 || totalPages === 0,
-                        }
-                    });
+                    resolve(this.simulatePagination(allProjects, params));
                 }, 300); // Simulate network delay
             });
         }
@@ -191,30 +204,7 @@ class ProjectService {
             return new Promise((resolve) => {
                 setTimeout(() => {
                     const allProjects = findProjectsByOwnerId(ownerId);
-                    
-                    // Simple pagination simulation
-                    const page = params?.page || 0;
-                    const size = params?.size || 25;
-                    const start = page * size;
-                    const end = start + size;
-                    const paginatedProjects = allProjects.slice(start, end);
-                    
-                    const totalElements = allProjects.length;
-                    const totalPages = Math.ceil(totalElements / size);
-                    
-                    resolve({
-                        content: paginatedProjects,
-                        pagination: {
-                            page,
-                            size,
-                            totalElements,
-                            totalPages,
-                            hasNext: page < totalPages - 1,
-                            hasPrevious: page > 0,
-                            isFirst: page === 0,
-                            isLast: page >= totalPages - 1 || totalPages === 0,
-                        }
-                    });
+                    resolve(this.simulatePagination(allProjects, params));
                 }, 300); // Simulate network delay
             });
         }
