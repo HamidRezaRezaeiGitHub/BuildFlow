@@ -12,7 +12,7 @@ export interface RouteDefinition {
     path: string;
     name: string;
     description: string;
-    accessLevel: 'public' | 'protected' | 'admin';
+    accessLevel: 'public' | 'protected' | 'admin' | 'temp';
     component: React.ComponentType<any>;
 }
 
@@ -495,7 +495,8 @@ const NavigationSection: React.FC<{
     const routesByAccess = {
         public: availableRoutes.filter(route => route.accessLevel === 'public'),
         protected: availableRoutes.filter(route => route.accessLevel === 'protected'),
-        admin: availableRoutes.filter(route => route.accessLevel === 'admin')
+        admin: availableRoutes.filter(route => route.accessLevel === 'admin'),
+        temp: availableRoutes.filter(route => route.accessLevel === 'temp')
     };
 
     const getAccessLevelColor = (accessLevel: string) => {
@@ -503,6 +504,7 @@ const NavigationSection: React.FC<{
             case 'public': return 'bg-green-100 text-green-800';
             case 'protected': return 'bg-blue-100 text-blue-800';
             case 'admin': return 'bg-red-100 text-red-800';
+            case 'temp': return 'bg-yellow-100 text-yellow-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -539,8 +541,9 @@ const NavigationSection: React.FC<{
                         </div>
                     ) : (
                         <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                            {/* Available Routes by Access Level */}
-                            {Object.entries(routesByAccess).map(([accessLevel, routes]) => {
+                            {/* Available Routes by Access Level - display in specific order: public, protected, admin, temp */}
+                            {['public', 'protected', 'admin', 'temp'].map((accessLevel) => {
+                                const routes = routesByAccess[accessLevel as keyof typeof routesByAccess];
                                 if (routes.length === 0) return null;
 
                                 return (
