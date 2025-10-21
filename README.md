@@ -1,6 +1,6 @@
-# BuildFlow Backend
+# BuildFlow
 
-A Spring Boot REST API for construction project management with comprehensive estimate and project tracking capabilities. **This backend includes an integrated React frontend, creating a single deployable JAR for the complete full-stack application.**
+A full-stack construction management platform combining a Spring Boot REST API backend with a modern React frontend. **The application is deployed as a single JAR containing both the backend API and the frontend React application.**
 
 ## 🌐 Live Demo
 
@@ -107,174 +107,210 @@ BuildFlow-0.0.1-SNAPSHOT.jar
     └── API integration
 ```
 
+### Frontend Overview
+
+**[📖 Frontend Documentation](frontend/README.md)**
+
+BuildFlow's frontend is a modern React-based web application built with TypeScript, Vite, and a comprehensive UI component system. It provides an intuitive interface for construction project management with:
+
+**Key Features:**
+- **📊 Project Analytics** - Real-time insights and reporting with progress tracking and budget analysis
+- **📄 Smart Estimates** - Intelligent pricing and material database for accurate estimates
+- **👥 Team Collaboration** - Real-time communication and task assignment
+- **📱 Mobile-First Design** - Responsive design that works on all devices
+- **🔒 Role-Based Access** - Secure authentication with VIEWER → USER → PREMIUM_USER → ADMIN hierarchy
+- **🎨 Theme System** - Light/dark mode with 7+ theme toggle variants
+- **⚡ Real-Time Updates** - Live project updates and notifications
+
+**Technology Stack:**
+- **React 18.2** with TypeScript 5.0 - Type-safe UI framework
+- **Vite 4.4** - Fast build tool and development server
+- **Tailwind CSS 3.3** - Utility-first CSS framework
+- **Radix UI** - Accessible component primitives
+- **Jest 30.1** & React Testing Library 16.3 - Comprehensive testing
+
+### Backend Overview
+
+The backend is a Spring Boot REST API providing comprehensive project management capabilities with JWT authentication, role-based access control, and a complete domain model for construction management.
+
 ### Project Structure
 
 ```
-src/
-├── main/
-│   ├── java/dev/hr/rezaei/buildflow/
-│   │   ├── BuildFlowApplication.java    # Main Spring Boot application entry point
-│   │   ├── base/
-│   │   │   ├── BaseAddress.java                  # Abstract entity for address fields
-│   │   │   ├── BaseAddressDto.java               # Abstract DTO for address fields
-│   │   │   ├── DuplicateUserException.java       # Exception for duplicate user attempts
-│   │   │   ├── UpdatableEntity.java              # Abstract entity with audit fields
-│   │   │   ├── UpdatableEntityDto.java           # Abstract DTO with audit fields
-│   │   │   ├── UpdatableEntityDtoMapper.java     # Base mapper for entity-DTO conversions
-│   │   │   ├── UserNotAuthorizedException.java   # Exception for authorization failures
-│   │   │   ├── UserNotFoundException.java        # Exception for user lookup failures
-│   │   │   └── README.md
-│   │   ├── config/
-│   │   │   ├── mvc/
-│   │   │   │   ├── dto/
-│   │   │   │   │   ├── ErrorResponse.java                 # Unified error response
-│   │   │   │   │   ├── MessageResponse.java               # Success message response
-│   │   │   │   │   └── README.md
-│   │   │   │   ├── AbstractAuthorizationHandler.java      # Base authorization handler
-│   │   │   │   ├── GlobalExceptionHandler.java            # Centralized exception handling
-│   │   │   │   ├── OpenApiConfig.java                     # API documentation config
-│   │   │   │   ├── PagedResponseBuilder.java              # Paginated response builder
-│   │   │   │   ├── PaginationHelper.java                  # Pagination helper utility
-│   │   │   │   ├── README.md
-│   │   │   │   ├── ResponseErrorType.java                 # Error type categorization
-│   │   │   │   ├── ResponseFacilitator.java               # Response formatting utility
-│   │   │   │   ├── SpaPathResourceResolver.java           # SPA routing resolver
-│   │   │   │   └── WebMvcConfig.java                      # Central MVC configuration
-│   │   │   ├── security/
-│   │   │   │   ├── dto/
-│   │   │   │   │   ├── JwtAuthenticationResponse.java     # JWT token response
-│   │   │   │   │   ├── LoginRequest.java                  # Login request DTO
-│   │   │   │   │   ├── SignUpRequest.java                 # Registration request DTO
-│   │   │   │   │   ├── UserAuthenticationDto.java         # Secure user auth DTO
-│   │   │   │   │   ├── UserSummaryResponse.java           # User summary response
-│   │   │   │   │   └── README.md
-│   │   │   │   ├── AdminUserInitializer.java              # Admin user bootstrap
-│   │   │   │   ├── AuthController.java                    # Authentication endpoints
-│   │   │   │   ├── AuthService.java                       # Authentication service
-│   │   │   │   ├── CustomUserDetailsService.java          # User details service
-│   │   │   │   ├── JwtAuthenticationFilter.java           # JWT filter
-│   │   │   │   ├── JwtTokenProvider.java                  # JWT provider
-│   │   │   │   ├── MockDataInitializer.java               # Mock data generator
-│   │   │   │   ├── README.md
-│   │   │   │   ├── RateLimitingFilter.java                # Rate limiting filter
-│   │   │   │   ├── Role.java                              # Role enum with authorities
-│   │   │   │   ├── SecurityAuditService.java              # Security audit service
-│   │   │   │   ├── SecurityConfig.java                    # Main Security configuration
-│   │   │   │   ├── SecurityController.java                # Security test endpoints
-│   │   │   │   ├── SecurityExceptionHandler.java          # Security exception handler
-│   │   │   │   ├── UserAuthentication.java                # Authentication entity
-│   │   │   │   ├── UserAuthenticationRepository.java      # Authentication repository
-│   │   │   │   └── UserPrincipal.java                     # User principal
-│   │   │   └── README.md
-│   │   ├── dto/
-│   │   │   ├── Dto.java                          # Marker interface for all DTOs
-│   │   │   ├── DtoMappingException.java          # Exception for DTO mapping failures
-│   │   │   └── README.md
-│   │   ├── estimate/
-│   │   │   ├── Estimate.java                      # Main estimate entity
-│   │   │   ├── EstimateDto.java                   # DTO for estimate operations
-│   │   │   ├── EstimateDtoMapper.java             # MapStruct mapper for Estimate
-│   │   │   ├── EstimateGroup.java                 # Group entity for line items
-│   │   │   ├── EstimateGroupDto.java              # DTO for estimate group
-│   │   │   ├── EstimateGroupDtoMapper.java        # MapStruct mapper for EstimateGroup
-│   │   │   ├── EstimateGroupRepository.java       # JPA repository for groups
-│   │   │   ├── EstimateGroupService.java          # Business logic for groups
-│   │   │   ├── EstimateLine.java                  # Line item entity
-│   │   │   ├── EstimateLineDto.java               # DTO for estimate line
-│   │   │   ├── EstimateLineDtoMapper.java         # MapStruct mapper for EstimateLine
-│   │   │   ├── EstimateLineRepository.java        # JPA repository for lines
-│   │   │   ├── EstimateLineService.java           # Business logic for lines
-│   │   │   ├── EstimateLineStrategy.java          # Strategy enum for calculations
-│   │   │   ├── EstimateRepository.java            # JPA repository for estimates
-│   │   │   ├── EstimateService.java               # Business logic for estimates
-│   │   │   └── README.md
-│   │   ├── project/
-│   │   │   ├── dto/
-│   │   │   │   ├── CreateProjectRequest.java          # Request for creating projects
-│   │   │   │   ├── CreateProjectResponse.java         # Response with created project
-│   │   │   │   ├── ProjectLocationRequestDto.java     # Location info for creation
-│   │   │   │   └── README.md
-│   │   │   ├── Project.java                           # Core project entity
-│   │   │   ├── ProjectAuthService.java                # Authorization service
-│   │   │   ├── ProjectController.java                 # REST API controller
-│   │   │   ├── ProjectDto.java                        # DTO for project operations
-│   │   │   ├── ProjectDtoMapper.java                  # MapStruct mapper for Project
-│   │   │   ├── ProjectLocation.java                   # Location entity
-│   │   │   ├── ProjectLocationDto.java                # DTO for location
-│   │   │   ├── ProjectLocationDtoMapper.java          # MapStruct mapper for Location
-│   │   │   ├── ProjectLocationRepository.java         # JPA repository for locations
-│   │   │   ├── ProjectLocationService.java            # Business logic for locations
-│   │   │   ├── ProjectRepository.java                 # JPA repository for projects
-│   │   │   ├── ProjectService.java                    # Business logic for projects
-│   │   │   └── README.md
-│   │   ├── quote/
-│   │   │   ├── Quote.java                         # Main quote entity
-│   │   │   ├── QuoteDto.java                      # DTO for quote operations
-│   │   │   ├── QuoteDtoMapper.java                # MapStruct mapper for Quote
-│   │   │   ├── QuoteDomain.java                   # Domain classification enum
-│   │   │   ├── QuoteLocation.java                 # Location entity for quotes
-│   │   │   ├── QuoteLocationDto.java              # DTO for quote location
-│   │   │   ├── QuoteLocationDtoMapper.java        # MapStruct mapper for QuoteLocation
-│   │   │   ├── QuoteLocationRepository.java       # JPA repository for locations
-│   │   │   ├── QuoteLocationService.java          # Business logic for locations
-│   │   │   ├── QuoteRepository.java               # JPA repository for quotes
-│   │   │   ├── QuoteService.java                  # Business logic for quotes
-│   │   │   ├── QuoteUnit.java                     # Unit of measurement enum
-│   │   │   └── README.md
-│   │   ├── user/
-│   │   │   ├── dto/
-│   │   │   │   ├── ContactAddressRequestDto.java      # Address info for creation
-│   │   │   │   ├── ContactRequestDto.java             # Contact info for creation
-│   │   │   │   ├── CreateUserRequest.java             # Request for creating users
-│   │   │   │   ├── CreateUserResponse.java            # Response with created user
-│   │   │   │   └── README.md
-│   │   │   ├── Contact.java                           # Contact information entity
-│   │   │   ├── ContactAddress.java                    # Address entity for contacts
-│   │   │   ├── ContactAddressDto.java                 # DTO for contact address
-│   │   │   ├── ContactAddressDtoMapper.java           # MapStruct mapper for ContactAddress
-│   │   │   ├── ContactAddressRepository.java          # JPA repository for addresses
-│   │   │   ├── ContactAddressService.java             # Business logic for addresses
-│   │   │   ├── ContactDto.java                        # DTO for contact operations
-│   │   │   ├── ContactDtoMapper.java                  # MapStruct mapper for Contact
-│   │   │   ├── ContactLabel.java                      # Contact role/type enum
-│   │   │   ├── ContactRepository.java                 # JPA repository for contacts
-│   │   │   ├── ContactService.java                    # Business logic for contacts
-│   │   │   ├── User.java                              # Core user entity
-│   │   │   ├── UserController.java                    # REST API controller
-│   │   │   ├── UserDto.java                           # DTO for user operations
-│   │   │   ├── UserDtoMapper.java                     # MapStruct mapper for User
-│   │   │   ├── UserMockDataInitializer.java           # Mock data generator
-│   │   │   ├── UserMockDataProperties.java            # Mock data configuration
-│   │   │   ├── UserRepository.java                    # JPA repository for users
-│   │   │   ├── UserService.java                       # Business logic for users
-│   │   │   └── README.md
-│   │   ├── util/
-│   │   │   ├── EnumUtil.java                     # Enum conversion utilities
-│   │   │   ├── StringUtil.java                   # String manipulation utilities
-│   │   │   └── README.md
-│   │   ├── workitem/
-│   │   │   ├── dto/
-│   │   │   │   ├── CreateWorkItemRequest.java         # Request for creating work items
-│   │   │   │   ├── CreateWorkItemResponse.java        # Response with created work item
-│   │   │   │   └── README.md
-│   │   │   ├── WorkItem.java                          # Core work item entity
-│   │   │   ├── WorkItemController.java                # REST API controller
-│   │   │   ├── WorkItemDomain.java                    # Domain classification enum
-│   │   │   ├── WorkItemDto.java                       # DTO for work item operations
-│   │   │   ├── WorkItemDtoMapper.java                 # MapStruct mapper for WorkItem
-│   │   │   ├── WorkItemRepository.java                # JPA repository for work items
-│   │   │   ├── WorkItemService.java                   # Business logic for work items
-│   │   │   └── README.md
-│   │   └── README.md
-│   └── resources/
-│       ├── application.yml             # Application configuration
-│       ├── static/                     # Frontend build files (auto-generated)
-│       └── logback.xml                 # Logging configuration
-├── test/                               # Backend test classes
-└── frontend/                           # React application source
-    ├── src/                           # React source code
-    ├── package.json                   # Frontend dependencies
-    └── dist/                          # Build output (copied to static/)
+BuildFlow/
+├── frontend/                       # React Frontend Application - [📖 Documentation](frontend/README.md)
+│   ├── src/
+│   │   ├── components/            # Reusable React components - [📖 Documentation](frontend/src/components/README.md)
+│   │   │   ├── address/          # Address input library
+│   │   │   ├── admin/            # Admin panel components
+│   │   │   ├── auth/             # Authentication components
+│   │   │   ├── dashboard/        # Dashboard layout
+│   │   │   ├── dev/              # Development tools
+│   │   │   ├── home/             # Landing page components
+│   │   │   ├── navbar/           # Navigation components
+│   │   │   ├── project/          # Project management components
+│   │   │   ├── theme/            # Theme system
+│   │   │   └── ui/               # Base UI components (shadcn/ui)
+│   │   ├── config/               # Environment configuration - [📖 Documentation](frontend/src/config/README.md)
+│   │   ├── contexts/             # React Context providers - [📖 Documentation](frontend/src/contexts/README.md)
+│   │   ├── mocks/                # Mock data for development - [📖 Documentation](frontend/src/mocks/README.md)
+│   │   ├── pages/                # Route page components - [📖 Documentation](frontend/src/pages/README.md)
+│   │   ├── services/             # API services - [📖 Documentation](frontend/src/services/README.md)
+│   │   │   ├── dtos/            # Data Transfer Objects
+│   │   │   └── validation/      # Validation service
+│   │   ├── test/                 # Testing utilities - [📖 Documentation](frontend/src/test/README.md)
+│   │   ├── utils/                # Utility functions - [📖 Documentation](frontend/src/utils/README.md)
+│   │   ├── App.tsx               # Main application component
+│   │   └── main.tsx              # Application entry point
+│   ├── public/                   # Static assets
+│   ├── package.json              # Frontend dependencies
+│   └── dist/                     # Build output (copied to backend static/)
+│
+├── src/                           # Backend Java Source Code
+│   └── main/
+│       ├── java/dev/hr/rezaei/buildflow/
+│       │   ├── BuildFlowApplication.java    # Main Spring Boot application entry point
+│       │   ├── base/                        # Base entities and utilities - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/base/README.md)
+│       │   │   ├── BaseAddress.java                  # Abstract entity for address fields
+│       │   │   ├── BaseAddressDto.java               # Abstract DTO for address fields
+│       │   │   ├── DuplicateUserException.java       # Exception for duplicate user attempts
+│       │   │   ├── UpdatableEntity.java              # Abstract entity with audit fields
+│       │   │   ├── UpdatableEntityDto.java           # Abstract DTO with audit fields
+│       │   │   ├── UpdatableEntityDtoMapper.java     # Base mapper for entity-DTO conversions
+│       │   │   ├── UserNotAuthorizedException.java   # Exception for authorization failures
+│       │   │   └── UserNotFoundException.java        # Exception for user lookup failures
+│       │   ├── config/                      # Configuration classes - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/config/README.md)
+│       │   │   ├── mvc/                    # MVC and frontend integration - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/config/mvc/README.md)
+│       │   │   │   ├── dto/
+│       │   │   │   │   ├── ErrorResponse.java                 # Unified error response
+│       │   │   │   │   └── MessageResponse.java               # Success message response
+│       │   │   │   ├── AbstractAuthorizationHandler.java      # Base authorization handler
+│       │   │   │   ├── GlobalExceptionHandler.java            # Centralized exception handling
+│       │   │   │   ├── OpenApiConfig.java                     # API documentation config
+│       │   │   │   ├── PagedResponseBuilder.java              # Paginated response builder
+│       │   │   │   ├── PaginationHelper.java                  # Pagination helper utility
+│       │   │   │   ├── ResponseErrorType.java                 # Error type categorization
+│       │   │   │   ├── ResponseFacilitator.java               # Response formatting utility
+│       │   │   │   ├── SpaPathResourceResolver.java           # SPA routing resolver
+│       │   │   │   └── WebMvcConfig.java                      # Central MVC configuration
+│       │   │   └── security/               # Security configuration - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/config/security/README.md)
+│       │   │       ├── dto/
+│       │   │       │   ├── JwtAuthenticationResponse.java     # JWT token response
+│       │   │       │   ├── LoginRequest.java                  # Login request DTO
+│       │   │       │   ├── SignUpRequest.java                 # Registration request DTO
+│       │   │       │   ├── UserAuthenticationDto.java         # Secure user auth DTO
+│       │   │       │   └── UserSummaryResponse.java           # User summary response
+│       │   │       ├── AdminUserInitializer.java              # Admin user bootstrap
+│       │   │       ├── AuthController.java                    # Authentication endpoints
+│       │   │       ├── AuthService.java                       # Authentication service
+│       │   │       ├── CustomUserDetailsService.java          # User details service
+│       │   │       ├── JwtAuthenticationFilter.java           # JWT filter
+│       │   │       ├── JwtTokenProvider.java                  # JWT provider
+│       │   │       ├── MockDataInitializer.java               # Mock data generator
+│       │   │       ├── RateLimitingFilter.java                # Rate limiting filter
+│       │   │       ├── Role.java                              # Role enum with authorities
+│       │   │       ├── SecurityAuditService.java              # Security audit service
+│       │   │       ├── SecurityConfig.java                    # Main Security configuration
+│       │   │       ├── SecurityController.java                # Security test endpoints
+│       │   │       ├── SecurityExceptionHandler.java          # Security exception handler
+│       │   │       ├── UserAuthentication.java                # Authentication entity
+│       │   │       ├── UserAuthenticationRepository.java      # Authentication repository
+│       │   │       └── UserPrincipal.java                     # User principal
+│       │   ├── dto/                         # DTO utilities - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/dto/README.md)
+│       │   │   ├── Dto.java                          # Marker interface for all DTOs
+│       │   │   └── DtoMappingException.java          # Exception for DTO mapping failures
+│       │   ├── estimate/                    # Estimate domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/estimate/README.md)
+│       │   │   ├── Estimate.java                      # Main estimate entity
+│       │   │   ├── EstimateDto.java                   # DTO for estimate operations
+│       │   │   ├── EstimateDtoMapper.java             # MapStruct mapper for Estimate
+│       │   │   ├── EstimateGroup.java                 # Group entity for line items
+│       │   │   ├── EstimateGroupDto.java              # DTO for estimate group
+│       │   │   ├── EstimateGroupDtoMapper.java        # MapStruct mapper for EstimateGroup
+│       │   │   ├── EstimateGroupRepository.java       # JPA repository for groups
+│       │   │   ├── EstimateGroupService.java          # Business logic for groups
+│       │   │   ├── EstimateLine.java                  # Line item entity
+│       │   │   ├── EstimateLineDto.java               # DTO for estimate line
+│       │   │   ├── EstimateLineDtoMapper.java         # MapStruct mapper for EstimateLine
+│       │   │   ├── EstimateLineRepository.java        # JPA repository for lines
+│       │   │   ├── EstimateLineService.java           # Business logic for lines
+│       │   │   ├── EstimateLineStrategy.java          # Strategy enum for calculations
+│       │   │   ├── EstimateRepository.java            # JPA repository for estimates
+│       │   │   └── EstimateService.java               # Business logic for estimates
+│       │   ├── project/                     # Project domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/project/README.md)
+│       │   │   ├── dto/
+│       │   │   │   ├── CreateProjectRequest.java          # Request for creating projects
+│       │   │   │   ├── CreateProjectResponse.java         # Response with created project
+│       │   │   │   └── ProjectLocationRequestDto.java     # Location info for creation
+│       │   │   ├── Project.java                           # Core project entity
+│       │   │   ├── ProjectAuthService.java                # Authorization service
+│       │   │   ├── ProjectController.java                 # REST API controller
+│       │   │   ├── ProjectDto.java                        # DTO for project operations
+│       │   │   ├── ProjectDtoMapper.java                  # MapStruct mapper for Project
+│       │   │   ├── ProjectLocation.java                   # Location entity
+│       │   │   ├── ProjectLocationDto.java                # DTO for location
+│       │   │   ├── ProjectLocationDtoMapper.java          # MapStruct mapper for Location
+│       │   │   ├── ProjectLocationRepository.java         # JPA repository for locations
+│       │   │   ├── ProjectLocationService.java            # Business logic for locations
+│       │   │   ├── ProjectRepository.java                 # JPA repository for projects
+│       │   │   └── ProjectService.java                    # Business logic for projects
+│       │   ├── quote/                       # Quote domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/quote/README.md)
+│       │   │   ├── Quote.java                         # Main quote entity
+│       │   │   ├── QuoteDto.java                      # DTO for quote operations
+│       │   │   ├── QuoteDtoMapper.java                # MapStruct mapper for Quote
+│       │   │   ├── QuoteDomain.java                   # Domain classification enum
+│       │   │   ├── QuoteLocation.java                 # Location entity for quotes
+│       │   │   ├── QuoteLocationDto.java              # DTO for quote location
+│       │   │   ├── QuoteLocationDtoMapper.java        # MapStruct mapper for QuoteLocation
+│       │   │   ├── QuoteLocationRepository.java       # JPA repository for locations
+│       │   │   ├── QuoteLocationService.java          # Business logic for locations
+│       │   │   ├── QuoteRepository.java               # JPA repository for quotes
+│       │   │   ├── QuoteService.java                  # Business logic for quotes
+│       │   │   └── QuoteUnit.java                     # Unit of measurement enum
+│       │   ├── user/                        # User domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/user/README.md)
+│       │   │   ├── dto/
+│       │   │   │   ├── ContactAddressRequestDto.java      # Address info for creation
+│       │   │   │   ├── ContactRequestDto.java             # Contact info for creation
+│       │   │   │   ├── CreateUserRequest.java             # Request for creating users
+│       │   │   │   └── CreateUserResponse.java            # Response with created user
+│       │   │   ├── Contact.java                           # Contact information entity
+│       │   │   ├── ContactAddress.java                    # Address entity for contacts
+│       │   │   ├── ContactAddressDto.java                 # DTO for contact address
+│       │   │   ├── ContactAddressDtoMapper.java           # MapStruct mapper for ContactAddress
+│       │   │   ├── ContactAddressRepository.java          # JPA repository for addresses
+│       │   │   ├── ContactAddressService.java             # Business logic for addresses
+│       │   │   ├── ContactDto.java                        # DTO for contact operations
+│       │   │   ├── ContactDtoMapper.java                  # MapStruct mapper for Contact
+│       │   │   ├── ContactLabel.java                      # Contact role/type enum
+│       │   │   ├── ContactRepository.java                 # JPA repository for contacts
+│       │   │   ├── ContactService.java                    # Business logic for contacts
+│       │   │   ├── User.java                              # Core user entity
+│       │   │   ├── UserController.java                    # REST API controller
+│       │   │   ├── UserDto.java                           # DTO for user operations
+│       │   │   ├── UserDtoMapper.java                     # MapStruct mapper for User
+│       │   │   ├── UserMockDataInitializer.java           # Mock data generator
+│       │   │   ├── UserMockDataProperties.java            # Mock data configuration
+│       │   │   ├── UserRepository.java                    # JPA repository for users
+│       │   │   └── UserService.java                       # Business logic for users
+│       │   ├── util/                        # Utilities - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/util/README.md)
+│       │   │   ├── EnumUtil.java                     # Enum conversion utilities
+│       │   │   └── StringUtil.java                   # String manipulation utilities
+│       │   └── workitem/                    # WorkItem domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/workitem/README.md)
+│       │       ├── dto/
+│       │       │   ├── CreateWorkItemRequest.java         # Request for creating work items
+│       │       │   └── CreateWorkItemResponse.java        # Response with created work item
+│       │       ├── WorkItem.java                          # Core work item entity
+│       │       ├── WorkItemController.java                # REST API controller
+│       │       ├── WorkItemDomain.java                    # Domain classification enum
+│       │       ├── WorkItemDto.java                       # DTO for work item operations
+│       │       ├── WorkItemDtoMapper.java                 # MapStruct mapper for WorkItem
+│       │       ├── WorkItemRepository.java                # JPA repository for work items
+│       │       └── WorkItemService.java                   # Business logic for work items
+│       └── resources/
+│           ├── application.yml             # Application configuration
+│           ├── static/                     # Frontend build files (auto-generated)
+│           └── logback.xml                 # Logging configuration
+│
+├── pom.xml                        # Maven configuration
+└── README.md                      # This file
 ```
 
 ## 🎯 Current Application State
