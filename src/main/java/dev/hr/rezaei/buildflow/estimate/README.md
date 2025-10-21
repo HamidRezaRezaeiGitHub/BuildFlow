@@ -2,6 +2,33 @@
 
 This package provides comprehensive cost estimation functionality for construction projects in BuildFlow. It supports hierarchical estimate organization with groups and detailed line items, enabling accurate project cost calculation and management.
 
+## Summary
+
+This package handles hierarchical cost estimation for construction projects with multi-level organization (Estimate → EstimateGroup → EstimateLine), supporting various calculation strategies and project cost analysis.
+
+## Files Structure
+
+```
+estimate/
+├── Estimate.java                      # Main estimate entity for project cost calculations
+├── EstimateDto.java                   # DTO for estimate API operations
+├── EstimateDtoMapper.java             # MapStruct mapper for Estimate conversions
+├── EstimateGroup.java                 # Group entity for organizing line items
+├── EstimateGroupDto.java              # DTO for estimate group operations
+├── EstimateGroupDtoMapper.java        # MapStruct mapper for EstimateGroup conversions
+├── EstimateGroupRepository.java       # JPA repository for estimate groups
+├── EstimateGroupService.java          # Business logic for estimate groups
+├── EstimateLine.java                  # Line item entity with cost calculations
+├── EstimateLineDto.java               # DTO for estimate line item operations
+├── EstimateLineDtoMapper.java         # MapStruct mapper for EstimateLine conversions
+├── EstimateLineRepository.java        # JPA repository for estimate lines
+├── EstimateLineService.java           # Business logic for estimate lines
+├── EstimateLineStrategy.java          # Strategy enum for cost calculation methods
+├── EstimateRepository.java            # JPA repository for estimates
+├── EstimateService.java               # Business logic for estimate operations
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Entity Classes

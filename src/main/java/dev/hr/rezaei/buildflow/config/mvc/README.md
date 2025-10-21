@@ -2,6 +2,35 @@
 
 This package provides comprehensive Model-View-Controller (MVC) configuration and utilities for the BuildFlow application. It handles web configuration, exception handling, response formatting, API documentation, and Single Page Application (SPA) support.
 
+## Summary
+
+This package provides the MVC foundation with centralized configuration, exception handling, SPA routing support, API documentation, and consistent response formatting across all endpoints.
+
+## Files Structure
+
+```
+mvc/
+├── dto/
+│   ├── ErrorResponse.java                 # Unified error response for all errors
+│   ├── MessageResponse.java               # Generic message response for success
+│   └── README.md                          # DTO package documentation
+├── AbstractAuthorizationHandler.java      # Base class for custom authorization logic
+├── GlobalExceptionHandler.java            # Centralized exception handler for all controllers
+├── OpenApiConfig.java                     # OpenAPI/Swagger documentation configuration
+├── PagedResponseBuilder.java              # Utility for building paginated responses
+├── PaginationHelper.java                  # Helper for pagination parameter processing
+├── README.md                              # This file
+├── ResponseErrorType.java                 # Enum for categorizing error types
+├── ResponseFacilitator.java               # Utility for building consistent API responses
+├── SpaPathResourceResolver.java           # Custom resolver for SPA routing
+└── WebMvcConfig.java                      # Central Spring MVC configuration
+```
+
+## Subfolder References
+
+### [dto/](dto/) - MVC Response DTOs
+Data Transfer Objects for standardized error and success message responses across all API endpoints.
+
 ## Package Contents
 
 ### Configuration Classes
@@ -23,6 +52,8 @@ This package provides comprehensive Model-View-Controller (MVC) configuration an
 |------|-------------|
 | [ResponseFacilitator.java](ResponseFacilitator.java) | Utility for building consistent API responses |
 | [ResponseErrorType.java](ResponseErrorType.java) | Enum for categorizing error types in API responses |
+| [PagedResponseBuilder.java](PagedResponseBuilder.java) | Utility for building paginated responses with RFC 5988 Link headers |
+| [PaginationHelper.java](PaginationHelper.java) | Helper class for processing pagination parameters |
 
 ### SPA Support
 
@@ -41,6 +72,15 @@ This package provides comprehensive Model-View-Controller (MVC) configuration an
 | Directory | Description |
 |-----------|-------------|
 | [dto/](dto/) | Contains DTOs for MVC responses and error handling |
+
+## Endpoints
+
+This package does not contain controller classes, but it provides infrastructure that all controllers use for:
+- Exception handling and error responses
+- SPA routing and static resource serving
+- API documentation generation
+- Paginated response formatting
+- Consistent response structures
 
 ## Technical Overview
 

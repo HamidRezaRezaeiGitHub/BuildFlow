@@ -2,6 +2,39 @@
 
 This package provides comprehensive project management functionality for BuildFlow construction projects. It handles project creation, user assignments, location management, authorization, and integration with estimates and other project components.
 
+## Summary
+
+This package manages construction projects with builder/owner assignments, location tracking, authorization controls, and comprehensive CRUD operations with pagination support.
+
+## Files Structure
+
+```
+project/
+├── dto/
+│   ├── CreateProjectRequest.java          # Request for creating new projects
+│   ├── CreateProjectResponse.java         # Response containing created project details
+│   ├── ProjectLocationRequestDto.java     # Location info for project creation (no ID)
+│   └── README.md                          # DTO package documentation
+├── Project.java                           # Core project entity
+├── ProjectAuthService.java                # Authorization service for access control
+├── ProjectController.java                 # REST API controller for projects
+├── ProjectDto.java                        # DTO for project API operations
+├── ProjectDtoMapper.java                  # MapStruct mapper for Project conversions
+├── ProjectLocation.java                   # Location/address entity specific to projects
+├── ProjectLocationDto.java                # DTO for project location operations
+├── ProjectLocationDtoMapper.java          # MapStruct mapper for ProjectLocation conversions
+├── ProjectLocationRepository.java         # JPA repository for project locations
+├── ProjectLocationService.java            # Business logic for project locations
+├── ProjectRepository.java                 # JPA repository for projects
+├── ProjectService.java                    # Business logic for project operations
+└── README.md                              # This file
+```
+
+## Subfolder References
+
+### [dto/](dto/) - Project DTOs
+Specialized Data Transfer Objects for project creation workflows with nested location and user assignment information.
+
 ## Package Contents
 
 ### Entity Classes
@@ -51,6 +84,24 @@ This package provides comprehensive project management functionality for BuildFl
 | [ProjectService.java](ProjectService.java) | Core business logic for project management operations |
 | [ProjectLocationService.java](ProjectLocationService.java) | Business logic for project location management |
 | [ProjectAuthService.java](ProjectAuthService.java) | Authorization service for project access control |
+
+## Endpoints
+
+### ProjectController
+
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/v1/projects` | Create a new project with builder, owner, and location information | `CREATE_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/builder/{builderId}` | Retrieve projects assigned to a specific builder (with pagination) | `VIEW_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/owner/{ownerId}` | Retrieve projects owned by a specific property owner (with pagination) | `VIEW_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/combined/{userId}` | Retrieve projects where user is builder, owner, or both (with pagination and date filtering) | `VIEW_PROJECT` + custom auth check |
+
+**Pagination Support:**
+- Query parameters: `page`, `size`, `sort`, `orderBy`, `direction`
+- Default sort: `lastUpdatedAt,DESC`
+- Default page size: 25
+- Response headers: `X-Total-Count`, `X-Total-Pages`, `X-Page`, `X-Size`, `Link`
+- Sortable fields: `lastUpdatedAt`, `createdAt`
 
 ## Technical Overview
 

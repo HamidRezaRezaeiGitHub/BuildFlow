@@ -2,6 +2,29 @@
 
 This package provides comprehensive supplier quote management functionality for BuildFlow. It enables tracking of supplier quotes for work items, including pricing, location, and domain-specific categorization for construction project procurement.
 
+## Summary
+
+This package manages supplier quotes for construction work items with pricing details, location information, domain classification, and supplier tracking for procurement workflows.
+
+## Files Structure
+
+```
+quote/
+├── Quote.java                         # Main quote entity for supplier pricing
+├── QuoteDto.java                      # DTO for quote API operations
+├── QuoteDtoMapper.java                # MapStruct mapper for Quote conversions
+├── QuoteDomain.java                   # Domain classification enum (PUBLIC/PRIVATE)
+├── QuoteLocation.java                 # Location/address entity specific to quotes
+├── QuoteLocationDto.java              # DTO for quote location operations
+├── QuoteLocationDtoMapper.java        # MapStruct mapper for QuoteLocation conversions
+├── QuoteLocationRepository.java       # JPA repository for quote locations
+├── QuoteLocationService.java          # Business logic for quote locations
+├── QuoteRepository.java               # JPA repository for quotes
+├── QuoteService.java                  # Business logic for quote operations
+├── QuoteUnit.java                     # Unit of measurement enum for pricing
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Entity Classes

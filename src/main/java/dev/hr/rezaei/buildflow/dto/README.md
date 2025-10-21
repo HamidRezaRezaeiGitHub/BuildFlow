@@ -2,6 +2,19 @@
 
 This package contains core DTO-related interfaces and exceptions that provide foundational functionality for the Data Transfer Object layer across the entire BuildFlow application.
 
+## Summary
+
+This package provides the foundational DTO framework with marker interfaces and exception handling that all domain DTOs build upon.
+
+## Files Structure
+
+```
+dto/
+├── Dto.java                      # Marker interface for all DTOs
+├── DtoMappingException.java      # Exception for DTO mapping failures
+└── README.md                     # This file
+```
+
 ## Package Contents
 
 ### Interfaces and Classes

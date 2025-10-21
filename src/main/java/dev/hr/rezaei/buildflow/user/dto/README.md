@@ -2,6 +2,21 @@
 
 This package defines all Data Transfer Objects (DTOs) for user management operations in BuildFlow. DTOs are organized by use case to ensure clean API contracts, strong validation, and clear relationships between user, contact, and address data.
 
+## Summary
+
+This package contains specialized DTOs for user creation workflows with nested contact and address information, providing comprehensive user management support.
+
+## Files Structure
+
+```
+dto/
+├── ContactAddressRequestDto.java      # Address info for contact creation (no ID)
+├── ContactRequestDto.java             # Contact info for user creation with full details
+├── CreateUserRequest.java             # Request for creating new users
+├── CreateUserResponse.java            # Response containing created user details
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Classes

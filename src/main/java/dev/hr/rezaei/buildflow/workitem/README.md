@@ -2,6 +2,33 @@
 
 This package provides comprehensive work item management functionality for BuildFlow construction projects. It enables detailed task breakdown, user assignment, and domain-specific categorization to support project planning and execution.
 
+## Summary
+
+This package handles construction work item management with detailed task breakdown structure, user assignments, domain classification, and comprehensive CRUD operations via REST endpoints.
+
+## Files Structure
+
+```
+workitem/
+├── dto/
+│   ├── CreateWorkItemRequest.java         # Request for creating new work items
+│   ├── CreateWorkItemResponse.java        # Response containing created work item details
+│   └── README.md                          # DTO package documentation
+├── WorkItem.java                          # Core work item entity
+├── WorkItemController.java                # REST API controller for work items
+├── WorkItemDomain.java                    # Domain classification enum (PUBLIC/PRIVATE)
+├── WorkItemDto.java                       # DTO for work item API operations
+├── WorkItemDtoMapper.java                 # MapStruct mapper for entity-DTO conversions
+├── WorkItemRepository.java                # JPA repository for work item persistence
+├── WorkItemService.java                   # Business logic for work item operations
+└── README.md                              # This file
+```
+
+## Subfolder References
+
+### [dto/](dto/) - Work Item DTOs
+Specialized Data Transfer Objects for work item creation workflows, providing clean API contracts with validation support.
+
 ## Package Contents
 
 ### Entity Classes
@@ -51,6 +78,16 @@ This package provides comprehensive work item management functionality for Build
 | File | Description |
 |------|-------------|
 | [WorkItemDomain.java](WorkItemDomain.java) | Domain classification enum for work item categorization (PUBLIC/PRIVATE) |
+
+## Endpoints
+
+### WorkItemController
+
+| Method | Endpoint | Description | Note |
+|--------|----------|-------------|------|
+| `POST` | `/api/v1/work-items` | Create a new work item with code, name, description, and user assignment | Currently hidden from API documentation (@Hidden) |
+| `GET` | `/api/v1/work-items/user/{userId}` | Retrieve all work items assigned to a specific user | Currently hidden from API documentation (@Hidden) |
+| `GET` | `/api/v1/work-items/domain/{domain}` | Retrieve all work items within a specific domain (PUBLIC or PRIVATE) | Currently hidden from API documentation (@Hidden) |
 
 ## Technical Overview
 
