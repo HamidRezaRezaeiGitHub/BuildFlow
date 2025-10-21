@@ -6,26 +6,24 @@ Context:
 <Desired outcome in one line.>
 
 Read before acting:
-- Inspect or update these files:
-  - src/main/java/dev/hr/rezaei/buildflow/<module>/<File>.java
-  - src/test/java/dev/hr/rezaei/buildflow/<module>/<TestFile>.java
-  - (If applicable) src/main/resources/<config>.yml
+- Inspect or update these files: (No need to provide full paths)
+  - [backend] <module>/<File>.java
+  - [backend] src/test/java/dev/hr/rezaei/buildflow/<module>/<TestFile>.java
+  - (If applicable) [backend] src/main/resources/<config>.yml
 
 Acceptance Criteria:
 - <AC1: endpoint/service behavior or contract>
 - <AC2: validation/persistence requirement>
 - <AC3: tests in place (unit/integration as appropriate)>
 - 'mvn -q -DskipTests=false clean test' and 'mvn -q -DskipTests=true package' complete without errors.
+- Related README.md files are updated if necessary. 
+- Update Files Structure of README.md at the root of the project, if new files/modules are added (or removed).
 
 Constraints & Hints:
 - <Constraint 1>
 - <Constraint 2>
 - <Hint 1>
 - <Hint 2>
-
-Deliverables:
-- Summary of changed/created files and rationale.
-- Brief test plan (what scenarios and assertions).
 
 ---
 ### 🧩 Example
@@ -37,18 +35,16 @@ Context:
 Estimation logic is mixed into controllers; we need a dedicated service for testability and reuse.
 
 Read before acting:
-- src/main/java/dev/hr/rezaei/buildflow/estimate/EstimateService.java
-- src/test/java/dev/hr/rezaei/buildflow/estimate/EstimateServiceTest.java
+- [backend] EstimateService.java
+- [backend] EstimateServiceTest.java
 
 Acceptance Criteria:
 - Service supports AVERAGE and LATEST strategies.
 - Unit tests cover both strategies and edge cases (no quotes).
 - 'mvn -q -DskipTests=false clean test' and 'mvn -q -DskipTests=true package' complete without errors.
+- README.md in the estimation module is updated with usage examples.
+- Update Files Structure of README.md at the root of the project, if new files/modules are added (or removed).
 
 Constraints & Hints:
 - Keep calculation pure; avoid I/O in service methods.
 - Controller delegates to the service via clear interfaces.
-
-Deliverables:
-- File list and rationale.
-- Test plan describing assertions for each strategy.

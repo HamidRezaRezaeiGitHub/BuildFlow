@@ -1,45 +1,22 @@
 # BuildFlow: Full-Stack Construction Management Platform
 
-**CRITICAL**: Always reference these instructions first and only fallback to search or additional context gathering if the information here is incomplete or found to be in error. Notify the user if any discrepancies are found, and update this document accordingly. Keep this document short and concise.
-
-## Table of Contents
-1. [Project Summary](#1-project-summary)
-2. [Technology Stack](#2-technology-stack)
-3. [Architecture Overview](#3-architecture-overview)
-4. [Development Requirements](#4-development-requirements)
-5. [Build and Deployment](#5-build-and-deployment)
-6. [Validation and Testing](#6-validation-and-testing)
-7. [Development Guidelines](#7-development-guidelines)
-8. [Performance and Timing](#8-performance-and-timing)
+**CRITICAL**: Always follow these instructions. Reference this document first before gathering additional context.
 
 ## 1. Project Summary
 
-BuildFlow is a comprehensive full-stack construction management platform that provides:
-
-### Business Capabilities
-- **Project Management**: Complete project lifecycle management with location tracking and ownership
-- **Estimation System**: Hierarchical cost estimation with organized groups and detailed line items
-- **User Management**: Comprehensive user and contact management with secure authentication
-- **Work Items & Quotes**: Detailed task breakdown structure with client quotation generation
-
-### Platform Benefits
-BuildFlow delivers a unified solution for construction companies to manage projects from initial estimation through completion, with integrated user management and comprehensive reporting capabilities.
+BuildFlow is a full-stack construction management platform providing:
+- **Project Management**: Lifecycle management with location tracking and ownership
+- **Estimation System**: Hierarchical cost estimation with groups and line items
+- **User Management**: User and contact management with secure authentication
+- **Work Items & Quotes**: Task breakdown structure with quotation generation
 
 ## 2. Technology Stack
 
-### Backend Technologies
-- **Framework**: Spring Boot 3.5.3
-- **Runtime**: Java 21 (REQUIRED)
-- **Database**: H2 Database with JPA/Hibernate
-- **Security**: Spring Security
-- **Build Tool**: Maven
+### Backend
+- Spring Boot 3.5.3 with Java 21 (REQUIRED) | H2 Database + JPA/Hibernate | Maven
 
-### Frontend Technologies
-- **Framework**: React with TypeScript
-- **Runtime**: Node.js V20
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS v4
-- **Components**: Shadcn UI components
+### Frontend
+- React + TypeScript | Vite | Tailwind CSS v4 | Shadcn UI | Node.js V20
 
 ## 3. Architecture Overview
 
@@ -60,203 +37,142 @@ BuildFlow-0.0.1-SNAPSHOT.jar
     └── API integration
 ```
 
-### Repository Overview & Source of Truth
+**Key Configuration**:
+- Vite: Dev server port 3000, builds to `dist/`, path aliases (`@/`)
+- Jest: jsdom environment, TypeScript via ts-jest
+- Tailwind CSS: v4 utility-first styling
+- Spring Boot: H2 database, Spring Security, Maven
 
-Before starting any new session, always review the root README.md file.
-The root README is the single source of truth for the repository’s folder structure, file organization, and build instructions.
+## 4. Step-by-Step Development Workflow
 
-### General Configuration Summary
-- **Vite**: Development server on port 3000, builds to `dist/` directory, supports path aliases (`@/`)
-- **Jest**: Test runner with jsdom environment, TypeScript support via ts-jest
-- **Tailwind CSS**: Utility-first styling with v4 configuration
-- **Spring Boot**: H2 database, Spring Security, Maven build system
+### Step 1: Review Project Context
+**ALWAYS START HERE** before making any changes:
 
-## 4. Development Requirements
+1. **Read root README.md** - Single source of truth for structure and build instructions
+2. **Identify change scope** - Backend, frontend, or full-stack?
+3. **Check relevant package READMEs** - Domain-specific documentation in each package
 
-### Prerequisites
-- **Java 21** (CRITICAL REQUIREMENT)
-  ```bash
-  export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-  export PATH=$JAVA_HOME/bin:$PATH
-  ```
-  Verify: `java -version` should show "openjdk version 21.0.x"
+### Step 2: Environment Setup
 
-### Database Profiles
-- **Development** (default): H2 console enabled, security customizable, schema auto-update
-- **UAT**: Production-like security, H2 console enabled for inspection, schema validation only
-- **Production**: Full security enabled, H2 console disabled, schema validation only
-
-## 4. Build and Deployment
-
-### Build Process Overview
-**CRITICAL**: The Maven build does NOT automatically build the frontend. Manual frontend build is required.
-
-### Build Commands (Execute in Order)
-
-#### 1. Backend Compilation (6-8 seconds)
-*Only if backend code changes exist*
+**Verify Java 21** (CRITICAL):
 ```bash
-./mvnw clean compile
+java -version  # Must show "openjdk version 21.0.x"
 ```
 
-#### 2. Frontend Build (3-5 seconds)
-*Only if frontend code changes exist*
+### Step 3: Implement Changes
+
+#### For Backend Changes:
+
+**A. Research Phase**
+- Search for similar patterns using `semantic_search` or `grep_search`
+- Review domain package README for business rules
+- Check existing tests for patterns
+
+**B. Implementation Standards**
+- Follow existing package patterns (entities, DTOs, mappers, services, repositories)
+- Use Lombok annotations for boilerplate reduction
+
+**C. Testing Requirements** (MANDATORY)
+- Look for similar test files as templates
+- Write **unit tests** for isolated class logic
+- Write **integration tests** for Spring context validation
+- Test business logic and edge cases
+- Follow existing test naming patterns
+
+**D. Documentation Requirements**
+- Update package README.md when adding/modifying files following existing style
+- Document business logic, not code syntax
+- Propagate changes to parent package READMEs if needed
+
+#### For Frontend Changes:
+
+**A. Research Phase**
+- Review existing patterns for similar functionality
+
+**B. Mobile-First Implementation Standards**
+- Design for mobile devices first + touch-friendly interactions
+- Use Tailwind CSS with responsive breakpoints
+- Use Shadcn UI components for consistency
+
+**C. Component Guidelines**
+- Build reusable, context-independent components
+- Use React Context for shared state
+- Apply proper prop typing with TypeScript
+- Follow existing component structure patterns
+
+**D. Testing Requirements** (MANDATORY)
+- Write Jest tests for component logic, co-located with components
+- Test user interactions with React Testing Library
+- Verify responsive behavior
+- Follow existing test patterns
+
+**E. Documentation Requirements**
+- Update component README when adding/modifying components following existing style
+- Include component description. Not much code details.
+
+### Step 4: Build Process
+
+**CRITICAL**: Maven does NOT auto-build frontend. Build manually when needed.
+
+#### Backend Only Changes:
+```bash
+./mvnw clean compile  # 6-8 seconds
+./mvnw test           # 35-37 seconds - NEVER CANCEL
+```
+
+#### Frontend Only Changes:
 ```bash
 cd frontend
-npm install    # ~30 seconds - installs 283 packages (deprecation warnings normal)
-npm run build  # ~3 seconds - creates frontend/dist/ directory
-cd ..
+npm install           # If package.json changed (~30 seconds)
+npm run build         # 3-5 seconds
+npm test              # Run Jest suite
 ```
 
-#### 3. Complete Full-Stack Build (8-18 seconds)
-*Only if any code changes exist - NEVER CANCEL*
+#### Full-Stack Changes:
 ```bash
-./mvnw clean package -DskipTests
-# Creates target/BuildFlow-0.0.1-SNAPSHOT.jar with integrated frontend
+# 1. Build frontend
+cd frontend && npm install && npm run build && cd ..
+
+# 2. Package complete application
+./mvnw clean package -DskipTests  # 8-18 seconds - NEVER CANCEL
+
+# Verify: Look for "[INFO] Copying 4 resources from frontend/dist to target/classes/static"
 ```
 
-#### 4. Verify Frontend Integration
-Look for log message:
-```
-[INFO] Copying 4 resources from frontend/dist to target/classes/static
-```
+### Step 5: Validation
 
-### Running the Application
+#### Backend Validation:
+1. Compilation: `./mvnw clean compile` (~6 seconds)
+2. Startup: Verify Spring Boot starts without errors
 
-#### Production Mode (JAR deployment)
+#### Frontend Validation:
+1. Type Check: `npm run type-check`
+2. Dev Server: `npm run dev` (verify localhost:3000) - **TERMINATE when done**
+3. Screenshots: Include mobile-width screenshots in PR description (if applicable)
+
+#### Full-Stack Integration:
 ```bash
+# Run complete application
 java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
-# Available at: http://localhost:8080/
+# Available at http://localhost:8080/
 ```
 
-#### Development Mode (Maven with hot reload)
-```bash
-./mvnw spring-boot:run
-# Available at: http://localhost:8080/
-```
+### Step 6: Documentation Updates
 
-#### Frontend Development Mode
-```bash
-cd frontend
-npm run dev
-# CRITICAL: Always terminate this command when finished
-# Use Ctrl+C to stop the Vite dev server
-```
+After implementing changes:
 
-## 6. Validation and Testing
+1. **Update root README.md** if new files/folders created
+2. **Update/create package README.md** for new folders with multiple files
+3. **Keep formatting consistent** with existing README style
+4. **Document business context**, not code details
 
-### Backend Testing
-*Execute only if backend code changes exist*
-
-#### Backend Test Suite (35-37 seconds)
-*NEVER CANCEL - completes within measured timeframes*
-```bash
-./mvnw test
-```
-
-#### Backend Validation Checklist
-After backend changes:
-1. **Compilation**: `./mvnw clean compile` (~6 seconds)
-2. **Test Execution**: `./mvnw test` (~35 seconds)
-3. **Application Startup**: Verify Spring Boot starts without errors
-
-### Frontend Testing
-*Execute only if frontend code changes exist*
-
-#### Frontend Test Suite
-```bash
-cd frontend
-npm test        # Run Jest test suite
-npm run build   # Verify build succeeds (~3 seconds)
-```
-
-#### Frontend Validation Checklist
-After frontend changes:
-1. **Dependencies**: `npm install` (if package.json changed)
-2. **Type Check**: `npm run type-check` (TypeScript validation)
-3. **Test Suite**: `npm test` (Jest with jsdom environment)
-4. **Build Test**: `npm run build` (Vite build to dist/)
-5. **Dev Server**: `npm run dev` (verify localhost:3000 works)
-6. **Screenshots**: if changes are for a pull-request, include screenshots of the changed views in a mobile-width screen in the pr description, unless specified otherwise by the user.
-
-### Full-Stack Integration Testing
-*Execute when both backend and frontend changes exist*
-
-#### Complete Validation Process
-1. **Frontend Build**: `cd frontend && npm run build`
-2. **Backend Package**: `./mvnw clean package` (includes frontend assets)
-3. **Application Test**: `java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar`
-
-## 7. Development Guidelines
-
-After completing any prompt or implementing a change:
-
-1. If new files or folders were created, update the “Files Structure” section in the root README.md to include them.
-2. If a new folder contains multiple files, create or update a local README.md in that folder describing its contents.
-3. Keep updates concise, using the same formatting style as the rest of the README.
-
-### Backend Development Standards
-
-#### Package Documentation Standards
-- **backend package** must contain a comprehensive `README.md` with:
-- **Technical Overview**: Complete functionality and architecture
-- **File Descriptions**: Comprehensive table of all classes with descriptions and links
-- **Integration Points**: Cross-package integration patterns
-- **Business Logic**: Domain-specific rules and workflows
-- **Design Principles**: Architectural patterns and decisions
-
-#### Backend README Maintenance Requirements
-- Update package README when ANY file is added, modified, or deleted
-- Propagate sub-package changes to parent package READMEs
-- Maintain accurate file links and technical details
-- Document business context without repeating code syntax
-
-#### Backend Testing Standards
-When writing new backend classes:
-- **Look for similar unit and integration test files** as templates
-- **Write comprehensive tests** for all new classes and methods
-- **Test expected behavior** - catch bugs by validating business logic and edge cases
-- **Follow existing test patterns** in the codebase for consistency
-- **Include both unit tests** (isolated class testing) **and integration tests** (full Spring context)
-
-### Frontend Development Standards
-
-#### Mobile-First Responsive Design
-When writing frontend components:
-- **Mobile-First Approach**: Design and implement for mobile devices first
-- **Responsive Design**: Ensure proper scaling across all device sizes (mobile → tablet → desktop)
-- **Touch-Friendly**: Design interactive elements with appropriate touch targets
-- **Performance**: Optimize for mobile network conditions and device capabilities
-- **Accessibility**: Ensure components work across different input methods and screen readers
-
-#### Frontend Component Guidelines
-- **Reusable Components**: Build components that work across different contexts
-- **TypeScript First**: All components should have proper TypeScript interfaces
-- **Testing**: Write Jest tests for component logic and user interactions
-- **Styling**: Use Tailwind CSS classes with responsive breakpoint modifiers
-- **State Management**: Use React Context for shared state, local state for component-specific data
-- **Library Usage**: Prefer Shadcn UI components for consistency and accessibility
-
-## 8. Performance and Timing
-
-### Build Time Expectations (MEASURED)
-- **Backend Compilation**: 6-8 seconds
-- **Frontend Build**: 3-5 seconds
-- **Full Package Build**: 8-18 seconds
-- **Test Suite**: 35-37 seconds
-- **Application Startup**: 7-8 seconds
-
-### Timeout Recommendations
-- **Compilation**: 2+ minutes
-- **Full Package**: 10+ minutes
-- **Test Suite**: 10+ minutes
-
-### Critical Guidelines
-- **NEVER CANCEL BUILDS OR TESTS** - they complete within measured timeframes
-- Use generous timeouts for automated processes
+**Critical Rules**:
+- **NEVER CANCEL builds or tests** - they complete within measured timeframes
+- Use generous timeouts (2+ minutes for compilation, 10+ minutes for full builds)
 - Build failures indicate real issues, not timeout problems
-- All processes have been validated and complete successfully
 
----
-
-*This application provides a solid foundation for construction project management with proven build processes and comprehensive testing coverage.*
+### Key Patterns:
+- Backend: Entity → DTO → Mapper → Repository → Service → Controller
+- Frontend: Component → Context → Service → DTO
+- Testing: Look for similar test files, follow patterns
+- Documentation: Update READMEs when files change
