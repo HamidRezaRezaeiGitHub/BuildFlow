@@ -2,6 +2,19 @@
 
 This package contains Data Transfer Objects (DTOs) for MVC configuration and error handling in the BuildFlow application.
 
+## Summary
+
+This package provides standardized response DTOs for both success and error scenarios across all API endpoints, ensuring consistent communication between the backend and frontend.
+
+## Files Structure
+
+```
+dto/
+├── ErrorResponse.java          # Unified error response for all types of errors
+├── MessageResponse.java        # Generic message response for successful operations
+└── README.md                   # This file
+```
+
 ## Package Contents
 
 ### Classes

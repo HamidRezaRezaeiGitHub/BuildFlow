@@ -2,6 +2,20 @@
 
 This package defines all Data Transfer Objects (DTOs) for project management operations in BuildFlow. DTOs are organized by use case to ensure clean API contracts, strong validation, and clear relationships between project and location data.
 
+## Summary
+
+This package contains specialized DTOs for project creation workflows, providing clean separation between request and response contracts with comprehensive address integration.
+
+## Files Structure
+
+```
+dto/
+├── CreateProjectRequest.java          # Request for creating new projects
+├── CreateProjectResponse.java         # Response containing created project details
+├── ProjectLocationRequestDto.java     # Location info for project creation (no ID)
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Classes

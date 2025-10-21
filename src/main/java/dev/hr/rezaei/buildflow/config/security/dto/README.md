@@ -2,6 +2,22 @@
 
 This package contains Data Transfer Objects (DTOs) for authentication and security operations in the BuildFlow application.
 
+## Summary
+
+This package provides comprehensive DTOs for authentication flows including registration, login, JWT token management, and secure user information transmission for admin operations.
+
+## Files Structure
+
+```
+dto/
+├── JwtAuthenticationResponse.java    # Response with JWT token and user info after authentication
+├── LoginRequest.java                  # Request for user authentication
+├── SignUpRequest.java                 # Request for user registration
+├── UserAuthenticationDto.java         # Secure DTO for admin user management (password-free)
+├── UserSummaryResponse.java           # Summary response with basic user information
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Classes

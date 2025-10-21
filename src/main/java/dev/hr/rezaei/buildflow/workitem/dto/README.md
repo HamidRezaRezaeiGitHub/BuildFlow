@@ -2,6 +2,19 @@
 
 This package defines Data Transfer Objects (DTOs) for work item management operations in BuildFlow. DTOs are organized to support work item creation and management workflows.
 
+## Summary
+
+This package provides DTOs for work item creation with domain classification and project association support.
+
+## Files Structure
+
+```
+dto/
+├── CreateWorkItemRequest.java         # Request for creating new work items
+├── CreateWorkItemResponse.java        # Response containing created work item details
+└── README.md                          # This file
+```
+
 ## Package Contents
 
 ### Classes

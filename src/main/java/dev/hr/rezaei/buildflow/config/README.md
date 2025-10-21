@@ -2,6 +2,79 @@
 
 This package contains all configuration-related classes for the BuildFlow application, providing comprehensive setup for web/MVC functionality and security infrastructure. It organizes configuration concerns into specialized sub-packages for maintainability and separation of concerns.
 
+## Summary
+
+This package provides centralized application configuration with specialized sub-packages for MVC (web layer) and Security (authentication/authorization) concerns, enabling full-stack integration and comprehensive security.
+
+## Files Structure
+
+```
+config/
+├── mvc/
+│   ├── dto/
+│   │   ├── ErrorResponse.java                 # Unified error response
+│   │   ├── MessageResponse.java               # Success message response
+│   │   └── README.md                          # MVC DTO documentation
+│   ├── AbstractAuthorizationHandler.java      # Base authorization handler
+│   ├── GlobalExceptionHandler.java            # Centralized exception handling
+│   ├── OpenApiConfig.java                     # API documentation config
+│   ├── PagedResponseBuilder.java              # Paginated response builder
+│   ├── PaginationHelper.java                  # Pagination helper utility
+│   ├── README.md                              # MVC package documentation
+│   ├── ResponseErrorType.java                 # Error type categorization
+│   ├── ResponseFacilitator.java               # Response formatting utility
+│   ├── SpaPathResourceResolver.java           # SPA routing resolver
+│   └── WebMvcConfig.java                      # Central MVC configuration
+├── security/
+│   ├── dto/
+│   │   ├── JwtAuthenticationResponse.java     # JWT token response
+│   │   ├── LoginRequest.java                  # Login request DTO
+│   │   ├── SignUpRequest.java                 # Registration request DTO
+│   │   ├── UserAuthenticationDto.java         # Secure user auth DTO
+│   │   ├── UserSummaryResponse.java           # User summary response
+│   │   └── README.md                          # Security DTO documentation
+│   ├── AdminUserInitializer.java              # Admin user bootstrap
+│   ├── AuthController.java                    # Authentication endpoints
+│   ├── AuthService.java                       # Authentication service
+│   ├── CustomUserDetailsService.java          # User details service
+│   ├── JwtAuthenticationFilter.java           # JWT filter
+│   ├── JwtTokenProvider.java                  # JWT provider
+│   ├── MockDataInitializer.java               # Mock data generator
+│   ├── README.md                              # Security package documentation
+│   ├── RateLimitingFilter.java                # Rate limiting filter
+│   ├── Role.java                              # Role enum
+│   ├── SecurityAuditService.java              # Audit service
+│   ├── SecurityConfig.java                    # Security configuration
+│   ├── SecurityController.java                # Security test endpoints
+│   ├── SecurityExceptionHandler.java          # Security exception handler
+│   ├── UserAuthentication.java                # Authentication entity
+│   ├── UserAuthenticationRepository.java      # Authentication repository
+│   └── UserPrincipal.java                     # User principal
+└── README.md                                  # This file
+```
+
+## Subfolder References
+
+### [mvc/](mvc/) - MVC Configuration
+Comprehensive Model-View-Controller configuration providing web layer setup, exception handling, SPA routing support, API documentation, and consistent response formatting.
+
+**Key Features:**
+- Single Page Application (React) integration
+- Centralized exception handling
+- OpenAPI/Swagger documentation
+- Paginated response support
+- Static resource serving
+
+### [security/](security/) - Security Configuration
+Complete security infrastructure with JWT authentication, role-based access control, rate limiting, security auditing, and authentication endpoints.
+
+**Key Features:**
+- JWT-based authentication
+- Role-based access control (RBAC)
+- Brute force protection
+- Security event auditing
+- Admin user management
+
 ## Package Structure
 
 ### Sub-packages

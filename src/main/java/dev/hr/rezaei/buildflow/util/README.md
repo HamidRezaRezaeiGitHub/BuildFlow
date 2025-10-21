@@ -2,6 +2,19 @@
 
 This package contains utility classes providing common functionality and helper methods used across the entire BuildFlow application.
 
+## Summary
+
+This package provides essential utility functions for enum processing, string manipulation, validation, and data sanitization used throughout all domain packages.
+
+## Files Structure
+
+```
+util/
+├── EnumUtil.java             # Enum conversion and validation utilities
+├── StringUtil.java           # String manipulation and validation utilities
+└── README.md                 # This file
+```
+
 ## Package Contents
 
 ### Utility Classes

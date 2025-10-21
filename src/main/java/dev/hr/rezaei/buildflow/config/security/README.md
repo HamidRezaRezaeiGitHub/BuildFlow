@@ -2,6 +2,45 @@
 
 This package provides comprehensive security functionality for the BuildFlow application, implementing JWT-based authentication with Spring Security and role-based access control (RBAC). The security system maintains separation of concerns and follows proper layered architecture patterns with comprehensive security enhancements.
 
+## Summary
+
+This package provides complete security infrastructure including JWT authentication, role-based access control, rate limiting, security auditing, admin user management, and comprehensive authentication endpoints.
+
+## Files Structure
+
+```
+security/
+├── dto/
+│   ├── JwtAuthenticationResponse.java     # Response with JWT token and user info
+│   ├── LoginRequest.java                  # Request for user authentication
+│   ├── SignUpRequest.java                 # Request for user registration
+│   ├── UserAuthenticationDto.java         # Secure DTO for admin operations (password-free)
+│   ├── UserSummaryResponse.java           # Summary response with basic user info
+│   └── README.md                          # DTO package documentation
+├── AdminUserInitializer.java              # Bootstrap service for initial admin user
+├── AuthController.java                    # REST API controller for authentication
+├── AuthService.java                       # Core authentication business logic
+├── CustomUserDetailsService.java          # Spring Security UserDetailsService implementation
+├── JwtAuthenticationFilter.java           # JWT token validation filter
+├── JwtTokenProvider.java                  # JWT token creation and validation
+├── MockDataInitializer.java               # Mock data generator for development/testing
+├── README.md                              # This file
+├── RateLimitingFilter.java                # Brute force protection filter
+├── Role.java                              # Role-based access control enum
+├── SecurityAuditService.java              # Security event logging service
+├── SecurityConfig.java                    # Main Spring Security configuration
+├── SecurityController.java                # Security testing endpoints
+├── SecurityExceptionHandler.java          # Security-specific exception handler
+├── UserAuthentication.java                # Authentication data entity
+├── UserAuthenticationRepository.java      # JPA repository for authentication data
+└── UserPrincipal.java                     # Spring Security UserDetails implementation
+```
+
+## Subfolder References
+
+### [dto/](dto/) - Security DTOs
+Data Transfer Objects for authentication requests and responses including JWT tokens, login/signup, and secure user information for admin operations.
+
 ## Package Contents
 
 ### Configuration Classes
@@ -16,28 +55,6 @@ This package provides comprehensive security functionality for the BuildFlow app
 |------|-------------|
 | [AuthController.java](AuthController.java) | REST API controller for authentication operations (login, register, logout) and admin user management |
 | [SecurityController.java](SecurityController.java) | Additional security-related endpoint controllers |
-
-#### AuthController Endpoints
-
-**Public Endpoints:**
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User authentication
-
-**Authenticated Endpoints:**
-- `GET /api/auth/current` - Get current user information
-- `POST /api/auth/refresh` - Refresh JWT token
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/validate` - Validate JWT token
-
-**Admin-Only Endpoints (requires ADMIN_USERS authority):**
-- `POST /api/auth/admin` - Create admin user (requires CREATE_ADMIN authority)
-- `GET /api/auth/user-auth/{username}` - Get user authentication by username (returns UserAuthenticationDto)
-- `GET /api/auth/user-auth` - Get all user authentications (returns List<UserAuthenticationDto>)
-
-**Security Features:**
-- All admin endpoints require proper authorization with `@PreAuthorize` annotations
-- User authentication data returned via secure DTOs that exclude password information
-- Comprehensive security audit logging for all admin operations
 
 ### Service Classes
 
@@ -84,6 +101,7 @@ This package provides comprehensive security functionality for the BuildFlow app
 | File | Description |
 |------|-------------|
 | [AdminUserInitializer.java](AdminUserInitializer.java) | Bootstrap service for creating initial admin user |
+| [MockDataInitializer.java](MockDataInitializer.java) | Mock data generator for development and testing environments |
 
 ### Enums
 
@@ -96,6 +114,29 @@ This package provides comprehensive security functionality for the BuildFlow app
 | Directory | Description |
 |-----------|-------------|
 | [dto/](dto/) | Contains DTOs for authentication requests and responses |
+
+## Endpoints
+
+### AuthController
+
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/auth/register` | User registration with username, email, password, and profile details | Public |
+| `POST` | `/api/auth/login` | User authentication with username/email and password, returns JWT token | Public |
+| `GET` | `/api/auth/current` | Get current authenticated user information | Authenticated |
+| `POST` | `/api/auth/refresh` | Refresh JWT token with new expiration | Authenticated |
+| `POST` | `/api/auth/logout` | User logout (invalidates current session) | Authenticated |
+| `GET` | `/api/auth/validate` | Validate JWT token and return user info | Authenticated |
+| `POST` | `/api/auth/admin` | Create admin user (requires CREATE_ADMIN authority) | Admin (`CREATE_ADMIN`) |
+| `GET` | `/api/auth/user-auth/{username}` | Get user authentication details by username | Admin (`ADMIN_USERS`) |
+| `GET` | `/api/auth/user-auth` | Get all user authentications | Admin (`ADMIN_USERS`) |
+
+### SecurityController
+
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/security/public` | Access public endpoint (returns test message) | Public |
+| `GET` | `/api/security/private` | Access private endpoint (returns test message) | Authenticated |
 
 ## Technical Overview
 

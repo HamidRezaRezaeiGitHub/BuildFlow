@@ -2,6 +2,25 @@
 
 This package contains fundamental base classes, DTOs, exceptions, and utilities that provide common functionality across the entire BuildFlow application. All domain packages build upon these foundational components.
 
+## Summary
+
+This package provides foundational infrastructure including base entities with audit trails, standardized address handling, base DTOs, and common exception types used across all domain packages.
+
+## Files Structure
+
+```
+base/
+├── BaseAddress.java                  # Abstract entity for address fields
+├── BaseAddressDto.java               # Abstract DTO for address fields
+├── DuplicateUserException.java       # Exception for duplicate user attempts
+├── UpdatableEntity.java              # Abstract entity with audit fields
+├── UpdatableEntityDto.java           # Abstract DTO with audit fields
+├── UpdatableEntityDtoMapper.java     # Base mapper for entity-DTO conversions
+├── UserNotAuthorizedException.java   # Exception for authorization failures
+├── UserNotFoundException.java        # Exception for user lookup failures
+└── README.md                         # This file
+```
+
 ## Package Contents
 
 ### Base Classes and DTOs

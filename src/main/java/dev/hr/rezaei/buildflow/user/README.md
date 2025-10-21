@@ -2,6 +2,47 @@
 
 This package provides comprehensive user and contact management functionality for BuildFlow construction project management. It handles user authentication, contact information, address management, and role-based access control.
 
+## Summary
+
+This package manages users, contacts, and addresses with comprehensive user lifecycle operations, flexible contact labeling, and REST endpoints for user administration.
+
+## Files Structure
+
+```
+user/
+├── dto/
+│   ├── ContactAddressRequestDto.java      # Address info for contact creation (no ID)
+│   ├── ContactRequestDto.java             # Contact info for user creation with full details
+│   ├── CreateUserRequest.java             # Request for creating new users
+│   ├── CreateUserResponse.java            # Response containing created user details
+│   └── README.md                          # DTO package documentation
+├── Contact.java                           # Contact information entity
+├── ContactAddress.java                    # Address entity specific to contacts
+├── ContactAddressDto.java                 # DTO for contact address operations
+├── ContactAddressDtoMapper.java           # MapStruct mapper for ContactAddress conversions
+├── ContactAddressRepository.java          # JPA repository for contact addresses
+├── ContactAddressService.java             # Business logic for contact addresses
+├── ContactDto.java                        # DTO for contact operations
+├── ContactDtoMapper.java                  # MapStruct mapper for Contact conversions
+├── ContactLabel.java                      # Contact role/type classification enum
+├── ContactRepository.java                 # JPA repository for contacts
+├── ContactService.java                    # Business logic for contact operations
+├── User.java                              # Core user entity
+├── UserController.java                    # REST API controller for user management
+├── UserDto.java                           # DTO for user operations
+├── UserDtoMapper.java                     # MapStruct mapper for User conversions
+├── UserMockDataInitializer.java           # Mock data generator for development/testing
+├── UserMockDataProperties.java            # Configuration properties for mock data
+├── UserRepository.java                    # JPA repository for users
+├── UserService.java                       # Business logic for user operations
+└── README.md                              # This file
+```
+
+## Subfolder References
+
+### [dto/](dto/) - User Management DTOs
+Specialized Data Transfer Objects for user creation workflows with nested contact and address information.
+
 ## Package Contents
 
 ### Entity Classes
@@ -61,6 +102,23 @@ This package provides comprehensive user and contact management functionality fo
 | File | Description |
 |------|-------------|
 | [ContactLabel.java](ContactLabel.java) | Contact role/type classification enum |
+
+### Initialization
+
+| File | Description |
+|------|-------------|
+| [UserMockDataInitializer.java](UserMockDataInitializer.java) | Mock data generator for development and testing environments |
+| [UserMockDataProperties.java](UserMockDataProperties.java) | Configuration properties for mock data generation |
+
+## Endpoints
+
+### UserController
+
+| Method | Endpoint | Description | Authorization |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/v1/users` | Retrieve all users in the system | `ADMIN_USERS` |
+| `POST` | `/api/v1/users` | Create a new user with contact information | `ADMIN_USERS` |
+| `GET` | `/api/v1/users/{username}` | Get user by username | `ADMIN_USERS` |
 
 ## Technical Overview
 
