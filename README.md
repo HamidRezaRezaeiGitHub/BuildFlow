@@ -59,14 +59,6 @@ npm run dev
 # ✅ Backend API: http://localhost:8080/api/*
 ```
 
-### Application URLs
-- **🌐 Home Page**: http://localhost:8080/
-- **🎨 Theme Showcase**: http://localhost:8080/theme
-- **📊 Dashboard**: http://localhost:8080/dashboard (requires authentication)
-- **🔗 Public API**: http://localhost:8080/api/security/public
-- **💾 H2 Console**: http://localhost:8080/h2-console (dev only)
-- **❤️ Health Check**: http://localhost:8080/actuator/health
-
 ### Environment Profiles
 ```bash
 # Development (default) - Full access, H2 console enabled
@@ -188,7 +180,7 @@ The Maven build currently includes:
 
 **Note**: The frontend build process (`npm install` and `npm run build`) needs to be run manually or integrated via frontend-maven-plugin for automated builds. Currently, the Maven build copies pre-built assets from `frontend/dist/`.
 
-### WebMvcConfig - SPA Routing Strategy
+### WebMvcConfig
 
 The `WebMvcConfig` class implements sophisticated routing for the full-stack application:
 
@@ -251,16 +243,6 @@ This enables:
 - **Actuator Endpoints**: Health, metrics, info, and monitoring endpoints with security controls
 - **Logging**: Comprehensive logging with file rotation, archiving, and security audit trails
 
-### Development Features
-
-- **Hot Reload**: Spring Boot DevTools integration with frontend build automation
-- **Database Console**: H2 web console for development debugging and data inspection
-- **Test Coverage**: Comprehensive integration and unit tests for all domains (294 tests passing)
-- **DTO Mapping**: Clean separation between entities and API responses with validation
-- **Bean Validation**: Input validation with comprehensive constraint annotations
-- **Security Testing**: Configurable security disable for integration testing
-- **Documentation**: Extensive domain-specific documentation for models, services, and DTOs
-
 ### Deployment & Production
 
 #### Single JAR Deployment:
@@ -277,36 +259,6 @@ java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar
 # - Database console at /h2-console
 # - Health checks at /actuator/health
 ```
-
-#### Production Benefits:
-- **Simplified Deployment**: Single JAR file deployment
-- **Reduced Infrastructure**: No separate frontend hosting needed
-- **Consistent Versioning**: Frontend and backend always in sync
-- **Embedded Server**: No external web server configuration required
-- **Health Monitoring**: Built-in health checks and monitoring endpoints
-- **Scalable**: Easy horizontal scaling with standard Java deployment patterns
-
-### Current Development Status
-
-- ✅ **Complete domain model implementation** (Project, Estimate, User, WorkItem, Quote with full relationships)
-- ✅ **Spring Data JPA repositories** for all entities with custom query methods
-- ✅ **Service layer with business logic** and transactional boundaries
-- ✅ **DTO pattern implementation** with comprehensive request/response DTOs and validation
-- ✅ **Comprehensive test suite** with 294 passing integration and unit tests
-- ✅ **Full JWT-based authentication system** with role-based access control (RBAC)
-- ✅ **Security framework** with rate limiting, audit logging, and threat protection
-- ✅ **Database persistence** with H2 and environment-specific configurations
-- ✅ **Monitoring and health checks** with Spring Boot Actuator
-- ✅ **Comprehensive logging** with security audit trails and file archiving
-- ✅ **Complete React frontend integration** with TypeScript and modern tooling
-- ✅ **Automated full-stack build process** with frontend asset integration
-- ✅ **Single JAR deployment capability** with embedded frontend
-- ✅ **SPA routing with fallback support** and API route separation
-- ✅ **API documentation** with SpringDoc OpenAPI and Swagger UI
-- ✅ **Admin user management** with automatic initialization and role-based endpoints
-- 🔄 **REST API endpoints** (authentication endpoints implemented, domain CRUD endpoints in progress)
-- 🔄 **Full CRUD REST controllers** for all business domains
-- 🔄 **Production deployment configuration** and environment-specific optimizations
 
 ### Configuration
 
