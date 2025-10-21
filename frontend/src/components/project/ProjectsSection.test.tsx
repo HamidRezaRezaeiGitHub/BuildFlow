@@ -128,10 +128,11 @@ describe('ProjectsSection', () => {
   describe('Loading State', () => {
     test('displays loading skeletons while fetching data', () => {
       // Mock service to never resolve
-      const mockGetProjectsByBuilderIdPaginated = jest.fn(() => new Promise(() => {}));
+      const mockGetCombinedProjectsPaginated = jest.fn(() => new Promise(() => {}));
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -149,10 +150,11 @@ describe('ProjectsSection', () => {
 
   describe('Success State - Projects Loaded', () => {
     beforeEach(() => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -192,17 +194,17 @@ describe('ProjectsSection', () => {
       });
     });
 
-    test('displays Create Project button when showCreateAction is true', async () => {
+    test('displays Export and Filter buttons when projects exist', async () => {
       render(<ProjectsSection showCreateAction={true} />);
 
       await waitFor(() => {
-        const createButtons = screen.getAllByText('Create Project');
-        expect(createButtons.length).toBeGreaterThan(0);
+        expect(screen.getByText('Export')).toBeInTheDocument();
+        expect(screen.getByText('Filter')).toBeInTheDocument();
       });
     });
 
-    test('hides Create Project button when showCreateAction is false', async () => {
-      render(<ProjectsSection showCreateAction={false} />);
+    test('does not display Create Project button when projects exist', async () => {
+      render(<ProjectsSection showCreateAction={true} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Create Project')).not.toBeInTheDocument();
@@ -234,10 +236,11 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(emptyResponse);
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(emptyResponse);
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -272,10 +275,11 @@ describe('ProjectsSection', () => {
 
   describe('Error State', () => {
     beforeEach(() => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockRejectedValue(new Error('Network error'));
+      const mockGetCombinedProjectsPaginated = jest.fn().mockRejectedValue(new Error('Network error'));
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -300,13 +304,14 @@ describe('ProjectsSection', () => {
     });
 
     test('retry button refetches data without page reload', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn()
+      const mockGetCombinedProjectsPaginated = jest.fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -325,7 +330,7 @@ describe('ProjectsSection', () => {
 
       // Verify the function was called twice (initial + retry)
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledTimes(2);
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledTimes(2);
       });
 
       // Verify projects are now displayed
@@ -337,12 +342,12 @@ describe('ProjectsSection', () => {
 
   describe('Filter by Role', () => {
     test('fetches builder projects when filterByRole is "builder"', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
-      const mockGetProjectsByOwnerIdPaginated = jest.fn();
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -351,18 +356,17 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection filterByRole="builder" />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByOwnerIdPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'builder', undefined, undefined, undefined);
       });
     });
 
     test('fetches owner projects when filterByRole is "owner"', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn();
-      const mockGetProjectsByOwnerIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -371,18 +375,17 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection filterByRole="owner" />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByOwnerIdPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByBuilderIdPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'owner', undefined, undefined, undefined);
       });
     });
 
-    test('fetches builder projects by default when no filterByRole is specified', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
-      const mockGetProjectsByOwnerIdPaginated = jest.fn();
+    test('fetches combined projects by default when no filterByRole is specified', async () => {
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -391,8 +394,7 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByOwnerIdPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, undefined);
       });
     });
   });
@@ -412,10 +414,11 @@ describe('ProjectsSection', () => {
         getCurrentUser: jest.fn(),
       });
 
-      const mockGetProjectsByBuilderIdPaginated = jest.fn();
+      const mockGetCombinedProjectsPaginated = jest.fn();
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -424,18 +427,19 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('Pagination Parameters', () => {
     test('passes pagination parameters to service', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
         getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
         getProjectsByOwnerId: jest.fn(),
@@ -445,7 +449,164 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection paginationParams={paginationParams} />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledWith('1', paginationParams);
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, paginationParams);
+      });
+    });
+  });
+
+  describe('Progressive Loading', () => {
+    test('initially displays only 3 projects when more are available', async () => {
+      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+        id: String(i + 1),
+        builderId: '1',
+        ownerId: '2',
+        location: {
+          id: String(i + 1),
+          unitNumber: '',
+          streetNumberAndName: `${i + 1} Test St`,
+          city: 'Vancouver',
+          stateOrProvince: 'BC',
+          postalOrZipCode: 'V5K 1A1',
+          country: 'Canada',
+        },
+        createdAt: '2024-01-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-20T14:20:00Z',
+      }));
+
+      const largeResponse: PagedResponse<ProjectDto> = {
+        content: manyProjects,
+        pagination: {
+          page: 0,
+          size: 25,
+          totalElements: 10,
+          totalPages: 1,
+          hasNext: false,
+          hasPrevious: false,
+          isFirst: true,
+          isLast: true,
+        }
+      };
+
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(() => ({
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
+        createProject: jest.fn(),
+        getProjectsByBuilderId: jest.fn(),
+        getProjectsByOwnerId: jest.fn(),
+      }) as any);
+
+      render(<ProjectsSection initialDisplayCount={3} />);
+
+      await waitFor(() => {
+        const displayedText = screen.getByText(/Showing 3 of 10 projects/);
+        expect(displayedText).toBeInTheDocument();
+      });
+    });
+
+    test('shows Load More button when more projects are available', async () => {
+      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+        id: String(i + 1),
+        builderId: '1',
+        ownerId: '2',
+        location: {
+          id: String(i + 1),
+          unitNumber: '',
+          streetNumberAndName: `${i + 1} Test St`,
+          city: 'Vancouver',
+          stateOrProvince: 'BC',
+          postalOrZipCode: 'V5K 1A1',
+          country: 'Canada',
+        },
+        createdAt: '2024-01-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-20T14:20:00Z',
+      }));
+
+      const largeResponse: PagedResponse<ProjectDto> = {
+        content: manyProjects,
+        pagination: {
+          page: 0,
+          size: 25,
+          totalElements: 10,
+          totalPages: 1,
+          hasNext: false,
+          hasPrevious: false,
+          isFirst: true,
+          isLast: true,
+        }
+      };
+
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(() => ({
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
+        createProject: jest.fn(),
+        getProjectsByBuilderId: jest.fn(),
+        getProjectsByOwnerId: jest.fn(),
+      }) as any);
+
+      render(<ProjectsSection initialDisplayCount={3} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Load More')).toBeInTheDocument();
+      });
+    });
+
+    test('Load More button increases displayed projects', async () => {
+      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+        id: String(i + 1),
+        builderId: '1',
+        ownerId: '2',
+        location: {
+          id: String(i + 1),
+          unitNumber: '',
+          streetNumberAndName: `${i + 1} Test St`,
+          city: 'Vancouver',
+          stateOrProvince: 'BC',
+          postalOrZipCode: 'V5K 1A1',
+          country: 'Canada',
+        },
+        createdAt: '2024-01-15T10:30:00Z',
+        lastUpdatedAt: '2024-10-20T14:20:00Z',
+      }));
+
+      const largeResponse: PagedResponse<ProjectDto> = {
+        content: manyProjects,
+        pagination: {
+          page: 0,
+          size: 25,
+          totalElements: 10,
+          totalPages: 1,
+          hasNext: false,
+          hasPrevious: false,
+          isFirst: true,
+          isLast: true,
+        }
+      };
+
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(() => ({
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
+        createProject: jest.fn(),
+        getProjectsByBuilderId: jest.fn(),
+        getProjectsByOwnerId: jest.fn(),
+      }) as any);
+
+      render(<ProjectsSection initialDisplayCount={3} />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Showing 3 of 10 projects/)).toBeInTheDocument();
+      });
+
+      const loadMoreButton = screen.getByText('Load More');
+      fireEvent.click(loadMoreButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Showing 6 of 10 projects/)).toBeInTheDocument();
       });
     });
   });

@@ -124,6 +124,52 @@ public class ProjectController {
         return ResponseEntity.ok().headers(headers).body(projectPage.getContent());
     }
     
+    @Operation(
+        summary = "Get combined projects",
+        description = "Retrieves projects where the user is either builder, owner, or both, with optional date filtering and pagination support"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#userId)")
+    @GetMapping("/combined/{userId}")
+    public ResponseEntity<List<ProjectDto>> getCombinedProjects(
+            @Parameter(description = "ID of the user whose projects to retrieve")
+            @PathVariable UUID userId,
+            @Parameter(description = "Scope: 'builder', 'owner', or 'both' (default: both)")
+            @RequestParam(required = false, defaultValue = "both") String scope,
+            @Parameter(description = "Filter by created date from (ISO-8601 format)")
+            @RequestParam(required = false) String createdFrom,
+            @Parameter(description = "Filter by created date to (ISO-8601 format)")
+            @RequestParam(required = false) String createdTo,
+            @Parameter(description = "Page number (0-based, default: 0)")
+            @RequestParam(required = false) Integer page,
+            @Parameter(description = "Page size (default: 25)")
+            @RequestParam(required = false) Integer size,
+            @Parameter(description = "Sort specification (e.g., 'lastUpdatedAt,DESC')")
+            @RequestParam(required = false) String[] sort,
+            @Parameter(description = "Order by field (alternative to sort)")
+            @RequestParam(required = false) String orderBy,
+            @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
+            @RequestParam(required = false) String direction
+    ) {
+        log.info("Getting combined projects for user ID: {} with scope: {}", userId, scope);
+        
+        // Parse date filters
+        java.time.Instant createdFromInstant = createdFrom != null ? java.time.Instant.parse(createdFrom) : null;
+        java.time.Instant createdToInstant = createdTo != null ? java.time.Instant.parse(createdTo) : null;
+        
+        Pageable pageable = createPageable(page, size, sort, orderBy, direction);
+        Page<ProjectDto> projectPage = projectService.getCombinedProjects(
+            userId, scope, createdFromInstant, createdToInstant, pageable
+        );
+        
+        HttpHeaders headers = createPaginationHeaders(projectPage, "/api/v1/projects/combined/" + userId);
+        return ResponseEntity.ok().headers(headers).body(projectPage.getContent());
+    }
+    
     /**
      * Creates a Pageable object from request parameters.
      * Priority: sort parameter > orderBy+direction > default (lastUpdatedAt,DESC)
