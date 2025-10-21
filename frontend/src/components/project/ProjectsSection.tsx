@@ -91,7 +91,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingMore] = useState(false);
-  const [filter, setFilter] = useState<ProjectFilter>({ scope: 'both' });
+  const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>({ scope: 'both' });
+  const [pendingFilter, setPendingFilter] = useState<ProjectFilter>({ scope: 'both' });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Extract fetch logic into a reusable function
@@ -111,11 +112,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       let response: PagedResponse<ProjectDto>;
 
       // Determine which projects to fetch based on filter scope or legacy filterByRole
-      const effectiveScope = filterByRole || filter.scope;
+      const effectiveScope = filterByRole || appliedFilter.scope;
       
       // Convert date strings to ISO-8601 format if provided
-      const createdAfter = filter.createdAfter ? new Date(filter.createdAfter).toISOString() : undefined;
-      const createdBefore = filter.createdBefore ? new Date(filter.createdBefore).toISOString() : undefined;
+      const createdAfter = appliedFilter.createdAfter ? new Date(appliedFilter.createdAfter).toISOString() : undefined;
+      const createdBefore = appliedFilter.createdBefore ? new Date(appliedFilter.createdBefore).toISOString() : undefined;
       
       if (effectiveScope === 'builder') {
         response = await projectService.getCombinedProjectsPaginated(
@@ -160,7 +161,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         setIsLoading(false);
       }
     }
-  }, [user, token, filterByRole, filter, paginationParams, initialDisplayCount]);
+  }, [user, token, filterByRole, appliedFilter, paginationParams, initialDisplayCount]);
 
   // Trigger background prefetch when we're near the end of current data
   useEffect(() => {
@@ -216,9 +217,9 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const renderEmptyState = () => {
     // Check if filters are applied (non-default values)
     const hasActiveFilters = 
-      filter.scope !== 'both' || 
-      filter.createdAfter !== undefined || 
-      filter.createdBefore !== undefined;
+      appliedFilter.scope !== 'both' || 
+      appliedFilter.createdAfter !== undefined || 
+      appliedFilter.createdBefore !== undefined;
     
     if (hasActiveFilters) {
       return (
@@ -245,7 +246,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
             <Button 
               variant="outline"
               onClick={() => {
-                setFilter({ scope: 'both' });
+                setAppliedFilter({ scope: 'both' });
+                setPendingFilter({ scope: 'both' });
                 setIsFilterOpen(false);
               }}
             >
@@ -293,9 +295,15 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     setDisplayedCount(newCount);
   };
 
-  // Handle filter apply
+  // Handle filter apply - only applies when "Apply Filters" is clicked
   const handleApplyFilter = (newFilter: ProjectFilter) => {
-    setFilter(newFilter);
+    setAppliedFilter(newFilter);
+    setIsFilterOpen(false);
+  };
+  
+  // Handle filter cancel - reverts to currently applied filter
+  const handleCancelFilter = () => {
+    setPendingFilter(appliedFilter);
     setIsFilterOpen(false);
   };
 
@@ -340,8 +348,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         type="radio"
                         name="scope"
                         value="both"
-                        checked={filter.scope === 'both'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
+                        checked={pendingFilter.scope === 'both'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
                         className="h-4 w-4 cursor-pointer"
                         aria-label="Show projects where I am builder or owner"
                       />
@@ -352,8 +360,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         type="radio"
                         name="scope"
                         value="builder"
-                        checked={filter.scope === 'builder'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
+                        checked={pendingFilter.scope === 'builder'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
                         className="h-4 w-4 cursor-pointer"
                         aria-label="Show projects where I am builder"
                       />
@@ -364,8 +372,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                         type="radio"
                         name="scope"
                         value="owner"
-                        checked={filter.scope === 'owner'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
+                        checked={pendingFilter.scope === 'owner'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
                         className="h-4 w-4 cursor-pointer"
                         aria-label="Show projects where I am owner"
                       />
@@ -380,8 +388,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   <input
                     id="created-after"
                     type="date"
-                    value={filter.createdAfter || ''}
-                    onChange={(e) => setFilter({ ...filter, createdAfter: e.target.value })}
+                    value={pendingFilter.createdAfter || ''}
+                    onChange={(e) => setPendingFilter({ ...pendingFilter, createdAfter: e.target.value })}
                     className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                     aria-label="Filter by created after date"
                   />
@@ -393,22 +401,19 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   <input
                     id="created-before"
                     type="date"
-                    value={filter.createdBefore || ''}
-                    onChange={(e) => setFilter({ ...filter, createdBefore: e.target.value })}
+                    value={pendingFilter.createdBefore || ''}
+                    onChange={(e) => setPendingFilter({ ...pendingFilter, createdBefore: e.target.value })}
                     className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                     aria-label="Filter by created before date"
                   />
                 </div>
                 <div className="flex gap-2 pt-4">
-                  <Button onClick={() => handleApplyFilter(filter)} className="flex-1">
+                  <Button onClick={() => handleApplyFilter(pendingFilter)} className="flex-1">
                     Apply Filters
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => {
-                      setFilter({ scope: 'both' });
-                      setIsFilterOpen(false);
-                    }}
+                    onClick={handleCancelFilter}
                     className="flex-1"
                   >
                     Cancel
