@@ -223,6 +223,71 @@ class ProjectService {
             pagination: extractPaginationMetadata(headers)
         };
     }
+
+    /**
+     * Get combined projects where user is either builder OR owner (with de-duplication)
+     * Fetches both builder and owner projects, de-duplicates by ID, and sorts by lastUpdatedAt DESC
+     * Environment-aware: Uses mock data when config.enableMockData is true
+     * 
+     * @param userId - ID of the user whose projects to retrieve
+     * @param token - JWT authentication token (ignored in mock mode)
+     * @param params - Optional pagination parameters (page, size, orderBy, direction)
+     * @returns Promise<PagedResponse<ProjectDto>> - Combined paginated response with de-duplicated projects sorted by lastUpdatedAt DESC
+     */
+    async getCombinedProjectsPaginated(
+        userId: string,
+        token: string,
+        params?: PaginationParams
+    ): Promise<PagedResponse<ProjectDto>> {
+        // Fetch both builder and owner projects
+        const [builderResponse, ownerResponse] = await Promise.all([
+            this.getProjectsByBuilderIdPaginated(userId, token, params),
+            this.getProjectsByOwnerIdPaginated(userId, token, params)
+        ]);
+
+        // Combine and de-duplicate by project ID
+        const projectMap = new Map<string, ProjectDto>();
+        
+        // Add builder projects
+        builderResponse.content.forEach(project => {
+            projectMap.set(project.id, project);
+        });
+        
+        // Add owner projects (will overwrite if duplicate)
+        ownerResponse.content.forEach(project => {
+            projectMap.set(project.id, project);
+        });
+
+        // Convert map to array and sort by lastUpdatedAt DESC
+        const combinedProjects = Array.from(projectMap.values()).sort((a, b) => {
+            const dateA = new Date(a.lastUpdatedAt).getTime();
+            const dateB = new Date(b.lastUpdatedAt).getTime();
+            return dateB - dateA; // DESC order
+        });
+
+        // Calculate combined pagination metadata
+        const totalElements = combinedProjects.length;
+        const page = params?.page || ProjectService.DEFAULT_PAGE;
+        const size = params?.size || ProjectService.DEFAULT_SIZE;
+        const start = page * size;
+        const end = start + size;
+        const paginatedContent = combinedProjects.slice(start, end);
+        const totalPages = Math.ceil(totalElements / size);
+
+        return {
+            content: paginatedContent,
+            pagination: {
+                page,
+                size,
+                totalElements,
+                totalPages,
+                hasNext: page < totalPages - 1,
+                hasPrevious: page > 0,
+                isFirst: page === 0,
+                isLast: page >= totalPages - 1 || totalPages === 0,
+            }
+        };
+    }
 }
 
 /**
@@ -271,6 +336,13 @@ export class ProjectServiceWithAuth {
         params?: PaginationParams
     ): Promise<PagedResponse<ProjectDto>> {
         return this.projectService.getProjectsByOwnerIdPaginated(ownerId, this.ensureToken(), params);
+    }
+
+    async getCombinedProjectsPaginated(
+        userId: string,
+        params?: PaginationParams
+    ): Promise<PagedResponse<ProjectDto>> {
+        return this.projectService.getCombinedProjectsPaginated(userId, this.ensureToken(), params);
     }
 }
 

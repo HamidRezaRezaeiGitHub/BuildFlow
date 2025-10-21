@@ -127,30 +127,30 @@ describe('ProjectList', () => {
     });
   });
 
-  describe('Action Buttons', () => {
-    test('displays Open Project button for each card', () => {
-      render(<ProjectList projects={mockProjects} />);
+  describe('Clickable Cards', () => {
+    test('cards are clickable with role="button"', () => {
+      const { container } = render(<ProjectList projects={mockProjects} />);
       
-      const openButtons = screen.getAllByText('Open Project');
-      expect(openButtons).toHaveLength(3);
+      const cards = container.querySelectorAll('[role="button"]');
+      expect(cards).toHaveLength(3);
     });
 
-    test('calls onProjectSelect when Open Project button is clicked', () => {
+    test('calls onProjectSelect when card is clicked', () => {
       const handleProjectSelect = jest.fn();
-      render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
-      const openButtons = screen.getAllByText('Open Project');
-      fireEvent.click(openButtons[0]);
+      const cards = container.querySelectorAll('[role="button"]');
+      fireEvent.click(cards[0]);
       
       expect(handleProjectSelect).toHaveBeenCalledWith('1');
     });
 
-    test('logs to console when Open Project is clicked without handler', () => {
+    test('logs to console when card is clicked without handler', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      render(<ProjectList projects={mockProjects} />);
+      const { container } = render(<ProjectList projects={mockProjects} />);
       
-      const openButtons = screen.getAllByText('Open Project');
-      fireEvent.click(openButtons[0]);
+      const cards = container.querySelectorAll('[role="button"]');
+      fireEvent.click(cards[0]);
       
       expect(consoleSpy).toHaveBeenCalledWith('Open project:', '1');
       consoleSpy.mockRestore();
@@ -158,12 +158,46 @@ describe('ProjectList', () => {
 
     test('calls handlers with correct project IDs for different projects', () => {
       const handleProjectSelect = jest.fn();
-      render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
-      const openButtons = screen.getAllByText('Open Project');
-      fireEvent.click(openButtons[1]); // Click second project
+      const cards = container.querySelectorAll('[role="button"]');
+      fireEvent.click(cards[1]); // Click second project
       
       expect(handleProjectSelect).toHaveBeenCalledWith('2');
+    });
+
+    test('card activates on Enter key press', () => {
+      const handleProjectSelect = jest.fn();
+      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      
+      const cards = container.querySelectorAll('[role="button"]');
+      fireEvent.keyDown(cards[0], { key: 'Enter' });
+      
+      expect(handleProjectSelect).toHaveBeenCalledWith('1');
+    });
+
+    test('card activates on Space key press', () => {
+      const handleProjectSelect = jest.fn();
+      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      
+      const cards = container.querySelectorAll('[role="button"]');
+      fireEvent.keyDown(cards[0], { key: ' ' });
+      
+      expect(handleProjectSelect).toHaveBeenCalledWith('1');
+    });
+
+    test('cards are keyboard focusable with tabIndex', () => {
+      const { container } = render(<ProjectList projects={mockProjects} />);
+      
+      const cards = container.querySelectorAll('[role="button"][tabindex="0"]');
+      expect(cards).toHaveLength(3);
+    });
+
+    test('cards have aria-label for accessibility', () => {
+      const { container } = render(<ProjectList projects={mockProjects} />);
+      
+      const firstCard = container.querySelector('[aria-label*="Open project"]');
+      expect(firstCard).toBeInTheDocument();
     });
   });
 

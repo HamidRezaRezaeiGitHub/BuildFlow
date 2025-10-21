@@ -116,7 +116,20 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => (
-        <Card key={project.id} className="hover:shadow-md transition-shadow">
+        <Card 
+          key={project.id} 
+          className="hover:shadow-md transition-shadow cursor-pointer focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+          role="button"
+          tabIndex={0}
+          onClick={() => handleOpen(project.id)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleOpen(project.id);
+            }
+          }}
+          aria-label={`Open project at ${formatLocation(project)}`}
+        >
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
@@ -129,7 +142,12 @@ export const ProjectList: React.FC<ProjectListProps> = ({
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4"
@@ -147,15 +165,24 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleEdit(project.id)}>
+                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(project.id);
+                  }}>
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleOpen(project.id)}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpen(project.id);
+                  }}>
                     View Details
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={() => handleDelete(project.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(project.id);
+                    }}
                     className="text-destructive"
                   >
                     Delete
@@ -175,9 +202,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                 <span>{formatDate(project.createdAt)}</span>
               </div>
             </div>
-            <Button className="w-full mt-4" onClick={() => handleOpen(project.id)}>
-              Open Project
-            </Button>
           </CardContent>
         </Card>
       ))}
