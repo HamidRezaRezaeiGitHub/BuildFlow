@@ -1,5 +1,5 @@
 import { config } from '../config/environment';
-import type { CreateProjectResponse, ProjectDto, ProjectLocationRequestDto } from '../services/dtos';
+import type { CreateProjectResponse, Project, ProjectLocationRequest } from '../services/dtos';
 
 /**
  * Mock Projects Database - Canadian Projects
@@ -11,7 +11,7 @@ import type { CreateProjectResponse, ProjectDto, ProjectLocationRequestDto } fro
  * - User ID '3' (builder1) - Michael Chen
  * - User ID '4' (owner1) - Jennifer Martin
  */
-export const mockProjects: ProjectDto[] = [
+export const mockProjects: Project[] = [
     // Admin as builder (5 projects)
     {
         id: '1',
@@ -342,7 +342,7 @@ export const mockProjects: ProjectDto[] = [
  * Find project by ID
  * Returns undefined if project is not found
  */
-export function findProjectById(id: string): ProjectDto | undefined {
+export function findProjectById(id: string): Project | undefined {
     return mockProjects.find(p => p.id === id);
 }
 
@@ -350,7 +350,7 @@ export function findProjectById(id: string): ProjectDto | undefined {
  * Find projects by builder ID
  * Returns array of projects (empty if none found)
  */
-export function findProjectsByBuilderId(builderId: string): ProjectDto[] {
+export function findProjectsByBuilderId(builderId: string): Project[] {
     return mockProjects.filter(p => p.builderId === builderId);
 }
 
@@ -358,7 +358,7 @@ export function findProjectsByBuilderId(builderId: string): ProjectDto[] {
  * Find projects by owner ID
  * Returns array of projects (empty if none found)
  */
-export function findProjectsByOwnerId(ownerId: string): ProjectDto[] {
+export function findProjectsByOwnerId(ownerId: string): Project[] {
     return mockProjects.filter(p => p.ownerId === ownerId);
 }
 
@@ -369,11 +369,11 @@ export function findProjectsByOwnerId(ownerId: string): ProjectDto[] {
 export function createMockProject(
     builderId: string,
     ownerId: string,
-    locationRequestDto: ProjectLocationRequestDto
-): ProjectDto {
+    locationRequestDto: ProjectLocationRequest
+): Project {
     const newProjectId = String(mockProjects.length + 1);
     const now = new Date().toISOString();
-    const newProject: ProjectDto = {
+    const newProject: Project = {
         id: newProjectId,
         builderId,
         ownerId,
@@ -404,7 +404,7 @@ export function createMockProject(
 /**
  * Generate mock CreateProjectResponse
  */
-export function generateMockCreateProjectResponse(project: ProjectDto): CreateProjectResponse {
+export function generateMockCreateProjectResponse(project: Project): CreateProjectResponse {
     return {
         projectDto: project,
     };

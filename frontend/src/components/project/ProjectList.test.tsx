@@ -1,10 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ProjectList } from './ProjectList';
-import { ProjectDto } from '@/services/dtos';
+import { Project } from '@/services/dtos';
 import '@testing-library/jest-dom';
 
 describe('ProjectList', () => {
-  const mockProjects: ProjectDto[] = [
+  const mockProjects: Project[] = [
     {
       id: '1',
       builderId: '1',
@@ -246,7 +246,7 @@ describe('ProjectList', () => {
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
       
-      const recentProject: ProjectDto = {
+      const recentProject: Project = {
         ...mockProjects[0],
         lastUpdatedAt: today.toISOString(),
         createdAt: yesterday.toISOString(),
@@ -287,7 +287,7 @@ describe('ProjectList', () => {
 
   describe('Edge Cases', () => {
     test('handles project with minimal location data', () => {
-      const minimalProject: ProjectDto = {
+      const minimalProject: Project = {
         id: '99',
         builderId: '1',
         ownerId: '2',
@@ -311,7 +311,7 @@ describe('ProjectList', () => {
     });
 
     test('handles project with no location data', () => {
-      const noLocationProject: ProjectDto = {
+      const noLocationProject: Project = {
         id: '100',
         builderId: '1',
         ownerId: '2',

@@ -9,7 +9,7 @@ import { apiService } from './ApiService';
 import { 
     CreateProjectRequest, 
     CreateProjectResponse, 
-    ProjectDto,
+    Project,
     PagedResponse,
     PaginationParams,
     buildPaginationQuery,
@@ -47,7 +47,7 @@ class ProjectService {
      * @param params - Optional pagination parameters
      * @returns Paginated response with metadata
      */
-    private simulatePagination(allProjects: ProjectDto[], params?: PaginationParams): PagedResponse<ProjectDto> {
+    private simulatePagination(allProjects: Project[], params?: PaginationParams): PagedResponse<Project> {
         const page = params?.page || ProjectService.DEFAULT_PAGE;
         const size = params?.size || ProjectService.DEFAULT_SIZE;
         const start = page * size;
@@ -113,9 +113,9 @@ class ProjectService {
      * @deprecated Use getProjectsByBuilderIdPaginated for pagination support
      * @param builderId - ID of the builder whose projects to retrieve
      * @param token - JWT authentication token
-     * @returns Promise<ProjectDto[]> - Array of projects assigned to the builder
+     * @returns Promise<Project[]> - Array of projects assigned to the builder
      */
-    async getProjectsByBuilderId(builderId: string, token: string): Promise<ProjectDto[]> {
+    async getProjectsByBuilderId(builderId: string, token: string): Promise<Project[]> {
         // Call paginated version and return just the content
         const pagedResponse = await this.getProjectsByBuilderIdPaginated(builderId, token);
         return pagedResponse.content;
@@ -129,13 +129,13 @@ class ProjectService {
      * @param builderId - ID of the builder whose projects to retrieve
      * @param token - JWT authentication token (ignored in mock mode)
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
-     * @returns Promise<PagedResponse<ProjectDto>> - Paginated response with projects and metadata
+     * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByBuilderIdPaginated(
         builderId: string, 
         token: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         // Use mock data in standalone mode
         if (config.enableMockData) {
             if (config.enableConsoleLogs) {
@@ -153,7 +153,7 @@ class ProjectService {
         // Real API call in integrated mode
         const endpoint = `/api/v1/projects/builder/${encodeURIComponent(builderId)}${buildPaginationQuery(params)}`;
         
-        const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(
+        const { data, headers } = await apiService.requestWithMetadata<Project[]>(
             endpoint,
             { method: 'GET' },
             token
@@ -172,9 +172,9 @@ class ProjectService {
      * @deprecated Use getProjectsByOwnerIdPaginated for pagination support
      * @param ownerId - ID of the owner whose projects to retrieve
      * @param token - JWT authentication token
-     * @returns Promise<ProjectDto[]> - Array of projects owned by the property owner
+     * @returns Promise<Project[]> - Array of projects owned by the property owner
      */
-    async getProjectsByOwnerId(ownerId: string, token: string): Promise<ProjectDto[]> {
+    async getProjectsByOwnerId(ownerId: string, token: string): Promise<Project[]> {
         // Call paginated version and return just the content
         const pagedResponse = await this.getProjectsByOwnerIdPaginated(ownerId, token);
         return pagedResponse.content;
@@ -188,13 +188,13 @@ class ProjectService {
      * @param ownerId - ID of the owner whose projects to retrieve
      * @param token - JWT authentication token (ignored in mock mode)
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
-     * @returns Promise<PagedResponse<ProjectDto>> - Paginated response with projects and metadata
+     * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByOwnerIdPaginated(
         ownerId: string, 
         token: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         // Use mock data in standalone mode
         if (config.enableMockData) {
             if (config.enableConsoleLogs) {
@@ -212,7 +212,7 @@ class ProjectService {
         // Real API call in integrated mode
         const endpoint = `/api/v1/projects/owner/${encodeURIComponent(ownerId)}${buildPaginationQuery(params)}`;
         
-        const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(
+        const { data, headers } = await apiService.requestWithMetadata<Project[]>(
             endpoint,
             { method: 'GET' },
             token
@@ -234,7 +234,7 @@ class ProjectService {
      * @param createdAfter - Optional ISO-8601 date string for created after filter
      * @param createdBefore - Optional ISO-8601 date string for created before filter
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
-     * @returns Promise<PagedResponse<ProjectDto>> - Server-side paginated response with filtered, de-duplicated, and sorted projects
+     * @returns Promise<PagedResponse<Project>> - Server-side paginated response with filtered, de-duplicated, and sorted projects
      */
     async getCombinedProjectsPaginated(
         userId: string,
@@ -243,7 +243,7 @@ class ProjectService {
         createdAfter?: string,
         createdBefore?: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         // Use mock data in standalone mode
         if (config.enableMockData) {
             if (config.enableConsoleLogs) {
@@ -253,7 +253,7 @@ class ProjectService {
             return new Promise((resolve) => {
                 setTimeout(() => {
                     // Get projects based on scope
-                    let allProjects: ProjectDto[] = [];
+                    let allProjects: Project[] = [];
                     if (scope === 'builder') {
                         allProjects = findProjectsByBuilderId(userId);
                     } else if (scope === 'owner') {
@@ -262,7 +262,7 @@ class ProjectService {
                         // Combine and de-duplicate
                         const builderProjects = findProjectsByBuilderId(userId);
                         const ownerProjects = findProjectsByOwnerId(userId);
-                        const projectMap = new Map<string, ProjectDto>();
+                        const projectMap = new Map<string, Project>();
                         builderProjects.forEach(p => projectMap.set(p.id, p));
                         ownerProjects.forEach(p => projectMap.set(p.id, p));
                         allProjects = Array.from(projectMap.values());
@@ -312,7 +312,7 @@ class ProjectService {
         
         const endpoint = `/api/v1/projects/combined/${encodeURIComponent(userId)}${queryParams}`;
         
-        const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(
+        const { data, headers } = await apiService.requestWithMetadata<Project[]>(
             endpoint,
             { method: 'GET' },
             token
@@ -351,25 +351,25 @@ export class ProjectServiceWithAuth {
         return this.projectService.createProject(request, this.ensureToken());
     }
 
-    async getProjectsByBuilderId(builderId: string): Promise<ProjectDto[]> {
+    async getProjectsByBuilderId(builderId: string): Promise<Project[]> {
         return this.projectService.getProjectsByBuilderId(builderId, this.ensureToken());
     }
 
     async getProjectsByBuilderIdPaginated(
         builderId: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         return this.projectService.getProjectsByBuilderIdPaginated(builderId, this.ensureToken(), params);
     }
 
-    async getProjectsByOwnerId(ownerId: string): Promise<ProjectDto[]> {
+    async getProjectsByOwnerId(ownerId: string): Promise<Project[]> {
         return this.projectService.getProjectsByOwnerId(ownerId, this.ensureToken());
     }
 
     async getProjectsByOwnerIdPaginated(
         ownerId: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         return this.projectService.getProjectsByOwnerIdPaginated(ownerId, this.ensureToken(), params);
     }
 
@@ -379,7 +379,7 @@ export class ProjectServiceWithAuth {
         createdAfter?: string,
         createdBefore?: string,
         params?: PaginationParams
-    ): Promise<PagedResponse<ProjectDto>> {
+    ): Promise<PagedResponse<Project>> {
         return this.projectService.getCombinedProjectsPaginated(
             userId, 
             this.ensureToken(), 

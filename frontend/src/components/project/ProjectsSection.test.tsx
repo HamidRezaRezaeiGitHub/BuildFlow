@@ -3,7 +3,7 @@ import { ProjectsSection } from './ProjectsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
-import { ProjectDto, PagedResponse } from '@/services/dtos';
+import { Project, PagedResponse } from '@/services/dtos';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies
@@ -42,7 +42,7 @@ describe('ProjectsSection', () => {
 
   const mockNavigateToNewProject = jest.fn();
 
-  const mockProjects: ProjectDto[] = [
+  const mockProjects: Project[] = [
     {
       id: '1',
       builderId: '1',
@@ -77,7 +77,7 @@ describe('ProjectsSection', () => {
     },
   ];
 
-  const mockPagedResponse: PagedResponse<ProjectDto> = {
+  const mockPagedResponse: PagedResponse<Project> = {
     content: mockProjects,
     pagination: {
       page: 0,
@@ -222,7 +222,7 @@ describe('ProjectsSection', () => {
 
   describe('Empty State', () => {
     beforeEach(() => {
-      const emptyResponse: PagedResponse<ProjectDto> = {
+      const emptyResponse: PagedResponse<Project> = {
         content: [],
         pagination: {
           page: 0,
@@ -456,7 +456,7 @@ describe('ProjectsSection', () => {
 
   describe('Progressive Loading', () => {
     test('initially displays only 3 projects when more are available', async () => {
-      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
         builderId: '1',
         ownerId: '2',
@@ -473,7 +473,7 @@ describe('ProjectsSection', () => {
         lastUpdatedAt: '2024-10-20T14:20:00Z',
       }));
 
-      const largeResponse: PagedResponse<ProjectDto> = {
+      const largeResponse: PagedResponse<Project> = {
         content: manyProjects,
         pagination: {
           page: 0,
@@ -506,7 +506,7 @@ describe('ProjectsSection', () => {
     });
 
     test('shows Load More button when more projects are available', async () => {
-      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
         builderId: '1',
         ownerId: '2',
@@ -523,7 +523,7 @@ describe('ProjectsSection', () => {
         lastUpdatedAt: '2024-10-20T14:20:00Z',
       }));
 
-      const largeResponse: PagedResponse<ProjectDto> = {
+      const largeResponse: PagedResponse<Project> = {
         content: manyProjects,
         pagination: {
           page: 0,
@@ -555,7 +555,7 @@ describe('ProjectsSection', () => {
     });
 
     test('Load More button increases displayed projects', async () => {
-      const manyProjects: ProjectDto[] = Array.from({ length: 10 }, (_, i) => ({
+      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
         builderId: '1',
         ownerId: '2',
@@ -572,7 +572,7 @@ describe('ProjectsSection', () => {
         lastUpdatedAt: '2024-10-20T14:20:00Z',
       }));
 
-      const largeResponse: PagedResponse<ProjectDto> = {
+      const largeResponse: PagedResponse<Project> = {
         content: manyProjects,
         pagination: {
           page: 0,

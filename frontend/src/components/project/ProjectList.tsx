@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProjectDto } from '@/services/dtos';
+import { Project } from '@/services/dtos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +11,7 @@ import {
 
 export interface ProjectListProps {
   /** Array of projects to display */
-  projects: ProjectDto[];
+  projects: Project[];
   /** Optional callback when a project is selected */
   onProjectSelect?: (projectId: string) => void;
   /** Optional callback when edit is requested */
@@ -92,7 +92,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   };
 
   // Format project location for display
-  const formatLocation = (project: ProjectDto): string => {
+  const formatLocation = (project: Project): string => {
     const { location } = project;
     const parts = [];
     
