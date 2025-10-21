@@ -209,4 +209,47 @@ public class ProjectService {
         }
         return pageable;
     }
+    
+    /**
+     * Get combined projects where user is either builder OR owner with date filtering.
+     * 
+     * @param userId The user ID to search for
+     * @param scope The scope: "both", "builder", or "owner"
+     * @param createdFrom Optional start date filter (inclusive)
+     * @param createdTo Optional end date filter (inclusive)
+     * @param pageable Pagination and sorting parameters
+     * @return Page of ProjectDto with de-duplicated, filtered, and sorted results
+     */
+    public Page<ProjectDto> getCombinedProjects(
+            @NonNull UUID userId,
+            @NonNull String scope,
+            Instant createdFrom,
+            Instant createdTo,
+            @NonNull Pageable pageable) {
+        
+        // Verify user exists
+        Optional<User> persistedUser = userService.findById(userId);
+        if (persistedUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + userId + " does not exist.");
+        }
+        
+        Pageable pageableWithSort = ensureDefaultSort(pageable);
+        Page<Project> projects;
+        
+        // Route to appropriate query based on scope
+        switch (scope.toLowerCase()) {
+            case "builder":
+                projects = projectRepository.findBuilderProjects(userId, createdFrom, createdTo, pageableWithSort);
+                break;
+            case "owner":
+                projects = projectRepository.findOwnerProjects(userId, createdFrom, createdTo, pageableWithSort);
+                break;
+            case "both":
+            default:
+                projects = projectRepository.findCombinedProjects(userId, createdFrom, createdTo, pageableWithSort);
+                break;
+        }
+        
+        return projects.map(ProjectDtoMapper::toProjectDto);
+    }
 }

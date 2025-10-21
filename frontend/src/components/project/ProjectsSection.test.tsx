@@ -342,13 +342,11 @@ describe('ProjectsSection', () => {
 
   describe('Filter by Role', () => {
     test('fetches builder projects when filterByRole is "builder"', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
-      const mockGetProjectsByOwnerIdPaginated = jest.fn();
-      const mockGetCombinedProjectsPaginated = jest.fn();
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
@@ -358,20 +356,16 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection filterByRole="builder" />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByOwnerIdPaginated).not.toHaveBeenCalled();
-        expect(mockGetCombinedProjectsPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'builder', undefined, undefined, undefined);
       });
     });
 
     test('fetches owner projects when filterByRole is "owner"', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn();
-      const mockGetProjectsByOwnerIdPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
-      const mockGetCombinedProjectsPaginated = jest.fn();
+      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
@@ -381,20 +375,16 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection filterByRole="owner" />);
 
       await waitFor(() => {
-        expect(mockGetProjectsByOwnerIdPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByBuilderIdPaginated).not.toHaveBeenCalled();
-        expect(mockGetCombinedProjectsPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'owner', undefined, undefined, undefined);
       });
     });
 
     test('fetches combined projects by default when no filterByRole is specified', async () => {
-      const mockGetProjectsByBuilderIdPaginated = jest.fn();
-      const mockGetProjectsByOwnerIdPaginated = jest.fn();
       const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
       
       MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
-        getProjectsByOwnerIdPaginated: mockGetProjectsByOwnerIdPaginated,
+        getProjectsByBuilderIdPaginated: jest.fn(),
+        getProjectsByOwnerIdPaginated: jest.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
         createProject: jest.fn(),
         getProjectsByBuilderId: jest.fn(),
@@ -404,9 +394,7 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', undefined);
-        expect(mockGetProjectsByBuilderIdPaginated).not.toHaveBeenCalled();
-        expect(mockGetProjectsByOwnerIdPaginated).not.toHaveBeenCalled();
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, undefined);
       });
     });
   });
@@ -461,7 +449,7 @@ describe('ProjectsSection', () => {
       render(<ProjectsSection paginationParams={paginationParams} />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', paginationParams);
+        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, paginationParams);
       });
     });
   });

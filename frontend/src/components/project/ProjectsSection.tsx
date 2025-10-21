@@ -113,27 +113,39 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       // Determine which projects to fetch based on filter scope or legacy filterByRole
       const effectiveScope = filterByRole || filter.scope;
       
+      // Convert date strings to ISO-8601 format if provided
+      const createdAfter = filter.createdAfter ? new Date(filter.createdAfter).toISOString() : undefined;
+      const createdBefore = filter.createdBefore ? new Date(filter.createdBefore).toISOString() : undefined;
+      
       if (effectiveScope === 'builder') {
-        response = await projectService.getProjectsByBuilderIdPaginated(user.id, paginationParams);
+        response = await projectService.getCombinedProjectsPaginated(
+          user.id, 
+          'builder', 
+          createdAfter, 
+          createdBefore, 
+          paginationParams
+        );
       } else if (effectiveScope === 'owner') {
-        response = await projectService.getProjectsByOwnerIdPaginated(user.id, paginationParams);
+        response = await projectService.getCombinedProjectsPaginated(
+          user.id, 
+          'owner', 
+          createdAfter, 
+          createdBefore, 
+          paginationParams
+        );
       } else {
         // Default: fetch combined projects (both builder and owner)
-        response = await projectService.getCombinedProjectsPaginated(user.id, paginationParams);
+        response = await projectService.getCombinedProjectsPaginated(
+          user.id, 
+          'both', 
+          createdAfter, 
+          createdBefore, 
+          paginationParams
+        );
       }
 
-      // Apply date filters if set
-      let filteredProjects = response.content;
-      if (filter.createdAfter) {
-        const afterDate = new Date(filter.createdAfter);
-        filteredProjects = filteredProjects.filter(p => new Date(p.createdAt) >= afterDate);
-      }
-      if (filter.createdBefore) {
-        const beforeDate = new Date(filter.createdBefore);
-        filteredProjects = filteredProjects.filter(p => new Date(p.createdAt) <= beforeDate);
-      }
-
-      setAllFetchedProjects(filteredProjects);
+      // No client-side filtering needed - server handles it all
+      setAllFetchedProjects(response.content);
       setPagination(response.pagination);
       
       // Reset displayed count to initial on non-background fetches
@@ -383,8 +395,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           {/* Pagination info */}
           {pagination && pagination.totalElements > 0 && (
             <div className="text-center text-sm text-muted-foreground mt-4">
-              Showing {displayedProjects.length} of {allFetchedProjects.length} project{allFetchedProjects.length !== 1 ? 's' : ''}
-              {pagination.totalPages > 1 && ` (Page ${pagination.page + 1} of ${pagination.totalPages})`}
+              Showing {displayedProjects.length} of {pagination.totalElements} project{pagination.totalElements !== 1 ? 's' : ''}
+              {pagination.totalPages > 1 && ` • Page ${pagination.page + 1} of ${pagination.totalPages}`}
             </div>
           )}
         </>

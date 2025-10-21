@@ -225,67 +225,102 @@ class ProjectService {
     }
 
     /**
-     * Get combined projects where user is either builder OR owner (with de-duplication)
-     * Fetches both builder and owner projects, de-duplicates by ID, and sorts by lastUpdatedAt DESC
-     * Environment-aware: Uses mock data when config.enableMockData is true
+     * Get combined projects where user is either builder OR owner (server-side filtering and pagination)
+     * Calls the backend combined endpoint which handles de-duplication, filtering, and sorting on the server
      * 
      * @param userId - ID of the user whose projects to retrieve
      * @param token - JWT authentication token (ignored in mock mode)
+     * @param scope - 'builder', 'owner', or 'both' (default: both)
+     * @param createdAfter - Optional ISO-8601 date string for created after filter
+     * @param createdBefore - Optional ISO-8601 date string for created before filter
      * @param params - Optional pagination parameters (page, size, orderBy, direction)
-     * @returns Promise<PagedResponse<ProjectDto>> - Combined paginated response with de-duplicated projects sorted by lastUpdatedAt DESC
+     * @returns Promise<PagedResponse<ProjectDto>> - Server-side paginated response with filtered, de-duplicated, and sorted projects
      */
     async getCombinedProjectsPaginated(
         userId: string,
         token: string,
+        scope: 'builder' | 'owner' | 'both' = 'both',
+        createdAfter?: string,
+        createdBefore?: string,
         params?: PaginationParams
     ): Promise<PagedResponse<ProjectDto>> {
-        // Fetch both builder and owner projects
-        const [builderResponse, ownerResponse] = await Promise.all([
-            this.getProjectsByBuilderIdPaginated(userId, token, params),
-            this.getProjectsByOwnerIdPaginated(userId, token, params)
-        ]);
-
-        // Combine and de-duplicate by project ID
-        const projectMap = new Map<string, ProjectDto>();
-        
-        // Add builder projects
-        builderResponse.content.forEach(project => {
-            projectMap.set(project.id, project);
-        });
-        
-        // Add owner projects (will overwrite if duplicate)
-        ownerResponse.content.forEach(project => {
-            projectMap.set(project.id, project);
-        });
-
-        // Convert map to array and sort by lastUpdatedAt DESC
-        const combinedProjects = Array.from(projectMap.values()).sort((a, b) => {
-            const dateA = new Date(a.lastUpdatedAt).getTime();
-            const dateB = new Date(b.lastUpdatedAt).getTime();
-            return dateB - dateA; // DESC order
-        });
-
-        // Calculate combined pagination metadata
-        const totalElements = combinedProjects.length;
-        const page = params?.page || ProjectService.DEFAULT_PAGE;
-        const size = params?.size || ProjectService.DEFAULT_SIZE;
-        const start = page * size;
-        const end = start + size;
-        const paginatedContent = combinedProjects.slice(start, end);
-        const totalPages = Math.ceil(totalElements / size);
-
-        return {
-            content: paginatedContent,
-            pagination: {
-                page,
-                size,
-                totalElements,
-                totalPages,
-                hasNext: page < totalPages - 1,
-                hasPrevious: page > 0,
-                isFirst: page === 0,
-                isLast: page >= totalPages - 1 || totalPages === 0,
+        // Use mock data in standalone mode
+        if (config.enableMockData) {
+            if (config.enableConsoleLogs) {
+                console.log('[ProjectService] Using mock combined projects for user:', userId, 'scope:', scope);
             }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Get projects based on scope
+                    let allProjects: ProjectDto[] = [];
+                    if (scope === 'builder') {
+                        allProjects = findProjectsByBuilderId(userId);
+                    } else if (scope === 'owner') {
+                        allProjects = findProjectsByOwnerId(userId);
+                    } else {
+                        // Combine and de-duplicate
+                        const builderProjects = findProjectsByBuilderId(userId);
+                        const ownerProjects = findProjectsByOwnerId(userId);
+                        const projectMap = new Map<string, ProjectDto>();
+                        builderProjects.forEach(p => projectMap.set(p.id, p));
+                        ownerProjects.forEach(p => projectMap.set(p.id, p));
+                        allProjects = Array.from(projectMap.values());
+                    }
+                    
+                    // Apply date filters
+                    if (createdAfter) {
+                        const afterDate = new Date(createdAfter);
+                        allProjects = allProjects.filter(p => new Date(p.createdAt) >= afterDate);
+                    }
+                    if (createdBefore) {
+                        const beforeDate = new Date(createdBefore);
+                        allProjects = allProjects.filter(p => new Date(p.createdAt) <= beforeDate);
+                    }
+                    
+                    // Sort by lastUpdatedAt DESC
+                    allProjects.sort((a, b) => {
+                        const dateA = new Date(a.lastUpdatedAt).getTime();
+                        const dateB = new Date(b.lastUpdatedAt).getTime();
+                        return dateB - dateA;
+                    });
+                    
+                    resolve(this.simulatePagination(allProjects, params));
+                }, 300); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
+        let queryParams = buildPaginationQuery(params);
+        
+        // Add filter parameters
+        const filterParams = new URLSearchParams();
+        if (scope) {
+            filterParams.append('scope', scope);
+        }
+        if (createdAfter) {
+            filterParams.append('createdFrom', createdAfter);
+        }
+        if (createdBefore) {
+            filterParams.append('createdTo', createdBefore);
+        }
+        
+        const filterQuery = filterParams.toString();
+        if (filterQuery) {
+            queryParams = queryParams ? `${queryParams}&${filterQuery}` : `?${filterQuery}`;
+        }
+        
+        const endpoint = `/api/v1/projects/combined/${encodeURIComponent(userId)}${queryParams}`;
+        
+        const { data, headers } = await apiService.requestWithMetadata<ProjectDto[]>(
+            endpoint,
+            { method: 'GET' },
+            token
+        );
+        
+        return {
+            content: data,
+            pagination: extractPaginationMetadata(headers)
         };
     }
 }
@@ -340,9 +375,19 @@ export class ProjectServiceWithAuth {
 
     async getCombinedProjectsPaginated(
         userId: string,
+        scope: 'builder' | 'owner' | 'both' = 'both',
+        createdAfter?: string,
+        createdBefore?: string,
         params?: PaginationParams
     ): Promise<PagedResponse<ProjectDto>> {
-        return this.projectService.getCombinedProjectsPaginated(userId, this.ensureToken(), params);
+        return this.projectService.getCombinedProjectsPaginated(
+            userId, 
+            this.ensureToken(), 
+            scope, 
+            createdAfter, 
+            createdBefore, 
+            params
+        );
     }
 }
 
