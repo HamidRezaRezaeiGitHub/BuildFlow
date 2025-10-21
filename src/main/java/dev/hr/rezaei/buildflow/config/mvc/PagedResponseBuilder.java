@@ -11,18 +11,19 @@ import java.util.function.Function;
 /**
  * Static utility class for building paginated HTTP responses.
  * 
- * Provides standardized pagination headers and response construction for all controllers.
+ * This utility provides standardized pagination headers and response construction.
+ * All methods are static - no instantiation required or possible (private constructor).
  * Encapsulates pagination metadata, Link headers (RFC 5988), and DTO mapping logic.
  * 
  * Usage:
  * <pre>
  * import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
  * 
- * // With mapper function
- * return build(page, entity -> mapper.toDto(entity), "/api/v1/resource");
+ * // With mapper function to transform entities to DTOs
+ * return build(entityPage, entity -> mapper.toDto(entity), "/api/v1/resource");
  * 
- * // With already mapped page
- * return build(mappedPage, "/api/v1/resource");
+ * // With already mapped page of DTOs
+ * return build(dtoPage, "/api/v1/resource");
  * </pre>
  * 
  * Headers added:

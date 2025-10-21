@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProjectDto } from '@/services/dtos';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -136,9 +136,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                 <CardTitle className="text-lg truncate">
                   {formatLocation(project)}
                 </CardTitle>
-                <CardDescription className="mt-1">
-                  Updated {formatDate(project.lastUpdatedAt)}
-                </CardDescription>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

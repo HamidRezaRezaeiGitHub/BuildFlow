@@ -26,6 +26,20 @@ export interface ProjectFilter {
   createdBefore?: string;
 }
 
+/** Default filter configuration */
+const DEFAULT_FILTER: ProjectFilter = { scope: 'both' };
+
+/**
+ * Helper function to check if a filter has non-default values
+ * @param filter The filter to check
+ * @returns true if the filter has any non-default values
+ */
+const isDefaultFilter = (filter: ProjectFilter): boolean => {
+  return filter.scope === DEFAULT_FILTER.scope && 
+         !filter.createdAfter && 
+         !filter.createdBefore;
+};
+
 export interface ProjectsSectionProps {
   /** Optional filter to show only projects for a specific user role */
   filterByRole?: 'builder' | 'owner';
@@ -91,8 +105,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingMore] = useState(false);
-  const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>({ scope: 'both' });
-  const [pendingFilter, setPendingFilter] = useState<ProjectFilter>({ scope: 'both' });
+  const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
+  const [pendingFilter, setPendingFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Extract fetch logic into a reusable function
@@ -216,10 +230,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   // Render empty state
   const renderEmptyState = () => {
     // Check if filters are applied (non-default values)
-    const hasActiveFilters = 
-      appliedFilter.scope !== 'both' || 
-      appliedFilter.createdAfter !== undefined || 
-      appliedFilter.createdBefore !== undefined;
+    const hasActiveFilters = !isDefaultFilter(appliedFilter);
     
     if (hasActiveFilters) {
       return (
@@ -246,8 +257,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
             <Button 
               variant="outline"
               onClick={() => {
-                setAppliedFilter({ scope: 'both' });
-                setPendingFilter({ scope: 'both' });
+                setAppliedFilter(DEFAULT_FILTER);
+                setPendingFilter(DEFAULT_FILTER);
                 setIsFilterOpen(false);
               }}
             >

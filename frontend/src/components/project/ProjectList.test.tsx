@@ -100,10 +100,10 @@ describe('ProjectList', () => {
     test('displays last updated timestamp', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      // Should have "Updated" text in both CardDescription and CardContent for each project
-      // 3 projects * 2 instances = 6
-      const updatedTexts = screen.getAllByText(/Updated/);
-      expect(updatedTexts).toHaveLength(6);
+      // Should have "Updated:" text in CardContent for each project
+      // Format is "Updated: {date} • Created: {date}"
+      const updatedTexts = screen.getAllByText(/Updated:/);
+      expect(updatedTexts).toHaveLength(3);
     });
 
     test('displays created timestamp', () => {
@@ -254,7 +254,7 @@ describe('ProjectList', () => {
       
       render(<ProjectList projects={[recentProject]} />);
       
-      // Should display "Today" in both CardDescription and CardContent
+      // Should display "Today" in CardContent only
       const todayTexts = screen.getAllByText(/Today/);
       expect(todayTexts.length).toBeGreaterThanOrEqual(1);
     });
@@ -262,10 +262,10 @@ describe('ProjectList', () => {
     test('handles multiple projects with different dates', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      // Each project displays dates in both CardDescription and CardContent
-      // 3 projects * 2 instances = 6 total
-      const updatedTexts = screen.getAllByText(/Updated/);
-      expect(updatedTexts).toHaveLength(6);
+      // Each project displays dates in CardContent only
+      // 3 projects * 1 instance = 3 total
+      const updatedTexts = screen.getAllByText(/Updated:/);
+      expect(updatedTexts).toHaveLength(3);
     });
   });
 
