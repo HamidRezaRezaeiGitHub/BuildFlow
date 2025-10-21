@@ -44,51 +44,145 @@ BuildFlow is a construction management platform that helps construction professi
 ## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── home/           # Landing page components
-│   │   ├── Auth.tsx    # Authentication forms
-│   │   ├── Features.tsx # Feature showcase
-│   │   ├── Hero.tsx    # Landing hero section
-│   │   ├── Navbar.tsx  # Navigation bar
-│   │   └── ...
-│   ├── layouts/        # Layout components
-│   │   ├── AppLayout.tsx    # Authenticated app layout
-│   │   └── AdminLayout.tsx  # Admin panel layout
-│   ├── theme/          # Theme system components
-│   │   ├── ThemeToggle.tsx  # 7+ toggle variants
-│   │   └── ThemeShowcase.tsx # Theme demo page
-│   ├── ui/             # Reusable UI components
-│   │   ├── button.tsx  # Button variants
-│   │   ├── card.tsx    # Card components
-│   │   ├── tabs.tsx    # Tab system
-│   │   └── ...
-│   └── admin/          # Admin-specific components
-├── contexts/           # React Context providers
-│   ├── AuthContext.tsx      # Authentication state
-│   ├── ThemeContext.tsx     # Theme management
-│   ├── AppProviders.tsx     # Provider composition
-│   └── RouterProvider.tsx   # Router setup
-├── pages/              # Route components
-│   ├── Home.tsx        # Landing page
-│   ├── Dashboard.tsx   # User dashboard
-│   ├── Admin.tsx       # Admin panel
-│   └── Theme.tsx       # Theme showcase
-├── router/             # Routing configuration
-│   └── AppRouter.tsx   # Route definitions & protection
-├── services/           # API and business logic
-│   ├── ApiService.tsx       # HTTP client
-│   ├── AuthService.tsx      # Authentication API
-│   ├── AdminService.tsx     # Admin operations
-│   └── dtos/               # Data transfer objects
-├── utils/              # Pure utility functions
-│   ├── validation.ts   # Form validation
-│   ├── addressUtils.ts # Address formatting
-│   └── utils.ts        # General utilities
-└── test/               # Testing configuration
-    ├── setup.ts        # Jest setup
-    ├── test-utils.tsx  # Testing utilities
-    └── config.test.ts  # Configuration tests
+frontend/
+├── src/                           # Main source directory - [📖 Documentation](src/README.md)
+│   ├── components/               # Reusable React components - [📖 Documentation](src/components/README.md)
+│   │   ├── address/             # Address input library - [📖 Documentation](src/components/address/README.md)
+│   │   │   ├── City.tsx
+│   │   │   ├── Country.tsx
+│   │   │   ├── FlexibleAddressForm.tsx
+│   │   │   ├── PostalCode.tsx
+│   │   │   ├── StateProvince.tsx
+│   │   │   ├── StreetName.tsx
+│   │   │   ├── StreetNumber.tsx
+│   │   │   ├── StreetNumberName.tsx
+│   │   │   ├── UnitNumber.tsx
+│   │   │   └── index.ts
+│   │   ├── admin/               # Admin panel components - [📖 Documentation](src/components/admin/README.md)
+│   │   │   ├── AdminLayout.tsx
+│   │   │   ├── UserDetailsDrawer.tsx
+│   │   │   ├── UsersTable.tsx
+│   │   │   └── index.ts
+│   │   ├── auth/                # Authentication components - [📖 Documentation](src/components/auth/README.md)
+│   │   │   ├── Email.tsx
+│   │   │   ├── Password.tsx
+│   │   │   ├── ConfirmPassword.tsx
+│   │   │   ├── Username.tsx
+│   │   │   ├── UsernameEmail.tsx
+│   │   │   ├── Name.tsx
+│   │   │   ├── Phone.tsx
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── FlexibleSignUpForm.tsx
+│   │   │   └── index.ts
+│   │   ├── dashboard/           # Dashboard layout - [📖 Documentation](src/components/dashboard/README.md)
+│   │   │   ├── DashboardLayout.tsx
+│   │   │   └── index.ts
+│   │   ├── dev/                 # Development tools - [📖 Documentation](src/components/dev/README.md)
+│   │   │   ├── DevPanel.tsx
+│   │   │   └── index.ts
+│   │   ├── home/                # Landing page components - [📖 Documentation](src/components/home/README.md)
+│   │   │   ├── AuthSection.tsx
+│   │   │   ├── Brands.tsx
+│   │   │   ├── Contact.tsx
+│   │   │   ├── Features.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Hero.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── index.ts
+│   │   ├── navbar/              # Navigation components - [📖 Documentation](src/components/navbar/README.md)
+│   │   │   ├── FlexibleNavbar.tsx
+│   │   │   ├── Logo.tsx
+│   │   │   ├── LoginButton.tsx
+│   │   │   ├── SignUpButton.tsx
+│   │   │   ├── Avatar.tsx
+│   │   │   └── index.ts
+│   │   ├── project/             # Project components - [📖 Documentation](src/components/project/README.md)
+│   │   │   ├── NewProjectForm.tsx
+│   │   │   ├── ProjectList.tsx
+│   │   │   ├── ProjectsSection.tsx
+│   │   │   └── index.ts
+│   │   ├── theme/               # Theme system - [📖 Documentation](src/components/theme/README.md)
+│   │   │   ├── ThemeShowcase.tsx
+│   │   │   ├── ThemeToggle.tsx
+│   │   │   └── index.ts
+│   │   └── ui/                  # Base UI components (shadcn/ui)
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       └── ...
+│   ├── config/                  # Environment configuration - [📖 Documentation](src/config/README.md)
+│   │   ├── environment.ts
+│   │   └── index.ts
+│   ├── contexts/                # React Context providers - [📖 Documentation](src/contexts/README.md)
+│   │   ├── AppProviders.tsx
+│   │   ├── AppRouter.tsx
+│   │   ├── AuthContext.tsx
+│   │   ├── NavigationContext.tsx
+│   │   ├── RouterProvider.tsx
+│   │   ├── ThemeContext.tsx
+│   │   └── index.ts
+│   ├── mocks/                   # Mock data for development - [📖 Documentation](src/mocks/README.md)
+│   │   ├── authMocks.ts
+│   │   ├── MockProjects.ts
+│   │   └── index.ts
+│   ├── pages/                   # Route page components - [📖 Documentation](src/pages/README.md)
+│   │   ├── project/            # Project pages - [📖 Documentation](src/pages/project/README.md)
+│   │   │   ├── NewProject.tsx
+│   │   │   └── index.ts
+│   │   ├── temp/               # Temporary demo pages - [📖 Documentation](src/pages/temp/README.md)
+│   │   │   ├── AddressPage.tsx
+│   │   │   ├── FlexibleBottomNavbarDemo.tsx
+│   │   │   ├── FlexibleSignUpPage.tsx
+│   │   │   └── Theme.tsx
+│   │   ├── AdminPage.tsx
+│   │   ├── DashboardPage.tsx
+│   │   ├── HomePage.tsx
+│   │   └── index.ts
+│   ├── services/                # API services - [📖 Documentation](src/services/README.md)
+│   │   ├── dtos/               # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
+│   │   │   ├── AddressDtos.ts
+│   │   │   ├── AuthDtos.ts
+│   │   │   ├── MvcDtos.ts
+│   │   │   ├── PaginationDtos.ts
+│   │   │   ├── ProjectDtos.ts
+│   │   │   ├── UserDtos.ts
+│   │   │   └── index.ts
+│   │   ├── validation/         # Validation service - [📖 Documentation](src/services/validation/README.md)
+│   │   │   ├── types.ts
+│   │   │   ├── ValidationService.ts
+│   │   │   ├── useSmartFieldValidation.ts
+│   │   │   └── index.ts
+│   │   ├── AdminService.tsx
+│   │   ├── ApiService.tsx
+│   │   ├── AuthService.tsx
+│   │   ├── ProjectService.ts
+│   │   ├── TimerService.ts
+│   │   ├── apiHelpers.ts
+│   │   └── index.ts
+│   ├── test/                    # Testing utilities - [📖 Documentation](src/test/README.md)
+│   │   ├── config.test.ts
+│   │   ├── setup.ts
+│   │   └── test-utils.tsx
+│   ├── utils/                   # Utility functions - [📖 Documentation](src/utils/README.md)
+│   │   ├── useMediaQuery.ts
+│   │   ├── utils.test.ts
+│   │   └── utils.ts
+│   ├── App.tsx                  # Main application component
+│   ├── App.css                  # Global application styles
+│   ├── main.tsx                 # Application entry point
+│   ├── index.css                # Global CSS imports
+│   └── vite-env.d.ts           # TypeScript environment declarations
+├── public/                      # Static assets
+├── .env.development            # Development environment config
+├── .env.production             # Production environment config
+├── .env.uat                    # UAT environment config
+├── .env.github-pages           # GitHub Pages config
+├── jest.config.js              # Jest test configuration
+├── tsconfig.json               # TypeScript configuration
+├── vite.config.ts              # Vite build configuration
+├── tailwind.config.js          # Tailwind CSS configuration
+├── package.json                # Dependencies and scripts
+└── README.md                   # This file
 ```
 
 ## 🚀 Getting Started
