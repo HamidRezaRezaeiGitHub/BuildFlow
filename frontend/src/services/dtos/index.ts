@@ -53,3 +53,20 @@ export {
     extractPaginationMetadata,
     buildPaginationQuery
 } from './PaginationDtos';
+
+export type {
+    EstimateDto as Estimate,
+    EstimateGroupDto as EstimateGroup,
+    EstimateLineDto as EstimateLine
+} from './EstimateDtos';
+
+export type {
+    WorkItemDto as WorkItem,
+    CreateWorkItemRequest,
+    CreateWorkItemResponse
+} from './WorkItemDtos';
+
+export type {
+    QuoteDto as Quote,
+    QuoteLocationDto as QuoteLocation
+} from './QuoteDtos';

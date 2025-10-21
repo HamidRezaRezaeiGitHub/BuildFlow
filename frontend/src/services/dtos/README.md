@@ -88,10 +88,13 @@ import { ProjectDto } from '@/services/dtos/ProjectDtos';
 dtos/
 ├── AddressDtos.ts       # Address-related data structures
 ├── AuthDtos.ts          # Authentication request/response types
+├── EstimateDtos.ts      # Estimate, group, and line item data structures
 ├── MvcDtos.ts           # Spring MVC response wrappers
 ├── PaginationDtos.ts    # Pagination and page response types
 ├── ProjectDtos.ts       # Project-related data structures
+├── QuoteDtos.ts         # Quote and supplier data structures
 ├── UserDtos.ts          # User profile and contact data structures
+├── WorkItemDtos.ts      # Work item and task data structures
 └── index.ts             # Centralized DTO exports
 ```
 
@@ -466,6 +469,209 @@ const response: PageResponse<Project> =
 console.log(`Total projects: ${response.pageInfo.totalElements}`);
 console.log(`Current page: ${response.pageInfo.number + 1} of ${response.pageInfo.totalPages}`);
 console.log(`Projects on this page: ${response.content.length}`);
+```
+
+### EstimateDtos.ts
+**Purpose:** Estimate, estimate group, and estimate line item data structures.
+
+**Note:** Following the DTO aliasing pattern, consumers use `Estimate`, `EstimateGroup`, and `EstimateLine` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Estimate line DTO - individual line items
+export interface EstimateLineDto {
+  id: string;
+  workItemId: string;
+  quantity: number;
+  estimateStrategy: string;  // e.g., "AVERAGE", "LATEST", "LOWEST"
+  multiplier: number;
+  computedCost: string;      // Decimal as string
+  createdAt: string;         // ISO 8601
+  lastUpdatedAt: string;     // ISO 8601
+}
+
+// Estimate group DTO - organizes line items
+export interface EstimateGroupDto {
+  id: string;
+  workItemId: string;
+  name: string;
+  description?: string;
+  estimateLineDtos: EstimateLineDto[];
+}
+
+// Estimate DTO - project cost estimates
+export interface EstimateDto {
+  id: string;
+  projectId: string;
+  overallMultiplier: number;
+  groupDtos: EstimateGroupDto[];
+  createdAt: string;         // ISO 8601
+  lastUpdatedAt: string;     // ISO 8601
+}
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  EstimateDto as Estimate,          // ✅ Use 'Estimate' in consumer code
+  EstimateGroupDto as EstimateGroup, // ✅ Use 'EstimateGroup' in consumer code
+  EstimateLineDto as EstimateLine    // ✅ Use 'EstimateLine' in consumer code
+} from './EstimateDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { 
+  Estimate,      // Not EstimateDto
+  EstimateGroup, // Not EstimateGroupDto
+  EstimateLine   // Not EstimateLineDto
+} from '@/services/dtos';
+
+// View estimate details
+const estimate: Estimate = await estimateService.getEstimate(projectId);
+
+console.log(`Project estimate with ${estimate.groupDtos.length} groups`);
+console.log(`Overall multiplier: ${estimate.overallMultiplier}`);
+
+// Process each group
+estimate.groupDtos.forEach((group: EstimateGroup) => {
+  console.log(`Group: ${group.name}`);
+  group.estimateLineDtos.forEach((line: EstimateLine) => {
+    console.log(`  - ${line.quantity} units @ $${line.computedCost}`);
+  });
+});
+```
+
+### WorkItemDtos.ts
+**Purpose:** Work item and task breakdown structure data.
+
+**Note:** Following the DTO aliasing pattern, consumers use `WorkItem` (exported from `index.ts`), 
+while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Work item DTO
+export interface WorkItemDto {
+  id: string;
+  code: string;              // e.g., "S1-001"
+  name: string;
+  description?: string;
+  optional: boolean;
+  userId: string;
+  defaultGroupName?: string;
+  domain: string;            // e.g., "PUBLIC", "PRIVATE"
+  createdAt: string;         // ISO 8601
+  lastUpdatedAt: string;     // ISO 8601
+}
+
+// Create work item request
+export interface CreateWorkItemRequest {
+  code: string;
+  name: string;
+  description?: string;
+  optional: boolean;
+  userId: string;
+  defaultGroupName?: string;
+  domain?: string;
+}
+
+// Create work item response
+export interface CreateWorkItemResponse {
+  workItemDto: WorkItemDto;
+}
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  WorkItemDto as WorkItem,        // ✅ Use 'WorkItem' in consumer code
+  CreateWorkItemRequest,          // No alias (clean name)
+  CreateWorkItemResponse          // No alias (clean name)
+} from './WorkItemDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { 
+  WorkItem,  // Not WorkItemDto
+  CreateWorkItemRequest, 
+  CreateWorkItemResponse 
+} from '@/services/dtos';
+
+// Create a new work item
+const request: CreateWorkItemRequest = {
+  code: 'S1-001',
+  name: 'Foundation Preparation',
+  description: 'Prepare the foundation area including excavation',
+  optional: false,
+  userId: '123',
+  defaultGroupName: 'Site Preparation',
+  domain: 'PUBLIC'
+};
+
+const response: CreateWorkItemResponse = 
+  await workItemService.createWorkItem(request);
+
+const workItem: WorkItem = response.workItemDto;
+console.log(`Created work item: ${workItem.code} - ${workItem.name}`);
+```
+
+### QuoteDtos.ts
+**Purpose:** Quote and supplier quotation data structures.
+
+**Note:** Following the DTO aliasing pattern, consumers use `Quote` and `QuoteLocation` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Quote location DTO (extends BaseAddressDto)
+export interface QuoteLocationDto extends BaseAddressDto {
+  id: string;
+}
+
+// Quote DTO
+export interface QuoteDto {
+  id: string;
+  workItemId: string;
+  createdByUserId: string;
+  supplierId: string;
+  quoteUnit: string;         // e.g., "EACH", "SQFT", "LNFT"
+  unitPrice: string;         // Decimal as string
+  currency: string;          // e.g., "USD", "CAD"
+  quoteDomain: string;       // e.g., "PUBLIC", "PRIVATE"
+  locationDto: QuoteLocationDto;
+  valid: boolean;
+  createdAt: string;         // ISO 8601
+  lastUpdatedAt: string;     // ISO 8601
+}
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  QuoteDto as Quote,                  // ✅ Use 'Quote' in consumer code
+  QuoteLocationDto as QuoteLocation   // ✅ Use 'QuoteLocation' in consumer code
+} from './QuoteDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { Quote, QuoteLocation } from '@/services/dtos';
+
+// View quote details
+const quote: Quote = await quoteService.getQuote(quoteId);
+
+console.log(`Quote from supplier ${quote.supplierId}`);
+console.log(`Unit price: ${quote.currency} ${quote.unitPrice} per ${quote.quoteUnit}`);
+console.log(`Valid: ${quote.valid ? 'Yes' : 'No'}`);
+
+// Access location
+const location: QuoteLocation = quote.locationDto;
+console.log(`Location: ${location.city}, ${location.stateOrProvince}`);
 ```
 
 ## DTO Conventions
