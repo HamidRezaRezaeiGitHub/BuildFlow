@@ -3,22 +3,26 @@ package dev.hr.rezaei.buildflow.config.mvc;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.function.Function;
 
 /**
- * Generic builder for paginated HTTP responses.
+ * Static utility class for building paginated HTTP responses.
  * 
  * Provides standardized pagination headers and response construction for all controllers.
  * Encapsulates pagination metadata, Link headers (RFC 5988), and DTO mapping logic.
  * 
  * Usage:
  * <pre>
- * PagedResponseBuilder<EntityDto> builder = new PagedResponseBuilder<>();
- * return builder.build(page, dto -> mapper.toDto(dto), "/api/v1/resource");
+ * import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
+ * 
+ * // With mapper function
+ * return build(page, entity -> mapper.toDto(entity), "/api/v1/resource");
+ * 
+ * // With already mapped page
+ * return build(mappedPage, "/api/v1/resource");
  * </pre>
  * 
  * Headers added:
@@ -28,8 +32,14 @@ import java.util.function.Function;
  * - X-Size: Page size
  * - Link: RFC 5988 pagination links (first, prev, next, last)
  */
-@Component
-public class PagedResponseBuilder<T> {
+public final class PagedResponseBuilder {
+    
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private PagedResponseBuilder() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
     /**
      * Build a paginated response with standard headers and mapped content.
@@ -38,9 +48,10 @@ public class PagedResponseBuilder<T> {
      * @param mapper Function to map from entity to DTO (if null, returns entities directly)
      * @param basePath The base URL path for Link header generation (e.g., "/api/v1/projects")
      * @param <E> Entity type
+     * @param <T> DTO type
      * @return ResponseEntity with mapped content and pagination headers
      */
-    public <E> ResponseEntity<List<T>> build(Page<E> page, Function<E, T> mapper, String basePath) {
+    public static <E, T> ResponseEntity<List<T>> build(Page<E> page, Function<E, T> mapper, String basePath) {
         // Map entities to DTOs if mapper is provided
         List<T> content = mapper != null 
             ? page.getContent().stream().map(mapper).toList()
@@ -57,9 +68,10 @@ public class PagedResponseBuilder<T> {
      * 
      * @param page The Spring Data Page object containing pagination metadata
      * @param basePath The base URL path for Link header generation
+     * @param <T> DTO type
      * @return ResponseEntity with content and pagination headers
      */
-    public ResponseEntity<List<T>> buildFromMappedPage(Page<T> page, String basePath) {
+    public static <T> ResponseEntity<List<T>> build(Page<T> page, String basePath) {
         HttpHeaders headers = createPaginationHeaders(page, basePath);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -72,7 +84,7 @@ public class PagedResponseBuilder<T> {
      * @param basePath The base URL path for link generation
      * @return HttpHeaders with pagination information
      */
-    private HttpHeaders createPaginationHeaders(Page<?> page, String basePath) {
+    private static HttpHeaders createPaginationHeaders(Page<?> page, String basePath) {
         HttpHeaders headers = new HttpHeaders();
         
         // Add custom pagination headers
@@ -98,7 +110,7 @@ public class PagedResponseBuilder<T> {
      * @param basePath The base URL path
      * @return Link header string
      */
-    private String buildLinkHeader(Page<?> page, String basePath) {
+    private static String buildLinkHeader(Page<?> page, String basePath) {
         StringBuilder linkHeader = new StringBuilder();
         
         String baseUrl = ServletUriComponentsBuilder.fromCurrentRequest()

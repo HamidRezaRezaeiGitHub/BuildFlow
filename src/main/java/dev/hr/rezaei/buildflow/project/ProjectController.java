@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder;
 import dev.hr.rezaei.buildflow.config.mvc.PaginationHelper;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
@@ -28,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -37,7 +38,6 @@ public class ProjectController {
 
     private final ProjectAuthService authorizationHandler;
     private final ProjectService projectService;
-    private final PagedResponseBuilder<ProjectDto> pagedResponseBuilder;
     
     // Pagination helper configured with project-specific sort fields and defaults
     private final PaginationHelper paginationHelper = new PaginationHelper(
@@ -91,7 +91,7 @@ public class ProjectController {
         Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
         Page<ProjectDto> projectPage = projectService.getProjectsByBuilderId(builderId, pageable);
         
-        return pagedResponseBuilder.buildFromMappedPage(projectPage, "/api/v1/projects/builder/" + builderId);
+        return build(projectPage, "/api/v1/projects/builder/" + builderId);
     }
 
     @Operation(summary = "Get projects by owner ID", description = "Retrieves projects owned by a specific property owner with pagination support")
@@ -121,7 +121,7 @@ public class ProjectController {
         Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
         Page<ProjectDto> projectPage = projectService.getProjectsByOwnerId(ownerId, pageable);
         
-        return pagedResponseBuilder.buildFromMappedPage(projectPage, "/api/v1/projects/owner/" + ownerId);
+        return build(projectPage, "/api/v1/projects/owner/" + ownerId);
     }
     
     @Operation(
@@ -166,6 +166,6 @@ public class ProjectController {
             userId, scope, createdFromInstant, createdToInstant, pageable
         );
         
-        return pagedResponseBuilder.buildFromMappedPage(projectPage, "/api/v1/projects/combined/" + userId);
+        return build(projectPage, "/api/v1/projects/combined/" + userId);
     }
 }

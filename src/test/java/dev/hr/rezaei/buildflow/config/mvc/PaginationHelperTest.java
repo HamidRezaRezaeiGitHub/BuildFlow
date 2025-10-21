@@ -93,8 +93,8 @@ class PaginationHelperTest {
         String[] sort = new String[]{"invalidField,ASC"};
         Pageable pageable = paginationHelper.createPageable(null, null, sort, null, null);
         
-        // Should fallback to default field
-        Sort expectedSort = Sort.by(DEFAULT_DIRECTION, DEFAULT_FIELD);
+        // Should fallback to default field but preserve the requested direction
+        Sort expectedSort = Sort.by(Sort.Direction.ASC, DEFAULT_FIELD);
         assertEquals(expectedSort, pageable.getSort());
     }
 

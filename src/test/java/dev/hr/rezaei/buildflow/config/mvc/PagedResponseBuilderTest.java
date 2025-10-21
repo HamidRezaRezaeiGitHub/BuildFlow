@@ -14,6 +14,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 
+import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests pagination header generation and response construction
  */
 class PagedResponseBuilderTest {
-
-    private PagedResponseBuilder<TestDto> pagedResponseBuilder;
 
     // Simple test DTO
     record TestDto(Long id, String name) {}
@@ -32,8 +31,6 @@ class PagedResponseBuilderTest {
 
     @BeforeEach
     void setUp() {
-        pagedResponseBuilder = new PagedResponseBuilder<>();
-        
         // Setup mock request for ServletUriComponentsBuilder
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
@@ -44,11 +41,11 @@ class PagedResponseBuilderTest {
     }
 
     // ============================================
-    // buildFromMappedPage Tests
+    // build Tests (with already mapped page)
     // ============================================
 
     @Test
-    void buildFromMappedPage_withFirstPage_shouldIncludeCorrectHeaders() {
+    void build_withFirstPage_shouldIncludeCorrectHeaders() {
         List<TestDto> content = List.of(
             new TestDto(1L, "Item 1"),
             new TestDto(2L, "Item 2")
@@ -56,7 +53,7 @@ class PagedResponseBuilderTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 25);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
@@ -70,12 +67,12 @@ class PagedResponseBuilderTest {
     }
 
     @Test
-    void buildFromMappedPage_withMiddlePage_shouldIncludeNextAndPrevLinks() {
+    void build_withMiddlePage_shouldIncludeNextAndPrevLinks() {
         List<TestDto> content = List.of(new TestDto(11L, "Item 11"));
         Pageable pageable = PageRequest.of(1, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 25);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         HttpHeaders headers = response.getHeaders();
         String linkHeader = headers.getFirst(HttpHeaders.LINK);
@@ -90,12 +87,12 @@ class PagedResponseBuilderTest {
     }
 
     @Test
-    void buildFromMappedPage_withLastPage_shouldNotIncludeNextLink() {
+    void build_withLastPage_shouldNotIncludeNextLink() {
         List<TestDto> content = List.of(new TestDto(21L, "Item 21"));
         Pageable pageable = PageRequest.of(2, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 25);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         HttpHeaders headers = response.getHeaders();
         String linkHeader = headers.getFirst(HttpHeaders.LINK);
@@ -108,12 +105,12 @@ class PagedResponseBuilderTest {
     }
 
     @Test
-    void buildFromMappedPage_withEmptyPage_shouldHandleGracefully() {
+    void build_withEmptyPage_shouldHandleGracefully() {
         List<TestDto> content = List.of();
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 0);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         assertEquals(200, response.getStatusCode().value());
         assertEquals(0, response.getBody().size());
@@ -124,12 +121,12 @@ class PagedResponseBuilderTest {
     }
 
     @Test
-    void buildFromMappedPage_withSinglePageResult_shouldIncludeOnlyFirstAndLast() {
+    void build_withSinglePageResult_shouldIncludeOnlyFirstAndLast() {
         List<TestDto> content = List.of(new TestDto(1L, "Item 1"));
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 5);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         HttpHeaders headers = response.getHeaders();
         String linkHeader = headers.getFirst(HttpHeaders.LINK);
@@ -154,7 +151,7 @@ class PagedResponseBuilderTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestEntity> page = new PageImpl<>(entities, pageable, 2);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.build(
+        ResponseEntity<List<TestDto>> response = build(
             page,
             entity -> new TestDto(entity.id(), entity.name()),
             "/api/v1/test"
@@ -176,8 +173,7 @@ class PagedResponseBuilderTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 2);
         
-        PagedResponseBuilder<TestDto> builder = new PagedResponseBuilder<>();
-        ResponseEntity<List<TestDto>> response = builder.build(page, null, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, null, "/api/v1/test");
         
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
@@ -189,12 +185,12 @@ class PagedResponseBuilderTest {
     // ============================================
 
     @Test
-    void buildFromMappedPage_shouldIncludePageSizeInLinks() {
+    void build_shouldIncludePageSizeInLinks() {
         List<TestDto> content = List.of(new TestDto(1L, "Item 1"));
         Pageable pageable = PageRequest.of(0, 50);
         Page<TestDto> page = new PageImpl<>(content, pageable, 100);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/test");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         HttpHeaders headers = response.getHeaders();
         String linkHeader = headers.getFirst(HttpHeaders.LINK);
@@ -204,12 +200,12 @@ class PagedResponseBuilderTest {
     }
 
     @Test
-    void buildFromMappedPage_shouldConstructCorrectBaseUrl() {
+    void build_shouldConstructCorrectBaseUrl() {
         List<TestDto> content = List.of(new TestDto(1L, "Item 1"));
         Pageable pageable = PageRequest.of(0, 10);
         Page<TestDto> page = new PageImpl<>(content, pageable, 20);
         
-        ResponseEntity<List<TestDto>> response = pagedResponseBuilder.buildFromMappedPage(page, "/api/v1/projects");
+        ResponseEntity<List<TestDto>> response = build(page, "/api/v1/projects");
         
         HttpHeaders headers = response.getHeaders();
         String linkHeader = headers.getFirst(HttpHeaders.LINK);
