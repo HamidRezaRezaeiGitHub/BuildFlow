@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProjectDto } from '@/services/dtos';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -136,9 +136,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                 <CardTitle className="text-lg truncate">
                   {formatLocation(project)}
                 </CardTitle>
-                <CardDescription className="mt-1">
-                  Updated {formatDate(project.lastUpdatedAt)}
-                </CardDescription>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -192,15 +189,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Project ID:</span>
-                <span className="font-mono text-xs">#{project.id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Created:</span>
-                <span>{formatDate(project.createdAt)}</span>
-              </div>
+            <div className="text-sm text-muted-foreground">
+              Updated: {formatDate(project.lastUpdatedAt)} • Created: {formatDate(project.createdAt)}
             </div>
           </CardContent>
         </Card>

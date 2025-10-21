@@ -26,6 +26,20 @@ export interface ProjectFilter {
   createdBefore?: string;
 }
 
+/** Default filter configuration */
+const DEFAULT_FILTER: ProjectFilter = { scope: 'both' };
+
+/**
+ * Helper function to check if a filter has non-default values
+ * @param filter The filter to check
+ * @returns true if the filter has any non-default values
+ */
+const isDefaultFilter = (filter: ProjectFilter): boolean => {
+  return filter.scope === DEFAULT_FILTER.scope && 
+         !filter.createdAfter && 
+         !filter.createdBefore;
+};
+
 export interface ProjectsSectionProps {
   /** Optional filter to show only projects for a specific user role */
   filterByRole?: 'builder' | 'owner';
@@ -91,7 +105,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingMore] = useState(false);
-  const [filter, setFilter] = useState<ProjectFilter>({ scope: 'both' });
+  const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
+  const [pendingFilter, setPendingFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Extract fetch logic into a reusable function
@@ -111,11 +126,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       let response: PagedResponse<ProjectDto>;
 
       // Determine which projects to fetch based on filter scope or legacy filterByRole
-      const effectiveScope = filterByRole || filter.scope;
+      const effectiveScope = filterByRole || appliedFilter.scope;
       
       // Convert date strings to ISO-8601 format if provided
-      const createdAfter = filter.createdAfter ? new Date(filter.createdAfter).toISOString() : undefined;
-      const createdBefore = filter.createdBefore ? new Date(filter.createdBefore).toISOString() : undefined;
+      const createdAfter = appliedFilter.createdAfter ? new Date(appliedFilter.createdAfter).toISOString() : undefined;
+      const createdBefore = appliedFilter.createdBefore ? new Date(appliedFilter.createdBefore).toISOString() : undefined;
       
       if (effectiveScope === 'builder') {
         response = await projectService.getCombinedProjectsPaginated(
@@ -160,7 +175,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         setIsLoading(false);
       }
     }
-  }, [user, token, filterByRole, filter, paginationParams, initialDisplayCount]);
+  }, [user, token, filterByRole, appliedFilter, paginationParams, initialDisplayCount]);
 
   // Trigger background prefetch when we're near the end of current data
   useEffect(() => {
@@ -213,35 +228,77 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   );
 
   // Render empty state
-  const renderEmptyState = () => (
-    <Empty
-      icon={
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-          />
-        </svg>
-      }
-      title="No Projects Yet"
-      description="Get started by creating your first construction project. Click the button below to begin."
-      action={
-        showCreateAction ? (
-          <Button onClick={navigateToNewProject}>
-            Create Project
-          </Button>
-        ) : undefined
-      }
-    />
-  );
+  const renderEmptyState = () => {
+    // Check if filters are applied (non-default values)
+    const hasActiveFilters = !isDefaultFilter(appliedFilter);
+    
+    if (hasActiveFilters) {
+      return (
+        <Empty
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              />
+            </svg>
+          }
+          title="No Projects Match Your Filter"
+          description="Try adjusting your filter criteria to see more results."
+          action={
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setAppliedFilter(DEFAULT_FILTER);
+                setPendingFilter(DEFAULT_FILTER);
+                setIsFilterOpen(false);
+              }}
+            >
+              Clear Filters
+            </Button>
+          }
+        />
+      );
+    }
+    
+    return (
+      <Empty
+        icon={
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
+          </svg>
+        }
+        title="No Projects Yet"
+        description="Get started by creating your first construction project. Click the button below to begin."
+        action={
+          showCreateAction ? (
+            <Button onClick={navigateToNewProject}>
+              Create Project
+            </Button>
+          ) : undefined
+        }
+      />
+    );
+  };
 
   // Handle load more
   const handleLoadMore = () => {
@@ -249,9 +306,15 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     setDisplayedCount(newCount);
   };
 
-  // Handle filter apply
+  // Handle filter apply - only applies when "Apply Filters" is clicked
   const handleApplyFilter = (newFilter: ProjectFilter) => {
-    setFilter(newFilter);
+    setAppliedFilter(newFilter);
+    setIsFilterOpen(false);
+  };
+  
+  // Handle filter cancel - reverts to currently applied filter
+  const handleCancelFilter = () => {
+    setPendingFilter(appliedFilter);
     setIsFilterOpen(false);
   };
 
@@ -282,79 +345,89 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               <SheetHeader>
                 <SheetTitle>Filter Projects</SheetTitle>
                 <SheetDescription>
-                  Refine the displayed projects by scope and date range.
+                  Refine the displayed projects by role and creation date range.
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-6 space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Scope</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Show projects where I am...
+                  </label>
                   <div className="space-y-2">
-                    <label className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="scope"
                         value="both"
-                        checked={filter.scope === 'both'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
-                        className="h-4 w-4"
+                        checked={pendingFilter.scope === 'both'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
+                        className="h-4 w-4 cursor-pointer"
+                        aria-label="Show projects where I am builder or owner"
                       />
-                      <span className="text-sm">Both (Builder & Owner)</span>
+                      <span className="text-sm">Builder or Owner</span>
                     </label>
-                    <label className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="scope"
                         value="builder"
-                        checked={filter.scope === 'builder'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
-                        className="h-4 w-4"
+                        checked={pendingFilter.scope === 'builder'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
+                        className="h-4 w-4 cursor-pointer"
+                        aria-label="Show projects where I am builder"
                       />
-                      <span className="text-sm">Builder Only</span>
+                      <span className="text-sm">Builder only</span>
                     </label>
-                    <label className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="scope"
                         value="owner"
-                        checked={filter.scope === 'owner'}
-                        onChange={(e) => setFilter({ ...filter, scope: e.target.value as ProjectFilterScope })}
-                        className="h-4 w-4"
+                        checked={pendingFilter.scope === 'owner'}
+                        onChange={(e) => setPendingFilter({ ...pendingFilter, scope: e.target.value as ProjectFilterScope })}
+                        className="h-4 w-4 cursor-pointer"
+                        aria-label="Show projects where I am owner"
                       />
-                      <span className="text-sm">Owner Only</span>
+                      <span className="text-sm">Owner only</span>
                     </label>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Created After</label>
+                  <label htmlFor="created-after" className="text-sm font-medium mb-2 block">
+                    Created between (start date)
+                  </label>
                   <input
+                    id="created-after"
                     type="date"
-                    value={filter.createdAfter || ''}
-                    onChange={(e) => setFilter({ ...filter, createdAfter: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md"
+                    value={pendingFilter.createdAfter || ''}
+                    onChange={(e) => setPendingFilter({ ...pendingFilter, createdAfter: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+                    aria-label="Filter by created after date"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Created Before</label>
+                  <label htmlFor="created-before" className="text-sm font-medium mb-2 block">
+                    Created between (end date)
+                  </label>
                   <input
+                    id="created-before"
                     type="date"
-                    value={filter.createdBefore || ''}
-                    onChange={(e) => setFilter({ ...filter, createdBefore: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md"
+                    value={pendingFilter.createdBefore || ''}
+                    onChange={(e) => setPendingFilter({ ...pendingFilter, createdBefore: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+                    aria-label="Filter by created before date"
                   />
                 </div>
                 <div className="flex gap-2 pt-4">
-                  <Button onClick={() => handleApplyFilter(filter)} className="flex-1">
-                    Apply
+                  <Button onClick={() => handleApplyFilter(pendingFilter)} className="flex-1">
+                    Apply Filters
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={() => {
-                      setFilter({ scope: 'both' });
-                      setIsFilterOpen(false);
-                    }}
+                    onClick={handleCancelFilter}
                     className="flex-1"
                   >
-                    Reset
+                    Cancel
                   </Button>
                 </div>
               </div>

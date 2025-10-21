@@ -87,28 +87,32 @@ describe('ProjectList', () => {
       expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
     });
 
-    test('displays project ID', () => {
+    test('does not display internal project IDs', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      expect(screen.getByText('#1')).toBeInTheDocument();
-      expect(screen.getByText('#2')).toBeInTheDocument();
-      expect(screen.getByText('#3')).toBeInTheDocument();
+      // Project IDs should not be displayed in the cards
+      expect(screen.queryByText('#1')).not.toBeInTheDocument();
+      expect(screen.queryByText('#2')).not.toBeInTheDocument();
+      expect(screen.queryByText('#3')).not.toBeInTheDocument();
+      expect(screen.queryByText('Project ID:')).not.toBeInTheDocument();
     });
 
     test('displays last updated timestamp', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      // Should have "Updated" text for each project
-      const updatedTexts = screen.getAllByText(/Updated/);
+      // Should have "Updated:" text in CardContent for each project
+      // Format is "Updated: {date} • Created: {date}"
+      const updatedTexts = screen.getAllByText(/Updated:/);
       expect(updatedTexts).toHaveLength(3);
     });
 
     test('displays created timestamp', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      // Should have "Created:" label for each project
-      const createdLabels = screen.getAllByText('Created:');
-      expect(createdLabels).toHaveLength(3);
+      // Should have "Created:" text in CardContent for each project as part of the combined string
+      // Format is "Updated: {date} • Created: {date}"
+      const createdTexts = screen.getAllByText(/Created:/);
+      expect(createdTexts).toHaveLength(3);
     });
 
     test('formats location with unit number when present', () => {
@@ -250,15 +254,17 @@ describe('ProjectList', () => {
       
       render(<ProjectList projects={[recentProject]} />);
       
-      // Should display "Today" for last updated
-      expect(screen.getByText(/Today/)).toBeInTheDocument();
+      // Should display "Today" in CardContent only
+      const todayTexts = screen.getAllByText(/Today/);
+      expect(todayTexts.length).toBeGreaterThanOrEqual(1);
     });
 
     test('handles multiple projects with different dates', () => {
       render(<ProjectList projects={mockProjects} />);
       
-      // Each project should have its own date display
-      const updatedTexts = screen.getAllByText(/Updated/);
+      // Each project displays dates in CardContent only
+      // 3 projects * 1 instance = 3 total
+      const updatedTexts = screen.getAllByText(/Updated:/);
       expect(updatedTexts).toHaveLength(3);
     });
   });
