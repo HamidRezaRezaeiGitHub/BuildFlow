@@ -6,11 +6,11 @@ import {
     generateMockCreateProjectResponse,
     mockProjects,
 } from './MockProjects';
-import type { ProjectDto, ProjectLocationRequestDto } from '../services/dtos';
+import type { Project, ProjectLocationRequest } from '../services/dtos';
 
 describe('MockProjects', () => {
     // Store the original mockProjects array before each test
-    let originalProjects: ProjectDto[];
+    let originalProjects: Project[];
 
     beforeEach(() => {
         // Save the original projects
@@ -153,7 +153,7 @@ describe('MockProjects', () => {
     describe('createMockProject', () => {
         test('MockProjects_shouldCreateNewProject_whenValidDataProvided', () => {
             const initialLength = mockProjects.length;
-            const locationRequest: ProjectLocationRequestDto = {
+            const locationRequest: ProjectLocationRequest = {
                 unitNumber: '101',
                 streetNumberAndName: '123 Test Street',
                 city: 'TestCity',
@@ -174,7 +174,7 @@ describe('MockProjects', () => {
         });
 
         test('MockProjects_shouldHandleOptionalFields_whenCreatingProject', () => {
-            const locationRequest: ProjectLocationRequestDto = {
+            const locationRequest: ProjectLocationRequest = {
                 streetNumberAndName: '456 Another Street',
                 city: 'AnotherCity',
                 stateOrProvince: 'ON',
@@ -189,7 +189,7 @@ describe('MockProjects', () => {
 
         test('MockProjects_shouldIncrementId_whenMultipleProjectsCreated', () => {
             const initialLength = mockProjects.length;
-            const locationRequest: ProjectLocationRequestDto = {
+            const locationRequest: ProjectLocationRequest = {
                 streetNumberAndName: 'Sequential Street',
                 city: 'SequentialCity',
                 stateOrProvince: 'AB',
@@ -215,7 +215,7 @@ describe('MockProjects', () => {
         });
 
         test('MockProjects_shouldGenerateResponse_forNewlyCreatedProject', () => {
-            const locationRequest: ProjectLocationRequestDto = {
+            const locationRequest: ProjectLocationRequest = {
                 streetNumberAndName: 'Response Test Street',
                 city: 'ResponseCity',
                 stateOrProvince: 'QC',
@@ -235,7 +235,7 @@ describe('MockProjects', () => {
             const initialCount = mockProjects.length;
             
             // Create a project
-            const locationRequest: ProjectLocationRequestDto = {
+            const locationRequest: ProjectLocationRequest = {
                 streetNumberAndName: 'Integrity Test Street',
                 city: 'IntegrityCity',
                 stateOrProvince: 'BC',

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
-import { ProjectDto, PagedResponse, PaginationParams } from '@/services/dtos';
+import { Project, PagedResponse, PaginationParams } from '@/services/dtos';
 import { DashboardSection } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -99,9 +99,9 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 }) => {
   const { user, token } = useAuth();
   const { navigateToNewProject } = useNavigate();
-  const [allFetchedProjects, setAllFetchedProjects] = useState<ProjectDto[]>([]);
+  const [allFetchedProjects, setAllFetchedProjects] = useState<Project[]>([]);
   const [displayedCount, setDisplayedCount] = useState(initialDisplayCount);
-  const [pagination, setPagination] = useState<PagedResponse<ProjectDto>['pagination'] | null>(null);
+  const [pagination, setPagination] = useState<PagedResponse<Project>['pagination'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingMore] = useState(false);
@@ -123,7 +123,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 
     try {
       const projectService = new ProjectServiceWithAuth(() => token);
-      let response: PagedResponse<ProjectDto>;
+      let response: PagedResponse<Project>;
 
       // Determine which projects to fetch based on filter scope or legacy filterByRole
       const effectiveScope = filterByRole || appliedFilter.scope;

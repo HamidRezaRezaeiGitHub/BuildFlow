@@ -1,6 +1,6 @@
 import { apiService } from './ApiService';
 import { projectService, ProjectServiceWithAuth } from './ProjectService';
-import { CreateProjectRequest, CreateProjectResponse, ProjectDto } from './dtos';
+import { CreateProjectRequest, CreateProjectResponse, Project } from './dtos';
 
 // Mock the config module to disable mock data in tests
 jest.mock('@/config/environment', () => ({
@@ -38,7 +38,7 @@ describe('ProjectService', () => {
         },
     };
 
-    const mockProjectDto: ProjectDto = {
+    const mockProject: Project = {
         id: mockProjectId,
         builderId: mockUserId,
         ownerId: 'owner-id',
@@ -56,7 +56,7 @@ describe('ProjectService', () => {
     };
 
     const mockCreateResponse: CreateProjectResponse = {
-        projectDto: mockProjectDto,
+        projectDto: mockProject,
     };
 
     beforeEach(() => {
@@ -95,7 +95,7 @@ describe('ProjectService', () => {
 
     describe('getProjectsByBuilderId', () => {
         test('ProjectService_shouldGetProjects_whenValidBuilderIdProvided', async () => {
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -121,7 +121,7 @@ describe('ProjectService', () => {
 
         test('ProjectService_shouldEncodeSpecialCharacters_inBuilderId', async () => {
             const builderIdWithSpecialChars = 'builder@123';
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -148,7 +148,7 @@ describe('ProjectService', () => {
     describe('getProjectsByOwnerId', () => {
         test('ProjectService_shouldGetProjects_whenValidOwnerIdProvided', async () => {
             const mockOwnerId = 'owner-id-123';
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -174,7 +174,7 @@ describe('ProjectService', () => {
 
         test('ProjectService_shouldEncodeSpecialCharacters_inOwnerId', async () => {
             const ownerIdWithSpecialChars = 'owner/456';
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -234,7 +234,7 @@ describe('ProjectService', () => {
 
         test('ProjectServiceWithAuth_shouldUseTokenFromContext_whenGettingProjectsByBuilderId', async () => {
             getToken.mockReturnValue(mockToken);
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -261,7 +261,7 @@ describe('ProjectService', () => {
 
         test('ProjectServiceWithAuth_shouldUseTokenFromContext_whenGettingProjectsByOwnerId', async () => {
             getToken.mockReturnValue(mockToken);
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -289,7 +289,7 @@ describe('ProjectService', () => {
 
     describe('getProjectsByBuilderIdPaginated', () => {
         test('ProjectService_shouldGetPaginatedProjects_withDefaultParams', async () => {
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -324,7 +324,7 @@ describe('ProjectService', () => {
         });
 
         test('ProjectService_shouldGetPaginatedProjects_withCustomParams', async () => {
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '1',
                 'X-Size': '10',
@@ -373,7 +373,7 @@ describe('ProjectService', () => {
     describe('getProjectsByOwnerIdPaginated', () => {
         test('ProjectService_shouldGetPaginatedProjects_withDefaultParams', async () => {
             const mockOwnerId = 'owner-id-123';
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '0',
                 'X-Size': '25',
@@ -409,7 +409,7 @@ describe('ProjectService', () => {
 
         test('ProjectService_shouldGetPaginatedProjects_withCustomParams', async () => {
             const mockOwnerId = 'owner-id-123';
-            const mockProjects: ProjectDto[] = [mockProjectDto];
+            const mockProjects: Project[] = [mockProject];
             const mockHeaders = new Headers({
                 'X-Page': '2',
                 'X-Size': '15',

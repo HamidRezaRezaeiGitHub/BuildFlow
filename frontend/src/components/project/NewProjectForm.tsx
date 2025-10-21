@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { AddressData, CreateProjectRequest, ProjectLocationRequestDto } from '@/services/dtos';
+import { AddressData, CreateProjectRequest, ProjectLocationRequest } from '@/services/dtos';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
 import { AddressFieldConfig, createEmptyAddress, FlexibleAddressForm } from '../address';
@@ -141,7 +141,7 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
     }
 
     // Create project request
-    const locationRequest: ProjectLocationRequestDto = {
+    const locationRequest: ProjectLocationRequest = {
       unitNumber: formData.projectLocation.unitNumber,
       streetNumberAndName: formData.projectLocation.streetNumberAndName,
       city: formData.projectLocation.city,

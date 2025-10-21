@@ -6,6 +6,82 @@ This directory contains TypeScript interfaces and types that define the data str
 
 The DTOs directory provides type-safe data structures that match the backend API's request and response formats. These interfaces ensure type safety throughout the application and provide clear contracts for API communication. All DTOs mirror the backend's Spring Boot entity and DTO structures.
 
+## DTO Naming Convention and Aliasing
+
+**Critical Pattern:** DTOs are defined with their full backend names (including `Dto` suffix) in their respective files to maintain alignment with backend structures, but are **re-exported with alias names** through the central `index.ts` to provide a clean, domain-centric API for frontend consumers.
+
+### Why This Pattern?
+
+1. **Backend Alignment:** DTO files maintain exact naming from backend for clarity and traceability
+2. **Frontend Ergonomics:** Consumer code uses clean, domain-focused names without implementation details
+3. **Consistency:** All DTOs follow the same pattern across User, Contact, Project, and other domains
+4. **IDE Support:** Auto-imports default to clean alias names, improving developer experience
+
+### Aliasing Rules
+
+**Suffix Removal:**
+- `ProjectDto` → `Project`
+- `ProjectLocationDto` → `ProjectLocation`  
+- `ProjectLocationRequestDto` → `ProjectLocationRequest`
+- `UserDto` → `User`
+- `ContactDto` → `Contact`
+
+**Request/Response Types:**
+- `CreateProjectRequest` (no suffix, already clean)
+- `CreateProjectResponse` (no suffix, already clean)
+
+### Example: Project DTOs
+
+**In ProjectDtos.ts (internal definition):**
+```typescript
+export interface ProjectDto {
+  id: string;
+  builderId: string;
+  ownerId: string;
+  location: ProjectLocationDto;
+  createdAt: string;
+  lastUpdatedAt: string;
+}
+
+export interface ProjectLocationDto extends BaseAddressDto {
+  id: string;
+}
+
+export interface ProjectLocationRequestDto extends BaseAddressDto {
+  // No additional fields
+}
+```
+
+**In index.ts (consumer-facing exports):**
+```typescript
+export type {
+  CreateProjectRequest,
+  CreateProjectResponse,
+  ProjectDto as Project,
+  ProjectLocationDto as ProjectLocation,
+  ProjectLocationRequestDto as ProjectLocationRequest
+} from './ProjectDtos';
+```
+
+**In consumer code:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { Project, ProjectLocation, CreateProjectRequest } from '@/services/dtos';
+
+const project: Project = { /* ... */ };
+const location: ProjectLocation = project.location;
+
+// ❌ Incorrect - don't import from ProjectDtos directly
+import { ProjectDto } from '@/services/dtos/ProjectDtos';
+```
+
+### Benefits
+
+1. **Clean consumer code:** Components don't leak backend naming conventions
+2. **Consistent with existing patterns:** User and Contact DTOs already follow this pattern
+3. **Improved readability:** `Project` is clearer than `ProjectDto` in UI layer
+4. **Better auto-completion:** IDEs suggest `Project` instead of `ProjectDto`
+
 ## Files Structure
 
 ```
@@ -197,74 +273,90 @@ await adminService.updateUser('123', updates);
 ### ProjectDtos.ts
 **Purpose:** Project creation, display, and management data structures.
 
-**Interfaces:**
+**Note:** Following the DTO aliasing pattern, consumers use `Project`, `ProjectLocation`, and `ProjectLocationRequest` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
 ```typescript
-// Location/Address for projects
-export interface LocationDto {
-  id?: string;
-  streetNumberName: string;
-  city: string;
-  stateProvince: string;
-  postalCode: string;
-  country: string;
+// Project location request DTO (extends BaseAddressDto)
+export interface ProjectLocationRequestDto extends BaseAddressDto {
+  // Inherits all address fields from BaseAddressDto
 }
 
-// Project data
-export interface Project {
+// Project location DTO with ID (for responses)
+export interface ProjectLocationDto extends BaseAddressDto {
   id: string;
-  name: string;
-  description?: string;
+}
+
+// Project DTO
+export interface ProjectDto {
+  id: string;
   builderId: string;
   ownerId: string;
-  locationDto: LocationDto;
-  createdAt?: string;
-  updatedAt?: string;
-  status?: 'ACTIVE' | 'COMPLETED' | 'ON_HOLD';
+  location: ProjectLocationDto;
+  createdAt: string;
+  lastUpdatedAt: string;
 }
 
 // Create project request
-export interface CreateProjectRequestDto {
-  name: string;
-  description?: string;
-  builderId: string;
-  ownerId: string;
-  locationRequestDto: LocationRequestDto;
+export interface CreateProjectRequest {
+  userId: string;
+  isBuilder: boolean;
+  locationRequestDto: ProjectLocationRequestDto;
 }
 
 // Create project response
-export interface CreateProjectResponseDto {
-  projectId: string;
-  message: string;
+export interface CreateProjectResponse {
+  projectDto: ProjectDto;
 }
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  CreateProjectRequest,           // No alias (clean name)
+  CreateProjectResponse,           // No alias (clean name)
+  ProjectDto as Project,          // ✅ Use 'Project' in consumer code
+  ProjectLocationDto as ProjectLocation,  // ✅ Use 'ProjectLocation' in consumer code
+  ProjectLocationRequestDto as ProjectLocationRequest  // ✅ Use 'ProjectLocationRequest' in consumer code
+} from './ProjectDtos';
 ```
 
 **Usage:**
 ```typescript
+// ✅ Correct - use aliased names from index.ts
 import { 
-  Project, 
-  CreateProjectRequestDto, 
-  CreateProjectResponseDto 
+  Project,  // Not ProjectDto
+  ProjectLocation,  // Not ProjectLocationDto
+  ProjectLocationRequest,  // Not ProjectLocationRequestDto
+  CreateProjectRequest, 
+  CreateProjectResponse 
 } from '@/services/dtos';
 
-// Create project
-const request: CreateProjectRequestDto = {
-  name: 'Downtown Office Building',
-  description: 'New commercial construction project',
-  builderId: '1',
-  ownerId: '2',
-  locationRequestDto: {
-    streetNumberName: '456 Business Ave',
-    city: 'Toronto',
-    stateProvince: 'ON',
-    postalCode: 'M5H 2N2',
-    country: 'Canada'
-  }
+// Create project request
+const locationRequest: ProjectLocationRequest = {
+  unitNumber: '301',
+  streetNumberAndName: '456 Business Ave',
+  city: 'Toronto',
+  stateOrProvince: 'ON',
+  postalOrZipCode: 'M5H 2N2',
+  country: 'Canada'
 };
 
-const response: CreateProjectResponseDto = 
-  await ProjectService.createProject(request);
+const request: CreateProjectRequest = {
+  userId: '123',
+  isBuilder: true,
+  locationRequestDto: locationRequest
+};
 
-console.log(`Created project: ${response.projectId}`);
+const response: CreateProjectResponse = 
+  await projectService.createProject(request, token);
+
+// Access the created project
+const project: Project = response.projectDto;
+const location: ProjectLocation = project.location;
+
+console.log(`Created project at: ${location.city}, ${location.stateOrProvince}`);
 ```
 
 ### MvcDtos.ts
@@ -379,9 +471,17 @@ console.log(`Projects on this page: ${response.content.length}`);
 ## DTO Conventions
 
 ### Naming Conventions
-- **Request DTOs**: Suffix with `RequestDto` (e.g., `CreateProjectRequestDto`)
-- **Response DTOs**: Suffix with `ResponseDto` or use domain name (e.g., `User`, `Project`)
+
+**Internal DTO Files (e.g., ProjectDtos.ts, UserDtos.ts):**
+- **Domain DTOs**: Include `Dto` suffix to mirror backend (e.g., `ProjectDto`, `UserDto`, `ContactDto`)
+- **Request DTOs**: Clean names without suffix (e.g., `CreateProjectRequest`, `ContactRequest`)
+- **Response DTOs**: Clean names without suffix (e.g., `CreateProjectResponse`)
 - **Data DTOs**: Suffix with `Data` for frontend-specific structures (e.g., `AddressData`)
+
+**Consumer-Facing Exports (index.ts):**
+- **Domain DTOs**: Exported with alias removing `Dto` suffix (e.g., `Project`, `User`, `Contact`)
+- **Request/Response DTOs**: Exported as-is (already have clean names)
+- **Result:** All consumer code uses clean, domain-centric names without implementation details
 
 ### Optional vs Required Fields
 - Use `?` for optional fields: `description?: string`

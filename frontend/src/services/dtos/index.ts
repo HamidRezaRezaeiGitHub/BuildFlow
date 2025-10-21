@@ -37,9 +37,9 @@ export type {
 export type {
     CreateProjectRequest,
     CreateProjectResponse,
-    ProjectDto,
-    ProjectLocationRequestDto,
-    ProjectLocationDto
+    ProjectDto as Project,
+    ProjectLocationRequestDto as ProjectLocationRequest,
+    ProjectLocationDto as ProjectLocation
 } from './ProjectDtos';
 
 export type {
