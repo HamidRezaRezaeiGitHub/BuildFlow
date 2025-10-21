@@ -64,40 +64,41 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Extract fetch logic into a reusable function
+  const fetchProjects = async () => {
+    if (!user || !token) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const projectService = new ProjectServiceWithAuth(() => token);
+      let response: PagedResponse<ProjectDto>;
+
+      // Determine which projects to fetch based on user role or filter
+      if (filterByRole === 'builder') {
+        response = await projectService.getProjectsByBuilderIdPaginated(user.id, paginationParams);
+      } else if (filterByRole === 'owner') {
+        response = await projectService.getProjectsByOwnerIdPaginated(user.id, paginationParams);
+      } else {
+        // Default: fetch projects where user is the builder
+        response = await projectService.getProjectsByBuilderIdPaginated(user.id, paginationParams);
+      }
+
+      setProjects(response.content);
+      setPagination(response.pagination);
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+      setError('Failed to load projects. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (!user || !token) {
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const projectService = new ProjectServiceWithAuth(() => token);
-        let response: PagedResponse<ProjectDto>;
-
-        // Determine which projects to fetch based on user role or filter
-        if (filterByRole === 'builder') {
-          response = await projectService.getProjectsByBuilderIdPaginated(user.id, paginationParams);
-        } else if (filterByRole === 'owner') {
-          response = await projectService.getProjectsByOwnerIdPaginated(user.id, paginationParams);
-        } else {
-          // Default: fetch projects where user is the builder
-          response = await projectService.getProjectsByBuilderIdPaginated(user.id, paginationParams);
-        }
-
-        setProjects(response.content);
-        setPagination(response.pagination);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
-        setError('Failed to load projects. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchProjects();
   }, [user, token, filterByRole, paginationParams?.page, paginationParams?.size]);
 
@@ -125,7 +126,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       title="Error Loading Projects"
       description={error || 'An unexpected error occurred.'}
       action={
-        <Button onClick={() => window.location.reload()}>
+        <Button onClick={fetchProjects}>
           Retry
         </Button>
       }

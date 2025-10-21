@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { ProjectsSection } from './ProjectsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
@@ -296,6 +296,41 @@ describe('ProjectsSection', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Retry')).toBeInTheDocument();
+      });
+    });
+
+    test('retry button refetches data without page reload', async () => {
+      const mockGetProjectsByBuilderIdPaginated = jest.fn()
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce(mockPagedResponse);
+      
+      MockedProjectServiceWithAuth.mockImplementation(() => ({
+        getProjectsByBuilderIdPaginated: mockGetProjectsByBuilderIdPaginated,
+        getProjectsByOwnerIdPaginated: jest.fn(),
+        createProject: jest.fn(),
+        getProjectsByBuilderId: jest.fn(),
+        getProjectsByOwnerId: jest.fn(),
+      }) as any);
+
+      render(<ProjectsSection />);
+
+      // Wait for error state
+      await waitFor(() => {
+        expect(screen.getByText('Error Loading Projects')).toBeInTheDocument();
+      });
+
+      // Click retry button
+      const retryButton = screen.getByText('Retry');
+      fireEvent.click(retryButton);
+
+      // Verify the function was called twice (initial + retry)
+      await waitFor(() => {
+        expect(mockGetProjectsByBuilderIdPaginated).toHaveBeenCalledTimes(2);
+      });
+
+      // Verify projects are now displayed
+      await waitFor(() => {
+        expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
       });
     });
   });
