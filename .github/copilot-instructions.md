@@ -60,45 +60,10 @@ BuildFlow-0.0.1-SNAPSHOT.jar
     └── API integration
 ```
 
-### Backend Folder Structure
-```
-src/main/java/dev/hr/rezaei/buildflow/
-├── BuildFlowApplication.java    # Main Spring Boot application
-├── base/                        # Base entities and utilities
-├── config/                      # Configuration classes
-│   ├── security/               # Security configuration
-│   └── mvc/                    # MVC and frontend integration
-├── estimate/                   # Estimate domain (entities, services, controllers)
-├── project/                    # Project domain (entities, services, controllers)
-├── quote/                      # Quote domain (entities, services, controllers)
-├── user/                       # User domain (entities, services, controllers)
-├── util/                       # Utility classes
-└── workitem/                   # Work item domain
+### Repository Overview & Source of Truth
 
-src/main/resources/
-├── application.yml             # Application configuration
-├── static/                     # Frontend build files (auto-generated)
-└── logback.xml                # Logging configuration
-```
-
-### Frontend Folder Structure
-```
-frontend/src/
-├── components/
-│   ├── home/                   # Landing page components (Hero, Features, etc.)
-│   ├── ui/                     # Reusable UI components (Button, Card, etc.)
-│   ├── theme/                  # Theme system components
-│   ├── address/                # Address-related components
-│   ├── project/                # Project-specific components
-│   └── admin/                  # Admin panel components
-├── pages/                      # Route components (HomePage, DashboardPage, etc.)
-├── contexts/                   # React Context providers (Auth, Theme, etc.)
-├── services/                   # API services (AuthService, ApiService, etc.)
-│   ├── dtos/                   # Data Transfer Objects for API communication - Matching backend
-├── utils/                      # Utility functions (validation, formatting)
-├── mocks/                      # Mock data
-└── test/                       # Testing utilities and setup
-```
+Before starting any new session, always review the root README.md file.
+The root README is the single source of truth for the repository’s folder structure, file organization, and build instructions.
 
 ### General Configuration Summary
 - **Vite**: Development server on port 3000, builds to `dist/` directory, supports path aliases (`@/`)
@@ -212,6 +177,7 @@ After frontend changes:
 3. **Test Suite**: `npm test` (Jest with jsdom environment)
 4. **Build Test**: `npm run build` (Vite build to dist/)
 5. **Dev Server**: `npm run dev` (verify localhost:3000 works)
+6. **Screenshots**: if changes are for a pull-request, include screenshots of the changed views in a mobile-width screen in the pr description, unless specified otherwise by the user.
 
 ### Full-Stack Integration Testing
 *Execute when both backend and frontend changes exist*
@@ -219,14 +185,15 @@ After frontend changes:
 #### Complete Validation Process
 1. **Frontend Build**: `cd frontend && npm run build`
 2. **Backend Package**: `./mvnw clean package` (includes frontend assets)
-3. **Integration Verify**: Look for log message:
-   ```
-   [INFO] Copying 4 resources from frontend/dist to target/classes/static
-   ```
-4. **Application Test**: `java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar`
-5. **End-to-End Verify**: Full application accessible at http://localhost:8080
+3. **Application Test**: `java -jar target/BuildFlow-0.0.1-SNAPSHOT.jar`
 
 ## 7. Development Guidelines
+
+After completing any prompt or implementing a change:
+
+1. If new files or folders were created, update the “Files Structure” section in the root README.md to include them.
+2. If a new folder contains multiple files, create or update a local README.md in that folder describing its contents.
+3. Keep updates concise, using the same formatting style as the rest of the README.
 
 ### Backend Development Standards
 
