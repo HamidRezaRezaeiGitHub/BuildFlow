@@ -99,7 +99,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     };
 
     fetchProjects();
-  }, [user, token, filterByRole, paginationParams]);
+  }, [user, token, filterByRole, paginationParams?.page, paginationParams?.size]);
 
   // Render loading state
   const renderLoadingState = () => (
