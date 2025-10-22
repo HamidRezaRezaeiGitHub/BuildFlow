@@ -153,14 +153,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username: userSummary.username,
         email: userSummary.email,
         registered: true, // Authenticated users are registered
-        contactDto: {
+        contact: {
           id: '',
           firstName: '',
           lastName: '',
           labels: [],
           email: userSummary.email,
           phone: '',
-          addressDto: {
+          address: {
             id: '',
             unitNumber: '',
             streetNumberAndName: '',

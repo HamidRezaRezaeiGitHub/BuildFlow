@@ -21,14 +21,14 @@ describe('ProjectsSection', () => {
     username: 'testuser',
     email: 'test@example.com',
     registered: true,
-    contactDto: {
+    contact: {
       id: '1',
       firstName: 'Test',
       lastName: 'User',
       labels: [],
       email: 'test@example.com',
       phone: '',
-      addressDto: {
+      address: {
         id: '1',
         unitNumber: '',
         streetNumberAndName: '',

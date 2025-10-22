@@ -75,8 +75,9 @@ export type CreateWorkItemRequest = {
 /**
  * Response DTO containing the created work item information
  * Matches backend CreateWorkItemResponse structure
+ * Note: Backend serializes workItemDto as "workItem" in JSON
  */
 export type CreateWorkItemResponse = {
   /** The created work item details */
-  workItemDto: WorkItemDto;
+  workItem: WorkItemDto;
 };

@@ -68,6 +68,7 @@ export type QuoteLocationDto = BaseAddressDto & {
  * Quote DTO for representing quote information
  * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
  * Matches backend QuoteDto structure
+ * Note: Backend serializes locationDto as "location" in JSON
  */
 export type QuoteDto = UpdatableEntityDto & {
   /** Unique identifier for the quote */
@@ -95,7 +96,7 @@ export type QuoteDto = UpdatableEntityDto & {
   quoteDomain: QuoteDomain;
   
   /** Location information for the quote */
-  locationDto: QuoteLocationDto;
+  location: QuoteLocationDto;
   
   /** Whether the quote is valid */
   valid: boolean;

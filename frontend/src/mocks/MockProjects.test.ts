@@ -210,8 +210,8 @@ describe('MockProjects', () => {
             const project = mockProjects[0];
             const response = generateMockCreateProjectResponse(project);
 
-            expect(response).toHaveProperty('projectDto');
-            expect(response.projectDto).toEqual(project);
+            expect(response).toHaveProperty('project');
+            expect(response.project).toEqual(project);
         });
 
         test('MockProjects_shouldGenerateResponse_forNewlyCreatedProject', () => {
@@ -225,8 +225,8 @@ describe('MockProjects', () => {
             const newProject = createMockProject('1', '2', locationRequest);
             const response = generateMockCreateProjectResponse(newProject);
 
-            expect(response.projectDto.id).toBe(newProject.id);
-            expect(response.projectDto.location.streetNumberAndName).toBe('Response Test Street');
+            expect(response.project.id).toBe(newProject.id);
+            expect(response.project.location.streetNumberAndName).toBe('Response Test Street');
         });
     });
 

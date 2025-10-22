@@ -56,7 +56,7 @@ describe('ProjectService', () => {
     };
 
     const mockCreateResponse: CreateProjectResponse = {
-        projectDto: mockProject,
+        project: mockProject,
     };
 
     beforeEach(() => {

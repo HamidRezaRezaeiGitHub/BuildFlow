@@ -43,6 +43,7 @@ export type EstimateLineDto = UpdatableEntityDto & {
 /**
  * Estimate group DTO for grouping line items
  * Matches backend EstimateGroupDto structure
+ * Note: Backend serializes estimateLineDtos as "estimateLines" in JSON
  */
 export type EstimateGroupDto = {
   /** Unique identifier for the estimate group */
@@ -58,13 +59,14 @@ export type EstimateGroupDto = {
   description?: string;
   
   /** Set of estimate line items in this group */
-  estimateLineDtos: EstimateLineDto[];
+  estimateLines: EstimateLineDto[];
 };
 
 /**
  * Estimate DTO for project cost estimates
  * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
  * Matches backend EstimateDto structure
+ * Note: Backend serializes groupDtos as "groups" in JSON
  */
 export type EstimateDto = UpdatableEntityDto & {
   /** Unique identifier for the estimate */
@@ -77,5 +79,5 @@ export type EstimateDto = UpdatableEntityDto & {
   overallMultiplier: number;
   
   /** Set of estimate groups in this estimate */
-  groupDtos: EstimateGroupDto[];
+  groups: EstimateGroupDto[];
 };

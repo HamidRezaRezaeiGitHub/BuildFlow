@@ -11,14 +11,14 @@ export const mockUsers: User[] = [
         username: 'admin',
         email: 'admin@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '1',
             firstName: 'Alexandre',
             lastName: 'Dubois',
             labels: ['Administrator'],
             email: 'admin@buildflow.com',
             phone: '+1-604-555-0100',
-            addressDto: {
+            address: {
                 id: '1',
                 streetNumberAndName: '1250 Granville Street',
                 city: 'Vancouver',
@@ -33,14 +33,14 @@ export const mockUsers: User[] = [
         username: 'testuser',
         email: 'test@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '2',
             firstName: 'Sarah',
             lastName: 'MacDonald',
             labels: ['Builder'],
             email: 'test@buildflow.com',
             phone: '+1-416-555-0200',
-            addressDto: {
+            address: {
                 id: '2',
                 streetNumberAndName: '789 King Street West',
                 city: 'Toronto',
@@ -55,14 +55,14 @@ export const mockUsers: User[] = [
         username: 'builder1',
         email: 'builder1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '3',
             firstName: 'Michael',
             lastName: 'Chen',
             labels: ['Builder'],
             email: 'builder1@buildflow.com',
             phone: '+1-403-555-0300',
-            addressDto: {
+            address: {
                 id: '3',
                 streetNumberAndName: '456 Centre Street',
                 city: 'Calgary',
@@ -77,14 +77,14 @@ export const mockUsers: User[] = [
         username: 'owner1',
         email: 'owner1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '4',
             firstName: 'Jennifer',
             lastName: 'Martin',
             labels: ['Owner'],
             email: 'owner1@buildflow.com',
             phone: '+1-514-555-0400',
-            addressDto: {
+            address: {
                 id: '4',
                 streetNumberAndName: '890 Rue Saint-Jacques',
                 city: 'Montreal',
@@ -99,14 +99,14 @@ export const mockUsers: User[] = [
         username: 'contractor1',
         email: 'contractor1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '5',
             firstName: 'David',
             lastName: 'Thompson',
             labels: ['Builder', 'Subcontractor'],
             email: 'contractor1@buildflow.com',
             phone: '+1-613-555-0500',
-            addressDto: {
+            address: {
                 id: '5',
                 streetNumberAndName: '234 Wellington Street',
                 city: 'Ottawa',
@@ -121,14 +121,14 @@ export const mockUsers: User[] = [
         username: 'designer1',
         email: 'designer1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '6',
             firstName: 'Emily',
             lastName: 'Rodriguez',
             labels: ['Other'],
             email: 'designer1@buildflow.com',
             phone: '+1-604-555-0600',
-            addressDto: {
+            address: {
                 id: '6',
                 streetNumberAndName: '567 Robson Street',
                 city: 'Vancouver',
@@ -143,14 +143,14 @@ export const mockUsers: User[] = [
         username: 'supplier1',
         email: 'supplier1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '7',
             firstName: 'Robert',
             lastName: 'Wilson',
             labels: ['Supplier'],
             email: 'supplier1@buildflow.com',
             phone: '+1-416-555-0700',
-            addressDto: {
+            address: {
                 id: '7',
                 streetNumberAndName: '321 Queen Street East',
                 city: 'Toronto',
@@ -165,14 +165,14 @@ export const mockUsers: User[] = [
         username: 'inspector1',
         email: 'inspector1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '8',
             firstName: 'Patricia',
             lastName: 'Lee',
             labels: ['Other'],
             email: 'inspector1@buildflow.com',
             phone: '+1-403-555-0800',
-            addressDto: {
+            address: {
                 id: '8',
                 streetNumberAndName: '789 8th Avenue SW',
                 city: 'Calgary',
@@ -187,14 +187,14 @@ export const mockUsers: User[] = [
         username: 'architect1',
         email: 'architect1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '9',
             firstName: 'James',
             lastName: 'Anderson',
             labels: ['Other'],
             email: 'architect1@buildflow.com',
             phone: '+1-514-555-0900',
-            addressDto: {
+            address: {
                 id: '9',
                 streetNumberAndName: '456 Boulevard Saint-Laurent',
                 city: 'Montreal',
@@ -209,14 +209,14 @@ export const mockUsers: User[] = [
         username: 'lender1',
         email: 'lender1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '10',
             firstName: 'Lisa',
             lastName: 'Tremblay',
             labels: ['Lender'],
             email: 'lender1@buildflow.com',
             phone: '+1-613-555-1000',
-            addressDto: {
+            address: {
                 id: '10',
                 streetNumberAndName: '123 Bank Street',
                 city: 'Ottawa',
@@ -231,14 +231,14 @@ export const mockUsers: User[] = [
         username: 'manager1',
         email: 'manager1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '11',
             firstName: 'William',
             lastName: 'Brown',
             labels: ['Builder'],
             email: 'manager1@buildflow.com',
             phone: '+1-604-555-1100',
-            addressDto: {
+            address: {
                 id: '11',
                 streetNumberAndName: '890 Hastings Street',
                 city: 'Vancouver',
@@ -253,14 +253,14 @@ export const mockUsers: User[] = [
         username: 'consultant1',
         email: 'consultant1@buildflow.com',
         registered: true,
-        contactDto: {
+        contact: {
             id: '12',
             firstName: 'Amanda',
             lastName: 'Patel',
             labels: ['Other'],
             email: 'consultant1@buildflow.com',
             phone: '+1-416-555-1200',
-            addressDto: {
+            address: {
                 id: '12',
                 streetNumberAndName: '234 Bay Street',
                 city: 'Toronto',
@@ -403,7 +403,7 @@ export function generateMockAuthResponse(userOrSummary: User | UserSummary): Aut
  */
 export function generateMockCreateUserResponse(user: User): CreateUserResponse {
     return {
-        userDto: user,
+        user: user,
     };
 }
 
@@ -492,14 +492,14 @@ export function createMockUser(contactRequestDto: ContactRequest, username: stri
         username,
         email: contactRequestDto.email,
         registered: true,
-        contactDto: {
+        contact: {
             id: String(mockUsers.length + 1),
             firstName: contactRequestDto.firstName,
             lastName: contactRequestDto.lastName,
             labels: contactRequestDto.labels,
             email: contactRequestDto.email,
             phone: contactRequestDto.phone || '',
-            addressDto: contactRequestDto.addressRequestDto ? {
+            address: contactRequestDto.addressRequestDto ? {
                 id: String(mockUsers.length + 1),
                 streetNumberAndName: contactRequestDto.addressRequestDto.streetNumberAndName || '',
                 city: contactRequestDto.addressRequestDto.city || '',

@@ -42,7 +42,7 @@ export const NewProject: React.FC = () => {
       console.log('Project created successfully:', response);
       
       // Show success message
-      setSuccessMessage(`Project created successfully! Project ID: ${response.projectDto.id}`);
+      setSuccessMessage(`Project created successfully! Project ID: ${response.project.id}`);
       
       // Navigate to projects list after a brief delay to show success message
       setTimeout(() => {

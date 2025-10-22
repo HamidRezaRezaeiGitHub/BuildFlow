@@ -445,17 +445,17 @@ const UserSection: React.FC = () => {
                                 <ConfigItem label="Registered" value={user.registered ? 'Yes' : 'No'} />
                             </div>
 
-                            {user.contactDto && (
+                            {user.contact && (
                                 <>
                                     <div className="text-xs font-semibold text-orange-700 uppercase tracking-wider mt-4">
                                         Contact Information
                                     </div>
                                     <div className="grid grid-cols-1 gap-2 text-xs">
-                                        <ConfigItem label="First Name" value={user.contactDto.firstName || 'N/A'} />
-                                        <ConfigItem label="Last Name" value={user.contactDto.lastName || 'N/A'} />
-                                        <ConfigItem label="Contact Email" value={user.contactDto.email || 'N/A'} />
-                                        <ConfigItem label="Phone" value={user.contactDto.phone || 'N/A'} />
-                                        <ConfigItem label="Labels" value={user.contactDto.labels?.join(', ') || 'None'} />
+                                        <ConfigItem label="First Name" value={user.contact.firstName || 'N/A'} />
+                                        <ConfigItem label="Last Name" value={user.contact.lastName || 'N/A'} />
+                                        <ConfigItem label="Contact Email" value={user.contact.email || 'N/A'} />
+                                        <ConfigItem label="Phone" value={user.contact.phone || 'N/A'} />
+                                        <ConfigItem label="Labels" value={user.contact.labels?.join(', ') || 'None'} />
                                     </div>
                                 </>
                             )}

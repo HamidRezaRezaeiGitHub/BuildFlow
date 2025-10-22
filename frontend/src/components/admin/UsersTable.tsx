@@ -279,7 +279,7 @@ const UserTableSection: React.FC<UserTableSectionProps> = ({
                                                 <TableCell className="font-medium">
                                                     <div>
                                                         <div className="font-semibold text-foreground">
-                                                            {user ? `${user.contactDto.firstName} ${user.contactDto.lastName}` : 'No Profile'}
+                                                            {user ? `${user.contact.firstName} ${user.contact.lastName}` : 'No Profile'}
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
                                                             {userAuthentication.username || 'Unknown'}
@@ -305,9 +305,9 @@ const UserTableSection: React.FC<UserTableSectionProps> = ({
                                                 <TableCell className="hidden lg:table-cell">
                                                     {user ? (
                                                         <div className="text-sm">
-                                                            <div>{user.contactDto.email}</div>
-                                                            {user.contactDto.phone && (
-                                                                <div className="text-muted-foreground">{user.contactDto.phone}</div>
+                                                            <div>{user.contact.email}</div>
+                                                            {user.contact.phone && (
+                                                                <div className="text-muted-foreground">{user.contact.phone}</div>
                                                             )}
                                                         </div>
                                                     ) : (
@@ -429,10 +429,10 @@ const UsersTable: React.FC = () => {
 
             // Search in user profile data if available
             if (user) {
-                const fullName = `${user.contactDto.firstName} ${user.contactDto.lastName}`.toLowerCase();
+                const fullName = `${user.contact.firstName} ${user.contact.lastName}`.toLowerCase();
                 if (fullName.includes(search)) return true;
-                if (user.contactDto.email?.toLowerCase().includes(search)) return true;
-                if (user.contactDto.phone?.toLowerCase().includes(search)) return true;
+                if (user.contact.email?.toLowerCase().includes(search)) return true;
+                if (user.contact.phone?.toLowerCase().includes(search)) return true;
             }
 
             // Search in role

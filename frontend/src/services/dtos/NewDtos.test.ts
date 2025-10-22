@@ -49,12 +49,12 @@ describe('Estimate DTOs', () => {
       workItemId: '102',
       name: 'Foundation',
       description: 'Foundation work items',
-      estimateLineDtos: []
+      estimateLines: []
     };
 
     expect(estimateGroup.id).toBe('2');
     expect(estimateGroup.name).toBe('Foundation');
-    expect(Array.isArray(estimateGroup.estimateLineDtos)).toBe(true);
+    expect(Array.isArray(estimateGroup.estimateLines)).toBe(true);
   });
 
   test('Estimate type should have correct structure', () => {
@@ -62,7 +62,7 @@ describe('Estimate DTOs', () => {
       id: '3',
       projectId: '456',
       overallMultiplier: 1.15,
-      groupDtos: [],
+      groups: [],
       createdAt: '2024-01-15T10:00:00Z',
       lastUpdatedAt: '2024-01-15T10:00:00Z'
     };
@@ -129,11 +129,11 @@ describe('WorkItem DTOs', () => {
     };
 
     const response: CreateWorkItemResponse = {
-      workItemDto: workItem
+      workItem: workItem
     };
 
-    expect(response.workItemDto.id).toBe('5');
-    expect(response.workItemDto.code).toBe('S1-003');
+    expect(response.workItem.id).toBe('5');
+    expect(response.workItem.code).toBe('S1-003');
   });
 
   test('WorkItemDomain enum should have correct values', () => {
@@ -168,7 +168,7 @@ describe('Quote DTOs', () => {
       unitPrice: '50.00',
       currency: 'CAD',
       quoteDomain: QuoteDomain.PUBLIC,
-      locationDto: {
+      location: {
         id: '8',
         streetNumberAndName: '456 Oak Ave',
         city: 'Vancouver',
@@ -239,21 +239,21 @@ describe('Integration Tests', () => {
       workItemId: '101',
       name: 'Foundation',
       description: 'Foundation work items',
-      estimateLineDtos: [estimateLine]
+      estimateLines: [estimateLine]
     };
 
     const estimate: Estimate = {
       id: '123',
       projectId: '456',
       overallMultiplier: 1.15,
-      groupDtos: [estimateGroup],
+      groups: [estimateGroup],
       createdAt: '2024-01-15T10:00:00Z',
       lastUpdatedAt: '2024-01-15T10:00:00Z'
     };
 
-    expect(estimate.groupDtos.length).toBe(1);
-    expect(estimate.groupDtos[0].estimateLineDtos.length).toBe(1);
-    expect(estimate.groupDtos[0].estimateLineDtos[0].computedCost).toBe('5000.00');
+    expect(estimate.groups.length).toBe(1);
+    expect(estimate.groups[0].estimateLines.length).toBe(1);
+    expect(estimate.groups[0].estimateLines[0].computedCost).toBe('5000.00');
   });
 
   test('All DTO exports should be accessible from index', () => {

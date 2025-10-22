@@ -46,21 +46,21 @@ describe('authMocks', () => {
       expect(adminUser).toBeDefined();
       expect(adminUser?.id).toBe('1');
       expect(adminUser?.email).toBe('admin@buildflow.com');
-      expect(adminUser?.contactDto.labels).toContain('Administrator');
-      expect(adminUser?.contactDto.firstName).toBe('Alexandre');
-      expect(adminUser?.contactDto.lastName).toBe('Dubois');
-      expect(adminUser?.contactDto.addressDto.city).toBe('Vancouver');
-      expect(adminUser?.contactDto.addressDto.country).toBe('Canada');
+      expect(adminUser?.contact.labels).toContain('Administrator');
+      expect(adminUser?.contact.firstName).toBe('Alexandre');
+      expect(adminUser?.contact.lastName).toBe('Dubois');
+      expect(adminUser?.contact.address.city).toBe('Vancouver');
+      expect(adminUser?.contact.address.country).toBe('Canada');
 
       const testUser = mockUsers.find(u => u.username === 'testuser');
       expect(testUser).toBeDefined();
       expect(testUser?.id).toBe('2');
       expect(testUser?.email).toBe('test@buildflow.com');
-      expect(testUser?.contactDto.labels).toContain('Builder');
-      expect(testUser?.contactDto.firstName).toBe('Sarah');
-      expect(testUser?.contactDto.lastName).toBe('MacDonald');
-      expect(testUser?.contactDto.addressDto.city).toBe('Toronto');
-      expect(testUser?.contactDto.addressDto.country).toBe('Canada');
+      expect(testUser?.contact.labels).toContain('Builder');
+      expect(testUser?.contact.firstName).toBe('Sarah');
+      expect(testUser?.contact.lastName).toBe('MacDonald');
+      expect(testUser?.contact.address.city).toBe('Toronto');
+      expect(testUser?.contact.address.country).toBe('Canada');
     });
 
     test('findUserAuthenticationByUsername should return correct auth data', () => {
@@ -234,7 +234,7 @@ describe('authMocks', () => {
       const user = mockUsers[0];
       const response = generateMockCreateUserResponse(user);
 
-      expect(response.userDto).toBe(user);
+      expect(response.user).toBe(user);
     });
   });
 
@@ -346,14 +346,14 @@ describe('authMocks', () => {
         username: 'newuser',
         email: 'new@example.com',
         registered: true,
-        contactDto: {
+        contact: {
           id: '3',
           firstName: 'New',
           lastName: 'User',
           labels: ['User'],
           email: 'new@example.com',
           phone: '',
-          addressDto: {
+          address: {
             id: '3',
             unitNumber: '',
             streetNumberAndName: '',
@@ -393,11 +393,11 @@ describe('authMocks', () => {
 
       expect(newUser.username).toBe('johndoe');
       expect(newUser.email).toBe('john.doe@example.com');
-      expect(newUser.contactDto.firstName).toBe('John');
-      expect(newUser.contactDto.lastName).toBe('Doe');
-      expect(newUser.contactDto.labels).toEqual(['Builder']);
-      expect(newUser.contactDto.phone).toBe('+1-555-0123');
-      expect(newUser.contactDto.addressDto.streetNumberAndName).toBe('123 Main Street');
+      expect(newUser.contact.firstName).toBe('John');
+      expect(newUser.contact.lastName).toBe('Doe');
+      expect(newUser.contact.labels).toEqual(['Builder']);
+      expect(newUser.contact.phone).toBe('+1-555-0123');
+      expect(newUser.contact.address.streetNumberAndName).toBe('123 Main Street');
 
       // Verify user was added to arrays
       expect(mockUsers).toHaveLength(initialUserCount + 1);
@@ -422,7 +422,7 @@ describe('authMocks', () => {
 
       const newUser = createMockUser(contactRequest, 'adminuser', 'AdminPass123!');
 
-      expect(newUser.contactDto.labels).toContain('Administrator');
+      expect(newUser.contact.labels).toContain('Administrator');
 
       const auth = findUserAuthenticationByUsername('adminuser');
       expect(auth?.role).toBe('ADMIN');
@@ -438,9 +438,9 @@ describe('authMocks', () => {
 
       const newUser = createMockUser(contactRequest, 'janesmith', 'Password123!');
 
-      expect(newUser.contactDto.addressDto).toBeDefined();
-      expect(newUser.contactDto.addressDto.streetNumberAndName).toBe('');
-      expect(newUser.contactDto.addressDto.city).toBe('');
+      expect(newUser.contact.address).toBeDefined();
+      expect(newUser.contact.address.streetNumberAndName).toBe('');
+      expect(newUser.contact.address.city).toBe('');
     });
 
     test('should handle missing optional fields', () => {
@@ -454,8 +454,8 @@ describe('authMocks', () => {
 
       const newUser = createMockUser(contactRequest, 'minuser', 'Password123!');
 
-      expect(newUser.contactDto.phone).toBe('');
-      expect(newUser.contactDto.addressDto).toBeDefined();
+      expect(newUser.contact.phone).toBe('');
+      expect(newUser.contact.address).toBeDefined();
     });
 
     test('should generate sequential IDs', () => {
@@ -472,7 +472,7 @@ describe('authMocks', () => {
       const newUser = createMockUser(contactRequest, 'sequential', 'Pass123!');
 
       expect(newUser.id).toBe(expectedUserId);
-      expect(newUser.contactDto.id).toBe(expectedUserId);
+      expect(newUser.contact.id).toBe(expectedUserId);
 
       const auth = findUserAuthenticationByUsername('sequential');
       expect(auth?.id).toBe(expectedUserId); // Auth ID should match user ID

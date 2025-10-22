@@ -36,6 +36,7 @@ export interface ContactAddressRequestDto extends BaseAddressDto {
 /**
  * Contact information DTO
  * Matches backend ContactDto structure
+ * Note: Backend serializes addressDto as "address" in JSON
  */
 export interface ContactDto {
     /** Unique identifier for the contact */
@@ -57,7 +58,7 @@ export interface ContactDto {
     phone?: string;
 
     /** Address information for the contact */
-    addressDto: ContactAddressDto;
+    address: ContactAddressDto;
 }
 
 /**
@@ -88,6 +89,7 @@ export interface ContactRequestDto {
 /**
  * User information DTO
  * Matches backend UserDto structure
+ * Note: Backend serializes contactDto as "contact" in JSON
  */
 export interface UserDto {
     /** Unique identifier for the user */
@@ -101,7 +103,7 @@ export interface UserDto {
     registered: boolean;
 
     /** Complete contact information for the user */
-    contactDto: ContactDto;
+    contact: ContactDto;
 }
 
 /**

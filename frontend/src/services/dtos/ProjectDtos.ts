@@ -27,6 +27,7 @@ export interface CreateProjectRequest {
  * Project DTO for representing project information
  * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
  * Matches backend ProjectDto structure
+ * Note: Backend serializes locationDto as "location" in JSON
  */
 export interface ProjectDto {
   /** Project ID */
@@ -59,8 +60,9 @@ export interface ProjectLocationDto extends BaseAddressDto {
 /**
  * Response DTO containing the created project information
  * Matches backend CreateProjectResponse structure
+ * Note: Backend serializes projectDto as "project" in JSON
  */
 export interface CreateProjectResponse {
   /** The created project details */
-  projectDto: ProjectDto;
+  project: ProjectDto;
 }

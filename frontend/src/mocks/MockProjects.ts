@@ -406,6 +406,6 @@ export function createMockProject(
  */
 export function generateMockCreateProjectResponse(project: Project): CreateProjectResponse {
     return {
-        projectDto: project,
+        project: project,
     };
 }

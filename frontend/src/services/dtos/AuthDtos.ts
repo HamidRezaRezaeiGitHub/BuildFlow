@@ -41,8 +41,13 @@ export interface CreateUserRequest {
   contactRequestDto: ContactRequestDto;
 }
 
+/**
+ * Response DTO containing the created user information
+ * Matches backend CreateUserResponse structure
+ * Note: Backend serializes userDto as "user" in JSON
+ */
 export interface CreateUserResponse {
-    userDto: UserDto;
+    user: UserDto;
 }
 
 /**

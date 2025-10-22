@@ -40,7 +40,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, userAuthent
         </div>
         <div>
             <SheetTitle className="text-xl">
-                {user ? `${user.contactDto.firstName} ${user.contactDto.lastName}` : 'User Profile'}
+                {user ? `${user.contact.firstName} ${user.contact.lastName}` : 'User Profile'}
             </SheetTitle>
             <SheetDescription className="text-sm text-muted-foreground">
                 @{userAuthentication.username}
@@ -102,54 +102,54 @@ const ContactInformationCard: React.FC<ContactInformationCardProps> = ({ user })
                 <Mail className="h-4 w-4 text-muted-foreground/70" />
                 <div>
                     <div className="text-sm font-medium">Email</div>
-                    <div className="text-sm text-muted-foreground">{user.contactDto.email}</div>
+                    <div className="text-sm text-muted-foreground">{user.contact.email}</div>
                 </div>
             </div>
 
-            {user.contactDto.phone && (
+            {user.contact.phone && (
                 <div className="flex items-center space-x-3">
                     <Phone className="h-4 w-4 text-muted-foreground/70" />
                     <div>
                         <div className="text-sm font-medium">Phone</div>
-                        <div className="text-sm text-muted-foreground">{user.contactDto.phone}</div>
+                        <div className="text-sm text-muted-foreground">{user.contact.phone}</div>
                     </div>
                 </div>
             )}
 
             {/* Address Information */}
-            {user.contactDto.addressDto && (
+            {user.contact.address && (
                 <div className="flex items-start space-x-3">
                     <MapPin className="h-4 w-4 text-muted-foreground/70 mt-0.5" />
                     <div>
                         <div className="text-sm font-medium">Address</div>
                         <div className="text-sm text-muted-foreground">
-                            {user.contactDto.addressDto.unitNumber && (
-                                <>{user.contactDto.addressDto.unitNumber} </>
+                            {user.contact.address.unitNumber && (
+                                <>{user.contact.address.unitNumber} </>
                             )}
-                            {user.contactDto.addressDto.streetNumber && (
-                                <>{user.contactDto.addressDto.streetNumber} </>
+                            {user.contact.address.streetNumber && (
+                                <>{user.contact.address.streetNumber} </>
                             )}
-                            {user.contactDto.addressDto.streetName}
+                            {user.contact.address.streetName}
                             <br />
-                            {user.contactDto.addressDto.city}, {user.contactDto.addressDto.stateOrProvince}
-                            {user.contactDto.addressDto.postalOrZipCode && (
-                                <> {user.contactDto.addressDto.postalOrZipCode}</>
+                            {user.contact.address.city}, {user.contact.address.stateOrProvince}
+                            {user.contact.address.postalOrZipCode && (
+                                <> {user.contact.address.postalOrZipCode}</>
                             )}
                             <br />
-                            {user.contactDto.addressDto.country}
+                            {user.contact.address.country}
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Contact Labels */}
-            {user.contactDto.labels && user.contactDto.labels.length > 0 && (
+            {user.contact.labels && user.contact.labels.length > 0 && (
                 <div className="flex items-start space-x-3">
                     <Building className="h-4 w-4 text-muted-foreground/70 mt-0.5" />
                     <div>
                         <div className="text-sm font-medium">Labels</div>
                         <div className="flex flex-wrap gap-1 mt-1">
-                            {user.contactDto.labels.map((label: string, index: number) => (
+                            {user.contact.labels.map((label: string, index: number) => (
                                 <Badge key={index} variant="outline" className="text-xs">
                                     {label}
                                 </Badge>
