@@ -31,7 +31,8 @@ export type {
 export { Role } from './AuthDtos';
 
 export type {
-    BaseAddressDto as AddressData
+    BaseAddressDto as AddressData,
+    UpdatableEntityDto
 } from './AddressDtos';
 
 export type {
@@ -41,6 +42,29 @@ export type {
     ProjectLocationRequestDto as ProjectLocationRequest,
     ProjectLocationDto as ProjectLocation
 } from './ProjectDtos';
+
+export type {
+    EstimateDto as Estimate,
+    EstimateGroupDto as EstimateGroup,
+    EstimateLineDto as EstimateLine
+} from './EstimateDtos';
+
+export { EstimateLineStrategy } from './EstimateDtos';
+
+export type {
+    WorkItemDto as WorkItem,
+    CreateWorkItemRequest,
+    CreateWorkItemResponse
+} from './WorkItemDtos';
+
+export { WorkItemDomain } from './WorkItemDtos';
+
+export type {
+    QuoteDto as Quote,
+    QuoteLocationDto as QuoteLocation
+} from './QuoteDtos';
+
+export { QuoteDomain, QuoteUnit, QuoteUnitDisplay } from './QuoteDtos';
 
 export type {
     PaginationMetadata,
