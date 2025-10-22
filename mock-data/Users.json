@@ -1,0 +1,266 @@
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "email": "admin@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "1",
+      "firstName": "Alexandre",
+      "lastName": "Dubois",
+      "labels": ["Administrator"],
+      "email": "admin@buildflow.com",
+      "phone": "+1-604-555-0100",
+      "address": {
+        "id": "1",
+        "streetNumberAndName": "1250 Granville Street",
+        "city": "Vancouver",
+        "stateOrProvince": "BC",
+        "postalOrZipCode": "V6Z 1M9",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "2",
+    "username": "testuser",
+    "email": "test@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "2",
+      "firstName": "Sarah",
+      "lastName": "MacDonald",
+      "labels": ["Builder"],
+      "email": "test@buildflow.com",
+      "phone": "+1-416-555-0200",
+      "address": {
+        "id": "2",
+        "streetNumberAndName": "789 King Street West",
+        "city": "Toronto",
+        "stateOrProvince": "ON",
+        "postalOrZipCode": "M5V 1N1",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "3",
+    "username": "builder1",
+    "email": "builder1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "3",
+      "firstName": "Michael",
+      "lastName": "Chen",
+      "labels": ["Builder"],
+      "email": "builder1@buildflow.com",
+      "phone": "+1-403-555-0300",
+      "address": {
+        "id": "3",
+        "streetNumberAndName": "456 Centre Street",
+        "city": "Calgary",
+        "stateOrProvince": "AB",
+        "postalOrZipCode": "T2G 1B8",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "4",
+    "username": "owner1",
+    "email": "owner1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "4",
+      "firstName": "Jennifer",
+      "lastName": "Martin",
+      "labels": ["Owner"],
+      "email": "owner1@buildflow.com",
+      "phone": "+1-514-555-0400",
+      "address": {
+        "id": "4",
+        "streetNumberAndName": "890 Rue Saint-Jacques",
+        "city": "Montreal",
+        "stateOrProvince": "QC",
+        "postalOrZipCode": "H3C 1G1",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "5",
+    "username": "contractor1",
+    "email": "contractor1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "5",
+      "firstName": "David",
+      "lastName": "Thompson",
+      "labels": ["Builder", "Subcontractor"],
+      "email": "contractor1@buildflow.com",
+      "phone": "+1-613-555-0500",
+      "address": {
+        "id": "5",
+        "streetNumberAndName": "234 Wellington Street",
+        "city": "Ottawa",
+        "stateOrProvince": "ON",
+        "postalOrZipCode": "K1A 0N8",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "6",
+    "username": "designer1",
+    "email": "designer1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "6",
+      "firstName": "Emily",
+      "lastName": "Rodriguez",
+      "labels": ["Other"],
+      "email": "designer1@buildflow.com",
+      "phone": "+1-604-555-0600",
+      "address": {
+        "id": "6",
+        "streetNumberAndName": "567 Robson Street",
+        "city": "Vancouver",
+        "stateOrProvince": "BC",
+        "postalOrZipCode": "V6B 2B7",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "7",
+    "username": "supplier1",
+    "email": "supplier1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "7",
+      "firstName": "Robert",
+      "lastName": "Wilson",
+      "labels": ["Supplier"],
+      "email": "supplier1@buildflow.com",
+      "phone": "+1-416-555-0700",
+      "address": {
+        "id": "7",
+        "streetNumberAndName": "321 Queen Street East",
+        "city": "Toronto",
+        "stateOrProvince": "ON",
+        "postalOrZipCode": "M5A 1S9",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "8",
+    "username": "inspector1",
+    "email": "inspector1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "8",
+      "firstName": "Patricia",
+      "lastName": "Lee",
+      "labels": ["Other"],
+      "email": "inspector1@buildflow.com",
+      "phone": "+1-403-555-0800",
+      "address": {
+        "id": "8",
+        "streetNumberAndName": "789 8th Avenue SW",
+        "city": "Calgary",
+        "stateOrProvince": "AB",
+        "postalOrZipCode": "T2P 1H5",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "9",
+    "username": "architect1",
+    "email": "architect1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "9",
+      "firstName": "James",
+      "lastName": "Anderson",
+      "labels": ["Other"],
+      "email": "architect1@buildflow.com",
+      "phone": "+1-514-555-0900",
+      "address": {
+        "id": "9",
+        "streetNumberAndName": "456 Boulevard Saint-Laurent",
+        "city": "Montreal",
+        "stateOrProvince": "QC",
+        "postalOrZipCode": "H2X 2V1",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "10",
+    "username": "lender1",
+    "email": "lender1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "10",
+      "firstName": "Lisa",
+      "lastName": "Tremblay",
+      "labels": ["Lender"],
+      "email": "lender1@buildflow.com",
+      "phone": "+1-613-555-1000",
+      "address": {
+        "id": "10",
+        "streetNumberAndName": "123 Bank Street",
+        "city": "Ottawa",
+        "stateOrProvince": "ON",
+        "postalOrZipCode": "K1P 5N2",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "11",
+    "username": "manager1",
+    "email": "manager1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "11",
+      "firstName": "William",
+      "lastName": "Brown",
+      "labels": ["Builder"],
+      "email": "manager1@buildflow.com",
+      "phone": "+1-604-555-1100",
+      "address": {
+        "id": "11",
+        "streetNumberAndName": "890 Hastings Street",
+        "city": "Vancouver",
+        "stateOrProvince": "BC",
+        "postalOrZipCode": "V6C 1E4",
+        "country": "Canada"
+      }
+    }
+  },
+  {
+    "id": "12",
+    "username": "consultant1",
+    "email": "consultant1@buildflow.com",
+    "registered": true,
+    "contact": {
+      "id": "12",
+      "firstName": "Amanda",
+      "lastName": "Patel",
+      "labels": ["Other"],
+      "email": "consultant1@buildflow.com",
+      "phone": "+1-416-555-1200",
+      "address": {
+        "id": "12",
+        "streetNumberAndName": "234 Bay Street",
+        "city": "Toronto",
+        "stateOrProvince": "ON",
+        "postalOrZipCode": "M5J 2Z4",
+        "country": "Canada"
+      }
+    }
+  }
+]

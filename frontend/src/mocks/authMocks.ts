@@ -1,319 +1,63 @@
 import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication, UserSummary } from '../services/dtos';
 import { Role } from '../services/dtos';
+import mockUsersData from '../../../mock-data/Users.json';
+import mockAuthenticationsData from '../../../mock-data/UserAuthentications.json';
 
 /**
  * Mock Users Database - Canadian Users
+ * Loaded from /mock-data/Users.json
  * Used when running in standalone mode (config.enableMockAuth = true)
  */
-export const mockUsers: User[] = [
-    {
-        id: '1',
-        username: 'admin',
-        email: 'admin@buildflow.com',
-        registered: true,
-        contact: {
-            id: '1',
-            firstName: 'Alexandre',
-            lastName: 'Dubois',
-            labels: ['Administrator'],
-            email: 'admin@buildflow.com',
-            phone: '+1-604-555-0100',
-            address: {
-                id: '1',
-                streetNumberAndName: '1250 Granville Street',
-                city: 'Vancouver',
-                stateOrProvince: 'BC',
-                postalOrZipCode: 'V6Z 1M9',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '2',
-        username: 'testuser',
-        email: 'test@buildflow.com',
-        registered: true,
-        contact: {
-            id: '2',
-            firstName: 'Sarah',
-            lastName: 'MacDonald',
-            labels: ['Builder'],
-            email: 'test@buildflow.com',
-            phone: '+1-416-555-0200',
-            address: {
-                id: '2',
-                streetNumberAndName: '789 King Street West',
-                city: 'Toronto',
-                stateOrProvince: 'ON',
-                postalOrZipCode: 'M5V 1N1',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '3',
-        username: 'builder1',
-        email: 'builder1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '3',
-            firstName: 'Michael',
-            lastName: 'Chen',
-            labels: ['Builder'],
-            email: 'builder1@buildflow.com',
-            phone: '+1-403-555-0300',
-            address: {
-                id: '3',
-                streetNumberAndName: '456 Centre Street',
-                city: 'Calgary',
-                stateOrProvince: 'AB',
-                postalOrZipCode: 'T2G 1B8',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '4',
-        username: 'owner1',
-        email: 'owner1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '4',
-            firstName: 'Jennifer',
-            lastName: 'Martin',
-            labels: ['Owner'],
-            email: 'owner1@buildflow.com',
-            phone: '+1-514-555-0400',
-            address: {
-                id: '4',
-                streetNumberAndName: '890 Rue Saint-Jacques',
-                city: 'Montreal',
-                stateOrProvince: 'QC',
-                postalOrZipCode: 'H3C 1G1',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '5',
-        username: 'contractor1',
-        email: 'contractor1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '5',
-            firstName: 'David',
-            lastName: 'Thompson',
-            labels: ['Builder', 'Subcontractor'],
-            email: 'contractor1@buildflow.com',
-            phone: '+1-613-555-0500',
-            address: {
-                id: '5',
-                streetNumberAndName: '234 Wellington Street',
-                city: 'Ottawa',
-                stateOrProvince: 'ON',
-                postalOrZipCode: 'K1A 0N8',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '6',
-        username: 'designer1',
-        email: 'designer1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '6',
-            firstName: 'Emily',
-            lastName: 'Rodriguez',
-            labels: ['Other'],
-            email: 'designer1@buildflow.com',
-            phone: '+1-604-555-0600',
-            address: {
-                id: '6',
-                streetNumberAndName: '567 Robson Street',
-                city: 'Vancouver',
-                stateOrProvince: 'BC',
-                postalOrZipCode: 'V6B 2B7',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '7',
-        username: 'supplier1',
-        email: 'supplier1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '7',
-            firstName: 'Robert',
-            lastName: 'Wilson',
-            labels: ['Supplier'],
-            email: 'supplier1@buildflow.com',
-            phone: '+1-416-555-0700',
-            address: {
-                id: '7',
-                streetNumberAndName: '321 Queen Street East',
-                city: 'Toronto',
-                stateOrProvince: 'ON',
-                postalOrZipCode: 'M5A 1S9',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '8',
-        username: 'inspector1',
-        email: 'inspector1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '8',
-            firstName: 'Patricia',
-            lastName: 'Lee',
-            labels: ['Other'],
-            email: 'inspector1@buildflow.com',
-            phone: '+1-403-555-0800',
-            address: {
-                id: '8',
-                streetNumberAndName: '789 8th Avenue SW',
-                city: 'Calgary',
-                stateOrProvince: 'AB',
-                postalOrZipCode: 'T2P 1H5',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '9',
-        username: 'architect1',
-        email: 'architect1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '9',
-            firstName: 'James',
-            lastName: 'Anderson',
-            labels: ['Other'],
-            email: 'architect1@buildflow.com',
-            phone: '+1-514-555-0900',
-            address: {
-                id: '9',
-                streetNumberAndName: '456 Boulevard Saint-Laurent',
-                city: 'Montreal',
-                stateOrProvince: 'QC',
-                postalOrZipCode: 'H2X 2V1',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '10',
-        username: 'lender1',
-        email: 'lender1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '10',
-            firstName: 'Lisa',
-            lastName: 'Tremblay',
-            labels: ['Lender'],
-            email: 'lender1@buildflow.com',
-            phone: '+1-613-555-1000',
-            address: {
-                id: '10',
-                streetNumberAndName: '123 Bank Street',
-                city: 'Ottawa',
-                stateOrProvince: 'ON',
-                postalOrZipCode: 'K1P 5N2',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '11',
-        username: 'manager1',
-        email: 'manager1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '11',
-            firstName: 'William',
-            lastName: 'Brown',
-            labels: ['Builder'],
-            email: 'manager1@buildflow.com',
-            phone: '+1-604-555-1100',
-            address: {
-                id: '11',
-                streetNumberAndName: '890 Hastings Street',
-                city: 'Vancouver',
-                stateOrProvince: 'BC',
-                postalOrZipCode: 'V6C 1E4',
-                country: 'Canada',
-            },
-        },
-    },
-    {
-        id: '12',
-        username: 'consultant1',
-        email: 'consultant1@buildflow.com',
-        registered: true,
-        contact: {
-            id: '12',
-            firstName: 'Amanda',
-            lastName: 'Patel',
-            labels: ['Other'],
-            email: 'consultant1@buildflow.com',
-            phone: '+1-416-555-1200',
-            address: {
-                id: '12',
-                streetNumberAndName: '234 Bay Street',
-                city: 'Toronto',
-                stateOrProvince: 'ON',
-                postalOrZipCode: 'M5J 2Z4',
-                country: 'Canada',
-            },
-        },
-    },
-];
+export const mockUsers: User[] = mockUsersData as User[];
 
 /**
- * Mock User Roles Database - Matching the mockUsers
+ * Mock UserAuthentications - Authentication data for all mock users
+ * Loaded from /mock-data/UserAuthentications.json
+ * Used when running in standalone mode (config.enableMockAuth = true)
+ */
+const mockAuthentications = mockAuthenticationsData as Array<{
+    id: string;
+    username: string;
+    passwordHash: string;
+    role: string;
+    enabled: boolean;
+    createdAt: string;
+    lastLogin: string;
+}>;
+
+/**
+ * Mock User Roles Database - Extracted from UserAuthentications
  * Used when running in standalone mode (config.enableMockAuth = true)
  * Stores role information separately for each user
  */
-export const mockUserRoles: Record<string, string> = {
-    'admin': Role.ADMIN,
-    'testuser': Role.USER,
-    'builder1': Role.USER,
-    'owner1': Role.USER,
-    'contractor1': Role.USER,
-    'designer1': Role.USER,
-    'supplier1': Role.USER,
-    'inspector1': Role.USER,
-    'architect1': Role.USER,
-    'lender1': Role.USER,
-    'manager1': Role.USER,
-    'consultant1': Role.USER,
-};
+export const mockUserRoles: Record<string, string> = mockAuthentications.reduce((acc, auth) => {
+    acc[auth.username] = auth.role;
+    return acc;
+}, {} as Record<string, string>);
 
 /**
  * Mock credentials for testing
+ * Extracted from UserAuthentications (passwordHash used as password for mock purposes)
  * Passwords meet validation requirements:
  * - At least 8 characters
  * - Contains uppercase, lowercase, digit, and special character (@$!%*?&_)
  * 
  * Note: This object is mutable and gets updated when new users register in mock mode
  */
-export const mockCredentials: Record<string, { username: string; password: string }> = {
-    admin: { username: 'admin', password: 'BuildFlow2024!' },
-    user: { username: 'testuser', password: 'TestUser123&' },
-    builder1: { username: 'builder1', password: 'Builder123!' },
-    owner1: { username: 'owner1', password: 'Owner123!' },
-    contractor1: { username: 'contractor1', password: 'Contractor123!' },
-    designer1: { username: 'designer1', password: 'Designer123!' },
-    supplier1: { username: 'supplier1', password: 'Supplier123!' },
-    inspector1: { username: 'inspector1', password: 'Inspector123!' },
-    architect1: { username: 'architect1', password: 'Architect123!' },
-    lender1: { username: 'lender1', password: 'Lender123!' },
-    manager1: { username: 'manager1', password: 'Manager123!' },
-    consultant1: { username: 'consultant1', password: 'Consultant123!' },
-};
+export const mockCredentials: Record<string, { username: string; password: string }> = mockAuthentications.reduce((acc, auth) => {
+    acc[auth.username] = {
+        username: auth.username,
+        password: auth.passwordHash
+    };
+    // Also add "user" key for testuser for backward compatibility
+    if (auth.username === 'testuser') {
+        acc['user'] = {
+            username: auth.username,
+            password: auth.passwordHash
+        };
+    }
+    return acc;
+}, {} as Record<string, { username: string; password: string }>);
 
 /**
  * Store new user credentials for mock authentication
@@ -340,21 +84,21 @@ export function getAvailableMockCredentials(): string[] {
  * Useful for testing or clearing session data
  */
 export function resetMockCredentials(): void {
-    // Clear all dynamic credentials, keep only defaults
-    const defaultCredentials = {
-        admin: { username: 'admin', password: 'BuildFlow2024!' },
-        user: { username: 'testuser', password: 'TestUser123&' },
-        builder1: { username: 'builder1', password: 'Builder123!' },
-        owner1: { username: 'owner1', password: 'Owner123!' },
-        contractor1: { username: 'contractor1', password: 'Contractor123!' },
-        designer1: { username: 'designer1', password: 'Designer123!' },
-        supplier1: { username: 'supplier1', password: 'Supplier123!' },
-        inspector1: { username: 'inspector1', password: 'Inspector123!' },
-        architect1: { username: 'architect1', password: 'Architect123!' },
-        lender1: { username: 'lender1', password: 'Lender123!' },
-        manager1: { username: 'manager1', password: 'Manager123!' },
-        consultant1: { username: 'consultant1', password: 'Consultant123!' },
-    };
+    // Rebuild credentials from mockAuthentications
+    const defaultCredentials = mockAuthentications.reduce((acc, auth) => {
+        acc[auth.username] = {
+            username: auth.username,
+            password: auth.passwordHash
+        };
+        // Also add "user" key for testuser for backward compatibility
+        if (auth.username === 'testuser') {
+            acc['user'] = {
+                username: auth.username,
+                password: auth.passwordHash
+            };
+        }
+        return acc;
+    }, {} as Record<string, { username: string; password: string }>);
 
     // Clear the object
     Object.keys(mockCredentials).forEach(key => delete mockCredentials[key]);

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "passwordHash": "BuildFlow2024!",
+    "role": "ADMIN",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "username": "testuser",
+    "passwordHash": "TestUser123&",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "username": "builder1",
+    "passwordHash": "Builder123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "4",
+    "username": "owner1",
+    "passwordHash": "Owner123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "5",
+    "username": "contractor1",
+    "passwordHash": "Contractor123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "username": "designer1",
+    "passwordHash": "Designer123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "7",
+    "username": "supplier1",
+    "passwordHash": "Supplier123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "8",
+    "username": "inspector1",
+    "passwordHash": "Inspector123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "9",
+    "username": "architect1",
+    "passwordHash": "Architect123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "10",
+    "username": "lender1",
+    "passwordHash": "Lender123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "11",
+    "username": "manager1",
+    "passwordHash": "Manager123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  },
+  {
+    "id": "12",
+    "username": "consultant1",
+    "passwordHash": "Consultant123!",
+    "role": "USER",
+    "enabled": true,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lastLogin": "2024-10-22T10:00:00.000Z"
+  }
+]

@@ -131,7 +131,7 @@ describe('authMocks', () => {
       const keys = getAvailableMockCredentials();
       expect(keys).toContain('admin');
       expect(keys).toContain('user');
-      expect(keys).toHaveLength(12);
+      expect(keys).toHaveLength(13); // 12 users + 1 "user" backward compatibility key
     });
 
     test('should return updated keys after adding credentials', () => {
@@ -140,7 +140,7 @@ describe('authMocks', () => {
       expect(keys).toContain('admin');
       expect(keys).toContain('user');
       expect(keys).toContain('newuser');
-      expect(keys).toHaveLength(13);
+      expect(keys).toHaveLength(14); // 12 users + 1 "user" backward compatibility key + 1 new user
     });
   });
 
@@ -149,13 +149,13 @@ describe('authMocks', () => {
       // Add some extra credentials
       storeMockCredentials('extra1', 'pass1');
       storeMockCredentials('extra2', 'pass2');
-      expect(Object.keys(mockCredentials)).toHaveLength(14);
+      expect(Object.keys(mockCredentials)).toHaveLength(15); // 12 users + 1 "user" backward compatibility key + 2 extra
 
       // Reset
       resetMockCredentials();
 
-      // Should only have defaults
-      expect(Object.keys(mockCredentials)).toHaveLength(12);
+      // Should only have defaults (12 users + 1 "user" backward compatibility key)
+      expect(Object.keys(mockCredentials)).toHaveLength(13);
       expect(mockCredentials).toHaveProperty('admin');
       expect(mockCredentials).toHaveProperty('user');
       expect(mockCredentials.admin).toEqual({ username: 'admin', password: 'BuildFlow2024!' });
@@ -642,7 +642,7 @@ describe('authMocks', () => {
 
       // Reset credentials
       resetMockCredentials();
-      expect(Object.keys(mockCredentials)).toHaveLength(12); // Back to defaults
+      expect(Object.keys(mockCredentials)).toHaveLength(13); // Back to defaults (12 users + 1 "user" backward compatibility key)
 
       // Original users should still be able to authenticate with defaults
       expect(validateMockCredentials('admin', 'BuildFlow2024!')).toBeDefined();

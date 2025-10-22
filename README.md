@@ -279,6 +279,10 @@ BuildFlow/
 │   ├── tailwind.config.js     # Tailwind CSS configuration
 │   ├── package.json           # Dependencies and scripts
 │   └── README.md              # Frontend documentation
+├── mock-data/                  # Centralized mock data in JSON format (backend-entity-based)
+│   ├── Users.json             # Array of mock user entities with contact and address info
+│   ├── UserAuthentications.json # Mock credentials and user roles for authentication
+│   └── Projects.json          # Array of mock project entities with location data
 ├── src/                        # Backend Java Source Code
 │   ├── main/
 │   │   ├── java/dev/hr/rezaei/buildflow/
