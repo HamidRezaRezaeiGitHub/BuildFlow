@@ -31,7 +31,7 @@ export type EstimateLineDto = UpdatableEntityDto & {
   quantity: number;
   
   /** Strategy used for estimation (AVERAGE, LATEST, LOWEST) */
-  estimateStrategy: string;
+  estimateStrategy: EstimateLineStrategy;
   
   /** Multiplier applied to the line item cost */
   multiplier: number;
