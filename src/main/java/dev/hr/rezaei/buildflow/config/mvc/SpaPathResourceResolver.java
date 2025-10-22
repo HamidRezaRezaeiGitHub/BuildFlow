@@ -1,12 +1,12 @@
 package dev.hr.rezaei.buildflow.config.mvc;
 
-import lombok.NonNull;
+import java.io.IOException;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.resource.PathResourceResolver;
-
-import java.io.IOException;
 
 /**
  * Custom path resource resolver for Single Page Application (SPA) routing support.

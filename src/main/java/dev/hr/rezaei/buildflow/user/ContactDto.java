@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.dto.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -61,5 +62,6 @@ public class ContactDto implements Dto<Contact> {
     @Schema(description = "Address information for the contact")
     @Valid
     @NotNull(message = "Address information is required")
+    @JsonProperty("address")
     private ContactAddressDto addressDto;
 }

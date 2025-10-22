@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,5 +38,6 @@ public class UserDto {
     private boolean registered;
 
     @Schema(description = "Contact information for the user")
+    @JsonProperty("contact")
     private ContactDto contactDto;
 }

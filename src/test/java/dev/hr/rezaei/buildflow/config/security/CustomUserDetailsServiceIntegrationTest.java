@@ -6,7 +6,6 @@ import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserRepository;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

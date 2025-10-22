@@ -104,6 +104,7 @@ class PagedResponseBuilderTest {
         assertTrue(linkHeader.contains("rel=\"last\""));
     }
 
+    @SuppressWarnings("null")
     @Test
     void build_withEmptyPage_shouldHandleGracefully() {
         List<TestDto> content = List.of();
@@ -113,6 +114,7 @@ class PagedResponseBuilderTest {
         ResponseEntity<List<TestDto>> response = build(page, "/api/v1/test");
         
         assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
         assertEquals(0, response.getBody().size());
         
         HttpHeaders headers = response.getHeaders();
@@ -142,6 +144,7 @@ class PagedResponseBuilderTest {
     // build with mapper Tests
     // ============================================
 
+    @SuppressWarnings("null")
     @Test
     void build_withMapper_shouldMapEntitesToDtos() {
         List<TestEntity> entities = List.of(
@@ -159,6 +162,7 @@ class PagedResponseBuilderTest {
         
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
         assertEquals(new TestDto(1L, "Entity 1"), response.getBody().get(0));
         assertEquals(new TestDto(2L, "Entity 2"), response.getBody().get(1));

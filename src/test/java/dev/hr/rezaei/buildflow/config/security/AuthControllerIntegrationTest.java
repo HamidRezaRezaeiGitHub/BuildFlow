@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hr.rezaei.buildflow.config.security.dto.JwtAuthenticationResponse;
 import dev.hr.rezaei.buildflow.config.security.dto.LoginRequest;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
-import dev.hr.rezaei.buildflow.config.security.dto.UserAuthenticationDto;
 import dev.hr.rezaei.buildflow.config.security.dto.UserSummaryResponse;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
@@ -20,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
 import java.util.UUID;
 
 import static dev.hr.rezaei.buildflow.config.mvc.ResponseErrorType.AUTHENTICATION_REQUIRED;
@@ -587,7 +585,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .header("X-Forwarded-For", "192.168.45." + testCounter))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userDto.username").value(newAdminUsername));
+                .andExpect(jsonPath("$.user.username").value(newAdminUsername));
 
         // 4. Verify new admin user exists with ADMIN role
         assertTrue(userAuthenticationRepository.findByUsername(newAdminUsername).isPresent());
@@ -600,6 +598,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         SignUpRequest userSignUpRequest = createValidRandomSignUpRequest();
         String targetUsername = "targetuser" + testCounter;
         userSignUpRequest.setUsername(targetUsername);
+        @SuppressWarnings("unused")
         CreateUserResponse userResponse = registerUser(mockMvc, objectMapper, userSignUpRequest, "192.168.46." + testCounter);
         assertTrue(userAuthenticationRepository.findByUsername(targetUsername).isPresent());
 
@@ -607,6 +606,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         SignUpRequest adminSignUpRequest = createValidRandomSignUpRequest();
         String adminUsername = "admin" + testCounter;
         adminSignUpRequest.setUsername(adminUsername);
+        @SuppressWarnings("unused")
         CreateUserResponse adminResponse = registerUser(mockMvc, objectMapper, adminSignUpRequest, "192.168.47." + testCounter);
         UserAuthentication adminAuth = userAuthenticationRepository.findByUsername(adminUsername).get();
         adminAuth.setRole(Role.ADMIN);

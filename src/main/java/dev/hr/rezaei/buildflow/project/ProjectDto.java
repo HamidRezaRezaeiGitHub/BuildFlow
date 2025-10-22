@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.project;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDto;
 import dev.hr.rezaei.buildflow.dto.Dto;
 import lombok.*;
@@ -27,5 +28,7 @@ public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
     private UUID id;
     private UUID builderId;
     private UUID ownerId;
+    
+    @JsonProperty("location")
     private ProjectLocationDto locationDto;
 }

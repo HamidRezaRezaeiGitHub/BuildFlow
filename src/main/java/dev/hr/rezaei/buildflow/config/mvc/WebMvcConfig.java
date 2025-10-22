@@ -1,9 +1,11 @@
 package dev.hr.rezaei.buildflow.config.mvc;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Web MVC configuration for serving the React frontend application alongside the Spring Boot backend.
@@ -63,7 +65,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
      * @see SpaPathResourceResolver
      */
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         // Serve static resources from the frontend build with SPA routing support
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")

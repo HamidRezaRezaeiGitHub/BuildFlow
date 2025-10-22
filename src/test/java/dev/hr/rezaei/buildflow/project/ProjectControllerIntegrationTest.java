@@ -8,9 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -37,8 +34,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.id").exists())
+                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
     }
 
     @Test
@@ -58,8 +55,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.id").exists())
+                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
     }
 
     @Test

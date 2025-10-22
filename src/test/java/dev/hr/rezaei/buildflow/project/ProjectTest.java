@@ -1,7 +1,6 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractModelTest;
-import dev.hr.rezaei.buildflow.project.Project;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

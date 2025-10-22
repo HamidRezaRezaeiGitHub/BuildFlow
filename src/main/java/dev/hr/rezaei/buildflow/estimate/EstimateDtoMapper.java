@@ -3,13 +3,14 @@ package dev.hr.rezaei.buildflow.estimate;
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDtoMapper;
 import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
-import lombok.NonNull;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.lang.NonNull;
 
 public class EstimateDtoMapper {
 
@@ -34,6 +35,7 @@ public class EstimateDtoMapper {
                 .collect(Collectors.toSet());
     }
 
+    @SuppressWarnings("unused")
     private static Estimate map(@NonNull EstimateDto dto, Project project, Map<UUID, Set<WorkItem>> workItemsByGroupId) {
         Estimate estimate = Estimate.builder()
                 .id(dto.getId())

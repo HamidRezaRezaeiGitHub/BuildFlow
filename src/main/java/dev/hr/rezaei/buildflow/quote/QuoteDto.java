@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.quote;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDto;
 import dev.hr.rezaei.buildflow.dto.Dto;
 import lombok.Data;
@@ -23,7 +24,10 @@ public class QuoteDto extends UpdatableEntityDto implements Dto<Quote> {
     private BigDecimal unitPrice;
     private String currency;
     private String quoteDomain;
+    
+    @JsonProperty("location")
     private QuoteLocationDto locationDto;
+    
     private boolean valid;
 }
 

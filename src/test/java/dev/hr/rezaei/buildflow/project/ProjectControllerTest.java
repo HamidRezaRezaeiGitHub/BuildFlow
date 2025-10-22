@@ -38,12 +38,12 @@ class ProjectControllerTest extends AbstractControllerTest {
                         .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$.projectDto.ownerId").value(ownerId.toString()))
-                .andExpect(jsonPath("$.projectDto.locationDto").exists())
-                .andExpect(jsonPath("$.projectDto.locationDto.streetNumberAndName").value(locationDto.getStreetNumberAndName()))
-                .andExpect(jsonPath("$.projectDto.locationDto.city").value(locationDto.getCity()));
+                .andExpect(jsonPath("$.project.id").exists())
+                .andExpect(jsonPath("$.project.builderId").value(builderId.toString()))
+                .andExpect(jsonPath("$.project.ownerId").value(ownerId.toString()))
+                .andExpect(jsonPath("$.project.location").exists())
+                .andExpect(jsonPath("$.project.location.streetNumberAndName").value(locationDto.getStreetNumberAndName()))
+                .andExpect(jsonPath("$.project.location.city").value(locationDto.getCity()));
     }
 
     @Test

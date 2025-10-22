@@ -35,9 +35,9 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.email").value("john.builder@example.com"))
-                .andExpect(jsonPath("$.userDto.registered").value(true));
+                .andExpect(jsonPath("$.user.id").exists())
+                .andExpect(jsonPath("$.user.email").value("john.builder@example.com"))
+                .andExpect(jsonPath("$.user.registered").value(true));
     }
 
     @Test
@@ -188,7 +188,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.email").value(testBuilderUserDto.getEmail()))
                 .andExpect(jsonPath("$.registered").value(true))
-                .andExpect(jsonPath("$.contactDto").exists());
+                .andExpect(jsonPath("$.contact").exists());
     }
 
     @Test
@@ -219,7 +219,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.email").value(testOwnerUserDto.getEmail()))
                 .andExpect(jsonPath("$.registered").value(false))
-                .andExpect(jsonPath("$.contactDto").exists());
+                .andExpect(jsonPath("$.contact").exists());
     }
 
     @Test

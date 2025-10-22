@@ -26,15 +26,15 @@ class UserNoAuthControllerIntegrationTest extends AbstractNoAuthControllerIntegr
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.username").value(testCreateBuilderRequest.getUsername()))
-                .andExpect(jsonPath("$.userDto.email").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.registered").value(testCreateBuilderRequest.isRegistered()))
-                .andExpect(jsonPath("$.userDto.contactDto").exists())
-                .andExpect(jsonPath("$.userDto.contactDto.firstName").value(contactRequestDto.getFirstName()))
-                .andExpect(jsonPath("$.userDto.contactDto.lastName").value(contactRequestDto.getLastName()))
-                .andExpect(jsonPath("$.userDto.contactDto.email").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.contactDto.phone").value(contactRequestDto.getPhone()));
+                .andExpect(jsonPath("$.user.id").exists())
+                .andExpect(jsonPath("$.user.username").value(testCreateBuilderRequest.getUsername()))
+                .andExpect(jsonPath("$.user.email").value(contactRequestDto.getEmail()))
+                .andExpect(jsonPath("$.user.registered").value(testCreateBuilderRequest.isRegistered()))
+                .andExpect(jsonPath("$.user.contact").exists())
+                .andExpect(jsonPath("$.user.contact.firstName").value(contactRequestDto.getFirstName()))
+                .andExpect(jsonPath("$.user.contact.lastName").value(contactRequestDto.getLastName()))
+                .andExpect(jsonPath("$.user.contact.email").value(contactRequestDto.getEmail()))
+                .andExpect(jsonPath("$.user.contact.phone").value(contactRequestDto.getPhone()));
     }
 
     @Test
@@ -53,13 +53,13 @@ class UserNoAuthControllerIntegrationTest extends AbstractNoAuthControllerIntegr
                         .content(objectMapper.writeValueAsString(unregisteredBuilderRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.username").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.email").value(contactRequestDto.getEmail()))
-                .andExpect(jsonPath("$.userDto.registered").value(false))
-                .andExpect(jsonPath("$.userDto.contactDto").exists())
-                .andExpect(jsonPath("$.userDto.contactDto.firstName").value(contactRequestDto.getFirstName()))
-                .andExpect(jsonPath("$.userDto.contactDto.lastName").value(contactRequestDto.getLastName()));
+                .andExpect(jsonPath("$.user.id").exists())
+                .andExpect(jsonPath("$.user.username").value(contactRequestDto.getEmail()))
+                .andExpect(jsonPath("$.user.email").value(contactRequestDto.getEmail()))
+                .andExpect(jsonPath("$.user.registered").value(false))
+                .andExpect(jsonPath("$.user.contact").exists())
+                .andExpect(jsonPath("$.user.contact.firstName").value(contactRequestDto.getFirstName()))
+                .andExpect(jsonPath("$.user.contact.lastName").value(contactRequestDto.getLastName()));
     }
 
     @Test
@@ -83,10 +83,10 @@ class UserNoAuthControllerIntegrationTest extends AbstractNoAuthControllerIntegr
                 .andExpect(jsonPath("$.username").value(userDto.getUsername()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()))
                 .andExpect(jsonPath("$.registered").value(userDto.isRegistered()))
-                .andExpect(jsonPath("$.contactDto").exists())
-                .andExpect(jsonPath("$.contactDto.firstName").value(contactDto.getFirstName()))
-                .andExpect(jsonPath("$.contactDto.lastName").value(contactDto.getLastName()))
-                .andExpect(jsonPath("$.contactDto.email").value(contactDto.getEmail()));
+                .andExpect(jsonPath("$.contact").exists())
+                .andExpect(jsonPath("$.contact.firstName").value(contactDto.getFirstName()))
+                .andExpect(jsonPath("$.contact.lastName").value(contactDto.getLastName()))
+                .andExpect(jsonPath("$.contact.email").value(contactDto.getEmail()));
     }
 
     @Test

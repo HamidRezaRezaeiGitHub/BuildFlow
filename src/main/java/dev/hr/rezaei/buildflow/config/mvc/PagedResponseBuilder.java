@@ -54,6 +54,7 @@ public final class PagedResponseBuilder {
      */
     public static <E, T> ResponseEntity<List<T>> build(Page<E> page, Function<E, T> mapper, String basePath) {
         // Map entities to DTOs if mapper is provided
+        @SuppressWarnings("unchecked")
         List<T> content = mapper != null 
             ? page.getContent().stream().map(mapper).toList()
             : (List<T>) page.getContent();

@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.workitem.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.workitem.WorkItemDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,6 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Response object containing the created work item information")
 public class CreateWorkItemResponse {
     @Schema(description = "The created work item details")
+    @JsonProperty("workItem")
     private WorkItemDto workItemDto;
 }

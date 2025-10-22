@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.user.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,6 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Response object containing the created user information")
 public class CreateUserResponse {
     @Schema(description = "The created user details")
+    @JsonProperty("user")
     private UserDto userDto;
 }

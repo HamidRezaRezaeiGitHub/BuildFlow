@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.quote;
 
-import dev.hr.rezaei.buildflow.quote.QuoteLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -6,6 +6,86 @@ This package contains core DTO-related interfaces and exceptions that provide fo
 
 This package provides the foundational DTO framework with marker interfaces and exception handling that all domain DTOs build upon.
 
+## JSON Serialization Conventions
+
+**IMPORTANT**: All DTOs use `@JsonProperty` annotations to provide clean JSON field names without "Dto" suffixes.
+
+### Naming Convention
+- **Java Field Name**: May end with "Dto" for type clarity (e.g., `locationDto`, `contactDto`, `groupDtos`)
+- **JSON Field Name**: Uses clean names without "Dto" suffix (e.g., `"location"`, `"contact"`, `"groups"`)
+- **Type Names**: Keep "Dto" suffix in class names (e.g., `ProjectDto`, `UserDto`, `EstimateGroupDto`)
+
+### Examples
+
+**Project DTO:**
+```java
+public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
+    private UUID id;
+    private UUID builderId;
+    private UUID ownerId;
+    
+    @JsonProperty("location")  // JSON key: "location"
+    private ProjectLocationDto locationDto;  // Field name: locationDto
+}
+```
+
+**Serialized JSON:**
+```json
+{
+  "id": "123e4567-...",
+  "builderId": "456e7890-...",
+  "ownerId": "789e0123-...",
+  "location": {  // Clean field name
+    "streetNumberAndName": "123 Main St",
+    "city": "Toronto"
+  }
+}
+```
+
+**User DTO:**
+```java
+public class UserDto {
+    private UUID id;
+    private String username;
+    private String email;
+    private boolean registered;
+    
+    @JsonProperty("contact")  // JSON key: "contact"
+    private ContactDto contactDto;  // Field name: contactDto
+}
+```
+
+**Estimate DTO:**
+```java
+public class EstimateDto extends UpdatableEntityDto implements Dto<Estimate> {
+    private UUID id;
+    private UUID projectId;
+    private double overallMultiplier;
+    
+    @JsonProperty("groups")  // JSON key: "groups"
+    private Set<EstimateGroupDto> groupDtos;  // Field name: groupDtos
+}
+```
+
+**Response Wrapper DTOs:**
+```java
+public class CreateProjectResponse {
+    @JsonProperty("project")  // JSON key: "project"
+    private ProjectDto projectDto;  // Field name: projectDto
+}
+
+public class CreateUserResponse {
+    @JsonProperty("user")  // JSON key: "user"
+    private UserDto userDto;  // Field name: userDto
+}
+```
+
+### Benefits
+1. **Clean API Contract**: Clients see clean field names like `"user"`, `"project"`, `"location"`
+2. **Type Safety**: Internal code maintains type clarity with "Dto" suffixes
+3. **Consistency**: All DTO fields with nested DTOs follow the same pattern
+4. **No Breaking Changes**: Field names updated via annotations only; Java code unchanged
+
 ## Files Structure
 
 ```

@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.project.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.project.ProjectDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,6 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Response object containing the created project information")
 public class CreateProjectResponse {
     @Schema(description = "The created project details")
+    @JsonProperty("project")
     private ProjectDto projectDto;
 }

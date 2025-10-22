@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -547,6 +546,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void getCombinedProjects_shouldReturnOnlyBuilderProjects_whenScopeIsBuilder() {
         // Arrange
         User builder = registerUser(userService, testProject.getBuilderUser());
+        @SuppressWarnings("unused")
         User owner = registerUser(userService, testProject.getOwner());
         
         // Create project where user is builder

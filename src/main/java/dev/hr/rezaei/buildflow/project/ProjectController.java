@@ -36,7 +36,8 @@ import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
 @Tag(name = "Project Management", description = "API endpoints for managing construction projects")
 public class ProjectController {
 
-    private final ProjectAuthService authorizationHandler;
+    @SuppressWarnings("unused")
+    private final ProjectAuthService projectAuthService;
     private final ProjectService projectService;
     
     // Pagination helper configured with project-specific sort fields and defaults

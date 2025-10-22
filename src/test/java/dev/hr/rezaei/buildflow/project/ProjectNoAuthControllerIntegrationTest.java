@@ -42,13 +42,13 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.projectDto.id").exists())
-                .andExpect(jsonPath("$.projectDto.builderId").value(builderResponse.getUserDto().getId().toString()))
-                .andExpect(jsonPath("$.projectDto.locationDto").exists())
-                .andExpect(jsonPath("$.projectDto.locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
-                .andExpect(jsonPath("$.projectDto.locationDto.city").value(projectLocationRequestDto.getCity()))
-                .andExpect(jsonPath("$.projectDto.locationDto.stateOrProvince").value(projectLocationRequestDto.getStateOrProvince()))
-                .andExpect(jsonPath("$.projectDto.locationDto.country").value(projectLocationRequestDto.getCountry()));
+                .andExpect(jsonPath("$.project.id").exists())
+                .andExpect(jsonPath("$.project.builderId").value(builderResponse.getUserDto().getId().toString()))
+                .andExpect(jsonPath("$.project.location").exists())
+                .andExpect(jsonPath("$.project.location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
+                .andExpect(jsonPath("$.project.location.city").value(projectLocationRequestDto.getCity()))
+                .andExpect(jsonPath("$.project.location.stateOrProvince").value(projectLocationRequestDto.getStateOrProvince()))
+                .andExpect(jsonPath("$.project.location.country").value(projectLocationRequestDto.getCountry()));
     }
 
     @Test
@@ -78,8 +78,8 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
-                .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));
+                .andExpect(jsonPath("$[0].location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
+                .andExpect(jsonPath("$[0].location.city").value(projectLocationRequestDto.getCity()));
     }
 
     @Test
@@ -109,8 +109,8 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].ownerId").value(ownerId.toString()))
-                .andExpect(jsonPath("$[0].locationDto.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
-                .andExpect(jsonPath("$[0].locationDto.city").value(projectLocationRequestDto.getCity()));
+                .andExpect(jsonPath("$[0].location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
+                .andExpect(jsonPath("$[0].location.city").value(projectLocationRequestDto.getCity()));
     }
 
     @Test

@@ -1,7 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractControllerIntegrationTest;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -27,9 +26,9 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.userDto.id").exists())
-                .andExpect(jsonPath("$.userDto.username").value(testCreateBuilderRequest.getUsername()))
-                .andExpect(jsonPath("$.userDto.email").value(testCreateBuilderRequest.getContactRequestDto().getEmail()));
+                .andExpect(jsonPath("$.user.id").exists())
+                .andExpect(jsonPath("$.user.username").value(testCreateBuilderRequest.getUsername()))
+                .andExpect(jsonPath("$.user.email").value(testCreateBuilderRequest.getContactRequestDto().getEmail()));
     }
 
     @Test
@@ -161,6 +160,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
 
     @Test
     void getAllUsers_shouldReturnForbidden_whenRegularUser() throws Exception {
+        @SuppressWarnings("unused")
         User admin = registerAdmin();
         User user = registerBuilder();
         String userToken = login(user);
