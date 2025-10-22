@@ -31,7 +31,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("X-Forwarded-For", "192.168.29." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
@@ -52,7 +52,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("X-Forwarded-For", "192.168.30." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
@@ -74,7 +74,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("X-Forwarded-For", "192.168.31." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -92,7 +92,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("X-Forwarded-For", "192.168.32." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -108,7 +108,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("X-Forwarded-For", "192.168.33." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -122,7 +122,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Admin fetches builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + adminToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
@@ -138,7 +138,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Builder fetches their own projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + builderToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
@@ -157,7 +157,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Other user tries to fetch builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + otherUserToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -173,7 +173,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Viewer tries to fetch builder's projects
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + viewerToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -181,7 +181,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     void getProjectsByBuilderId_shouldReturnUnauthorized_whenNoJwt() throws Exception {
         User builder = registerBuilder();
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId()))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -191,7 +191,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String builderToken = login(builder);
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + builderToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -208,7 +208,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Admin fetches owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + adminToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
@@ -224,7 +224,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Owner fetches their own projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + ownerToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
@@ -243,7 +243,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Other user tries to fetch owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + otherUserToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -259,7 +259,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         // Viewer tries to fetch owner's projects
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + viewerToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -267,7 +267,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
     void getProjectsByOwnerId_shouldReturnUnauthorized_whenNoJwt() throws Exception {
         User owner = registerOwner();
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId()))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -277,7 +277,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String ownerToken = login(owner);
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + ownerToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -311,7 +311,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String builderToken = login(builder);
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + builderToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -347,7 +347,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + builderToken)
                         .param("page", "0")
                         .param("size", "10"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(10))
                 .andExpect(header().string("X-Total-Count", "15"))
@@ -380,7 +380,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + builderToken)
                         .param("page", "1")
                         .param("size", "10"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(5))
                 .andExpect(header().string("X-Total-Count", "15"))
@@ -413,7 +413,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builder.getId())
                         .header("Authorization", "Bearer " + builderToken)
                         .param("sort", "createdAt,ASC"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3));
     }
@@ -443,7 +443,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + builderToken)
                         .param("orderBy", "lastUpdatedAt")
                         .param("direction", "DESC"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(5));
     }
@@ -472,7 +472,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + builderToken)
                         .param("page", "10")
                         .param("size", "10"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
                 .andExpect(header().string("X-Total-Count", "5"))
@@ -503,7 +503,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String ownerToken = login(owner);
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", owner.getId())
                         .header("Authorization", "Bearer " + ownerToken))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -538,7 +538,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + ownerToken)
                         .param("page", "0")
                         .param("size", "10"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(10))
                 .andExpect(header().string("X-Total-Count", "15"))
@@ -572,7 +572,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + ownerToken)
                         .param("orderBy", "invalidField")
                         .param("direction", "ASC"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(5));
     }
@@ -586,7 +586,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                         .header("Authorization", "Bearer " + builderToken)
                         .param("page", "0")
                         .param("size", "10"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

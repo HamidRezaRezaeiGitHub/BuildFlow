@@ -64,7 +64,7 @@ public interface AuthServiceConsumer {
         MvcResult mvcResult = mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -77,7 +77,7 @@ public interface AuthServiceConsumer {
         MvcResult mvcResult = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -89,7 +89,7 @@ public interface AuthServiceConsumer {
         MvcResult mvcResult = mockMvc.perform(get("/api/auth/current")
                         .header("Authorization", "Bearer " + jwtToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -102,7 +102,7 @@ public interface AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest))
                         .header("X-Forwarded-For", clientIp))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -151,7 +151,7 @@ public interface AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
                         .header("X-Forwarded-For", clientIp))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
@@ -184,7 +184,7 @@ public interface AuthServiceConsumer {
                         .header("Authorization", "Bearer " + jwtToken)
                         .header("X-Forwarded-For", clientIp)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+                // .andDo(print())
                 .andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();

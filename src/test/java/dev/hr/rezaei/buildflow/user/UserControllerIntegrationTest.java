@@ -23,7 +23,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                         .header("X-Forwarded-For", "192.168.100." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.user.id").exists())
@@ -41,7 +41,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                         .header("X-Forwarded-For", "192.168.101." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -55,7 +55,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                         .header("X-Forwarded-For", "192.168.102." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -65,7 +65,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
                         .header("X-Forwarded-For", "192.168.103." + testCounter)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -78,7 +78,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users/{username}", targetUser.getUsername())
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.104." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value(targetUser.getUsername()))
@@ -94,7 +94,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users/{username}", targetUser.getUsername())
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.105." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -107,7 +107,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users/{username}", targetUser.getUsername())
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.106." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -117,7 +117,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         
         mockMvc.perform(get("/api/v1/users/{username}", targetUser.getUsername())
                         .header("X-Forwarded-For", "192.168.107." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -129,7 +129,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users/{username}", "nonexistent.user@example.com")
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.108." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -141,7 +141,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users")
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.109." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -154,7 +154,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
     void getAllUsers_shouldReturnUnauthorized_whenNoToken() throws Exception {
         mockMvc.perform(get("/api/v1/users")
                         .header("X-Forwarded-For", "192.168.110." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -168,7 +168,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         mockMvc.perform(get("/api/v1/users")
                         .header("Authorization", "Bearer " + userToken)
                         .header("X-Forwarded-For", "192.168.111." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 }

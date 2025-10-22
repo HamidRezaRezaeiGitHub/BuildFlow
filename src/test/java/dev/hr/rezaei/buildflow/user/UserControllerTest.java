@@ -32,7 +32,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.user.id").exists())
@@ -46,7 +46,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateBuilderRequestWithNullContact)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -65,7 +65,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -84,7 +84,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -103,7 +103,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -122,7 +122,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -142,7 +142,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -167,7 +167,7 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists());
@@ -181,7 +181,7 @@ class UserControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists())
@@ -200,7 +200,7 @@ class UserControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -212,7 +212,7 @@ class UserControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists())
@@ -229,7 +229,7 @@ class UserControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/users"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -247,7 +247,7 @@ class UserControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/users"))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())

@@ -129,7 +129,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest2))
                         .header("X-Forwarded-For", "192.168.3." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", containsString("409")))
@@ -154,7 +154,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest2))
                         .header("X-Forwarded-For", "192.168.5." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", containsString("409")))
@@ -173,7 +173,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest))
                         .header("X-Forwarded-For", "192.168.6." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists())
@@ -193,7 +193,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest))
                         .header("X-Forwarded-For", "192.168.7." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists())
@@ -249,7 +249,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
                         .header("X-Forwarded-For", "192.168.11." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -266,7 +266,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
                         .header("X-Forwarded-For", "192.168.12." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -283,7 +283,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest))
                         .header("X-Forwarded-For", "192.168.13." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.errors").exists())
@@ -311,7 +311,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When & Then
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("X-Forwarded-For", "192.168.17." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -321,7 +321,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("Authorization", "Bearer invalid.jwt.token")
                         .header("X-Forwarded-For", "192.168.18." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -335,7 +335,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("Authorization", "Bearer " + expiredToken)
                         .header("X-Forwarded-For", "192.168.19." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -367,7 +367,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(CURRENT_USER_URL)
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.22." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.email").value(signUpRequest.getContactRequestDto().getEmail()));
@@ -386,7 +386,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
                         .header("Authorization", "Bearer " + initialToken)
                         .header("X-Forwarded-For", "192.168.25." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken").exists())
@@ -402,7 +402,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
                         .header("Authorization", "Bearer " + invalidToken)
                         .header("X-Forwarded-For", "192.168.26." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorType").value(AUTHENTICATION_REQUIRED.name()));
     }
@@ -412,7 +412,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When & Then - No Authorization header
         mockMvc.perform(post(AUTH_BASE_URL + "/refresh")
                         .header("X-Forwarded-For", "192.168.27." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorType").value(AUTHENTICATION_REQUIRED.name()));
@@ -428,7 +428,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(AUTH_BASE_URL + "/logout")
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.30." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -440,7 +440,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When - Logout without authentication
         mockMvc.perform(post(AUTH_BASE_URL + "/logout")
                         .header("X-Forwarded-For", "192.168.31." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -456,7 +456,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(post(AUTH_BASE_URL + "/logout")
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.34." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -478,7 +478,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/validate")
                         .header("Authorization", "Bearer " + token)
                         .header("X-Forwarded-For", "192.168.37." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success").value(true))
@@ -490,7 +490,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // When - Validate without token
         mockMvc.perform(get(AUTH_BASE_URL + "/validate")
                         .header("X-Forwarded-For", "192.168.38." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -503,7 +503,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/validate")
                         .header("Authorization", "Bearer " + invalidToken)
                         .header("X-Forwarded-For", "192.168.39." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -528,7 +528,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adminSignUpRequest))
                         .header("X-Forwarded-For", "192.168.42." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", containsString("403")))
@@ -546,7 +546,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(adminSignUpRequest))
                         .header("X-Forwarded-For", "192.168.43." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -584,7 +584,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newAdminSignUpRequest))
                         .header("X-Forwarded-For", "192.168.45." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.user.username").value(newAdminUsername));
 
@@ -625,7 +625,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.49." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value(targetUsername))
@@ -659,7 +659,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
                         .header("Authorization", "Bearer " + userToken)
                         .header("X-Forwarded-For", "192.168.53." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -674,7 +674,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // 2. Attempt to get user authentication without JWT
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", targetUsername)
                         .header("X-Forwarded-For", "192.168.55." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -700,7 +700,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth/{username}", "nonexistent.user@example.com")
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.58." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound()); // Should return 404 Not Found when user does not exist
     }
 
@@ -737,7 +737,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
                         .header("Authorization", "Bearer " + adminToken)
                         .header("X-Forwarded-For", "192.168.63." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -772,7 +772,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
                         .header("Authorization", "Bearer " + userToken)
                         .header("X-Forwarded-For", "192.168.66." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -781,7 +781,7 @@ class AuthControllerIntegrationTest implements AuthServiceConsumer {
         // Attempt to get all user authentications without JWT
         mockMvc.perform(get(AUTH_BASE_URL + "/user-auth")
                         .header("X-Forwarded-For", "192.168.67." + testCounter))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 }

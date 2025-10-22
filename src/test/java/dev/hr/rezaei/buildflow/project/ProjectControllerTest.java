@@ -36,7 +36,7 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.project.id").exists())
                 .andExpect(jsonPath("$.project.builderId").value(builderId.toString()))
@@ -52,7 +52,7 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullBuilderUserId)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(containsString("400")))
@@ -65,7 +65,7 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequestWithNullLocation)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.status").value(containsString("400")))
@@ -83,7 +83,7 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -98,7 +98,7 @@ class ProjectControllerTest extends AbstractControllerTest {
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateProjectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -112,7 +112,7 @@ class ProjectControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -131,7 +131,7 @@ class ProjectControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", nonExistentBuilderId))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
@@ -145,7 +145,7 @@ class ProjectControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -164,7 +164,7 @@ class ProjectControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", nonExistentOwnerId))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isNotFound());
     }
 }

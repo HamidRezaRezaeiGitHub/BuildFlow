@@ -39,7 +39,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         mockMvc.perform(post("/api/v1/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(projectRequest)))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
@@ -71,7 +71,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builderId))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -102,7 +102,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", ownerId))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
@@ -121,7 +121,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
 
         // When & Then
         mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builderId))
-                .andDo(print())
+                // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
