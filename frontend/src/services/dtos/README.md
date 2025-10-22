@@ -86,12 +86,15 @@ import { ProjectDto } from '@/services/dtos/ProjectDtos';
 
 ```
 dtos/
-├── AddressDtos.ts       # Address-related data structures
+├── AddressDtos.ts       # Address-related data structures and base DTO types
 ├── AuthDtos.ts          # Authentication request/response types
+├── EstimateDtos.ts      # Estimate-related data structures
 ├── MvcDtos.ts           # Spring MVC response wrappers
 ├── PaginationDtos.ts    # Pagination and page response types
 ├── ProjectDtos.ts       # Project-related data structures
+├── QuoteDtos.ts         # Quote-related data structures
 ├── UserDtos.ts          # User profile and contact data structures
+├── WorkItemDtos.ts      # Work item-related data structures
 └── index.ts             # Centralized DTO exports
 ```
 
@@ -565,6 +568,291 @@ function toLocationRequestDto(address: AddressData): LocationRequestDto {
     country: address.country!
   };
 }
+```
+
+### EstimateDtos.ts
+**Purpose:** Estimate cost management data structures.
+
+**Note:** Following the DTO aliasing pattern, consumers use `Estimate`, `EstimateGroup`, and `EstimateLine` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Estimate line strategy enum
+export enum EstimateLineStrategy {
+  AVERAGE = 'AVERAGE',
+  LATEST = 'LATEST',
+  LOWEST = 'LOWEST'
+}
+
+// Estimate line DTO (extends UpdatableEntityDto)
+export type EstimateLineDto = UpdatableEntityDto & {
+  id: string;
+  workItemId: string;
+  quantity: number;
+  estimateStrategy: string;
+  multiplier: number;
+  computedCost: string;  // BigDecimal from backend
+};
+
+// Estimate group DTO
+export type EstimateGroupDto = {
+  id: string;
+  workItemId: string;
+  name: string;
+  description?: string;
+  estimateLineDtos: EstimateLineDto[];
+};
+
+// Estimate DTO (extends UpdatableEntityDto)
+export type EstimateDto = UpdatableEntityDto & {
+  id: string;
+  projectId: string;
+  overallMultiplier: number;
+  groupDtos: EstimateGroupDto[];
+};
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  EstimateDto as Estimate,        // ✅ Use 'Estimate' in consumer code
+  EstimateGroupDto as EstimateGroup,  // ✅ Use 'EstimateGroup' in consumer code
+  EstimateLineDto as EstimateLine     // ✅ Use 'EstimateLine' in consumer code
+} from './EstimateDtos';
+
+export { EstimateLineStrategy } from './EstimateDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { 
+  Estimate,  // Not EstimateDto
+  EstimateGroup,  // Not EstimateGroupDto
+  EstimateLine,  // Not EstimateLineDto
+  EstimateLineStrategy 
+} from '@/services/dtos';
+
+// Create estimate structure
+const estimate: Estimate = {
+  id: '123',
+  projectId: '456',
+  overallMultiplier: 1.15,
+  groupDtos: [
+    {
+      id: '789',
+      workItemId: '101',
+      name: 'Foundation',
+      description: 'Foundation work items',
+      estimateLineDtos: [
+        {
+          id: '1001',
+          workItemId: '101',
+          quantity: 50,
+          estimateStrategy: EstimateLineStrategy.AVERAGE,
+          multiplier: 1.0,
+          computedCost: '5000.00',
+          createdAt: '2024-01-15T10:00:00Z',
+          lastUpdatedAt: '2024-01-15T10:00:00Z'
+        }
+      ]
+    }
+  ],
+  createdAt: '2024-01-15T10:00:00Z',
+  lastUpdatedAt: '2024-01-15T10:00:00Z'
+};
+
+console.log(`Total groups: ${estimate.groupDtos.length}`);
+```
+
+### WorkItemDtos.ts
+**Purpose:** Work item management data structures.
+
+**Note:** Following the DTO aliasing pattern, consumers use `WorkItem` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Work item domain enum
+export enum WorkItemDomain {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE'
+}
+
+// Work item DTO (extends UpdatableEntityDto)
+export type WorkItemDto = UpdatableEntityDto & {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  optional: boolean;
+  userId: string;
+  defaultGroupName?: string;
+  domain: string;
+};
+
+// Create work item request
+export type CreateWorkItemRequest = {
+  code: string;
+  name: string;
+  description?: string;
+  optional: boolean;
+  userId: string;
+  defaultGroupName?: string;
+  domain?: string;
+};
+
+// Create work item response
+export type CreateWorkItemResponse = {
+  workItemDto: WorkItemDto;
+};
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  WorkItemDto as WorkItem,  // ✅ Use 'WorkItem' in consumer code
+  CreateWorkItemRequest,    // No alias (clean name)
+  CreateWorkItemResponse    // No alias (clean name)
+} from './WorkItemDtos';
+
+export { WorkItemDomain } from './WorkItemDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { 
+  WorkItem,  // Not WorkItemDto
+  CreateWorkItemRequest,
+  CreateWorkItemResponse,
+  WorkItemDomain 
+} from '@/services/dtos';
+
+// Create work item request
+const request: CreateWorkItemRequest = {
+  code: 'S1-001',
+  name: 'Foundation Preparation',
+  description: 'Prepare the foundation area',
+  optional: false,
+  userId: '123',
+  defaultGroupName: 'Site Preparation',
+  domain: WorkItemDomain.PUBLIC
+};
+
+const response: CreateWorkItemResponse = 
+  await workItemService.createWorkItem(request);
+
+// Access the created work item
+const workItem: WorkItem = response.workItemDto;
+console.log(`Created work item: ${workItem.name} (${workItem.code})`);
+```
+
+### QuoteDtos.ts
+**Purpose:** Quote and pricing data structures.
+
+**Note:** Following the DTO aliasing pattern, consumers use `Quote` and `QuoteLocation` 
+(exported from `index.ts`), while internal definitions retain the `Dto` suffix for backend alignment.
+
+**Interfaces (internal definitions):**
+```typescript
+// Quote domain enum
+export enum QuoteDomain {
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE'
+}
+
+// Quote unit enum
+export enum QuoteUnit {
+  SQUARE_METER = 'SQUARE_METER',
+  SQUARE_FOOT = 'SQUARE_FOOT',
+  CUBIC_METER = 'CUBIC_METER',
+  CUBIC_FOOT = 'CUBIC_FOOT',
+  METER = 'METER',
+  FOOT = 'FOOT',
+  EACH = 'EACH',
+  KILOGRAM = 'KILOGRAM',
+  TON = 'TON',
+  LITER = 'LITER',
+  MILLILITER = 'MILLILITER',
+  HOUR = 'HOUR',
+  DAY = 'DAY'
+}
+
+// Quote unit display mapping
+export const QuoteUnitDisplay: Record<QuoteUnit, string> = {
+  [QuoteUnit.SQUARE_METER]: 'm²',
+  [QuoteUnit.SQUARE_FOOT]: 'ft²',
+  // ... other mappings
+};
+
+// Quote location DTO (extends BaseAddressDto)
+export type QuoteLocationDto = BaseAddressDto & {
+  id: string;
+};
+
+// Quote DTO (extends UpdatableEntityDto)
+export type QuoteDto = UpdatableEntityDto & {
+  id: string;
+  workItemId: string;
+  createdByUserId: string;
+  supplierId: string;
+  quoteUnit: string;
+  unitPrice: string;  // BigDecimal from backend
+  currency: string;
+  quoteDomain: string;
+  locationDto: QuoteLocationDto;
+  valid: boolean;
+};
+```
+
+**Consumer-facing exports (from index.ts):**
+```typescript
+export type {
+  QuoteDto as Quote,            // ✅ Use 'Quote' in consumer code
+  QuoteLocationDto as QuoteLocation  // ✅ Use 'QuoteLocation' in consumer code
+} from './QuoteDtos';
+
+export { QuoteDomain, QuoteUnit, QuoteUnitDisplay } from './QuoteDtos';
+```
+
+**Usage:**
+```typescript
+// ✅ Correct - use aliased names from index.ts
+import { 
+  Quote,  // Not QuoteDto
+  QuoteLocation,  // Not QuoteLocationDto
+  QuoteDomain,
+  QuoteUnit,
+  QuoteUnitDisplay 
+} from '@/services/dtos';
+
+// Create quote
+const quote: Quote = {
+  id: '123',
+  workItemId: '456',
+  createdByUserId: '789',
+  supplierId: '101',
+  quoteUnit: QuoteUnit.SQUARE_METER,
+  unitPrice: '50.00',
+  currency: 'CAD',
+  quoteDomain: QuoteDomain.PUBLIC,
+  locationDto: {
+    id: '202',
+    streetNumberAndName: '123 Main St',
+    city: 'Toronto',
+    stateOrProvince: 'ON',
+    postalOrZipCode: 'M5H 2N2',
+    country: 'Canada'
+  },
+  valid: true,
+  createdAt: '2024-01-15T10:00:00Z',
+  lastUpdatedAt: '2024-01-15T10:00:00Z'
+};
+
+// Display unit with proper formatting
+console.log(`Price: $${quote.unitPrice} per ${QuoteUnitDisplay[quote.quoteUnit as QuoteUnit]}`);
 ```
 
 ## Related Documentation

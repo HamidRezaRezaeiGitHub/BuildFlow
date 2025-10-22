@@ -1,4 +1,16 @@
 /**
+ * Base DTO for entities with audit fields
+ * Matches backend UpdatableEntityDto structure
+ */
+export type UpdatableEntityDto = {
+  /** Timestamp when the entity was created (ISO 8601 format) */
+  createdAt: string;
+  
+  /** Timestamp when the entity was last updated (ISO 8601 format) */
+  lastUpdatedAt: string;
+};
+
+/**
  * Base address information DTO
  * Matches backend BaseAddressDto structure
  */

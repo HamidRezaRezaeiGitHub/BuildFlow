@@ -11,12 +11,15 @@ The services directory provides the data layer for the BuildFlow frontend, conta
 ```
 services/
 ├── dtos/                      # Data Transfer Objects
-│   ├── AddressDtos.ts        # Address data structures
+│   ├── AddressDtos.ts        # Address data structures and base types
 │   ├── AuthDtos.ts           # Authentication data structures
+│   ├── EstimateDtos.ts       # Estimate data structures
 │   ├── MvcDtos.ts            # MVC response wrappers
 │   ├── PaginationDtos.ts     # Pagination data structures
 │   ├── ProjectDtos.ts        # Project data structures
+│   ├── QuoteDtos.ts          # Quote data structures
 │   ├── UserDtos.ts           # User data structures
+│   ├── WorkItemDtos.ts       # Work item data structures
 │   └── index.ts              # DTO exports
 ├── validation/               # Validation service and hooks
 │   └── README.md            # Comprehensive validation documentation
@@ -277,12 +280,15 @@ formatDateForApi(date: Date): string
 See [dtos/README.md](./dtos/README.md) for detailed DTO documentation.
 
 **DTO Categories:**
-- **AddressDtos** - Address data structures
+- **AddressDtos** - Address data structures and base types (UpdatableEntityDto)
 - **AuthDtos** - Login, signup, auth responses
-- **UserDtos** - User profiles and updates
-- **ProjectDtos** - Project creation and data
+- **EstimateDtos** - Estimate, EstimateGroup, and EstimateLine data structures
 - **MvcDtos** - Spring MVC response wrappers
 - **PaginationDtos** - Paginated response structures
+- **ProjectDtos** - Project creation and data
+- **QuoteDtos** - Quote and QuoteLocation data structures
+- **UserDtos** - User profiles and updates
+- **WorkItemDtos** - Work item creation and data
 
 ## Validation Service
 

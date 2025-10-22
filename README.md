@@ -235,10 +235,13 @@ BuildFlow/
 │   │   │   ├── dtos/          # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
 │   │   │   │   ├── AddressDtos.ts
 │   │   │   │   ├── AuthDtos.ts
+│   │   │   │   ├── EstimateDtos.ts
 │   │   │   │   ├── MvcDtos.ts
 │   │   │   │   ├── PaginationDtos.ts
 │   │   │   │   ├── ProjectDtos.ts
+│   │   │   │   ├── QuoteDtos.ts
 │   │   │   │   ├── UserDtos.ts
+│   │   │   │   ├── WorkItemDtos.ts
 │   │   │   │   └── index.ts
 │   │   │   ├── validation/    # Validation service - [📖 Documentation](src/services/validation/README.md)
 │   │   │   │   ├── types.ts
