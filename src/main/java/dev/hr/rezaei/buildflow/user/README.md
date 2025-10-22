@@ -31,8 +31,6 @@ user/
 ├── UserController.java                    # REST API controller for user management
 ├── UserDto.java                           # DTO for user operations
 ├── UserDtoMapper.java                     # MapStruct mapper for User conversions
-├── UserMockDataInitializer.java           # Mock data generator for development/testing
-├── UserMockDataProperties.java            # Configuration properties for mock data
 ├── UserRepository.java                    # JPA repository for users
 ├── UserService.java                       # Business logic for user operations
 └── README.md                              # This file
@@ -102,13 +100,6 @@ Specialized Data Transfer Objects for user creation workflows with nested contac
 | File | Description |
 |------|-------------|
 | [ContactLabel.java](ContactLabel.java) | Contact role/type classification enum |
-
-### Initialization
-
-| File | Description |
-|------|-------------|
-| [UserMockDataInitializer.java](UserMockDataInitializer.java) | Mock data generator for development and testing environments |
-| [UserMockDataProperties.java](UserMockDataProperties.java) | Configuration properties for mock data generation |
 
 ## Endpoints
 

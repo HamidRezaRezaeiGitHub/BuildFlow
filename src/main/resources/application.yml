@@ -19,7 +19,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
 
 # Management endpoints for development - expose more endpoints for debugging
 management:
@@ -46,9 +46,4 @@ app:
     email: ${ADMIN_EMAIL:hamidreza74hrr@yahoo.com}
   users:
     mock:
-      enabled: true
-      roles:
-        USER:
-          count: 10
-        PREMIUM_USER:
-          count: 5
+      enabled: true  # Loads mock users from mock-data/Users.json and mock-data/UserAuthentications.json

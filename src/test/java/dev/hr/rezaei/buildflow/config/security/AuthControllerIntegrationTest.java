@@ -42,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = {
         "spring.security.enabled=true",
         "app.jwt.secret=testSecretKeyThatIsLongEnoughForHS512AlgorithmToWorkProperly123456789",
-        "app.jwt.expiration-ms=86400000"
+        "app.jwt.expiration-ms=86400000",
+        "app.users.mock.enabled=false"  // Disable mock data loading for controlled testing
 })
 @Slf4j
 class AuthControllerIntegrationTest implements AuthServiceConsumer {

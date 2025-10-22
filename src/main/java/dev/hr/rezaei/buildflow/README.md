@@ -139,8 +139,6 @@ buildflow/
 │   ├── UserController.java                    # REST API controller
 │   ├── UserDto.java                           # DTO for user operations
 │   ├── UserDtoMapper.java                     # MapStruct mapper for User
-│   ├── UserMockDataInitializer.java           # Mock data generator
-│   ├── UserMockDataProperties.java            # Mock data configuration
 │   ├── UserRepository.java                    # JPA repository for users
 │   ├── UserService.java                       # Business logic for users
 │   └── README.md                              # User package documentation
