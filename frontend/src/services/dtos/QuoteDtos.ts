@@ -92,7 +92,7 @@ export type QuoteDto = UpdatableEntityDto & {
   currency: string;
   
   /** Domain/category of the quote (PUBLIC or PRIVATE) */
-  quoteDomain: string;
+  quoteDomain: QuoteDomain;
   
   /** Location information for the quote */
   locationDto: QuoteLocationDto;
