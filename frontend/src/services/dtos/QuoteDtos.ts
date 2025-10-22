@@ -83,7 +83,7 @@ export type QuoteDto = UpdatableEntityDto & {
   supplierId: string;
   
   /** Unit of measurement for the quote */
-  quoteUnit: string;
+  quoteUnit: QuoteUnit;
   
   /** Unit price (BigDecimal in backend) */
   unitPrice: string;
