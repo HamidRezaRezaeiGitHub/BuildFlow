@@ -8,7 +8,7 @@ When running the frontend without a backend (`config.enableMockAuth = true`), th
 
 ## Structure
 
-### `authMocks.ts`
+### `MockUsers.ts`
 Mock authentication data and utilities:
 - **Mock Users**: Pre-configured test users (admin, testuser)
 - **Mock Credentials**: Test login credentials (all use password: `password123`)
@@ -61,7 +61,7 @@ Mocks are automatically used when `config.enableMockAuth = true` (standalone mod
 
 ```typescript
 import { config } from '@/config/environment';
-import { validateMockCredentials, generateMockAuthResponse } from '@/mocks/authMocks';
+import { validateMockCredentials, generateMockAuthResponse } from '@/mocks/MockUsers';
 
 async login(credentials: LoginCredentials): Promise<AuthResponse> {
   if (config.enableMockAuth) {

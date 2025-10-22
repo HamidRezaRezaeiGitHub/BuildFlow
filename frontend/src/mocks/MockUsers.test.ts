@@ -16,9 +16,9 @@ import {
   resetMockCredentials,
   storeMockCredentials,
   validateMockCredentials,
-} from './authMocks';
+} from './MockUsers';
 
-describe('authMocks', () => {
+describe('MockUsers', () => {
   // Store original data to restore after each test
   let originalMockUsers: User[];
   let originalMockCredentials: Record<string, { username: string; password: string }>;

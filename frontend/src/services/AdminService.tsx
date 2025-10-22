@@ -1,5 +1,5 @@
 import { config } from '@/config/environment';
-import { findUserAuthenticationByUsername, mockUsers } from '@/mocks/authMocks';
+import { findUserAuthenticationByUsername, mockUsers } from '@/mocks/MockUsers';
 import { apiService } from './ApiService';
 import { CreateUserRequest, CreateUserResponse, User, UserAuthentication } from './dtos';
 import { UserDetails } from './dtos/UserDtos';

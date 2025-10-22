@@ -53,7 +53,7 @@ This allows:
 
 ## Mock Users
 
-Pre-configured Canadian accounts for testing (defined in `src/mocks/authMocks.ts`):
+Pre-configured Canadian accounts for testing (defined in `src/mocks/MockUsers.ts`):
 
 | Username   | Role  | Name             | Location      |
 | ---------- | ----- | ---------------- | ------------- |
@@ -197,7 +197,7 @@ VITE_ENABLE_MOCK_DATA=true
 
 ### Updating Mock Data
 
-Mock users are defined in `src/mocks/authMocks.ts`. To add or modify users:
+Mock users are defined in `src/mocks/MockUsers.ts`. To add or modify users:
 
 1. Edit `mockUsers` array
 2. Update `mockCredentials` object

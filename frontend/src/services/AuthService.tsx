@@ -6,7 +6,7 @@ import {
     getUserFromMockToken,
     isValidMockToken,
     validateMockCredentials,
-} from '@/mocks/authMocks';
+} from '@/mocks/MockUsers';
 import { apiService } from './ApiService';
 import type {
     AuthResponse,

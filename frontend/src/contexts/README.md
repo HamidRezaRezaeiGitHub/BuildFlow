@@ -117,7 +117,7 @@ const MyComponent = () => {
 
 **Mock Authentication:**
 When `config.enableMockAuth = true`:
-- Uses mock users from `@/mocks/authMocks`
+- Uses mock users from `@/mocks/MockUsers`
 - Simulates login/logout
 - No backend required
 - Perfect for development

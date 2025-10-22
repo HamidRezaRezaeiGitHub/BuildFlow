@@ -122,7 +122,7 @@ frontend/
 │   │   ├── ThemeContext.tsx
 │   │   └── index.ts
 │   ├── mocks/                   # Mock data for development - [📖 Documentation](src/mocks/README.md)
-│   │   ├── authMocks.ts
+│   │   ├── MockUsers.ts
 │   │   ├── MockProjects.ts
 │   │   └── index.ts
 │   ├── pages/                   # Route page components - [📖 Documentation](src/pages/README.md)
@@ -267,7 +267,7 @@ The frontend is automatically deployed to GitHub Pages on every push to `main` o
 - **Profile**: Development mode with mock authentication and data
 - **Backend**: Not integrated - uses mock users and data from `src/mocks/`
 - **Auto-deploy**: Triggered on push to main/master branch
-- **Mock Users**: Available for testing (see `src/mocks/authMocks.ts`)
+- **Mock Users**: Available for testing (see `src/mocks/MockUsers.ts`)
   - Username: `admin` / Password: `password123`
   - Username: `testuser` / Password: `password123`
 

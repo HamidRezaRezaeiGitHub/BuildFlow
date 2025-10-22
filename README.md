@@ -215,7 +215,7 @@ BuildFlow/
 │   │   │   ├── ThemeContext.tsx
 │   │   │   └── index.ts
 │   │   ├── mocks/              # Mock data for development - [📖 Documentation](src/mocks/README.md)
-│   │   │   ├── authMocks.ts
+│   │   │   ├── MockUsers.ts
 │   │   │   ├── MockProjects.ts
 │   │   │   └── index.ts
 │   │   ├── pages/              # Route page components - [📖 Documentation](src/pages/README.md)

@@ -96,7 +96,7 @@ class AuthService {
 
 **Mock Authentication:**
 - Enabled via `config.enableMockAuth`
-- Uses mock users from `@/mocks/authMocks`
+- Uses mock users from `@/mocks/MockUsers`
 - Simulates backend responses
 - Perfect for standalone development
 
