@@ -1,3 +1,4 @@
+import type { Project, ProjectLocationRequest } from '../services/dtos';
 import {
     createMockProject,
     findProjectById,
@@ -6,7 +7,6 @@ import {
     generateMockCreateProjectResponse,
     mockProjects,
 } from './MockProjects';
-import type { Project, ProjectLocationRequest } from '../services/dtos';
 
 describe('MockProjects', () => {
     // Store the original mockProjects array before each test
@@ -105,15 +105,15 @@ describe('MockProjects', () => {
             const builder2Projects = findProjectsByBuilderId('2');
             const builder3Projects = findProjectsByBuilderId('3');
             const builder4Projects = findProjectsByBuilderId('4');
-            
+
             expect(builder1Projects.length).toBeGreaterThan(0);
             expect(builder2Projects.length).toBeGreaterThan(0);
             expect(builder3Projects.length).toBeGreaterThan(0);
             expect(builder4Projects.length).toBeGreaterThan(0);
-            
+
             // Verify all projects are accounted for
-            const totalProjects = builder1Projects.length + builder2Projects.length + 
-                                 builder3Projects.length + builder4Projects.length;
+            const totalProjects = builder1Projects.length + builder2Projects.length +
+                builder3Projects.length + builder4Projects.length;
             expect(totalProjects).toBe(mockProjects.length);
         });
     });
@@ -137,15 +137,15 @@ describe('MockProjects', () => {
             const owner2Projects = findProjectsByOwnerId('2');
             const owner3Projects = findProjectsByOwnerId('3');
             const owner4Projects = findProjectsByOwnerId('4');
-            
+
             expect(owner1Projects.length).toBeGreaterThan(0);
             expect(owner2Projects.length).toBeGreaterThan(0);
             expect(owner3Projects.length).toBeGreaterThan(0);
             expect(owner4Projects.length).toBeGreaterThan(0);
-            
+
             // Verify all projects are accounted for
-            const totalProjects = owner1Projects.length + owner2Projects.length + 
-                                 owner3Projects.length + owner4Projects.length;
+            const totalProjects = owner1Projects.length + owner2Projects.length +
+                owner3Projects.length + owner4Projects.length;
             expect(totalProjects).toBe(mockProjects.length);
         });
     });
@@ -233,7 +233,7 @@ describe('MockProjects', () => {
     describe('Data integrity', () => {
         test('MockProjects_shouldMaintainDataIntegrity_afterMultipleOperations', () => {
             const initialCount = mockProjects.length;
-            
+
             // Create a project
             const locationRequest: ProjectLocationRequest = {
                 streetNumberAndName: 'Integrity Test Street',
@@ -245,7 +245,7 @@ describe('MockProjects', () => {
 
             // Find by builder
             const builderProjects = findProjectsByBuilderId('1');
-            
+
             // Find by owner
             const ownerProjects = findProjectsByOwnerId('1');
 
@@ -258,7 +258,7 @@ describe('MockProjects', () => {
         test('MockProjects_shouldLinkToMockUsers_correctly', () => {
             // Mock users have IDs '1', '2', '3', and '4'
             const validUserIds = ['1', '2', '3', '4'];
-            
+
             mockProjects.forEach(project => {
                 expect(validUserIds).toContain(project.builderId);
                 expect(validUserIds).toContain(project.ownerId);

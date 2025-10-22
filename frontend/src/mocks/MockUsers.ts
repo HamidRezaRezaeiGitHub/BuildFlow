@@ -1,7 +1,7 @@
+import mockAuthenticationsData from '../../../mock-data/UserAuthentications.json';
+import mockUsersData from '../../../mock-data/Users.json';
 import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication, UserSummary } from '../services/dtos';
 import { Role } from '../services/dtos';
-import mockUsersData from '../../../mock-data/Users.json';
-import mockAuthenticationsData from '../../../mock-data/UserAuthentications.json';
 
 /**
  * Mock Users Database - Canadian Users
@@ -195,7 +195,7 @@ export function getUserRole(username: string): string {
 export function findUserAuthenticationByUsername(username: string): UserAuthentication | undefined {
     const user = findUserByUsername(username);
     if (!user) return undefined;
-    
+
     return {
         id: user.id,
         username: user.username,
@@ -214,7 +214,7 @@ export function findUserAuthenticationByUsername(username: string): UserAuthenti
 export function findUserAuthenticationById(id: string): UserAuthentication | undefined {
     const user = mockUsers.find(u => u.id === id);
     if (!user) return undefined;
-    
+
     return {
         id: user.id,
         username: user.username,
@@ -303,9 +303,9 @@ export function getUserFromMockToken(token: string): UserSummary | null {
 
         const payload = JSON.parse(atob(parts[1]));
         const user = findUserByUsername(payload.sub);
-        
+
         if (!user) return null;
-        
+
         // Return UserSummary instead of full User
         return {
             id: user.id,

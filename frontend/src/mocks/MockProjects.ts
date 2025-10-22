@@ -1,6 +1,6 @@
+import mockProjectsData from '../../../mock-data/Projects.json';
 import { config } from '../config/environment';
 import type { CreateProjectResponse, Project, ProjectLocationRequest } from '../services/dtos';
-import mockProjectsData from '../../../mock-data/Projects.json';
 
 /**
  * Mock Projects Database - Canadian Projects
