@@ -59,14 +59,16 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
 }) => {
   const { user } = useAuth();
 
-  // Address field configuration following the signup form pattern
+  // Address field configuration following BaseAddressDto structure
+  // Required: streetNumberAndName, city, stateOrProvince, country
+  // Optional: unitNumber, postalOrZipCode
   const addressFieldsConfig: AddressFieldConfig[] = [
     { field: 'unitNumber', colSpan: 1, required: false, show: true },
-    { field: 'streetNumberName' as any, colSpan: 1, required: false, show: true },
+    { field: 'streetNumberAndName', colSpan: 1, required: true, show: true },
     { field: 'city', colSpan: 1, required: true, show: true },
     { field: 'stateOrProvince', colSpan: 1, required: true, show: true },
     { field: 'country', colSpan: 1, required: true, show: true },
-    { field: 'postalOrZipCode', colSpan: 1, required: true, show: true }
+    { field: 'postalOrZipCode', colSpan: 1, required: false, show: true }
   ];
 
   // Form state
@@ -83,6 +85,8 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
   const [isLocationValid, setIsLocationValid] = React.useState(false);
 
   // Basic address validation - check if required fields are filled
+  // Based on BaseAddressDto: required fields are streetNumberAndName, city, stateOrProvince, country
+  // Optional fields: unitNumber, postalOrZipCode
   const validateAddress = React.useCallback((address: AddressData) => {
     const requiredFields: (keyof AddressData)[] = [
       'streetNumberAndName', 'city', 'stateOrProvince', 'country'
