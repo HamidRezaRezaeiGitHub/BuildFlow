@@ -124,44 +124,94 @@ const response = await authService.register({
 
 **Features:**
 - Create new projects
-- Get projects by builder ID
-- Get projects by owner ID
-- Update project details
-- Delete projects
+- Get projects by builder ID (with pagination)
+- Get projects by owner ID (with pagination)
+- Get combined projects (builder OR owner)
 - Mock project data (dev mode)
+- Environment-aware (standalone/integrated modes)
+
+**Backend Integration:**
+- Endpoint: `POST /api/v1/projects` for project creation
+- Endpoint: `GET /api/v1/projects/builder/{builderId}` for builder's projects
+- Endpoint: `GET /api/v1/projects/owner/{ownerId}` for owner's projects
+- Endpoint: `GET /api/v1/projects/combined/{userId}` for combined projects
+- Requires JWT authentication token
+- Supports pagination with headers (`X-Page`, `X-Size`, `X-Total-Elements`, etc.)
 
 **Key Functions:**
 ```typescript
 class ProjectService {
-  createProject(request: CreateProjectRequestDto): Promise<CreateProjectResponseDto>
+  // Create a new project
+  createProject(request: CreateProjectRequest, token: string): Promise<CreateProjectResponse>
+  
+  // Get projects by builder ID (deprecated - use paginated version)
+  getProjectsByBuilderId(builderId: string, token: string): Promise<Project[]>
+  
+  // Get paginated projects by builder ID
+  getProjectsByBuilderIdPaginated(builderId: string, token: string, params?: PaginationParams): Promise<PagedResponse<Project>>
+  
+  // Get projects by owner ID (deprecated - use paginated version)
+  getProjectsByOwnerId(ownerId: string, token: string): Promise<Project[]>
+  
+  // Get paginated projects by owner ID
+  getProjectsByOwnerIdPaginated(ownerId: string, token: string, params?: PaginationParams): Promise<PagedResponse<Project>>
+  
+  // Get combined projects (builder OR owner) with server-side filtering
+  getCombinedProjectsPaginated(userId: string, token: string, scope?: 'builder'|'owner'|'both', createdAfter?: string, createdBefore?: string, params?: PaginationParams): Promise<PagedResponse<Project>>
+}
+
+// Wrapper with automatic token injection from AuthContext
+class ProjectServiceWithAuth {
+  createProject(request: CreateProjectRequest): Promise<CreateProjectResponse>
   getProjectsByBuilderId(builderId: string): Promise<Project[]>
+  getProjectsByBuilderIdPaginated(builderId: string, params?: PaginationParams): Promise<PagedResponse<Project>>
   getProjectsByOwnerId(ownerId: string): Promise<Project[]>
-  updateProject(id: string, updates: Partial<Project>): Promise<Project>
-  deleteProject(id: string): Promise<void>
+  getProjectsByOwnerIdPaginated(ownerId: string, params?: PaginationParams): Promise<PagedResponse<Project>>
+  getCombinedProjectsPaginated(userId: string, scope?: 'builder'|'owner'|'both', createdAfter?: string, createdBefore?: string, params?: PaginationParams): Promise<PagedResponse<Project>>
 }
 ```
 
 **Mock Data Integration:**
 - Uses `MockProjects.ts` when `config.enableMockData = true`
-- Simulates network delays (300-500ms)
+- Simulates network delays (300-500ms for pagination, 500ms for creation)
 - Stores mock projects in memory
+- Supports pagination simulation
 - Realistic Canadian project data
 
 **Usage:**
 ```typescript
-import { ProjectService } from '@/services/ProjectService';
+import { projectService } from '@/services/ProjectService';
 
-// Create project
-const project = await ProjectService.createProject({
-  name: 'New Building',
-  description: 'Commercial construction',
-  builderId: '1',
-  ownerId: '2',
-  locationRequestDto: addressData
-});
+// Create project (requires token)
+const response = await projectService.createProject({
+  userId: '123e4567-e89b-12d3-a456-426614174000',
+  isBuilder: true,
+  locationRequestDto: {
+    unitNumber: '101',
+    streetNumberAndName: '123 Main St',
+    city: 'Toronto',
+    stateOrProvince: 'ON',
+    postalOrZipCode: 'M5V 3A8',
+    country: 'Canada'
+  }
+}, token);
 
-// Get builder's projects
-const projects = await ProjectService.getProjectsByBuilderId('1');
+// Get paginated builder's projects
+const pagedProjects = await projectService.getProjectsByBuilderIdPaginated(
+  builderId,
+  token,
+  { page: 0, size: 25, orderBy: 'lastUpdatedAt', direction: 'DESC' }
+);
+
+// Usage with AuthContext wrapper (recommended)
+import { ProjectServiceWithAuth } from '@/services/ProjectService';
+import { useAuth } from '@/contexts/AuthContext';
+
+const { token } = useAuth();
+const projectServiceWithAuth = new ProjectServiceWithAuth(() => token);
+
+// No need to pass token manually
+const response = await projectServiceWithAuth.createProject(request);
 ```
 
 ### AdminService.tsx
