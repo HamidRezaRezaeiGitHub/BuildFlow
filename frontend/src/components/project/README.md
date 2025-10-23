@@ -21,39 +21,40 @@ project/
 ## Component Details
 
 ### NewProjectForm.tsx
-**Purpose:** Form for creating new construction projects.
+**Purpose:** Form for creating new construction projects with user role selection and location input.
 
 **Features:**
-- **Project Information Fields:**
-  - Project name/title
-  - Project description
-  - Builder selection (for admins)
-  - Owner selection (for admins)
+- **User Role Selection:**
+  - Builder role (user will be constructing the project)
+  - Owner role (user owns the property)
+  - Visual selection buttons with icons
   
 - **Address Integration:**
   - FlexibleAddressForm for project location
-  - Address validation
-  - Canadian address support
+  - All BaseAddressDto fields rendered
+  - Address validation with required/optional field distinction
   
 - **Form Validation:**
-  - Required field validation
-  - Name length validation
-  - Description validation
-  - Address completeness check
+  - Real-time validation of required fields
+  - Button enables only when all required fields are complete
+  - Required: streetNumberAndName, city, stateOrProvince, country
+  - Optional: unitNumber, postalOrZipCode
 
 - **Submission Handling:**
-  - Creates project via ProjectService
-  - Shows loading states
+  - Creates CreateProjectRequest with userId, isBuilder flag, and location
+  - Shows loading states during submission
   - Displays success/error messages
-  - Redirects to project list on success
+  - Navigation on success/cancel
 
 **Props:**
 ```typescript
 interface NewProjectFormProps {
-  onSuccess?: (project: Project) => void;
+  onSubmit: (request: CreateProjectRequest) => void | Promise<void>;
   onCancel?: () => void;
+  isSubmitting?: boolean;
+  submittingText?: string;
   className?: string;
-  enableValidation?: boolean;
+  inline?: boolean;
 }
 ```
 
@@ -63,19 +64,27 @@ import { NewProjectForm } from '@/components/project';
 
 const NewProjectPage = () => (
   <NewProjectForm
-    onSuccess={(project) => navigate(`/projects/${project.id}`)}
+    onSubmit={handleCreateProject}
     onCancel={() => navigate('/projects')}
-    enableValidation={true}
+    isSubmitting={false}
+    submittingText="Creating Project..."
   />
 );
 ```
 
 **Form Fields:**
-- Project Name (required, 3-100 characters)
-- Description (optional, max 500 characters)
-- Builder (auto-filled for non-admin users)
-- Owner (auto-filled for non-admin users)
-- Address (FlexibleAddressForm with full address fields)
+- User Role Selection (required): Builder or Owner
+- Street Number & Name (required)
+- Unit/Apt/Suite (optional)
+- City (required)
+- Province/State (required)
+- Country (required)
+- Postal Code/Zip Code (optional)
+
+**Recent Fixes:**
+- Fixed missing streetNumberAndName field (was incorrectly named 'streetNumberName')
+- Corrected postalOrZipCode to be optional (was incorrectly required)
+- Added comprehensive test coverage (8 test cases)
 
 ### ProjectList.tsx
 **Purpose:** Displays a list of projects as cards in a responsive grid.
