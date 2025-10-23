@@ -17,70 +17,150 @@ project/
 ## Page Details
 
 ### NewProject.tsx
-**Purpose:** Full page for creating new construction projects with form and layout.
+**Purpose:** Full page for creating new construction projects with integrated backend API.
 
 **Route:** `/projects/new` (protected route, requires authentication)
 
+**Backend Integration:** ✅ **FULLY INTEGRATED**
+- Calls `ProjectService.createProject(request, token)` 
+- Endpoint: `POST /api/v1/projects`
+- Request: `CreateProjectRequest` with userId, isBuilder, locationRequestDto
+- Response: `CreateProjectResponse` with created project details
+- Error handling: Structured errors from `ApiService` with user-friendly messages
+
 **Features:**
 - **Page Layout:**
-  - DashboardLayout wrapper for consistent navigation
-  - Page header with title and breadcrumbs
-  - Cancel button to return to projects list
+  - Mobile-first design with StandardBottomNavbar
+  - Centered card layout with responsive padding
+  - Page header with title and description
+  - Card wrapper for form content
 
 - **Form Integration:**
-  - NewProjectForm component
+  - NewProjectForm component with inline mode
   - Address input via FlexibleAddressForm
   - Validation and error handling
-  - Loading states during submission
+  - Loading states during submission (isSubmitting)
+  - Cancel functionality to navigate back
 
 - **Success Handling:**
-  - Success message on project creation
-  - Automatic redirect to projects list
-  - Option to create another project
+  - Success message displayed in green alert banner
+  - Shows created project ID
+  - Automatic redirect to /projects or /dashboard after 2 seconds
+  - Console logging for debugging
 
 - **Error Handling:**
-  - Display backend validation errors
+  - Catches and displays API errors
+  - Red destructive alert banner for errors
+  - User-friendly error messages
+  - Console logging for debugging
   - Network error handling
-  - Form-level error messages
 
 **Page Structure:**
 ```typescript
-<DashboardLayout>
-  <div className="container mx-auto py-6">
-    <Card>
-      <CardHeader>
-        <CardTitle>Create New Project</CardTitle>
-        <CardDescription>
-          Add a new construction project to your portfolio
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <NewProjectForm
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-          enableValidation={true}
-        />
-      </CardContent>
-    </Card>
-  </div>
-</DashboardLayout>
+<div className="min-h-screen bg-background pb-20">
+  <section className="py-8 bg-background">
+    <div className="mx-auto max-w-screen-2xl px-4 lg:px-8">
+      {/* Page Header */}
+      <div className="text-center space-y-4 mb-16">
+        <h1>Create New Project</h1>
+        <p>Description text</p>
+      </div>
+
+      {/* Success Message */}
+      {successMessage && <div className="bg-green-500/10 border border-green-500/20">...</div>}
+
+      {/* Error Message */}
+      {error && <div className="bg-destructive/10 border border-destructive/20">...</div>}
+
+      {/* Form Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Project</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NewProjectForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            submittingText="Creating Project..."
+            inline={true}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+  <StandardBottomNavbar />
+</div>
 ```
 
 **Data Flow:**
 ```
-User Input → NewProjectForm → Validation → ProjectService.createProject()
-                                                      ↓
-                                               Backend API
-                                                      ↓
-                                            Success/Error Response
-                                                      ↓
-                                      Navigate to Projects List
+User Input → NewProjectForm → handleSubmit(request)
+                                       ↓
+                        Validate token exists
+                                       ↓
+                    ProjectService.createProject(request, token)
+                                       ↓
+                                Backend API (POST /api/v1/projects)
+                                       ↓
+                              Success/Error Response
+                                       ↓
+        Success: Show message → Wait 2s → Navigate to /projects or /dashboard
+        Error: Display error message in red banner
 ```
 
 **Components Used:**
-- `DashboardLayout` - Page layout wrapper
-- `NewProjectForm` - Project creation form
-- `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent` - UI components
+- `StandardBottomNavbar` - Mobile-first bottom navigation
+- `NewProjectForm` - Project creation form with address input
+- `Card`, `CardHeader`, `CardTitle`, `CardContent` - UI components from shadcn/ui
+- `useAuth` hook - For authentication token
+- `useNavigate` hook from react-router-dom - For navigation
+
+**Implementation Details:**
+```typescript
+const NewProject: React.FC = () => {
+  const navigate = useReactRouterNavigate();
+  const { token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+
+  const handleSubmit = async (request: CreateProjectRequest) => {
+    setIsSubmitting(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      if (!token) {
+        throw new Error('You must be logged in to create a project');
+      }
+
+      console.log('Creating project with request:', request);
+      const response = await projectService.createProject(request, token);
+      
+      console.log('Project created successfully:', response);
+      setSuccessMessage(`Project created successfully! Project ID: ${response.project.id}`);
+      
+      // Navigate after 2 second delay
+      setTimeout(() => {
+        navigate('/projects'); // or fallback to /dashboard
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Error creating project:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create project');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate(-1); // Go back to previous page
+  };
+
+  // ... render JSX
+};
+```
 
 **Usage Example:**
 ```typescript
