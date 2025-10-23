@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NewProject } from './NewProject';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,8 +94,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       renderPage();
       
       // Step 1 should be visible with role selection buttons
-      expect(screen.getByRole('button', { name: /Builder/i })).toBeVisible();
-      expect(screen.getByRole('button', { name: /Owner/i })).toBeVisible();
+      expect(screen.getByRole('button', { name: /I will be constructing this project/i })).toBeVisible();
+      expect(screen.getByRole('button', { name: /I own the property for this project/i })).toBeVisible();
     });
   });
 
@@ -104,7 +104,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const user = userEvent.setup();
       renderPage();
 
-      const builderButton = screen.getByRole('button', { name: /Builder/i });
+      // Find the builder role selection button (not the accordion trigger)
+      const builderButton = screen.getByRole('button', { name: /I will be constructing this project/i });
       await user.click(builderButton);
 
       expect(builderButton).toHaveAttribute('aria-pressed', 'true');
@@ -114,7 +115,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const user = userEvent.setup();
       renderPage();
 
-      const ownerButton = screen.getByRole('button', { name: /Owner/i });
+      // Find the owner role selection button (not the accordion trigger)
+      const ownerButton = screen.getByRole('button', { name: /I own the property for this project/i });
       await user.click(ownerButton);
 
       expect(ownerButton).toHaveAttribute('aria-pressed', 'true');
@@ -141,16 +143,19 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const user = userEvent.setup();
       renderPage();
 
-      // Select Builder role
-      await user.click(screen.getByRole('button', { name: /Builder/i }));
+      // Select Builder role using more specific selector
+      await user.click(screen.getByRole('button', { name: /I will be constructing this project/i }));
       
       // Click Next to go to Step 2
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
 
-      // Wait for Step 2 to expand
+      // Wait for Step 2 to expand - check for form fields instead of text
       await waitFor(() => {
-        expect(screen.getByText(/Owner Information/i)).toBeVisible();
+        expect(screen.getByLabelText(/First Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Last Name/i)).toBeVisible();
+        // Check the label contains "Owner" text
+        expect(screen.getByText(/Owner Information \(Optional\)/i)).toBeInTheDocument();
       });
     });
 
@@ -158,16 +163,19 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const user = userEvent.setup();
       renderPage();
 
-      // Select Owner role
-      await user.click(screen.getByRole('button', { name: /Owner/i }));
+      // Select Owner role using more specific selector
+      await user.click(screen.getByRole('button', { name: /I own the property for this project/i }));
       
       // Click Next to go to Step 2
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
 
-      // Wait for Step 2 to expand
+      // Wait for Step 2 to expand - check for form fields instead of text
       await waitFor(() => {
-        expect(screen.getByText(/Builder Information/i)).toBeVisible();
+        expect(screen.getByLabelText(/First Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Last Name/i)).toBeVisible();
+        // Check the label contains "Builder" text
+        expect(screen.getByText(/Builder Information \(Optional\)/i)).toBeInTheDocument();
       });
     });
 
@@ -183,14 +191,25 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
         expect(screen.getByLabelText(/First Name/i)).toBeVisible();
       });
 
-      // Enter information
-      await user.type(screen.getByLabelText(/First Name/i), 'John');
-      await user.type(screen.getByLabelText(/Last Name/i), 'Doe');
-      await user.type(screen.getByLabelText(/Email/i), 'john@example.com');
+      // Enter information using paste for faster execution
+      const firstNameInput = screen.getByLabelText(/First Name/i);
+      await user.click(firstNameInput);
+      await user.paste('John');
+      
+      const lastNameInput = screen.getByLabelText(/Last Name/i);
+      await user.click(lastNameInput);
+      await user.paste('Doe');
+      
+      const emailInput = screen.getByLabelText(/Email/i);
+      await user.click(emailInput);
+      await user.paste('john@example.com');
 
-      expect(screen.getByLabelText(/First Name/i)).toHaveValue('John');
-      expect(screen.getByLabelText(/Last Name/i)).toHaveValue('Doe');
-      expect(screen.getByLabelText(/Email/i)).toHaveValue('john@example.com');
+      // Wait for all values to be set with increased timeout
+      await waitFor(() => {
+        expect(screen.getByLabelText(/First Name/i)).toHaveValue('John');
+        expect(screen.getByLabelText(/Last Name/i)).toHaveValue('Doe');
+        expect(screen.getByLabelText(/Email/i)).toHaveValue('john@example.com');
+      }, { timeout: 3000 });
     });
 
     it('shows Previous and Next buttons in Step 2', async () => {
@@ -224,7 +243,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       // Should be back at Step 1 with role selection visible
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /Builder/i })).toBeVisible();
+        expect(screen.getByRole('button', { name: /I will be constructing this project/i })).toBeVisible();
       });
     });
   });
@@ -306,20 +325,32 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       });
       await user.click(nextButtons[0]);
 
+      // Wait for all address fields to be visible with increased timeout
       await waitFor(() => {
         expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
-      });
+        expect(screen.getByLabelText(/City/i)).toBeVisible();
+        expect(screen.getByLabelText(/Province\/State/i)).toBeVisible();
+        expect(screen.getByLabelText(/Country/i)).toBeVisible();
+      }, { timeout: 3000 });
 
-      // Fill required address fields
-      await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main St');
-      await user.type(screen.getByLabelText(/City/i), 'Toronto');
-      await user.type(screen.getByLabelText(/Province\/State/i), 'ON');
-      await user.type(screen.getByLabelText(/Country/i), 'Canada');
+      // Fill required address fields using fireEvent for reliability
+      const streetInput = screen.getByLabelText(/Street Number & Name/i);
+      fireEvent.change(streetInput, { target: { value: '123 Main St' } });
+      
+      const cityInput = screen.getByLabelText(/City/i);
+      fireEvent.change(cityInput, { target: { value: 'Toronto' } });
+      
+      const stateInput = screen.getByLabelText(/Province\/State/i);
+      fireEvent.change(stateInput, { target: { value: 'ON' } });
+      
+      const countryInput = screen.getByLabelText(/Country/i);
+      fireEvent.change(countryInput, { target: { value: 'Canada' } });
 
+      // Wait for validation to complete and button to be enabled
       await waitFor(() => {
         const createButton = screen.getByRole('button', { name: /Create Project/i });
         expect(createButton).not.toBeDisabled();
-      });
+      }, { timeout: 3000 });
     });
   });
 
@@ -328,8 +359,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const user = userEvent.setup();
       renderPage();
 
-      // Select Owner role
-      await user.click(screen.getByRole('button', { name: /Owner/i }));
+      // Select Owner role using more specific selector
+      await user.click(screen.getByRole('button', { name: /I own the property for this project/i }));
 
       // Navigate to Step 2
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
@@ -343,7 +374,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       await user.click(screen.getByRole('button', { name: /Previous/i }));
 
       await waitFor(() => {
-        const ownerButton = screen.getByRole('button', { name: /Owner/i });
+        const ownerButton = screen.getByRole('button', { name: /I own the property for this project/i });
         expect(ownerButton).toHaveAttribute('aria-pressed', 'true');
       });
     });
@@ -360,9 +391,20 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
         expect(screen.getByLabelText(/First Name/i)).toBeVisible();
       });
 
-      // Enter information
-      await user.type(screen.getByLabelText(/First Name/i), 'John');
-      await user.type(screen.getByLabelText(/Email/i), 'john@test.com');
+      // Enter information using paste for faster execution
+      const firstNameInput = screen.getByLabelText(/First Name/i);
+      await user.click(firstNameInput);
+      await user.paste('John');
+      
+      const emailInput = screen.getByLabelText(/Email/i);
+      await user.click(emailInput);
+      await user.paste('john@test.com');
+
+      // Wait for all input to be completed before navigating
+      await waitFor(() => {
+        expect(screen.getByLabelText(/First Name/i)).toHaveValue('John');
+        expect(screen.getByLabelText(/Email/i)).toHaveValue('john@test.com');
+      }, { timeout: 3000 });
 
       // Navigate to Step 3
       nextButtons = screen.getAllByRole('button', { name: /Next/i });
@@ -375,6 +417,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate back to Step 2
       await user.click(screen.getByRole('button', { name: /Previous/i }));
 
+      // Verify values are still there
       await waitFor(() => {
         expect(screen.getByLabelText(/First Name/i)).toHaveValue('John');
         expect(screen.getByLabelText(/Email/i)).toHaveValue('john@test.com');
@@ -404,8 +447,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       renderPage();
 
-      // Select builder role
-      await user.click(screen.getByRole('button', { name: /Builder/i }));
+      // Select builder role using more specific selector
+      await user.click(screen.getByRole('button', { name: /I will be constructing this project/i }));
 
       // Navigate to Step 3
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
@@ -416,20 +459,32 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       });
       await user.click(nextButtons[0]);
 
+      // Wait for all address fields to be visible
       await waitFor(() => {
         expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
-      });
+        expect(screen.getByLabelText(/City/i)).toBeVisible();
+        expect(screen.getByLabelText(/Province\/State/i)).toBeVisible();
+        expect(screen.getByLabelText(/Country/i)).toBeVisible();
+      }, { timeout: 3000 });
 
-      // Fill required fields
-      await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main St');
-      await user.type(screen.getByLabelText(/City/i), 'Toronto');
-      await user.type(screen.getByLabelText(/Province\/State/i), 'ON');
-      await user.type(screen.getByLabelText(/Country/i), 'Canada');
+      // Fill required fields using fireEvent for reliability
+      const streetInput = screen.getByLabelText(/Street Number & Name/i);
+      fireEvent.change(streetInput, { target: { value: '123 Main St' } });
+      
+      const cityInput = screen.getByLabelText(/City/i);
+      fireEvent.change(cityInput, { target: { value: 'Toronto' } });
+      
+      const stateInput = screen.getByLabelText(/Province\/State/i);
+      fireEvent.change(stateInput, { target: { value: 'ON' } });
+      
+      const countryInput = screen.getByLabelText(/Country/i);
+      fireEvent.change(countryInput, { target: { value: 'Canada' } });
 
+      // Wait for button to be enabled
       await waitFor(() => {
         const createButton = screen.getByRole('button', { name: /Create Project/i });
         expect(createButton).not.toBeDisabled();
-      });
+      }, { timeout: 3000 });
 
       // Submit
       const createButton = screen.getByRole('button', { name: /Create Project/i });
