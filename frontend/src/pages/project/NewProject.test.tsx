@@ -21,6 +21,11 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn()
 }));
 
+// Mock StandardBottomNavbar to avoid NavigationProvider dependency
+jest.mock('@/components/navbar', () => ({
+  StandardBottomNavbar: () => <div data-testid="bottom-navbar">Bottom Nav</div>
+}));
+
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockCreateProject = projectService.createProject as jest.MockedFunction<typeof projectService.createProject>;
 
@@ -125,11 +130,8 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
     it('does not show Previous button in Step 1', () => {
       renderPage();
       
-      // Only one Next button should be visible (from Step 1)
-      const nextButtons = screen.getAllByRole('button', { name: /Next/i });
-      const previousButtons = screen.queryAllByRole('button', { name: /Previous/i });
-      
       // Previous buttons should not be visible initially
+      const previousButtons = screen.queryAllByRole('button', { name: /Previous/i });
       expect(previousButtons.length).toBe(0);
     });
   });
