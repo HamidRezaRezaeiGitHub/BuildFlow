@@ -1,9 +1,11 @@
 package dev.hr.rezaei.buildflow.config.security;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.data.migration.JsonLoadUtil;
+import dev.hr.rezaei.buildflow.data.migration.dto.MockAuthenticationData;
+import dev.hr.rezaei.buildflow.data.migration.dto.MockContactData;
+import dev.hr.rezaei.buildflow.data.migration.dto.MockUserData;
 import dev.hr.rezaei.buildflow.user.ContactLabel;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
@@ -12,9 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +25,9 @@ import java.util.Map;
 public class MockDataInitializer {
 
     private final AuthService authService;
-    private final ObjectMapper objectMapper;
 
     public MockDataInitializer(AuthService authService) {
         this.authService = authService;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
 
         initializeMockData();
     }
@@ -58,51 +54,51 @@ public class MockDataInitializer {
         // Create a map for easy lookup of authentication data by username
         Map<String, MockAuthenticationData> authMap = new HashMap<>();
         for (MockAuthenticationData authData : mockAuthentications) {
-            authMap.put(authData.username, authData);
+            authMap.put(authData.getUsername(), authData);
         }
 
         // Process each user
         for (MockUserData userData : mockUsers) {
             try {
                 // Check if user already exists
-                if (authService.userAuthExistsByUsername(userData.username) || 
-                    authService.userExistsByUsername(userData.username)) {
-                    log.debug("Mock user '{}' already exists, skipping...", userData.username);
+                if (authService.userAuthExistsByUsername(userData.getUsername()) || 
+                    authService.userExistsByUsername(userData.getUsername())) {
+                    log.debug("Mock user '{}' already exists, skipping...", userData.getUsername());
                     continue;
                 }
 
                 // Get authentication data for this user
-                MockAuthenticationData authData = authMap.get(userData.username);
+                MockAuthenticationData authData = authMap.get(userData.getUsername());
                 if (authData == null) {
-                    log.warn("No authentication data found for user '{}', skipping...", userData.username);
+                    log.warn("No authentication data found for user '{}', skipping...", userData.getUsername());
                     continue;
                 }
 
                 // Parse role
                 Role role;
                 try {
-                    role = Role.valueOf(authData.role);
+                    role = Role.valueOf(authData.getRole());
                 } catch (Exception e) {
-                    log.error("Invalid role '{}' for user '{}', skipping...", authData.role, userData.username);
+                    log.error("Invalid role '{}' for user '{}', skipping...", authData.getRole(), userData.getUsername());
                     continue;
                 }
 
                 // Create contact request DTO from JSON data
-                ContactRequestDto contactRequestDto = createContactRequestDto(userData.contact);
+                ContactRequestDto contactRequestDto = createContactRequestDto(userData.getContact());
 
                 // Create sign-up request
                 SignUpRequest signUpRequest = SignUpRequest.builder()
-                        .username(userData.username)
-                        .password(authData.passwordHash) // Note: Will be hashed by registerUserWithRole
+                        .username(userData.getUsername())
+                        .password(authData.getPasswordHash()) // Note: Will be hashed by registerUserWithRole
                         .contactRequestDto(contactRequestDto)
                         .build();
 
                 // Register the user
                 authService.registerUserWithRole(signUpRequest, role);
-                log.info("Successfully initialized mock user: {} with role: {}", userData.username, role);
+                log.info("Successfully initialized mock user: {} with role: {}", userData.getUsername(), role);
 
             } catch (Exception e) {
-                log.error("Error initializing mock user '{}': {}", userData.username, e.getMessage(), e);
+                log.error("Error initializing mock user '{}': {}", userData.getUsername(), e.getMessage(), e);
             }
         }
 
@@ -110,59 +106,17 @@ public class MockDataInitializer {
     }
 
     private List<MockUserData> loadMockUsers() {
-        try {
-            // Try to load from classpath first
-            InputStream is = getClass().getClassLoader().getResourceAsStream("../../../mock-data/Users.json");
-            if (is != null) {
-                log.info("Loading mock users from classpath: mock-data/Users.json");
-                return objectMapper.readValue(is, new TypeReference<List<MockUserData>>() {});
-            }
-
-            // Try to load from filesystem (project root)
-            File file = new File("mock-data/Users.json");
-            if (file.exists()) {
-                log.info("Loading mock users from filesystem: {}", file.getAbsolutePath());
-                return objectMapper.readValue(file, new TypeReference<List<MockUserData>>() {});
-            }
-
-            log.warn("Could not find Users.json in classpath or filesystem");
-            return new ArrayList<>();
-
-        } catch (IOException e) {
-            log.error("Error loading mock users from JSON: {}", e.getMessage(), e);
-            return new ArrayList<>();
-        }
+        return JsonLoadUtil.loadJsonArray("Users.json", new TypeReference<List<MockUserData>>() {});
     }
 
     private List<MockAuthenticationData> loadMockAuthentications() {
-        try {
-            // Try to load from classpath first
-            InputStream is = getClass().getClassLoader().getResourceAsStream("../../../mock-data/UserAuthentications.json");
-            if (is != null) {
-                log.info("Loading mock authentications from classpath: mock-data/UserAuthentications.json");
-                return objectMapper.readValue(is, new TypeReference<List<MockAuthenticationData>>() {});
-            }
-
-            // Try to load from filesystem (project root)
-            File file = new File("mock-data/UserAuthentications.json");
-            if (file.exists()) {
-                log.info("Loading mock authentications from filesystem: {}", file.getAbsolutePath());
-                return objectMapper.readValue(file, new TypeReference<List<MockAuthenticationData>>() {});
-            }
-
-            log.warn("Could not find UserAuthentications.json in classpath or filesystem");
-            return new ArrayList<>();
-
-        } catch (IOException e) {
-            log.error("Error loading mock authentications from JSON: {}", e.getMessage(), e);
-            return new ArrayList<>();
-        }
+        return JsonLoadUtil.loadJsonArray("UserAuthentications.json", new TypeReference<List<MockAuthenticationData>>() {});
     }
 
     private ContactRequestDto createContactRequestDto(MockContactData contactData) {
         // Parse labels from strings - keep as strings for DTO
         List<String> labelStrings = new ArrayList<>();
-        for (String labelStr : contactData.labels) {
+        for (String labelStr : contactData.getLabels()) {
             try {
                 // Handle the case where JSON has "Administrator" but enum has "ADMINISTRATOR"
                 String enumName = labelStr.toUpperCase().replace(" ", "_");
@@ -176,67 +130,24 @@ public class MockDataInitializer {
 
         // Create address DTO if address data exists
         ContactAddressRequestDto addressDto = null;
-        if (contactData.address != null) {
+        if (contactData.getAddress() != null) {
             addressDto = ContactAddressRequestDto.builder()
-                    .unitNumber(contactData.address.unitNumber)
-                    .streetNumberAndName(contactData.address.streetNumberAndName)
-                    .city(contactData.address.city)
-                    .stateOrProvince(contactData.address.stateOrProvince)
-                    .postalOrZipCode(contactData.address.postalOrZipCode)
-                    .country(contactData.address.country)
+                    .unitNumber(contactData.getAddress().getUnitNumber())
+                    .streetNumberAndName(contactData.getAddress().getStreetNumberAndName())
+                    .city(contactData.getAddress().getCity())
+                    .stateOrProvince(contactData.getAddress().getStateOrProvince())
+                    .postalOrZipCode(contactData.getAddress().getPostalOrZipCode())
+                    .country(contactData.getAddress().getCountry())
                     .build();
         }
 
         return ContactRequestDto.builder()
-                .firstName(contactData.firstName)
-                .lastName(contactData.lastName)
+                .firstName(contactData.getFirstName())
+                .lastName(contactData.getLastName())
                 .labels(labelStrings)
-                .email(contactData.email)
-                .phone(contactData.phone)
+                .email(contactData.getEmail())
+                .phone(contactData.getPhone())
                 .addressRequestDto(addressDto)
                 .build();
-    }
-
-    // Inner classes for JSON deserialization
-    @SuppressWarnings("unused") // Fields are used by Jackson for JSON deserialization
-    private static class MockUserData {
-        public String id;
-        public String username;
-        public String email;
-        public boolean registered;
-        public MockContactData contact;
-    }
-
-    @SuppressWarnings("unused") // Fields are used by Jackson for JSON deserialization
-    private static class MockContactData {
-        public String id;
-        public String firstName;
-        public String lastName;
-        public List<String> labels;
-        public String email;
-        public String phone;
-        public MockAddressData address;
-    }
-
-    @SuppressWarnings("unused") // Fields are used by Jackson for JSON deserialization
-    private static class MockAddressData {
-        public String id;
-        public String unitNumber;
-        public String streetNumberAndName;
-        public String city;
-        public String stateOrProvince;
-        public String postalOrZipCode;
-        public String country;
-    }
-
-    @SuppressWarnings("unused") // Fields are used by Jackson for JSON deserialization
-    private static class MockAuthenticationData {
-        public String id;
-        public String username;
-        public String passwordHash;
-        public String role;
-        public boolean enabled;
-        public String createdAt;
-        public String lastLogin;
     }
 }

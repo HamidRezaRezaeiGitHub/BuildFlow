@@ -115,6 +115,7 @@ application-prod.yml
 *.sqlite
 *.sqlite3
 data/
+!src/main/java/dev/hr/rezaei/buildflow/data
 h2/
 
 # Environment variables
