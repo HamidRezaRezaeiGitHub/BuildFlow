@@ -10,15 +10,101 @@ The project components provide the user interface for managing construction proj
 
 ```
 project/
-├── NewProjectForm.tsx        # Project creation form
-├── ProjectList.tsx           # Project cards display
-├── ProjectList.test.tsx      # Project list tests
-├── ProjectsSection.tsx       # Projects section container
-├── ProjectsSection.test.tsx  # Projects section tests
-└── index.ts                  # Component exports
+├── NewProjectForm.tsx          # Project creation form (legacy, still used)
+├── OtherPartyForm.tsx          # Other party information capture (new)
+├── OtherPartyForm.test.tsx     # Other party form tests
+├── ProjectList.tsx             # Project cards display
+├── ProjectList.test.tsx        # Project list tests
+├── ProjectsSection.tsx         # Projects section container
+├── ProjectsSection.test.tsx    # Projects section tests
+└── index.ts                    # Component exports
 ```
 
 ## Component Details
+
+### OtherPartyForm.tsx
+**Purpose:** Reusable form for capturing owner or builder contact information during project creation.
+
+**Features:**
+- **Dynamic Role Display:**
+  - Shows "Owner Information" when user is builder
+  - Shows "Builder Information" when user is owner
+  - Adapts header and descriptions based on role
+  
+- **Optional Fields:**
+  - All fields are optional (no blocking validation)
+  - First name and last name
+  - Email address
+  - Phone number
+  - Non-blocking validation hints if enabled
+  
+- **Field Components:**
+  - Reuses existing auth field components (NameField, EmailField, PhoneField)
+  - Consistent styling with rest of application
+  - Proper ARIA attributes and accessibility
+  - Responsive grid layout (1 column mobile, 2 columns desktop)
+
+- **Mobile-First Design:**
+  - Touch-friendly inputs
+  - Responsive layout
+  - Readable spacing
+
+**Props:**
+```typescript
+interface OtherPartyFormProps {
+  otherPartyRole: 'owner' | 'builder';          // Determines form header
+  formData: OtherPartyFormData;                 // Form values
+  onChange: (field: keyof OtherPartyFormData, value: string) => void;
+  disabled?: boolean;                            // Disable during submission
+  className?: string;                            // Additional CSS classes
+}
+
+interface OtherPartyFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+```
+
+**Usage:**
+```typescript
+import { OtherPartyForm, createEmptyOtherPartyFormData } from '@/components/project/OtherPartyForm';
+
+const MyComponent = () => {
+  const [otherPartyData, setOtherPartyData] = useState(createEmptyOtherPartyFormData());
+  
+  const handleOtherPartyChange = (field: keyof OtherPartyFormData, value: string) => {
+    setOtherPartyData(prev => ({ ...prev, [field]: value }));
+  };
+  
+  return (
+    <OtherPartyForm
+      otherPartyRole={userRole === 'builder' ? 'owner' : 'builder'}
+      formData={otherPartyData}
+      onChange={handleOtherPartyChange}
+      disabled={isSubmitting}
+    />
+  );
+};
+```
+
+**Helper Functions:**
+```typescript
+// Create empty form data
+const emptyData = createEmptyOtherPartyFormData();
+// Returns: { firstName: '', lastName: '', email: '', phone: '' }
+```
+
+**Test Coverage:**
+- 10 comprehensive test cases
+- Tests for both owner and builder roles
+- Field interaction tests
+- Disabled state tests
+- Helper function tests
+
+**Integration:**
+Used in NewProject page's multi-step accordion flow (Step 2) to capture optional information about the other party involved in the project.
 
 ### NewProjectForm.tsx
 **Purpose:** Form for creating new construction projects with user role selection and location input.

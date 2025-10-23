@@ -18,7 +18,7 @@ project/
 ## Page Details
 
 ### NewProject.tsx
-**Purpose:** Full page for creating new construction projects with integrated backend API.
+**Purpose:** Full page for creating new construction projects with a multi-step accordion flow and integrated backend API.
 
 **Route:** `/projects/new` (protected route, requires authentication)
 
@@ -30,18 +30,33 @@ project/
 - Error handling: Structured errors from `ApiService` with user-friendly messages
 
 **Features:**
+- **Multi-Step Accordion Flow:**
+  - **Step 1: User Role Selection** - User identifies as builder or owner
+  - **Step 2: Other Party Information** - Optional contact details for the other party (owner if user is builder, builder if user is owner)
+  - **Step 3: Project Location** - Required address information for the construction site
+  - Controlled accordion (one step open at a time)
+  - State persistence across steps (navigating back retains entered values)
+  - Clear progress indication with numbered step headers
+
+- **Navigation:**
+  - Step 1 & 2: **Next** and **Previous** buttons (Previous hidden on Step 1)
+  - Step 3: **Previous**, **Cancel**, and **Create Project** buttons
+  - Programmatic focus management for accessibility
+  - Cancel confirmation modal to prevent accidental data loss
+
+- **Validation:**
+  - Blocking validation for required fields in Steps 1 & 3
+  - Step 2 fields remain optional (no blocking validation)
+  - Inline validation messages for required fields
+  - Disabled "Next"/"Create Project" buttons when validation fails
+  - Required fields: streetNumberAndName, city, stateOrProvince, country
+  - Optional fields: unitNumber, postalOrZipCode, and all Step 2 fields
+
 - **Page Layout:**
   - Mobile-first design with StandardBottomNavbar
   - Centered card layout with responsive padding
   - Page header with title and description
-  - Card wrapper for form content
-
-- **Form Integration:**
-  - NewProjectForm component with inline mode
-  - Address input via FlexibleAddressForm
-  - Validation and error handling
-  - Loading states during submission (isSubmitting)
-  - Cancel functionality to navigate back
+  - Accordion-based multi-step form within card
 
 - **Success Handling:**
   - Success message displayed in green alert banner
@@ -64,28 +79,52 @@ project/
       {/* Page Header */}
       <div className="text-center space-y-4 mb-16">
         <h1>Create New Project</h1>
-        <p>Description text</p>
+        <p>Follow the steps below to set up your new construction project.</p>
       </div>
 
-      {/* Success Message */}
-      {successMessage && <div className="bg-green-500/10 border border-green-500/20">...</div>}
+      {/* Success/Error Messages */}
+      {successMessage && <SuccessAlert />}
+      {error && <ErrorAlert />}
+      {showCancelConfirm && <CancelConfirmationModal />}
 
-      {/* Error Message */}
-      {error && <div className="bg-destructive/10 border border-destructive/20">...</div>}
-
-      {/* Form Card */}
+      {/* Multi-Step Accordion Form */}
       <Card>
-        <CardHeader>
-          <CardTitle>Create New Project</CardTitle>
-        </CardHeader>
+        <CardHeader>New Project Setup</CardHeader>
         <CardContent>
-          <NewProjectForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={isSubmitting}
-            submittingText="Creating Project..."
-            inline={true}
-          />
+          <Accordion type="single" value={activeStep} onValueChange={setActiveStep}>
+            {/* Step 1: User Role */}
+            <AccordionItem value="step-1">
+              <AccordionTrigger>
+                <StepHeader number={1} title="Your Role" />
+              </AccordionTrigger>
+              <AccordionContent>
+                <RoleSelection />
+                <NextButton />
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Step 2: Other Party Information */}
+            <AccordionItem value="step-2">
+              <AccordionTrigger>
+                <StepHeader number={2} title="Owner/Builder Information" />
+              </AccordionTrigger>
+              <AccordionContent>
+                <OtherPartyForm />
+                <PreviousButton /> <NextButton />
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Step 3: Project Location */}
+            <AccordionItem value="step-3">
+              <AccordionTrigger>
+                <StepHeader number={3} title="Project Location" />
+              </AccordionTrigger>
+              <AccordionContent>
+                <FlexibleAddressForm />
+                <PreviousButton /> <CancelButton /> <CreateProjectButton />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
     </div>
@@ -96,59 +135,144 @@ project/
 
 **Data Flow:**
 ```
-User Input → NewProjectForm → handleSubmit(request)
-                                       ↓
-                        Validate token exists
-                                       ↓
-                    ProjectService.createProject(request, token)
-                                       ↓
-                                Backend API (POST /api/v1/projects)
-                                       ↓
-                              Success/Error Response
-                                       ↓
-        Success: Show message → Wait 2s → Navigate to /projects or /dashboard
-        Error: Display error message in red banner
+Step 1: User Role Selection (Builder/Owner)
+                    ↓
+Step 2: Other Party Info (Optional - Owner if Builder, Builder if Owner)
+                    ↓
+Step 3: Project Location (Required Address Fields)
+                    ↓
+         Validate Location Fields
+                    ↓
+       Create CreateProjectRequest
+                    ↓
+   ProjectService.createProject(request, token)
+                    ↓
+         Backend API (POST /api/v1/projects)
+                    ↓
+         Success/Error Response
+                    ↓
+Success: Show message → Wait 2s → Navigate to /projects or /dashboard
+Error: Display error message in red banner
 ```
 
 **Components Used:**
+- `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` - Multi-step UI from shadcn/ui
+- `OtherPartyForm` - Optional other party information capture
+- `FlexibleAddressForm` - Project location address input
 - `StandardBottomNavbar` - Mobile-first bottom navigation
-- `NewProjectForm` - Project creation form with address input
 - `Card`, `CardHeader`, `CardTitle`, `CardContent` - UI components from shadcn/ui
-- `useAuth` hook - For authentication token
+- `Button` - Navigation and action buttons
+- `useAuth` hook - For authentication token and user info
 - `useNavigate` hook from react-router-dom - For navigation
+
+**Form State Management:**
+```typescript
+interface MultiStepFormState {
+  userRole: 'builder' | 'owner';           // Step 1
+  otherParty: OtherPartyFormData;          // Step 2 (optional)
+  projectLocation: AddressData;            // Step 3 (required)
+}
+
+// Single source of truth - state persists across steps
+const [formData, setFormData] = useState<MultiStepFormState>({
+  userRole: 'builder',
+  otherParty: createEmptyOtherPartyFormData(),
+  projectLocation: createEmptyAddress()
+});
+
+// Controlled accordion for step navigation
+const [activeStep, setActiveStep] = useState<string>('step-1');
+```
+
+**Step Navigation:**
+```typescript
+// Navigate to next step
+const handleNext = (currentStep: string) => {
+  const nextStep = getNextStep(currentStep);
+  setActiveStep(nextStep);
+  // Focus management for accessibility
+  focusStepHeading(nextStep);
+};
+
+// Navigate to previous step
+const handlePrevious = (currentStep: string) => {
+  const prevStep = getPreviousStep(currentStep);
+  setActiveStep(prevStep);
+  focusStepHeading(prevStep);
+};
+```
+
+**Validation Logic:**
+```typescript
+// Step 3 validation (required address fields)
+const validateAddress = (address: AddressData) => {
+  const requiredFields: (keyof AddressData)[] = [
+    'streetNumberAndName', 'city', 'stateOrProvince', 'country'
+  ];
+  return requiredFields.every(field => 
+    address[field] && address[field].trim().length > 0
+  );
+};
+
+// Enable/disable Create Project button
+const isFormValid = isLocationValid;
+```
+
+**Keyboard & Accessibility:**
+- Accordion is keyboard navigable (arrow keys, Enter/Space to toggle)
+- ARIA attributes on accordion triggers and regions
+- Accessible button names and roles
+- Focus moves to active step heading on navigation
+- Touch-friendly controls for mobile
+- Proper ARIA pressed states on role selection buttons
 
 **Implementation Details:**
 ```typescript
-const NewProject: React.FC = () => {
+export const NewProject: React.FC = () => {
   const navigate = useReactRouterNavigate();
-  const { token } = useAuth();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const { user, token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [activeStep, setActiveStep] = useState<string>('step-1');
+  
+  const [formData, setFormData] = useState<MultiStepFormState>({
+    userRole: 'builder',
+    otherParty: createEmptyOtherPartyFormData(),
+    projectLocation: createEmptyAddress()
+  });
 
-  const handleSubmit = async (request: CreateProjectRequest) => {
+  const handleSubmit = async () => {
+    if (!user || !token) {
+      setError('You must be logged in to create a project');
+      return;
+    }
+
+    if (!isLocationValid) {
+      setError('Please complete all required address fields');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      if (!token) {
-        throw new Error('You must be logged in to create a project');
-      }
+      const createRequest: CreateProjectRequest = {
+        userId: user.id,
+        isBuilder: formData.userRole === 'builder',
+        locationRequestDto: formData.projectLocation
+      };
 
-      console.log('Creating project with request:', request);
-      const response = await projectService.createProject(request, token);
-      
-      console.log('Project created successfully:', response);
+      const response = await projectService.createProject(createRequest, token);
       setSuccessMessage(`Project created successfully! Project ID: ${response.project.id}`);
       
-      // Navigate after 2 seconds delay
       setTimeout(() => {
-        navigate('/projects'); // or fallback to /dashboard
+        navigate('/projects');
       }, 2000);
       
     } catch (err) {
-      console.error('Error creating project:', err);
       setError(err instanceof Error ? err.message : 'Failed to create project');
     } finally {
       setIsSubmitting(false);
@@ -156,7 +280,7 @@ const NewProject: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1); // Go back to previous page
+    setShowCancelConfirm(true);  // Show confirmation modal
   };
 
   // ... render JSX
@@ -180,23 +304,42 @@ import { NewProject } from '@/pages/project';
 
 **Props:** None (page-level component)
 
-**Success Handler:**
+**Testing:**
 ```typescript
-const handleSuccess = (project: Project) => {
-  // Show success toast/notification
-  toast.success('Project created successfully!');
+test('NewProject_shouldRenderAccordionSteps_whenPageLoads', () => {
+  render(<NewProject />);
   
-  // Navigate to projects list or project details
-  navigate('/dashboard'); // or navigate(`/projects/${project.id}`)
-};
-```
+  expect(screen.getByText(/Your Role/i)).toBeInTheDocument();
+  expect(screen.getByText(/Owner Information/i)).toBeInTheDocument();
+  expect(screen.getByText(/Project Location/i)).toBeInTheDocument();
+});
 
-**Cancel Handler:**
-```typescript
-const handleCancel = () => {
-  // Return to previous page or dashboard
-  navigate(-1); // or navigate('/dashboard')
-};
+test('NewProject_shouldPersistState_whenNavigatingBetweenSteps', async () => {
+  render(<NewProject />);
+  
+  // Select role
+  await userEvent.click(screen.getByRole('button', { name: /Builder/i }));
+  
+  // Navigate to Step 2
+  await userEvent.click(screen.getByRole('button', { name: /Next/i }));
+  
+  // Navigate back to Step 1
+  await userEvent.click(screen.getByRole('button', { name: /Previous/i }));
+  
+  // Role selection should be preserved
+  expect(screen.getByRole('button', { name: /Builder/i }))
+    .toHaveAttribute('aria-pressed', 'true');
+});
+
+test('NewProject_shouldDisableCreateButton_whenRequiredFieldsEmpty', async () => {
+  render(<NewProject />);
+  
+  // Navigate to Step 3
+  // ... (navigation steps)
+  
+  const createButton = screen.getByRole('button', { name: /Create Project/i });
+  expect(createButton).toBeDisabled();
+});
 ```
 
 ## Route Protection

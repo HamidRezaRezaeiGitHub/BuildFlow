@@ -91,8 +91,8 @@ export interface FlexibleAddressFormProps {
     /** Callback when address data changes */
     onAddressChange: (field: keyof AddressData, value: string) => void;
 
-    /** Callback when form is submitted */
-    onSubmit: (addressData: AddressData) => void | Promise<void>;
+    /** Callback when form is submitted (optional when showActionButtons is false) */
+    onSubmit?: (addressData: AddressData) => void | Promise<void>;
 
     /** Optional callback when skip button is clicked */
     onSkip?: () => void;
@@ -281,7 +281,7 @@ const FlexibleAddressForm: React.FC<FlexibleAddressFormProps> = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!disabled && !isSubmitting && (isFormValidForSubmit || !enableValidation)) {
+        if (onSubmit && !disabled && !isSubmitting && (isFormValidForSubmit || !enableValidation)) {
             await onSubmit(addressData);
         }
     };
