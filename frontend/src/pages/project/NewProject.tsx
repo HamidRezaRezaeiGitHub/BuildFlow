@@ -11,6 +11,9 @@ import { Building2, User, MapPin } from 'lucide-react';
 import React from 'react';
 import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 
+// Constants
+const FOCUS_TRANSITION_DELAY_MS = 100;
+
 /**
  * Multi-step form data state
  */
@@ -24,6 +27,18 @@ interface MultiStepFormState {
   // Step 3: Project location
   projectLocation: AddressData;
 }
+
+/**
+ * Helper function to focus on a step heading for accessibility
+ */
+const focusStep = (step: string) => {
+  setTimeout(() => {
+    const trigger = document.querySelector(`[data-step="${step}"]`);
+    if (trigger instanceof HTMLElement) {
+      trigger.focus();
+    }
+  }, FOCUS_TRANSITION_DELAY_MS);
+};
 
 /**
  * NewProject page component
@@ -118,13 +133,7 @@ export const NewProject: React.FC = () => {
     const nextStep = stepMap[currentStep];
     if (nextStep) {
       setActiveStep(nextStep);
-      // Focus on the next step heading for accessibility
-      setTimeout(() => {
-        const nextTrigger = document.querySelector(`[data-step="${nextStep}"]`);
-        if (nextTrigger instanceof HTMLElement) {
-          nextTrigger.focus();
-        }
-      }, 100);
+      focusStep(nextStep);
     }
   };
 
@@ -137,13 +146,7 @@ export const NewProject: React.FC = () => {
     const prevStep = stepMap[currentStep];
     if (prevStep) {
       setActiveStep(prevStep);
-      // Focus on the previous step heading for accessibility
-      setTimeout(() => {
-        const prevTrigger = document.querySelector(`[data-step="${prevStep}"]`);
-        if (prevTrigger instanceof HTMLElement) {
-          prevTrigger.focus();
-        }
-      }, 100);
+      focusStep(prevStep);
     }
   };
 
@@ -506,7 +509,6 @@ export const NewProject: React.FC = () => {
                           <FlexibleAddressForm
                             addressData={formData.projectLocation}
                             onAddressChange={handleAddressChange}
-                            onSubmit={() => {}} // Not used - handled by parent
                             fieldsConfig={addressFieldsConfig}
                             inline={true}
                             enableValidation={true}

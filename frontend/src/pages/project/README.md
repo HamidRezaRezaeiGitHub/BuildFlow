@@ -18,7 +18,7 @@ project/
 ## Page Details
 
 ### NewProject.tsx
-**Purpose:** Full page for creating new construction projects with multi-step accordion flow and integrated backend API.
+**Purpose:** Full page for creating new construction projects with a multi-step accordion flow and integrated backend API.
 
 **Route:** `/projects/new` (protected route, requires authentication)
 
