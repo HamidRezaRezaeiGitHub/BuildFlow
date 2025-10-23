@@ -221,6 +221,7 @@ BuildFlow/
 │   │   ├── pages/              # Route page components - [📖 Documentation](src/pages/README.md)
 │   │   │   ├── project/       # Project pages - [📖 Documentation](src/pages/project/README.md)
 │   │   │   │   ├── NewProject.tsx
+│   │   │   │   ├── ProjectDetails.tsx
 │   │   │   │   └── index.ts
 │   │   │   ├── temp/          # Temporary demo pages - [📖 Documentation](src/pages/temp/README.md)
 │   │   │   │   ├── AddressPage.tsx
