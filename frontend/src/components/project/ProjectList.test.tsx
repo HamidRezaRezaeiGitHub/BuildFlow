@@ -1,9 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { ProjectList } from './ProjectList';
 import { Project } from '@/services/dtos';
 import '@testing-library/jest-dom';
 
 describe('ProjectList', () => {
+  // Helper to render with router context
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  };
+
   const mockProjects: Project[] = [
     {
       id: '1',
@@ -57,14 +63,14 @@ describe('ProjectList', () => {
 
   describe('Basic Rendering', () => {
     test('renders without crashing with empty array', () => {
-      render(<ProjectList projects={[]} />);
+      renderWithRouter(<ProjectList projects={[]} />);
       // Should render empty grid
       const grid = document.querySelector('.grid');
       expect(grid).toBeInTheDocument();
     });
 
     test('renders project cards for all projects', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
       expect(screen.getByText(/Unit 302, 456 Oak Ave, Toronto, ON/)).toBeInTheDocument();
@@ -72,7 +78,7 @@ describe('ProjectList', () => {
     });
 
     test('displays correct number of project cards', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Count the number of cards
       const cards = container.querySelectorAll('[class*="hover:shadow-md"]');
@@ -82,13 +88,13 @@ describe('ProjectList', () => {
 
   describe('Project Card Content', () => {
     test('displays project location as title', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
     });
 
     test('does not display internal project IDs', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Project IDs should not be displayed in the cards
       expect(screen.queryByText('#1')).not.toBeInTheDocument();
@@ -98,7 +104,7 @@ describe('ProjectList', () => {
     });
 
     test('displays last updated timestamp', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Should have "Updated:" text in CardContent for each project
       // Format is "Updated: {date} • Created: {date}"
@@ -107,7 +113,7 @@ describe('ProjectList', () => {
     });
 
     test('displays created timestamp', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Should have "Created:" text in CardContent for each project as part of the combined string
       // Format is "Updated: {date} • Created: {date}"
@@ -116,14 +122,14 @@ describe('ProjectList', () => {
     });
 
     test('formats location with unit number when present', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       expect(screen.getByText(/Unit 302/)).toBeInTheDocument();
       expect(screen.getByText(/Unit 5B/)).toBeInTheDocument();
     });
 
     test('formats location without unit number when not present', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const locationText = screen.getByText('123 Main St, Vancouver, BC');
       expect(locationText).toBeInTheDocument();
@@ -133,7 +139,7 @@ describe('ProjectList', () => {
 
   describe('Clickable Cards', () => {
     test('cards are clickable with role="button"', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const cards = container.querySelectorAll('[role="button"]');
       expect(cards).toHaveLength(3);
@@ -141,7 +147,7 @@ describe('ProjectList', () => {
 
     test('calls onProjectSelect when card is clicked', () => {
       const handleProjectSelect = jest.fn();
-      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
       fireEvent.click(cards[0]);
@@ -149,20 +155,19 @@ describe('ProjectList', () => {
       expect(handleProjectSelect).toHaveBeenCalledWith('1');
     });
 
-    test('logs to console when card is clicked without handler', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      const { container } = render(<ProjectList projects={mockProjects} />);
+    test('navigates to project details when card is clicked without handler', () => {
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const cards = container.querySelectorAll('[role="button"]');
-      fireEvent.click(cards[0]);
       
-      expect(consoleSpy).toHaveBeenCalledWith('Open project:', '1');
-      consoleSpy.mockRestore();
+      // Should not throw error when clicking - navigation is handled by React Router
+      expect(() => fireEvent.click(cards[0])).not.toThrow();
+      expect(cards[0]).toBeInTheDocument();
     });
 
     test('calls handlers with correct project IDs for different projects', () => {
       const handleProjectSelect = jest.fn();
-      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
       fireEvent.click(cards[1]); // Click second project
@@ -172,7 +177,7 @@ describe('ProjectList', () => {
 
     test('card activates on Enter key press', () => {
       const handleProjectSelect = jest.fn();
-      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
       fireEvent.keyDown(cards[0], { key: 'Enter' });
@@ -182,7 +187,7 @@ describe('ProjectList', () => {
 
     test('card activates on Space key press', () => {
       const handleProjectSelect = jest.fn();
-      const { container } = render(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
       fireEvent.keyDown(cards[0], { key: ' ' });
@@ -191,14 +196,14 @@ describe('ProjectList', () => {
     });
 
     test('cards are keyboard focusable with tabIndex', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const cards = container.querySelectorAll('[role="button"][tabindex="0"]');
       expect(cards).toHaveLength(3);
     });
 
     test('cards have aria-label for accessibility', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const firstCard = container.querySelector('[aria-label*="Open project"]');
       expect(firstCard).toBeInTheDocument();
@@ -207,7 +212,7 @@ describe('ProjectList', () => {
 
   describe('Dropdown Menu Actions', () => {
     test('displays dropdown menu trigger for each card', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Find all menu trigger buttons using sr-only text
       const menuButtons = screen.getAllByText('Open menu');
@@ -215,7 +220,7 @@ describe('ProjectList', () => {
     });
 
     test('has dropdown menu structure for each card', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Check that dropdown menu triggers exist
       const menuTriggers = container.querySelectorAll('button[class*="h-8 w-8"]');
@@ -225,14 +230,14 @@ describe('ProjectList', () => {
 
   describe('Responsive Layout', () => {
     test('applies responsive grid classes', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const grid = container.querySelector('.grid');
       expect(grid).toHaveClass('gap-4', 'md:grid-cols-2', 'lg:grid-cols-3');
     });
 
     test('cards have hover effect', () => {
-      const { container } = render(<ProjectList projects={mockProjects} />);
+      const { container } = renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const cards = container.querySelectorAll('[class*="hover:shadow-md"]');
       expect(cards.length).toBeGreaterThan(0);
@@ -252,7 +257,7 @@ describe('ProjectList', () => {
         createdAt: yesterday.toISOString(),
       };
       
-      render(<ProjectList projects={[recentProject]} />);
+      renderWithRouter(<ProjectList projects={[recentProject]} />);
       
       // Should display "Today" in CardContent only
       const todayTexts = screen.getAllByText(/Today/);
@@ -260,7 +265,7 @@ describe('ProjectList', () => {
     });
 
     test('handles multiple projects with different dates', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       // Each project displays dates in CardContent only
       // 3 projects * 1 instance = 3 total
@@ -271,14 +276,14 @@ describe('ProjectList', () => {
 
   describe('Accessibility', () => {
     test('has proper button roles', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
 
     test('has screen reader text for menu buttons', () => {
-      render(<ProjectList projects={mockProjects} />);
+      renderWithRouter(<ProjectList projects={mockProjects} />);
       
       const srText = screen.getAllByText('Open menu');
       expect(srText).toHaveLength(3);
@@ -304,7 +309,7 @@ describe('ProjectList', () => {
         lastUpdatedAt: '2024-01-01T00:00:00Z',
       };
       
-      render(<ProjectList projects={[minimalProject]} />);
+      renderWithRouter(<ProjectList projects={[minimalProject]} />);
       
       // Should still render without crashing
       expect(screen.getByText('City')).toBeInTheDocument();
@@ -328,7 +333,7 @@ describe('ProjectList', () => {
         lastUpdatedAt: '2024-01-01T00:00:00Z',
       };
       
-      render(<ProjectList projects={[noLocationProject]} />);
+      renderWithRouter(<ProjectList projects={[noLocationProject]} />);
       
       // Should display fallback message
       expect(screen.getByText('No location specified')).toBeInTheDocument();

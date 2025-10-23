@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Project } from '@/services/dtos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,12 +42,15 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   onProjectEdit,
   onProjectDelete,
 }) => {
+  const navigate = useNavigate();
+
   // Handle project actions
   const handleOpen = (projectId: string) => {
     if (onProjectSelect) {
       onProjectSelect(projectId);
     } else {
-      console.log('Open project:', projectId);
+      // Default behavior: navigate to project details page
+      navigate(`/projects/${projectId}`);
     }
   };
 

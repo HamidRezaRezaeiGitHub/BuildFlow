@@ -1,6 +1,7 @@
 import { config } from '@/config/environment';
 import {
     createMockProject,
+    findProjectById,
     findProjectsByBuilderId,
     findProjectsByOwnerId,
     generateMockCreateProjectResponse,
@@ -225,6 +226,41 @@ class ProjectService {
     }
 
     /**
+     * Get a single project by ID
+     * Requires VIEW_PROJECT authority
+     * Environment-aware: Uses mock data when config.enableMockData is true
+     * 
+     * @param projectId - ID of the project to retrieve
+     * @param token - JWT authentication token (ignored in mock mode)
+     * @returns Promise<Project> - The requested project
+     * @throws Error if project not found
+     */
+    async getProjectById(projectId: string, token: string): Promise<Project> {
+        // Use mock data in standalone mode
+        if (config.enableMockData) {
+            if (config.enableConsoleLogs) {
+                console.log('[ProjectService] Getting mock project by ID:', projectId);
+            }
+
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const project = findProjectById(projectId);
+                    
+                    if (!project) {
+                        reject(new Error(`Project with ID ${projectId} not found`));
+                        return;
+                    }
+                    
+                    resolve(project);
+                }, 300); // Simulate network delay
+            });
+        }
+
+        // Real API call in integrated mode
+        return apiService.get<Project>(`/api/v1/projects/${encodeURIComponent(projectId)}`, token);
+    }
+
+    /**
      * Get combined projects where user is either builder OR owner (server-side filtering and pagination)
      * Calls the backend combined endpoint which handles de-duplication, filtering, and sorting on the server
      * 
@@ -349,6 +385,10 @@ export class ProjectServiceWithAuth {
 
     async createProject(request: CreateProjectRequest): Promise<CreateProjectResponse> {
         return this.projectService.createProject(request, this.ensureToken());
+    }
+
+    async getProjectById(projectId: string): Promise<Project> {
+        return this.projectService.getProjectById(projectId, this.ensureToken());
     }
 
     async getProjectsByBuilderId(builderId: string): Promise<Project[]> {

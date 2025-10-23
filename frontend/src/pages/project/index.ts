@@ -4,3 +4,4 @@
  */
 
 export { NewProject } from './NewProject';
+export { ProjectDetails } from './ProjectDetails';
