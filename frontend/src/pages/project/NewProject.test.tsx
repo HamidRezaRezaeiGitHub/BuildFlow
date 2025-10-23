@@ -5,6 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { projectService } from '@/services';
 import { BrowserRouter } from 'react-router-dom';
 
+// Mock navigate function
+const mockNavigate = jest.fn();
+
 // Mock dependencies
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: jest.fn()
@@ -18,7 +21,7 @@ jest.mock('@/services', () => ({
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn()
+  useNavigate: () => mockNavigate
 }));
 
 // Mock StandardBottomNavbar to avoid NavigationProvider dependency
@@ -136,6 +139,21 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const previousButtons = screen.queryAllByRole('button', { name: /Previous/i });
       expect(previousButtons.length).toBe(0);
     });
+
+    it('displays role options with proper layout structure', () => {
+      renderPage();
+      
+      // Check that both role buttons are present
+      const builderButton = screen.getByRole('button', { name: /I will be constructing this project/i });
+      const ownerButton = screen.getByRole('button', { name: /I own the property for this project/i });
+      
+      expect(builderButton).toBeInTheDocument();
+      expect(ownerButton).toBeInTheDocument();
+      
+      // Both buttons should be visible (side-by-side layout on larger screens)
+      expect(builderButton).toBeVisible();
+      expect(ownerButton).toBeVisible();
+    });
   });
 
   describe('Step 2: Other Party Information', () => {
@@ -224,6 +242,27 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
         expect(screen.getByRole('button', { name: /Previous/i })).toBeVisible();
         expect(screen.getByRole('button', { name: /Next/i })).toBeVisible();
       });
+    });
+
+    it('displays other party form fields in proper two-row layout', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      // Navigate to Step 2
+      const nextButtons = screen.getAllByRole('button', { name: /Next/i });
+      await user.click(nextButtons[0]);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/First Name/i)).toBeVisible();
+      });
+
+      // Row 1: First Name and Last Name should be present
+      expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Last Name/i)).toBeInTheDocument();
+      
+      // Row 2: Email and Phone should be present
+      expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Phone/i)).toBeInTheDocument();
     });
 
     it('navigates back to Step 1 when Previous is clicked', async () => {
@@ -363,7 +402,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       await user.click(screen.getByRole('button', { name: /I own the property for this project/i }));
 
       // Navigate to Step 2
-      let nextButtons = screen.getAllByRole('button', { name: /Next/i });
+      const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
 
       await waitFor(() => {
@@ -504,6 +543,11 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
           }),
           'mock-token'
         );
+      });
+
+      // Verify navigation to project details page
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/projects/project-123');
       });
     });
   });

@@ -60,7 +60,6 @@ export const NewProject: React.FC = () => {
   const { user, token } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = React.useState(false);
 
   // Current active step (controlled accordion)
@@ -165,7 +164,6 @@ export const NewProject: React.FC = () => {
 
     setIsSubmitting(true);
     setError(null);
-    setSuccessMessage(null);
 
     try {
       // Create project request
@@ -189,17 +187,8 @@ export const NewProject: React.FC = () => {
       
       console.log('Project created successfully:', response);
       
-      // Show success message
-      setSuccessMessage(`Project created successfully! Project ID: ${response.project.id}`);
-      
-      // Navigate to projects list after a brief delay
-      setTimeout(() => {
-        try {
-          navigate('/projects');
-        } catch {
-          navigate('/dashboard');
-        }
-      }, 2000);
+      // Navigate to project details page
+      navigate(`/projects/${response.project.id}`);
       
     } catch (err) {
       console.error('Error creating project:', err);
@@ -239,37 +228,6 @@ export const NewProject: React.FC = () => {
               Follow the steps below to set up your new construction project.
             </p>
           </div>
-
-          {/* Success Display */}
-          {successMessage && (
-            <div className="max-w-2xl mx-auto mb-6">
-              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg 
-                      className="h-5 w-5 text-green-500" 
-                      viewBox="0 0 20 20" 
-                      fill="currentColor"
-                    >
-                      <path 
-                        fillRule="evenodd" 
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
-                        clipRule="evenodd" 
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-500">
-                      Project Created Successfully
-                    </h3>
-                    <div className="mt-2 text-sm text-foreground/80">
-                      <p>{successMessage}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Error Display */}
           {error && (

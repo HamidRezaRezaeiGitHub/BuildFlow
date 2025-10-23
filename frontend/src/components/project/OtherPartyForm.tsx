@@ -77,7 +77,7 @@ export const OtherPartyForm: React.FC<OtherPartyFormProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <NameField
           nameType="firstName"
           value={formData.firstName}
@@ -97,21 +97,23 @@ export const OtherPartyForm: React.FC<OtherPartyFormProps> = ({
         />
       </div>
 
-      <EmailField
-        value={formData.email}
-        onChange={(value) => onChange('email', value)}
-        disabled={disabled}
-        enableValidation={false}
-        validationMode="optional"
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <EmailField
+          value={formData.email}
+          onChange={(value) => onChange('email', value)}
+          disabled={disabled}
+          enableValidation={false}
+          validationMode="optional"
+        />
 
-      <PhoneField
-        value={formData.phone}
-        onChange={(value) => onChange('phone', value)}
-        disabled={disabled}
-        enableValidation={false}
-        validationMode="optional"
-      />
+        <PhoneField
+          value={formData.phone}
+          onChange={(value) => onChange('phone', value)}
+          disabled={disabled}
+          enableValidation={false}
+          validationMode="optional"
+        />
+      </div>
     </div>
   );
 };
