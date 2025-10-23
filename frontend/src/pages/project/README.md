@@ -141,7 +141,7 @@ const NewProject: React.FC = () => {
       console.log('Project created successfully:', response);
       setSuccessMessage(`Project created successfully! Project ID: ${response.project.id}`);
       
-      // Navigate after 2 second delay
+      // Navigate after 2 seconds delay
       setTimeout(() => {
         navigate('/projects'); // or fallback to /dashboard
       }, 2000);
