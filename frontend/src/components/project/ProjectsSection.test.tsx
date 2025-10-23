@@ -1,4 +1,5 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { ProjectsSection } from './ProjectsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
@@ -16,6 +17,11 @@ const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
 const MockedProjectServiceWithAuth = ProjectServiceWithAuth as jest.MockedClass<typeof ProjectServiceWithAuth>;
 
 describe('ProjectsSection', () => {
+  // Helper to render with router context
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  };
+
   const mockUser = {
     id: '1',
     username: 'testuser',
@@ -138,7 +144,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       // Should show loading skeletons
       const cards = screen.getAllByRole('generic').filter(el => 
@@ -162,7 +168,7 @@ describe('ProjectsSection', () => {
     });
 
     test('renders section title by default', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText('My Projects')).toBeInTheDocument();
@@ -170,7 +176,7 @@ describe('ProjectsSection', () => {
     });
 
     test('renders custom title when provided', async () => {
-      render(<ProjectsSection title="Builder Projects" />);
+      renderWithRouter(<ProjectsSection title="Builder Projects" />);
 
       await waitFor(() => {
         expect(screen.getByText('Builder Projects')).toBeInTheDocument();
@@ -178,7 +184,7 @@ describe('ProjectsSection', () => {
     });
 
     test('renders description when provided', async () => {
-      render(<ProjectsSection description="View all your construction projects" />);
+      renderWithRouter(<ProjectsSection description="View all your construction projects" />);
 
       await waitFor(() => {
         expect(screen.getByText('View all your construction projects')).toBeInTheDocument();
@@ -186,7 +192,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays projects after successful fetch', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
@@ -195,7 +201,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays Export and Filter buttons when projects exist', async () => {
-      render(<ProjectsSection showCreateAction={true} />);
+      renderWithRouter(<ProjectsSection showCreateAction={true} />);
 
       await waitFor(() => {
         expect(screen.getByText('Export')).toBeInTheDocument();
@@ -204,7 +210,7 @@ describe('ProjectsSection', () => {
     });
 
     test('does not display Create Project button when projects exist', async () => {
-      render(<ProjectsSection showCreateAction={true} />);
+      renderWithRouter(<ProjectsSection showCreateAction={true} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Create Project')).not.toBeInTheDocument();
@@ -212,7 +218,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays pagination info', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText(/Showing 2 of 2 projects/)).toBeInTheDocument();
@@ -248,7 +254,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays empty state when no projects exist', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText('No Projects Yet')).toBeInTheDocument();
@@ -257,7 +263,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays Create Project button in empty state when showCreateAction is true', async () => {
-      render(<ProjectsSection showCreateAction={true} />);
+      renderWithRouter(<ProjectsSection showCreateAction={true} />);
 
       await waitFor(() => {
         expect(screen.getByText('Create Project')).toBeInTheDocument();
@@ -265,7 +271,7 @@ describe('ProjectsSection', () => {
     });
 
     test('hides Create Project button in empty state when showCreateAction is false', async () => {
-      render(<ProjectsSection showCreateAction={false} />);
+      renderWithRouter(<ProjectsSection showCreateAction={false} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Create Project')).not.toBeInTheDocument();
@@ -287,7 +293,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays error state when fetch fails', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText('Error Loading Projects')).toBeInTheDocument();
@@ -296,7 +302,7 @@ describe('ProjectsSection', () => {
     });
 
     test('displays retry button in error state', async () => {
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(screen.getByText('Retry')).toBeInTheDocument();
@@ -317,7 +323,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       // Wait for error state
       await waitFor(() => {
@@ -353,7 +359,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection filterByRole="builder" />);
+      renderWithRouter(<ProjectsSection filterByRole="builder" />);
 
       await waitFor(() => {
         expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'builder', undefined, undefined, undefined);
@@ -372,7 +378,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection filterByRole="owner" />);
+      renderWithRouter(<ProjectsSection filterByRole="owner" />);
 
       await waitFor(() => {
         expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'owner', undefined, undefined, undefined);
@@ -391,7 +397,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, undefined);
@@ -424,7 +430,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
         expect(mockGetCombinedProjectsPaginated).not.toHaveBeenCalled();
@@ -446,7 +452,7 @@ describe('ProjectsSection', () => {
       }) as any);
 
       const paginationParams = { page: 1, size: 10 };
-      render(<ProjectsSection paginationParams={paginationParams} />);
+      renderWithRouter(<ProjectsSection paginationParams={paginationParams} />);
 
       await waitFor(() => {
         expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, paginationParams);
@@ -497,7 +503,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection initialDisplayCount={3} />);
+      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 
       await waitFor(() => {
         const displayedText = screen.getByText(/Showing 3 of 10 projects/);
@@ -547,7 +553,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection initialDisplayCount={3} />);
+      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 
       await waitFor(() => {
         expect(screen.getByText('Load More')).toBeInTheDocument();
@@ -596,7 +602,7 @@ describe('ProjectsSection', () => {
         getProjectsByOwnerId: jest.fn(),
       }) as any);
 
-      render(<ProjectsSection initialDisplayCount={3} />);
+      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 
       await waitFor(() => {
         expect(screen.getByText(/Showing 3 of 10 projects/)).toBeInTheDocument();

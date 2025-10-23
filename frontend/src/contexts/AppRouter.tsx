@@ -3,7 +3,7 @@ import { config } from '@/config/environment';
 import React from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleBottomNavbarDemo, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
-import { NewProject } from '../pages/project';
+import { NewProject, ProjectDetails } from '../pages/project';
 import { Role } from '../services/dtos';
 import { useAuth } from './AuthContext';
 
@@ -79,6 +79,13 @@ export const AVAILABLE_ROUTES: RouteDefinition[] = [
         description: 'Create a new construction project',
         accessLevel: 'protected',
         component: NewProject
+    },
+    {
+        path: '/projects/:id',
+        name: 'Project Details',
+        description: 'View detailed information about a specific project',
+        accessLevel: 'protected',
+        component: ProjectDetails
     },
 
     // Admin routes (requires admin privileges)
@@ -236,6 +243,14 @@ export const AppRouter: React.FC = () => {
                     element={
                         <ProtectedRoute>
                             <NewProject />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/projects/:id"
+                    element={
+                        <ProtectedRoute>
+                            <ProjectDetails />
                         </ProtectedRoute>
                     }
                 />
