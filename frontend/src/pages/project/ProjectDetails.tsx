@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, AlertCircle, Pencil, Trash2 } from 'lucide-react';
 
 /**
  * ProjectDetails Component
@@ -36,6 +37,8 @@ export const ProjectDetails: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [actionMessage, setActionMessage] = useState<{ type: 'info' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -102,14 +105,50 @@ export const ProjectDetails: React.FC = () => {
 
   // Handle edit action (placeholder)
   const handleEdit = () => {
-    alert('Edit functionality will be implemented in a future update.');
+    setActionMessage({ type: 'info', text: 'Edit functionality will be implemented in a future update.' });
+    setTimeout(() => setActionMessage(null), 5000);
   };
 
   // Handle delete action (placeholder)
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      alert('Delete functionality will be implemented in a future update.');
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    setShowDeleteConfirm(false);
+    setActionMessage({ type: 'info', text: 'Delete functionality will be implemented in a future update.' });
+    setTimeout(() => setActionMessage(null), 5000);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  // Retry mechanism for error state
+  const handleRetry = () => {
+    setIsLoading(true);
+    setError(null);
+    // Re-trigger the useEffect by changing a dependency (in this case, we'll refetch directly)
+    if (!id || !token) {
+      setError('Project ID or authentication is missing');
+      setIsLoading(false);
+      return;
     }
+    
+    const refetchProject = async () => {
+      try {
+        const projectService = new ProjectServiceWithAuth(() => token);
+        const fetchedProject = await projectService.getProjectById(id);
+        setProject(fetchedProject);
+      } catch (err) {
+        console.error('Error fetching project:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load project');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    refetchProject();
   };
 
   // Loading state
@@ -169,27 +208,14 @@ export const ProjectDetails: React.FC = () => {
             <Card className="border-destructive">
               <CardContent className="pt-6">
                 <div className="text-center space-y-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 mx-auto text-destructive"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                  <AlertCircle className="h-12 w-12 mx-auto text-destructive" />
                   <h2 className="text-2xl font-semibold text-destructive">Error Loading Project</h2>
                   <p className="text-muted-foreground">{error}</p>
                   <div className="flex gap-2 justify-center">
                     <Button onClick={handleBack} variant="outline">
                       Back to Dashboard
                     </Button>
-                    <Button onClick={() => window.location.reload()}>
+                    <Button onClick={handleRetry}>
                       Retry
                     </Button>
                   </div>
@@ -228,6 +254,44 @@ export const ProjectDetails: React.FC = () => {
     <div className="min-h-screen bg-background pb-20">
       <section className="py-8 bg-background">
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
+          {/* Action Message Banner */}
+          {actionMessage && (
+            <div className={`mb-4 p-4 rounded-lg border ${
+              actionMessage.type === 'info' 
+                ? 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300' 
+                : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
+            }`}>
+              <p className="text-sm">{actionMessage.text}</p>
+            </div>
+          )}
+
+          {/* Delete Confirmation Dialog */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+              <Card className="max-w-md mx-4">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-destructive" />
+                    Confirm Delete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Are you sure you want to delete this project? This action cannot be undone.
+                  </p>
+                  <div className="flex gap-2 justify-end">
+                    <Button onClick={cancelDelete} variant="outline">
+                      Cancel
+                    </Button>
+                    <Button onClick={confirmDelete} variant="destructive">
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Header Section */}
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -241,26 +305,15 @@ export const ProjectDetails: React.FC = () => {
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button onClick={handleBack} variant="outline" size="sm">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                    />
-                  </svg>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
                 <Button onClick={handleEdit} variant="outline" size="sm">
+                  <Pencil className="h-4 w-4 mr-2" />
                   Edit
                 </Button>
                 <Button onClick={handleDelete} variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </Button>
               </div>
