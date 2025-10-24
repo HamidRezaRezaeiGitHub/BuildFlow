@@ -1,13 +1,13 @@
+import { AddressData, AddressFieldConfig, createEmptyAddress, FlexibleAddressForm } from '@/components/address';
+import FlexibleSignUpForm from '@/components/auth/FlexibleSignUpForm';
 import { StandardBottomNavbar } from '@/components/navbar';
-import { createEmptyAddress, FlexibleAddressForm, AddressFieldConfig, AddressData } from '@/components/address';
-import { OtherPartyForm, OtherPartyFormData, createEmptyOtherPartyFormData } from '@/components/project/OtherPartyForm';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { CreateProjectRequest, ProjectLocationRequest, projectService } from '@/services';
-import { Building2, User, MapPin } from 'lucide-react';
+import { Building2, MapPin, User } from 'lucide-react';
 import React from 'react';
 import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 
@@ -15,15 +15,25 @@ import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 const FOCUS_TRANSITION_DELAY_MS = 100;
 
 /**
+ * Other party information data structure
+ */
+interface OtherPartyFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+/**
  * Multi-step form data state
  */
 interface MultiStepFormState {
   // Step 1: User's role
   userRole: 'builder' | 'owner';
-  
+
   // Step 2: Other party information (optional)
   otherParty: OtherPartyFormData;
-  
+
   // Step 3: Project location
   projectLocation: AddressData;
 }
@@ -77,7 +87,12 @@ export const NewProject: React.FC = () => {
   // Form state (single source of truth)
   const [formData, setFormData] = React.useState<MultiStepFormState>({
     userRole: 'builder',
-    otherParty: createEmptyOtherPartyFormData(),
+    otherParty: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: ''
+    },
     projectLocation: createEmptyAddress()
   });
 
@@ -183,12 +198,12 @@ export const NewProject: React.FC = () => {
 
       console.log('Creating project with request:', createRequest);
       const response = await projectService.createProject(createRequest, token);
-      
+
       console.log('Project created successfully:', response);
-      
+
       // Navigate to project details page
       navigate(`/projects/${response.project.id}`);
-      
+
     } catch (err) {
       console.error('Error creating project:', err);
       setError(err instanceof Error ? err.message : 'Failed to create project');
@@ -221,15 +236,15 @@ export const NewProject: React.FC = () => {
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg 
-                      className="h-5 w-5 text-destructive" 
-                      viewBox="0 0 20 20" 
+                    <svg
+                      className="h-5 w-5 text-destructive"
+                      viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path 
-                        fillRule="evenodd" 
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
-                        clipRule="evenodd" 
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
                       />
                     </svg>
                   </div>
@@ -256,9 +271,9 @@ export const NewProject: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <Accordion 
-                  type="single" 
-                  value={activeStep} 
+                <Accordion
+                  type="single"
+                  value={activeStep}
                   onValueChange={setActiveStep}
                   className="w-full"
                 >
@@ -289,11 +304,10 @@ export const NewProject: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleRoleChange('builder')}
-                              className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                                formData.userRole === 'builder'
+                              className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
                                   ? 'border-primary bg-primary/10 text-primary'
                                   : 'border-border hover:border-border/60'
-                              }`}
+                                }`}
                               disabled={isSubmitting}
                               aria-pressed={formData.userRole === 'builder'}
                             >
@@ -309,11 +323,10 @@ export const NewProject: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleRoleChange('owner')}
-                              className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
-                                formData.userRole === 'owner'
+                              className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
                                   ? 'border-primary bg-primary/10 text-primary'
                                   : 'border-border hover:border-border/60'
-                              }`}
+                                }`}
                               disabled={isSubmitting}
                               aria-pressed={formData.userRole === 'owner'}
                             >
@@ -365,15 +378,55 @@ export const NewProject: React.FC = () => {
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-6 pt-4">
-                        <OtherPartyForm
-                          otherPartyRole={otherPartyRole}
-                          formData={formData.otherParty}
-                          onChange={handleOtherPartyChange}
-                          disabled={isSubmitting}
-                        />
+                        {/* Other Party Information Form */}
+                        <div>
+                          <div className="mb-4">
+                            <Label className="text-sm font-medium">
+                              {otherPartyRole === 'owner' ? 'Owner' : 'Builder'} Information (Optional)
+                            </Label>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Provide information about the project {otherPartyRole.toLowerCase()}.
+                              All fields are optional and can be updated later.
+                            </p>
+                          </div>
+
+                          <FlexibleSignUpForm
+                            fieldsConfig={[
+                              { field: 'firstName', colSpan: 1, required: false, show: true },
+                              { field: 'lastName', colSpan: 1, required: false, show: true },
+                              { field: 'email', colSpan: 1, required: false, show: true },
+                              { field: 'phone', colSpan: 1, required: false, show: true },
+                              { field: 'password', show: false },
+                              { field: 'confirmPassword', show: false },
+                              { field: 'username', show: false }
+                            ]}
+                            includeAddress={false}
+                            showPersonalInfoHeader={false}
+                            inline={true}
+                            enableValidation={false}
+                            disabled={isSubmitting}
+                            onFormDataChange={(flexibleFormData) => {
+                              // Sync FlexibleSignUpForm changes back to parent state
+                              if (flexibleFormData.firstName !== formData.otherParty.firstName) {
+                                handleOtherPartyChange('firstName', flexibleFormData.firstName);
+                              }
+                              if (flexibleFormData.lastName !== formData.otherParty.lastName) {
+                                handleOtherPartyChange('lastName', flexibleFormData.lastName);
+                              }
+                              if (flexibleFormData.email !== formData.otherParty.email) {
+                                handleOtherPartyChange('email', flexibleFormData.email);
+                              }
+                              if (flexibleFormData.phone !== formData.otherParty.phone) {
+                                handleOtherPartyChange('phone', flexibleFormData.phone);
+                              }
+                            }}
+                            submitButtonText="Submit"
+                            className="[&_button[type='submit']]:hidden"
+                          />
+                        </div>
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-between gap-3">
+                        <div className="flex justify-between gap-3 pt-4 border-t">
                           <Button
                             type="button"
                             variant="outline"
@@ -472,7 +525,7 @@ export const NewProject: React.FC = () => {
           <div className="max-w-2xl mx-auto mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               Need help? Contact support or check our{' '}
-              <button 
+              <button
                 className="text-primary hover:text-primary/80 hover:underline transition-colors"
                 onClick={() => console.log('Documentation clicked')}
               >

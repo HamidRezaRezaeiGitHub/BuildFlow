@@ -109,7 +109,7 @@ project/
                 <StepHeader number={2} title="Owner/Builder Information" />
               </AccordionTrigger>
               <AccordionContent>
-                <OtherPartyForm />
+                <OtherPartyInlineForm />
                 <PreviousButton /> <NextButton />
               </AccordionContent>
             </AccordionItem>
@@ -157,7 +157,7 @@ Error: Display error message in red banner
 
 **Components Used:**
 - `Accordion`, `AccordionItem`, `AccordionTrigger`, `AccordionContent` - Multi-step UI from shadcn/ui
-- `OtherPartyForm` - Optional other party information capture
+- `FlexibleSignUpForm` - Inline form for optional other party information capture
 - `FlexibleAddressForm` - Project location address input
 - `StandardBottomNavbar` - Mobile-first bottom navigation
 - `Card`, `CardHeader`, `CardTitle`, `CardContent` - UI components from shadcn/ui
@@ -167,6 +167,13 @@ Error: Display error message in red banner
 
 **Form State Management:**
 ```typescript
+interface OtherPartyFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
 interface MultiStepFormState {
   userRole: 'builder' | 'owner';           // Step 1
   otherParty: OtherPartyFormData;          // Step 2 (optional)
@@ -176,7 +183,12 @@ interface MultiStepFormState {
 // Single source of truth - state persists across steps
 const [formData, setFormData] = useState<MultiStepFormState>({
   userRole: 'builder',
-  otherParty: createEmptyOtherPartyFormData(),
+  otherParty: {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  },
   projectLocation: createEmptyAddress()
 });
 
