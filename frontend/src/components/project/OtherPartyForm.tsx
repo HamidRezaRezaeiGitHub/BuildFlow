@@ -1,6 +1,6 @@
-import { EmailField, NameField, PhoneField } from '@/components/auth';
+import FlexibleSignUpForm, { SignUpFieldConfig, FlexibleSignUpFormData } from '@/components/auth/FlexibleSignUpForm';
 import { Label } from '@/components/ui/label';
-import React from 'react';
+import React, { useRef } from 'react';
 
 /**
  * Form data for capturing other party information (Owner or Builder)
@@ -53,7 +53,7 @@ export const createEmptyOtherPartyFormData = (): OtherPartyFormData => ({
  * Features:
  * - Dynamically adapts to show "Owner" or "Builder" based on current user's role
  * - All fields optional with non-blocking validation hints
- * - Reuses existing auth field components for consistency
+ * - Reuses FlexibleSignUpForm for consistency
  * - Mobile-first responsive design
  */
 export const OtherPartyForm: React.FC<OtherPartyFormProps> = ({
@@ -65,9 +65,53 @@ export const OtherPartyForm: React.FC<OtherPartyFormProps> = ({
 }) => {
   const roleLabel = otherPartyRole === 'owner' ? 'Owner' : 'Builder';
   
+  // Track whether we've initialized to avoid calling onChange on mount
+  const isInitializedRef = useRef(false);
+  
+  // Configuration for the 4 fields we need: firstName, lastName, email, phone
+  // All fields are optional for this use case
+  const fieldsConfig: SignUpFieldConfig[] = [
+    { field: 'firstName', colSpan: 1, required: false, show: true },
+    { field: 'lastName', colSpan: 1, required: false, show: true },
+    { field: 'email', colSpan: 1, required: false, show: true },
+    { field: 'phone', colSpan: 1, required: false, show: true },
+    // Hide password and username fields - they won't be rendered
+    { field: 'password', show: false },
+    { field: 'confirmPassword', show: false },
+    { field: 'username', show: false }
+  ];
+
+  // Handle form data changes from FlexibleSignUpForm
+  const handleFormDataChange = (flexibleFormData: FlexibleSignUpFormData) => {
+    // Skip the first call which is the initialization
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      return;
+    }
+    
+    // Extract only the fields we care about and call onChange for each changed field
+    if (flexibleFormData.firstName !== formData.firstName) {
+      onChange('firstName', flexibleFormData.firstName);
+    }
+    if (flexibleFormData.lastName !== formData.lastName) {
+      onChange('lastName', flexibleFormData.lastName);
+    }
+    if (flexibleFormData.email !== formData.email) {
+      onChange('email', flexibleFormData.email);
+    }
+    if (flexibleFormData.phone !== formData.phone) {
+      onChange('phone', flexibleFormData.phone);
+    }
+  };
+
+  // Note: FlexibleSignUpForm manages its own internal state and doesn't support
+  // controlled mode with external values. The form will start empty and sync changes
+  // back to the parent via onFormDataChange. This is a limitation of the current
+  // FlexibleSignUpForm implementation.
+  
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div>
+    <div className={className}>
+      <div className="mb-4">
         <Label className="text-sm font-medium">
           {roleLabel} Information (Optional)
         </Label>
@@ -77,43 +121,17 @@ export const OtherPartyForm: React.FC<OtherPartyFormProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <NameField
-          nameType="firstName"
-          value={formData.firstName}
-          onChange={(value) => onChange('firstName', value)}
-          disabled={disabled}
-          enableValidation={false}
-          validationMode="optional"
-        />
-
-        <NameField
-          nameType="lastName"
-          value={formData.lastName}
-          onChange={(value) => onChange('lastName', value)}
-          disabled={disabled}
-          enableValidation={false}
-          validationMode="optional"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <EmailField
-          value={formData.email}
-          onChange={(value) => onChange('email', value)}
-          disabled={disabled}
-          enableValidation={false}
-          validationMode="optional"
-        />
-
-        <PhoneField
-          value={formData.phone}
-          onChange={(value) => onChange('phone', value)}
-          disabled={disabled}
-          enableValidation={false}
-          validationMode="optional"
-        />
-      </div>
+      <FlexibleSignUpForm
+        fieldsConfig={fieldsConfig}
+        includeAddress={false}
+        showPersonalInfoHeader={false}
+        inline={true}
+        enableValidation={false}
+        disabled={disabled}
+        onFormDataChange={handleFormDataChange}
+        submitButtonText="Submit"
+        className="[&_button[type='submit']]:hidden"
+      />
     </div>
   );
 };

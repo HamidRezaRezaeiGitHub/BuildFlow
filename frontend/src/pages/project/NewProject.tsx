@@ -60,7 +60,6 @@ export const NewProject: React.FC = () => {
   const { user, token } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [showCancelConfirm, setShowCancelConfirm] = React.useState(false);
 
   // Current active step (controlled accordion)
   const [activeStep, setActiveStep] = React.useState<string>('step-1');
@@ -198,19 +197,6 @@ export const NewProject: React.FC = () => {
     }
   };
 
-  // Handle cancel with confirmation
-  const handleCancel = () => {
-    setShowCancelConfirm(true);
-  };
-
-  const confirmCancel = () => {
-    navigate(-1);
-  };
-
-  const cancelCancel = () => {
-    setShowCancelConfirm(false);
-  };
-
   // Determine the other party role based on user's role
   const otherPartyRole = formData.userRole === 'builder' ? 'owner' : 'builder';
 
@@ -260,30 +246,6 @@ export const NewProject: React.FC = () => {
             </div>
           )}
 
-          {/* Cancel Confirmation Modal */}
-          {showCancelConfirm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-              <Card className="max-w-md mx-4">
-                <CardHeader>
-                  <CardTitle>Confirm Cancellation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Are you sure you want to cancel? Any information you've entered will be lost.
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={cancelCancel}>
-                      Continue Editing
-                    </Button>
-                    <Button variant="destructive" onClick={confirmCancel}>
-                      Yes, Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           {/* Multi-Step Accordion Form */}
           <div className="max-w-2xl mx-auto">
             <Card>
@@ -323,7 +285,7 @@ export const NewProject: React.FC = () => {
                       <div className="space-y-6 pt-4">
                         <div className="space-y-3">
                           <Label className="text-sm font-medium">I am the:</Label>
-                          <div className="flex flex-col sm:flex-row gap-4">
+                          <div className="flex gap-4">
                             <button
                               type="button"
                               onClick={() => handleRoleChange('builder')}
@@ -367,7 +329,7 @@ export const NewProject: React.FC = () => {
                         </div>
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-end gap-3 pt-4 border-t">
+                        <div className="flex justify-end gap-3">
                           <Button
                             type="button"
                             onClick={() => handleNext('step-1')}
@@ -411,7 +373,7 @@ export const NewProject: React.FC = () => {
                         />
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-between gap-3 pt-4 border-t">
+                        <div className="flex justify-between gap-3">
                           <Button
                             type="button"
                             variant="outline"
@@ -479,7 +441,7 @@ export const NewProject: React.FC = () => {
                         </div>
 
                         {/* Navigation & Action Buttons */}
-                        <div className="flex justify-between gap-3 pt-4 border-t">
+                        <div className="flex justify-between gap-3">
                           <div className="flex gap-3">
                             <Button
                               type="button"
@@ -488,14 +450,6 @@ export const NewProject: React.FC = () => {
                               disabled={isSubmitting}
                             >
                               Previous
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={handleCancel}
-                              disabled={isSubmitting}
-                            >
-                              Cancel
                             </Button>
                           </div>
                           <Button
