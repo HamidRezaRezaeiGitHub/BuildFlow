@@ -611,4 +611,74 @@ describe('FlexibleBottomNavbar', () => {
       expect(contentContainer).toBeInTheDocument();
     });
   });
+
+  describe('Sheet Bottom Padding', () => {
+    test('FlexibleBottomNavbar_shouldHaveBottomPaddingInPlusMenuSheet', async () => {
+      const user = userEvent.setup();
+      // Mock mobile view to ensure Sheet is used
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Create New')).toBeInTheDocument();
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      // Find the parent div of "Create New Project" button which should have pb-6 class
+      const createButton = screen.getByText('Create New Project');
+      const contentDiv = createButton.closest('.pb-6');
+      expect(contentDiv).toBeInTheDocument();
+      expect(contentDiv).toHaveClass('mt-4');
+      expect(contentDiv).toHaveClass('space-y-1');
+      expect(contentDiv).toHaveClass('pb-6');
+    });
+
+    test('FlexibleBottomNavbar_shouldHaveBottomPaddingInMoreMenuSheet', async () => {
+      const user = userEvent.setup();
+      // Mock mobile view to ensure Sheet is used
+      mockUseMediaQuery.mockReturnValue(true);
+      
+      render(<FlexibleBottomNavbar />);
+      
+      const moreButton = screen.getByText('More');
+      await user.click(moreButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('My Account')).toBeInTheDocument();
+        expect(screen.getByText('Profile')).toBeInTheDocument();
+      });
+      
+      // Find the parent div of "Profile" button which should have pb-6 class
+      const profileButton = screen.getByText('Profile');
+      const contentDiv = profileButton.closest('.pb-6');
+      expect(contentDiv).toBeInTheDocument();
+      expect(contentDiv).toHaveClass('mt-4');
+      expect(contentDiv).toHaveClass('space-y-1');
+      expect(contentDiv).toHaveClass('pb-6');
+    });
+
+    test('FlexibleBottomNavbar_shouldNotAffectDropdownMenuPadding', async () => {
+      const user = userEvent.setup();
+      // Mock desktop view to ensure Dropdown is used
+      mockUseMediaQuery.mockReturnValue(false);
+      
+      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      
+      const fabButton = screen.getByLabelText(/Create new item/i);
+      await user.click(fabButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Create New Project')).toBeInTheDocument();
+      });
+      
+      // In dropdown, there should be no pb-6 class on the content
+      const createButton = screen.getByText('Create New Project');
+      const contentDiv = createButton.closest('.pb-6');
+      expect(contentDiv).not.toBeInTheDocument();
+    });
+  });
 });

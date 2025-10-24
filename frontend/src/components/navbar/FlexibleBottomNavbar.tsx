@@ -324,7 +324,7 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
                         Select an action to create a new item
                     </SheetDescription>
                 </SheetHeader>
-                <div className="mt-4 space-y-1">
+                <div className="mt-4 space-y-1 pb-6">
                     {plusItems.map((item) => (
                         <button
                             key={item.key}
@@ -446,7 +446,7 @@ export const FlexibleBottomNavbar: React.FC<FlexibleBottomNavbarProps> = ({
                         Manage your account settings and preferences
                     </SheetDescription>
                 </SheetHeader>
-                <div className="mt-4 space-y-1">
+                <div className="mt-4 space-y-1 pb-6">
                     {/* Profile */}
                     <button
                         onClick={handleProfile}
