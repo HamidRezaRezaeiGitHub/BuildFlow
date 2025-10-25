@@ -389,14 +389,14 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     @Test
     void findByOwnerId_shouldReturnProjects_whenOwnerHasProjects() {
         // Arrange
-        User owner = registerUser(userService, testOwnerUser);
-        assertNotNull(owner.getId());
+        User ownerUser = registerUser(userService, testOwnerUser);
+        assertNotNull(ownerUser.getId());
 
         // Create first project using test location data
         ProjectLocationRequestDto locationRequestDto1 = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request1 = CreateProjectRequest.builder()
-                .userId(owner.getId())
+                .userId(ownerUser.getId())
                 .role("OWNER")
                 .locationRequestDto(locationRequestDto1)
                 .build();
@@ -412,7 +412,7 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
                 .build();
 
         CreateProjectRequest request2 = CreateProjectRequest.builder()
-                .userId(owner.getId())
+                .userId(ownerUser.getId())
                 .role("OWNER")
                 .locationRequestDto(locationRequestDto2)
                 .build();
@@ -421,20 +421,20 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         projectService.createProject(request2);
 
         // Act
-        List<Project> ownerProjects = projectService.findByOwnerId(owner.getId());
+        List<Project> ownerProjects = projectService.findByOwnerId(ownerUser.getId());
 
         // Assert
         assertEquals(2, ownerProjects.size());
-        assertTrue(ownerProjects.stream().allMatch(p -> p.getUser().getId().equals(owner.getId())));
+        assertTrue(ownerProjects.stream().allMatch(p -> p.getUser().getId().equals(ownerUser.getId())));
     }
 
     @Test
     void findByOwnerId_shouldReturnEmpty_whenOwnerHasNoProjects() {
         // Arrange
-        User owner = registerUser(userService, testOwnerUser);
+        User ownerUser = registerUser(userService, testOwnerUser);
 
         // Act
-        List<Project> ownerProjects = projectService.findByOwnerId(owner.getId());
+        List<Project> ownerProjects = projectService.findByOwnerId(ownerUser.getId());
 
         // Assert
         assertTrue(ownerProjects.isEmpty());
@@ -477,12 +477,12 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     @Test
     void getProjectsByOwnerId_shouldReturnProjectDtos_whenOwnerExists() {
         // Arrange
-        User owner = registerUser(userService, testOwnerUser);
-        assertNotNull(owner.getId());
+        User ownerUser = registerUser(userService, testOwnerUser);
+        assertNotNull(ownerUser.getId());
         ProjectLocationRequestDto locationRequestDto = toProjectLocationRequestDto(testProject.getLocation());
 
         CreateProjectRequest request = CreateProjectRequest.builder()
-                .userId(owner.getId())
+                .userId(ownerUser.getId())
                 .role("OWNER")
                 .locationRequestDto(locationRequestDto)
                 .build();
@@ -490,11 +490,11 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         projectService.createProject(request);
 
         // Act
-        List<ProjectDto> projectDtos = projectService.getProjectsByOwnerId(owner.getId());
+        List<ProjectDto> projectDtos = projectService.getProjectsByOwnerId(ownerUser.getId());
 
         // Assert
         assertEquals(1, projectDtos.size());
-        assertEquals(owner.getId(), projectDtos.getFirst().getUserId());
+        assertEquals(ownerUser.getId(), projectDtos.getFirst().getUserId());
         assertEquals("OWNER", projectDtos.getFirst().getRole());
     }
 
@@ -550,8 +550,6 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
     void getCombinedProjects_shouldReturnOnlyBuilderProjects_whenScopeIsBuilder() {
         // Arrange
         User builder = registerUser(userService, testProject.getUser());
-        @SuppressWarnings("unused")
-        User owner = registerUser(userService, testOwnerUser);
         
         // Create project where user is builder
         CreateProjectRequest builderRequest = CreateProjectRequest.builder()
