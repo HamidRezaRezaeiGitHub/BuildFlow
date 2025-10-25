@@ -1,8 +1,14 @@
 [
   {
     "id": "1",
-    "builderId": "1",
-    "ownerId": "4",
+    "userId": "1",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ],
     "location": {
       "id": "1",
       "unitNumber": "",
@@ -17,8 +23,6 @@
   },
   {
     "id": "2",
-    "builderId": "1",
-    "ownerId": "2",
     "location": {
       "id": "2",
       "unitNumber": "302",
@@ -29,12 +33,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-02-20T08:15:00Z",
-    "lastUpdatedAt": "2024-10-19T16:45:00Z"
+    "lastUpdatedAt": "2024-10-19T16:45:00Z",
+    "userId": "1",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "2"
+      }
+    ]
   },
   {
     "id": "3",
-    "builderId": "1",
-    "ownerId": "3",
     "location": {
       "id": "3",
       "unitNumber": "",
@@ -45,12 +55,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-03-10T11:00:00Z",
-    "lastUpdatedAt": "2024-10-17T09:30:00Z"
+    "lastUpdatedAt": "2024-10-17T09:30:00Z",
+    "userId": "1",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "3"
+      }
+    ]
   },
   {
     "id": "4",
-    "builderId": "1",
-    "ownerId": "1",
     "location": {
       "id": "4",
       "unitNumber": "5B",
@@ -61,12 +77,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-04-05T14:20:00Z",
-    "lastUpdatedAt": "2024-10-20T11:15:00Z"
+    "lastUpdatedAt": "2024-10-20T11:15:00Z",
+    "userId": "1",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   },
   {
     "id": "5",
-    "builderId": "1",
-    "ownerId": "4",
     "location": {
       "id": "5",
       "unitNumber": "",
@@ -77,12 +99,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-05-12T09:45:00Z",
-    "lastUpdatedAt": "2024-10-16T13:50:00Z"
+    "lastUpdatedAt": "2024-10-16T13:50:00Z",
+    "userId": "1",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ]
   },
   {
     "id": "6",
-    "builderId": "2",
-    "ownerId": "1",
     "location": {
       "id": "6",
       "unitNumber": "12A",
@@ -93,12 +121,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-01-25T13:10:00Z",
-    "lastUpdatedAt": "2024-10-19T10:25:00Z"
+    "lastUpdatedAt": "2024-10-19T10:25:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   },
   {
     "id": "7",
-    "builderId": "2",
-    "ownerId": "4",
     "location": {
       "id": "7",
       "unitNumber": "",
@@ -109,12 +143,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-02-18T15:30:00Z",
-    "lastUpdatedAt": "2024-10-20T08:45:00Z"
+    "lastUpdatedAt": "2024-10-20T08:45:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ]
   },
   {
     "id": "8",
-    "builderId": "2",
-    "ownerId": "3",
     "location": {
       "id": "8",
       "unitNumber": "45",
@@ -125,12 +165,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-03-22T12:00:00Z",
-    "lastUpdatedAt": "2024-10-18T17:10:00Z"
+    "lastUpdatedAt": "2024-10-18T17:10:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "3"
+      }
+    ]
   },
   {
     "id": "9",
-    "builderId": "2",
-    "ownerId": "2",
     "location": {
       "id": "9",
       "unitNumber": "",
@@ -141,12 +187,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-04-14T10:15:00Z",
-    "lastUpdatedAt": "2024-10-17T14:30:00Z"
+    "lastUpdatedAt": "2024-10-17T14:30:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "2"
+      }
+    ]
   },
   {
     "id": "10",
-    "builderId": "2",
-    "ownerId": "1",
     "location": {
       "id": "10",
       "unitNumber": "8B",
@@ -157,12 +209,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-05-03T16:40:00Z",
-    "lastUpdatedAt": "2024-10-19T12:55:00Z"
+    "lastUpdatedAt": "2024-10-19T12:55:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   },
   {
     "id": "11",
-    "builderId": "2",
-    "ownerId": "4",
     "location": {
       "id": "11",
       "unitNumber": "",
@@ -173,12 +231,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-06-08T11:20:00Z",
-    "lastUpdatedAt": "2024-10-20T15:40:00Z"
+    "lastUpdatedAt": "2024-10-20T15:40:00Z",
+    "userId": "2",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ]
   },
   {
     "id": "12",
-    "builderId": "3",
-    "ownerId": "1",
     "location": {
       "id": "12",
       "unitNumber": "23",
@@ -189,12 +253,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-02-05T09:25:00Z",
-    "lastUpdatedAt": "2024-10-18T11:40:00Z"
+    "lastUpdatedAt": "2024-10-18T11:40:00Z",
+    "userId": "3",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   },
   {
     "id": "13",
-    "builderId": "3",
-    "ownerId": "2",
     "location": {
       "id": "13",
       "unitNumber": "",
@@ -205,12 +275,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-03-18T14:35:00Z",
-    "lastUpdatedAt": "2024-10-19T09:20:00Z"
+    "lastUpdatedAt": "2024-10-19T09:20:00Z",
+    "userId": "3",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "2"
+      }
+    ]
   },
   {
     "id": "14",
-    "builderId": "3",
-    "ownerId": "4",
     "location": {
       "id": "14",
       "unitNumber": "100",
@@ -221,12 +297,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-04-22T08:50:00Z",
-    "lastUpdatedAt": "2024-10-20T13:15:00Z"
+    "lastUpdatedAt": "2024-10-20T13:15:00Z",
+    "userId": "3",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ]
   },
   {
     "id": "15",
-    "builderId": "3",
-    "ownerId": "3",
     "location": {
       "id": "15",
       "unitNumber": "",
@@ -237,12 +319,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-05-28T12:05:00Z",
-    "lastUpdatedAt": "2024-10-17T16:25:00Z"
+    "lastUpdatedAt": "2024-10-17T16:25:00Z",
+    "userId": "3",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "3"
+      }
+    ]
   },
   {
     "id": "16",
-    "builderId": "3",
-    "ownerId": "1",
     "location": {
       "id": "16",
       "unitNumber": "5",
@@ -253,12 +341,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-06-15T10:30:00Z",
-    "lastUpdatedAt": "2024-10-19T14:50:00Z"
+    "lastUpdatedAt": "2024-10-19T14:50:00Z",
+    "userId": "3",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   },
   {
     "id": "17",
-    "builderId": "4",
-    "ownerId": "2",
     "location": {
       "id": "17",
       "unitNumber": "",
@@ -269,12 +363,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-03-08T11:45:00Z",
-    "lastUpdatedAt": "2024-10-18T10:05:00Z"
+    "lastUpdatedAt": "2024-10-18T10:05:00Z",
+    "userId": "4",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "2"
+      }
+    ]
   },
   {
     "id": "18",
-    "builderId": "4",
-    "ownerId": "3",
     "location": {
       "id": "18",
       "unitNumber": "42",
@@ -285,12 +385,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-04-12T15:20:00Z",
-    "lastUpdatedAt": "2024-10-20T12:35:00Z"
+    "lastUpdatedAt": "2024-10-20T12:35:00Z",
+    "userId": "4",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "3"
+      }
+    ]
   },
   {
     "id": "19",
-    "builderId": "4",
-    "ownerId": "4",
     "location": {
       "id": "19",
       "unitNumber": "",
@@ -301,12 +407,18 @@
       "country": "Canada"
     },
     "createdAt": "2024-05-20T09:10:00Z",
-    "lastUpdatedAt": "2024-10-19T15:45:00Z"
+    "lastUpdatedAt": "2024-10-19T15:45:00Z",
+    "userId": "4",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "4"
+      }
+    ]
   },
   {
     "id": "20",
-    "builderId": "4",
-    "ownerId": "1",
     "location": {
       "id": "20",
       "unitNumber": "12",
@@ -317,6 +429,14 @@
       "country": "Canada"
     },
     "createdAt": "2024-06-25T13:30:00Z",
-    "lastUpdatedAt": "2024-10-20T09:55:00Z"
+    "lastUpdatedAt": "2024-10-20T09:55:00Z",
+    "userId": "4",
+    "role": "BUILDER",
+    "participants": [
+      {
+        "role": "OWNER",
+        "contactId": "1"
+      }
+    ]
   }
 ]
