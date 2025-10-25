@@ -1,6 +1,6 @@
 import mockProjectsData from '../../../mock-data/Projects.json';
 import { config } from '../config/environment';
-import type { CreateProjectResponse, Project, ProjectLocationRequest } from '../services/dtos';
+import type { CreateProjectResponse, Project, ProjectLocationRequest, ProjectRole } from '../services/dtos';
 
 /**
  * Mock Projects Database - Canadian Projects
@@ -24,19 +24,35 @@ export function findProjectById(id: string): Project | undefined {
 }
 
 /**
- * Find projects by builder ID
+ * Find projects by user ID where user has any role
  * Returns array of projects (empty if none found)
+ * 
+ * This is the preferred method for finding all projects associated with a user,
+ * regardless of their role. Use this instead of role-specific methods when you
+ * want to see all projects a user is involved in.
+ * 
+ * @example
+ * // Get all projects for user '1' (both BUILDER and OWNER roles)
+ * const allUserProjects = findProjectsByUserId('1');
  */
-export function findProjectsByBuilderId(builderId: string): Project[] {
-    return mockProjects.filter(p => p.builderId === builderId);
+export function findProjectsByUserId(userId: string): Project[] {
+    return mockProjects.filter(p => p.userId === userId);
 }
 
 /**
- * Find projects by owner ID
+ * Find projects by builder ID (legacy - finds projects where user is BUILDER)
+ * Returns array of projects (empty if none found)
+ */
+export function findProjectsByBuilderId(builderId: string): Project[] {
+    return mockProjects.filter(p => p.userId === builderId && p.role === 'BUILDER');
+}
+
+/**
+ * Find projects by owner ID (legacy - finds projects where user is OWNER)
  * Returns array of projects (empty if none found)
  */
 export function findProjectsByOwnerId(ownerId: string): Project[] {
-    return mockProjects.filter(p => p.ownerId === ownerId);
+    return mockProjects.filter(p => p.userId === ownerId && p.role === 'OWNER');
 }
 
 /**
@@ -44,16 +60,22 @@ export function findProjectsByOwnerId(ownerId: string): Project[] {
  * Adds the project to the mock database and returns it
  */
 export function createMockProject(
-    builderId: string,
-    ownerId: string,
-    locationRequestDto: ProjectLocationRequest
+    userId: string,
+    role: ProjectRole,
+    locationRequestDto: ProjectLocationRequest,
+    participants: Array<{ role: ProjectRole; contactId: string }> = []
 ): Project {
     const newProjectId = String(mockProjects.length + 1);
     const now = new Date().toISOString();
     const newProject: Project = {
         id: newProjectId,
-        builderId,
-        ownerId,
+        userId,
+        role,
+        participants: participants.map((p, index) => ({
+            id: `${newProjectId}-p${index}`,
+            role: p.role,
+            contactId: p.contactId
+        })),
         location: {
             id: newProjectId,
             unitNumber: locationRequestDto.unitNumber || '',

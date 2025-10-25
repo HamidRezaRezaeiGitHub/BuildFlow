@@ -169,7 +169,7 @@ describe('NewProjectForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: mockUser.id,
-          isBuilder: true,
+          role: 'BUILDER',
           locationRequestDto: expect.objectContaining({
             streetNumberAndName: '123 Main Street',
             city: 'Toronto',
@@ -177,7 +177,8 @@ describe('NewProjectForm', () => {
             country: 'Canada',
             unitNumber: 'Unit 5',
             postalOrZipCode: 'M5H 2N2'
-          })
+          }),
+          participants: []
         })
       );
     });

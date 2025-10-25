@@ -192,8 +192,9 @@ export const NewProject: React.FC = () => {
 
       const createRequest: CreateProjectRequest = {
         userId: user.id,
-        isBuilder: formData.userRole === 'builder',
-        locationRequestDto: locationRequest
+        role: formData.userRole === 'builder' ? 'BUILDER' : 'OWNER',
+        locationRequestDto: locationRequest,
+        participants: [] // TODO: Add participants based on Step 2 data when contact creation is implemented
       };
 
       console.log('Creating project with request:', createRequest);

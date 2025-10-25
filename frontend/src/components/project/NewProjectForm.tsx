@@ -156,8 +156,9 @@ export const NewProjectForm: React.FC<NewProjectFormProps> = ({
 
     const createRequest: CreateProjectRequest = {
       userId: user.id, // Always the current authenticated user
-      isBuilder: formData.userRole === 'builder', // Boolean flag indicating if current user is the builder
-      locationRequestDto: locationRequest
+      role: formData.userRole === 'builder' ? 'BUILDER' : 'OWNER', // User's role in the project
+      locationRequestDto: locationRequest,
+      participants: [] // TODO: Add participants when contact creation is implemented
     };
 
     await onSubmit(createRequest);

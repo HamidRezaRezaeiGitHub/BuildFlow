@@ -51,8 +51,11 @@ describe('ProjectsSection', () => {
   const mockProjects: Project[] = [
     {
       id: '1',
-      builderId: '1',
-      ownerId: '2',
+      userId: '1',
+      role: 'BUILDER',
+      participants: [
+        { id: 'p1', role: 'OWNER', contactId: '2' }
+      ],
       location: {
         id: '1',
         unitNumber: '',
@@ -67,8 +70,11 @@ describe('ProjectsSection', () => {
     },
     {
       id: '2',
-      builderId: '1',
-      ownerId: '3',
+      userId: '1',
+      role: 'BUILDER',
+      participants: [
+        { id: 'p2', role: 'OWNER', contactId: '3' }
+      ],
       location: {
         id: '2',
         unitNumber: '302',
@@ -464,8 +470,9 @@ describe('ProjectsSection', () => {
     test('initially displays only 3 projects when more are available', async () => {
       const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
-        builderId: '1',
-        ownerId: '2',
+        userId: '1',
+        role: 'BUILDER',
+        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',
@@ -514,8 +521,9 @@ describe('ProjectsSection', () => {
     test('shows Load More button when more projects are available', async () => {
       const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
-        builderId: '1',
-        ownerId: '2',
+        userId: '1',
+        role: 'BUILDER',
+        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',
@@ -563,8 +571,9 @@ describe('ProjectsSection', () => {
     test('Load More button increases displayed projects', async () => {
       const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
         id: String(i + 1),
-        builderId: '1',
-        ownerId: '2',
+        userId: '1',
+        role: 'BUILDER',
+        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',

@@ -38,9 +38,12 @@ export type {
 export type {
     CreateProjectRequest,
     CreateProjectResponse,
+    CreateProjectParticipantRequest,
     ProjectDto as Project,
+    ProjectParticipantDto as ProjectParticipant,
     ProjectLocationRequestDto as ProjectLocationRequest,
-    ProjectLocationDto as ProjectLocation
+    ProjectLocationDto as ProjectLocation,
+    ProjectRole
 } from './ProjectDtos';
 
 export type {

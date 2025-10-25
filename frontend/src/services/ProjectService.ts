@@ -91,13 +91,14 @@ class ProjectService {
 
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const { userId, isBuilder, locationRequestDto } = request;
+                    const { userId, role, locationRequestDto, participants = [] } = request;
                     
-                    // Determine builderId and ownerId based on isBuilder flag
-                    const builderId = isBuilder ? userId : '1'; // Default to admin as builder
-                    const ownerId = isBuilder ? '1' : userId; // Default to admin as owner
-                    
-                    const newProject = createMockProject(builderId, ownerId, locationRequestDto);
+                    const newProject = createMockProject(
+                        userId, 
+                        role, 
+                        locationRequestDto,
+                        participants
+                    );
                     resolve(generateMockCreateProjectResponse(newProject));
                 }, 500); // Simulate network delay
             });
