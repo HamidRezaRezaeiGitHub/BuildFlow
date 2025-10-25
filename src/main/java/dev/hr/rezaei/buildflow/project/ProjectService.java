@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -130,6 +131,7 @@ public class ProjectService {
         return projectRepository.findByUserId(ownerId);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
         // Verify builder exists and is persisted
         Optional<User> persistedBuilder = userService.findById(builderId);
@@ -143,6 +145,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId) {
         // Verify owner exists and is persisted
         Optional<User> persistedOwner = userService.findById(ownerId);
@@ -177,6 +180,7 @@ public class ProjectService {
     /**
      * Get paginated project DTOs by builder ID with default sorting.
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
         // Verify builder exists and is persisted
         Optional<User> persistedBuilder = userService.findById(builderId);
@@ -191,6 +195,7 @@ public class ProjectService {
     /**
      * Get paginated project DTOs by owner ID with default sorting.
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
         // Verify owner exists and is persisted
         Optional<User> persistedOwner = userService.findById(ownerId);
@@ -226,6 +231,7 @@ public class ProjectService {
      * @param pageable Pagination and sorting parameters
      * @return Page of ProjectDto with de-duplicated, filtered, and sorted results
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getCombinedProjects(
             @NonNull UUID userId,
             @NonNull String scope,

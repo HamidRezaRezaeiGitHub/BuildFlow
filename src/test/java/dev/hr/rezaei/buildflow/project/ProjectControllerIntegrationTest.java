@@ -35,7 +35,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$.project.role").value("BUILDER"));
     }
 
     @Test
@@ -56,7 +57,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$.project.role").value("BUILDER"));
     }
 
     @Test
