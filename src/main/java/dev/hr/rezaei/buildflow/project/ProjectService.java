@@ -49,6 +49,16 @@ public class ProjectService {
             throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
+        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required.");
+        }
+        
+        try {
+            ProjectRole.valueOf(request.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role: " + request.getRole() + ". Must be BUILDER or OWNER.");
+        }
+
         if (request.getLocationRequestDto() == null) {
             throw new IllegalArgumentException("Cannot create project with null location.");
         }
@@ -64,9 +74,9 @@ public class ProjectService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
         validate(request);
-        // TODO: Phase 2 - Update to use new role-based model
+        
         User user = userService.findById(request.getUserId()).get();
-        ProjectRole role = request.isBuilder() ? ProjectRole.BUILDER : ProjectRole.OWNER;
+        ProjectRole role = ProjectRole.valueOf(request.getRole());
         ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
 
         Instant now = Instant.now();
@@ -78,8 +88,8 @@ public class ProjectService {
                 .lastUpdatedAt(now)
                 .build();
 
-        log.info("Persisting new project for user ID [{}], who is {}a builder, at location: {}",
-                request.getUserId(), request.isBuilder() ? "" : "not ", location);
+        log.info("Persisting new project for user ID [{}] with role [{}] at location: {}",
+                request.getUserId(), role, location);
         Project savedProject = projectRepository.save(project);
 
         return CreateProjectResponse.builder()
@@ -113,12 +123,10 @@ public class ProjectService {
     }
 
     public List<Project> findByBuilderId(@NonNull UUID builderId) {
-        // TODO: Phase 2 - Update to use role-based queries
         return projectRepository.findByUserId(builderId);
     }
 
     public List<Project> findByOwnerId(@NonNull UUID ownerId) {
-        // TODO: Phase 2 - Update to use role-based queries
         return projectRepository.findByUserId(ownerId);
     }
 
@@ -153,7 +161,6 @@ public class ProjectService {
      * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
      */
     public Page<Project> findByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
-        // TODO: Phase 2 - Update to use role-based queries
         Pageable pageableWithSort = ensureDefaultSort(pageable);
         return projectRepository.findByUserId(builderId, pageableWithSort);
     }
@@ -163,7 +170,6 @@ public class ProjectService {
      * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
      */
     public Page<Project> findByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
-        // TODO: Phase 2 - Update to use role-based queries
         Pageable pageableWithSort = ensureDefaultSort(pageable);
         return projectRepository.findByUserId(ownerId, pageableWithSort);
     }

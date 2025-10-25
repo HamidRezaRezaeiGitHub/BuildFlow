@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
-    // TODO: Phase 2 - Update queries to use new user/role structure
     List<Project> findByUserId(UUID userId);
     
     Page<Project> findByUserId(UUID userId, Pageable pageable);

@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,16 +31,19 @@ import java.util.UUID;
 public class CreateProjectRequest {
 
     @Schema(description = "ID of the user making the request", example = "123e4567-e89b-12d3-a456-426614174000")
-    @NotNull(message = "This user ID is required")
+    @NotNull(message = "User ID is required")
     private UUID userId;
 
-    @Schema(description = "Flag indicating if the requesting user is the builder", example = "true")
-    @NotNull(message = "isThisUserBuilder flag is required")
-    @Builder.Default
-    private boolean isBuilder = true;
+    @Schema(description = "Role of the user in the project (BUILDER or OWNER)", example = "BUILDER")
+    @NotNull(message = "Role is required")
+    private String role;
 
     @Schema(description = "Location information for the project")
     @Valid
     @NotNull(message = "Location information is required")
     private ProjectLocationRequestDto locationRequestDto;
+    
+    @Schema(description = "List of additional project participants (optional)")
+    @Builder.Default
+    private List<CreateProjectParticipantRequest> participants = new ArrayList<>();
 }
