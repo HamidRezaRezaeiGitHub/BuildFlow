@@ -127,7 +127,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("BUILDER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -143,7 +144,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("BUILDER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -213,7 +215,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -229,7 +232,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
