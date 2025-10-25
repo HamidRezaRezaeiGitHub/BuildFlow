@@ -19,17 +19,19 @@ class ProjectTest extends AbstractModelTest {
         Project randomProject = createRandomProject();
         Project p1 = Project.builder()
                 .id(sameId)
-                .builderUser(testProject.getBuilderUser())
-                .owner(testProject.getOwner())
+                .user(testProject.getUser())
+                .role(testProject.getRole())
                 .location(testProject.getLocation())
                 .estimates(testProject.getEstimates())
+                .participants(testProject.getParticipants())
                 .build();
         Project p2 = Project.builder()
                 .id(sameId)
-                .builderUser(randomProject.getBuilderUser())
-                .owner(randomProject.getOwner())
+                .user(randomProject.getUser())
+                .role(randomProject.getRole())
                 .location(randomProject.getLocation())
                 .estimates(randomProject.getEstimates())
+                .participants(randomProject.getParticipants())
                 .build();
         assertDoesNotThrow(() -> p1.equals(p2));
         assertDoesNotThrow(() -> p2.equals(p1));

@@ -37,17 +37,25 @@ public class Project extends UpdatableEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    // Bidirectional relationship: Many Projects can have the same User as builder.
-    // Table: projects, Foreign Key: builder_id
+    // Bidirectional relationship: Many Projects can have the same User.
+    // Table: projects, Foreign Key: user_id
+    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "builder_id", foreignKey = @ForeignKey(name = "fk_projects_builder"))
-    private User builderUser;
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_user"))
+    private User user;
 
-    // Bidirectional relationship: Many Projects can have the same User as owner.
-    // Table: projects, Foreign Key: owner_id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_projects_owner"))
-    private User owner;
+    // Role of the main user in the project
+    @NonNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 50)
+    private ProjectRole role;
+
+    // Bidirectional relationship: One Project has many ProjectParticipants.
+    // Table: project_participants, Foreign Key: project_id
+    @NonNull
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProjectParticipant> participants = new ArrayList<>();
 
     @NonNull
     @Builder.Default
@@ -64,17 +72,17 @@ public class Project extends UpdatableEntity {
 
     @PrePersist
     private void prePersist() {
-        ensureBuilderOrOwner();
+        ensureUserAndRole();
     }
 
     @PreUpdate
     private void preUpdate() {
-        ensureBuilderOrOwner();
+        ensureUserAndRole();
     }
 
-    private void ensureBuilderOrOwner() {
-        if (builderUser == null && owner == null) {
-            throw new IllegalStateException("Project must have either a builder or an owner.");
+    private void ensureUserAndRole() {
+        if (user == null || role == null) {
+            throw new IllegalStateException("Project must have both a user and a role.");
         }
     }
 
@@ -84,8 +92,9 @@ public class Project extends UpdatableEntity {
                 "id=" + id +
                 ", createdAt=" + getCreatedAt() +
                 ", lastUpdatedAt=" + getLastUpdatedAt() +
-                ", builder.id=" + (builderUser != null ? builderUser.getId() : "null") +
-                ", owner.id=" + (owner != null ? owner.getId() : "null") +
+                ", user.id=" + (user != null ? user.getId() : "null") +
+                ", role=" + role +
+                ", participants.size=" + participants.size() +
                 ", location.id=" + location.getId() +
                 ", estimates.size=" + estimates.size() +
                 '}';
