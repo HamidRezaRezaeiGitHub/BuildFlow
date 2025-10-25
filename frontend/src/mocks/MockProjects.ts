@@ -26,6 +26,14 @@ export function findProjectById(id: string): Project | undefined {
 /**
  * Find projects by user ID where user has any role
  * Returns array of projects (empty if none found)
+ * 
+ * This is the preferred method for finding all projects associated with a user,
+ * regardless of their role. Use this instead of role-specific methods when you
+ * want to see all projects a user is involved in.
+ * 
+ * @example
+ * // Get all projects for user '1' (both BUILDER and OWNER roles)
+ * const allUserProjects = findProjectsByUserId('1');
  */
 export function findProjectsByUserId(userId: string): Project[] {
     return mockProjects.filter(p => p.userId === userId);
