@@ -265,7 +265,8 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project." + role + "Id").value(userId.toString()));
+                .andExpect(jsonPath("$.project.userId").value(userId.toString()))
+                .andExpect(jsonPath("$.project.role").value(isBuilder ? "BUILDER" : "OWNER"));
         String responseContent = result.andReturn().getResponse().getContentAsString();
         CreateProjectResponse responseDto = objectMapper.readValue(responseContent, CreateProjectResponse.class);
         return responseDto.getProjectDto();

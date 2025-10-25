@@ -118,8 +118,8 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
-                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()));
+                .andExpect(jsonPath("$[0].userId").value(testProjectDto.getUserId().toString()))
+                .andExpect(jsonPath("$[0].role").value(testProjectDto.getRole()));
     }
 
     @Test
@@ -151,8 +151,8 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
-                .andExpect(jsonPath("$[0].builderId").value(testBuilderUserDto.getId().toString()))
-                .andExpect(jsonPath("$[0].ownerId").value(testOwnerUserDto.getId().toString()));
+                .andExpect(jsonPath("$[0].userId").value(testProjectDto.getUserId().toString()))
+                .andExpect(jsonPath("$[0].role").value(testProjectDto.getRole()));
     }
 
     @Test

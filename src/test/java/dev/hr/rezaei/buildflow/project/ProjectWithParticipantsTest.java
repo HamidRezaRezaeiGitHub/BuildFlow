@@ -93,40 +93,29 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
 
     @Test
     void ensureUserAndRole_shouldThrowException_whenUserIsNull() {
-        // Given: A project without a user
-        Project projectWithoutUser = Project.builder()
-                .user(null)
-                .role(ProjectRole.BUILDER)
-                .location(testProjectLocation)
-                .estimates(new ArrayList<>())
-                .participants(new ArrayList<>())
-                .build();
-
-        // When/Then: Should throw exception on persist
-        assertThrows(IllegalStateException.class, () -> {
-            projectRepository.save(projectWithoutUser);
-            projectRepository.flush();
+        // Given/When/Then: Should throw NullPointerException due to @NonNull annotation
+        assertThrows(NullPointerException.class, () -> {
+            Project.builder()
+                    .user(null)
+                    .role(ProjectRole.BUILDER)
+                    .location(testProjectLocation)
+                    .estimates(new ArrayList<>())
+                    .participants(new ArrayList<>())
+                    .build();
         });
     }
 
     @Test
     void ensureUserAndRole_shouldThrowException_whenRoleIsNull() {
-        // Given: A project without a role
-        persistUserDependencies(testBuilderUser);
-        userRepository.save(testBuilderUser);
-
-        Project projectWithoutRole = Project.builder()
-                .user(testBuilderUser)
-                .role(null)
-                .location(testProjectLocation)
-                .estimates(new ArrayList<>())
-                .participants(new ArrayList<>())
-                .build();
-
-        // When/Then: Should throw exception on persist
-        assertThrows(IllegalStateException.class, () -> {
-            projectRepository.save(projectWithoutRole);
-            projectRepository.flush();
+        // Given/When/Then: Should throw NullPointerException due to @NonNull annotation
+        assertThrows(NullPointerException.class, () -> {
+            Project.builder()
+                    .user(testBuilderUser)
+                    .role(null)
+                    .location(testProjectLocation)
+                    .estimates(new ArrayList<>())
+                    .participants(new ArrayList<>())
+                    .build();
         });
     }
 }
