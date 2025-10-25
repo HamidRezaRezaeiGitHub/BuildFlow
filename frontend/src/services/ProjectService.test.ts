@@ -27,7 +27,7 @@ describe('ProjectService', () => {
 
     const mockCreateRequest: CreateProjectRequest = {
         userId: mockUserId,
-        isBuilder: true,
+        role: 'BUILDER',
         locationRequestDto: {
             unitNumber: '101',
             streetNumberAndName: '123 Main St',
@@ -36,12 +36,14 @@ describe('ProjectService', () => {
             postalOrZipCode: '62701',
             country: 'USA',
         },
+        participants: [],
     };
 
     const mockProject: Project = {
         id: mockProjectId,
-        builderId: mockUserId,
-        ownerId: 'owner-id',
+        userId: mockUserId,
+        role: 'BUILDER',
+        participants: [],
         location: {
             id: 'location-id',
             unitNumber: '101',

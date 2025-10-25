@@ -6,6 +6,38 @@
 import { BaseAddressDto } from './AddressDtos';
 
 /**
+ * Project role enum matching backend ProjectRole
+ */
+export type ProjectRole = 'BUILDER' | 'OWNER';
+
+/**
+ * Project participant DTO for representing participant information
+ * Matches backend ProjectParticipantDto structure
+ */
+export interface ProjectParticipantDto {
+  /** Unique identifier of the participant */
+  id: string;
+  
+  /** Role of the participant in the project */
+  role: ProjectRole;
+  
+  /** Contact ID of the participant */
+  contactId: string;
+}
+
+/**
+ * Project participant request DTO for creating participants
+ * Matches backend CreateProjectParticipantRequest structure
+ */
+export interface CreateProjectParticipantRequest {
+  /** Role of the participant in the project */
+  role: ProjectRole;
+  
+  /** Contact ID of the participant */
+  contactId: string;
+}
+
+/**
  * Project location request DTO for creating new project locations
  * Matches backend ProjectLocationRequestDto (extends BaseAddressDto without ID)
  */
@@ -18,9 +50,17 @@ export interface ProjectLocationRequestDto extends BaseAddressDto {
  * Matches backend CreateProjectRequest structure
  */
 export interface CreateProjectRequest {
+  /** ID of the user making the request */
   userId: string;
-  isBuilder: boolean;
+  
+  /** Role of the user in the project (BUILDER or OWNER) */
+  role: ProjectRole;
+  
+  /** Location information for the project */
   locationRequestDto: ProjectLocationRequestDto;
+  
+  /** List of additional project participants (optional) */
+  participants?: CreateProjectParticipantRequest[];
 }
 
 /**
@@ -33,11 +73,14 @@ export interface ProjectDto {
   /** Project ID */
   id: string;
 
-  /** Builder user ID */
-  builderId: string;
+  /** User ID who created/owns the project */
+  userId: string;
 
-  /** Owner user ID */
-  ownerId: string;
+  /** Role of the main user in the project */
+  role: ProjectRole;
+
+  /** List of additional project participants */
+  participants: ProjectParticipantDto[];
 
   /** Project location */
   location: ProjectLocationDto;

@@ -27,8 +27,11 @@ describe('ProjectDetails', () => {
 
   const mockProject: Project = {
     id: '1',
-    builderId: '1',
-    ownerId: '2',
+    userId: '1',
+    role: 'BUILDER',
+    participants: [
+      { id: 'p1', role: 'OWNER', contactId: '2' }
+    ],
     location: {
       id: '1',
       unitNumber: '302',
@@ -140,8 +143,9 @@ describe('ProjectDetails', () => {
         expect(screen.getByText(/Project Summary/i)).toBeInTheDocument();
       });
 
-      expect(screen.getByText(/Builder ID/i)).toBeInTheDocument();
-      expect(screen.getByText(/Owner ID/i)).toBeInTheDocument();
+      // Check for the new field labels
+      expect(screen.getByText(/Main User ID/i)).toBeInTheDocument();
+      expect(screen.getByText(/Main User Role/i)).toBeInTheDocument();
     });
 
     test('displays location information', async () => {
