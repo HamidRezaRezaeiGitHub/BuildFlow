@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import dev.hr.rezaei.buildflow.project.ProjectRole;
 
 @DataJpaTest
 class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements UserServiceConsumerTest {
@@ -27,7 +28,7 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
     void findByBuilderUserId_shouldReturnPageWithDefaultSort() {
         // Create builder user
         persistProjectDependencies(testProject);
-        User builder = testProject.getBuilderUser();
+        User builder = testProject.getUser();
         
         // Create multiple projects with distinct timestamps
         List<Project> projects = new ArrayList<>();
@@ -42,7 +43,8 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
             
             Instant now = Instant.now().plusMillis(i * 100);
             Project project = Project.builder()
-                    .builderUser(builder)
+                    .user(builder)
+                    .role(ProjectRole.BUILDER)
                     .location(location)
                     .createdAt(now)
                     .lastUpdatedAt(now)
@@ -59,7 +61,7 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
         
         // Test pagination with ascending sort by createdAt
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
-        Page<Project> page = projectRepository.findByBuilderUserId(builder.getId(), pageable);
+        Page<Project> page = projectRepository.findByUserId(builder.getId(), pageable);
         
         assertNotNull(page);
         assertEquals(5, page.getTotalElements());
@@ -77,7 +79,7 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
     void findByBuilderUserId_shouldSortByLastUpdatedAtDescending() {
         // Create builder user
         persistProjectDependencies(testProject);
-        User builder = testProject.getBuilderUser();
+        User builder = testProject.getUser();
         
         // Create multiple projects
         for (int i = 0; i < 3; i++) {
@@ -91,7 +93,8 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
             
             Instant now = Instant.now().plusMillis(i * 100);
             Project project = Project.builder()
-                    .builderUser(builder)
+                    .user(builder)
+                    .role(ProjectRole.BUILDER)
                     .location(location)
                     .createdAt(now)
                     .lastUpdatedAt(now)
@@ -108,7 +111,7 @@ class ProjectRepositoryPaginationTest extends AbstractModelJpaTest implements Us
         
         // Test descending sort by lastUpdatedAt
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "lastUpdatedAt"));
-        Page<Project> page = projectRepository.findByBuilderUserId(builder.getId(), pageable);
+        Page<Project> page = projectRepository.findByUserId(builder.getId(), pageable);
         
         assertNotNull(page);
         assertEquals(3, page.getTotalElements());

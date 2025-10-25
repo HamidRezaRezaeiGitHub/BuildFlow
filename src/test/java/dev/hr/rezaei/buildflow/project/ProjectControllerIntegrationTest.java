@@ -23,7 +23,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User builder = registerBuilder();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -44,7 +44,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String token = login(builder);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -66,7 +66,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User builder = registerBuilder();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -84,7 +84,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String token = login(viewer);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(viewer.getId())
-                .isBuilder(false)
+                .role("OWNER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -101,7 +101,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         var builder = userService.createUser(testCreateBuilderRequest);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getUserDto().getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")

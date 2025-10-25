@@ -253,7 +253,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
     protected ProjectDto createProject(String token, UUID userId, boolean isBuilder, ProjectLocationRequestDto locationRequestDto) throws Exception {
         CreateProjectRequest projectRequest = CreateProjectRequest.builder()
                 .userId(userId)
-                .isBuilder(isBuilder)
+                .role(isBuilder ? "BUILDER" : "OWNER")
                 .locationRequestDto(locationRequestDto)
                 .build();
         String role = isBuilder ? "builder" : "owner";

@@ -28,8 +28,8 @@ class ProjectControllerTest extends AbstractControllerTest {
         // Given
         when(projectService.createProject(any(CreateProjectRequest.class))).thenReturn(testCreateProjectResponse);
         ProjectDto projectDto = testCreateProjectResponse.getProjectDto();
-        UUID builderId = projectDto.getBuilderId();
-        UUID ownerId = projectDto.getOwnerId();
+        UUID userId = projectDto.getUserId();
+        String role = projectDto.getRole();
         ProjectLocationDto locationDto = projectDto.getLocationDto();
 
         // When & Then
@@ -39,8 +39,8 @@ class ProjectControllerTest extends AbstractControllerTest {
                 // .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builderId.toString()))
-                .andExpect(jsonPath("$.project.ownerId").value(ownerId.toString()))
+                .andExpect(jsonPath("$.project.userId").value(userId.toString()))
+                .andExpect(jsonPath("$.project.role").value(role))
                 .andExpect(jsonPath("$.project.location").exists())
                 .andExpect(jsonPath("$.project.location.streetNumberAndName").value(locationDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$.project.location.city").value(locationDto.getCity()));

@@ -31,7 +31,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
 
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builderResponse.getUserDto().getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -59,7 +59,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         UUID builderId = builderResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builderId)
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -90,7 +90,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         UUID ownerId = ownerResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(ownerId)
-                .isBuilder(false)
+                .role("OWNER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
