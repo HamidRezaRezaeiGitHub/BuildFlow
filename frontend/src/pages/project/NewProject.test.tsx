@@ -474,8 +474,9 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       mockCreateProject.mockResolvedValue({
         project: {
           id: 'project-123',
-          builderId: '1',
-          ownerId: '2',
+          userId: '1',
+          role: 'BUILDER',
+          participants: [],
           location: {
             id: 'loc-1',
             streetNumberAndName: '123 Main St',
@@ -537,13 +538,14 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
         expect(mockCreateProject).toHaveBeenCalledWith(
           expect.objectContaining({
             userId: mockUser.id,
-            isBuilder: true,
+            role: 'BUILDER',
             locationRequestDto: expect.objectContaining({
               streetNumberAndName: '123 Main St',
               city: 'Toronto',
               stateOrProvince: 'ON',
               country: 'Canada'
-            })
+            }),
+            participants: []
           }),
           'mock-token'
         );
