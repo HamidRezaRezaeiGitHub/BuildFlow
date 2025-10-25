@@ -64,19 +64,15 @@ public class ProjectService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
         validate(request);
-        User builder = null;
-        User owner = null;
-        if (request.isBuilder()) {
-            builder = userService.findById(request.getUserId()).get();
-        } else {
-            owner = userService.findById(request.getUserId()).get();
-        }
+        // TODO: Phase 2 - Update to use new role-based model
+        User user = userService.findById(request.getUserId()).get();
+        ProjectRole role = request.isBuilder() ? ProjectRole.BUILDER : ProjectRole.OWNER;
         ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
 
         Instant now = Instant.now();
         Project project = Project.builder()
-                .builderUser(builder)
-                .owner(owner)
+                .user(user)
+                .role(role)
                 .location(location)
                 .createdAt(now)
                 .lastUpdatedAt(now)
@@ -117,11 +113,13 @@ public class ProjectService {
     }
 
     public List<Project> findByBuilderId(@NonNull UUID builderId) {
-        return projectRepository.findByBuilderUserId(builderId);
+        // TODO: Phase 2 - Update to use role-based queries
+        return projectRepository.findByUserId(builderId);
     }
 
     public List<Project> findByOwnerId(@NonNull UUID ownerId) {
-        return projectRepository.findByOwnerId(ownerId);
+        // TODO: Phase 2 - Update to use role-based queries
+        return projectRepository.findByUserId(ownerId);
     }
 
     public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
@@ -155,8 +153,9 @@ public class ProjectService {
      * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
      */
     public Page<Project> findByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
+        // TODO: Phase 2 - Update to use role-based queries
         Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByBuilderUserId(builderId, pageableWithSort);
+        return projectRepository.findByUserId(builderId, pageableWithSort);
     }
 
     /**
@@ -164,8 +163,9 @@ public class ProjectService {
      * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
      */
     public Page<Project> findByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
+        // TODO: Phase 2 - Update to use role-based queries
         Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByOwnerId(ownerId, pageableWithSort);
+        return projectRepository.findByUserId(ownerId, pageableWithSort);
     }
 
     /**

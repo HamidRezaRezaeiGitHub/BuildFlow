@@ -13,19 +13,17 @@ import java.util.UUID;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
-    List<Project> findByBuilderUserId(UUID builderId);
-    List<Project> findByOwnerId(UUID ownerId);
+    // TODO: Phase 2 - Update queries to use new user/role structure
+    List<Project> findByUserId(UUID userId);
     
-    Page<Project> findByBuilderUserId(UUID builderId, Pageable pageable);
-    Page<Project> findByOwnerId(UUID ownerId, Pageable pageable);
+    Page<Project> findByUserId(UUID userId, Pageable pageable);
     
     /**
-     * Find combined projects where user is either builder or owner with date filtering.
-     * De-duplicates automatically since we're using DISTINCT and a Set will be returned.
+     * Find projects where user matches with date filtering.
      */
     @Query("""
         SELECT DISTINCT p FROM Project p
-        WHERE (p.builderUser.id = :userId OR p.owner.id = :userId)
+        WHERE p.user.id = :userId
         AND (:createdFrom IS NULL OR p.createdAt >= :createdFrom)
         AND (:createdTo IS NULL OR p.createdAt <= :createdTo)
         """)
@@ -41,7 +39,8 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
      */
     @Query("""
         SELECT p FROM Project p
-        WHERE p.builderUser.id = :userId
+        WHERE p.user.id = :userId
+        AND p.role = dev.hr.rezaei.buildflow.project.ProjectRole.BUILDER
         AND (:createdFrom IS NULL OR p.createdAt >= :createdFrom)
         AND (:createdTo IS NULL OR p.createdAt <= :createdTo)
         """)
@@ -57,7 +56,8 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
      */
     @Query("""
         SELECT p FROM Project p
-        WHERE p.owner.id = :userId
+        WHERE p.user.id = :userId
+        AND p.role = dev.hr.rezaei.buildflow.project.ProjectRole.OWNER
         AND (:createdFrom IS NULL OR p.createdAt >= :createdFrom)
         AND (:createdTo IS NULL OR p.createdAt <= :createdTo)
         """)
