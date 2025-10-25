@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -49,6 +50,16 @@ public class ProjectService {
             throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
+        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required.");
+        }
+        
+        try {
+            ProjectRole.valueOf(request.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role: " + request.getRole() + ". Must be BUILDER or OWNER.");
+        }
+
         if (request.getLocationRequestDto() == null) {
             throw new IllegalArgumentException("Cannot create project with null location.");
         }
@@ -64,26 +75,22 @@ public class ProjectService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
         validate(request);
-        User builder = null;
-        User owner = null;
-        if (request.isBuilder()) {
-            builder = userService.findById(request.getUserId()).get();
-        } else {
-            owner = userService.findById(request.getUserId()).get();
-        }
+        
+        User user = userService.findById(request.getUserId()).get();
+        ProjectRole role = ProjectRole.valueOf(request.getRole());
         ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
 
         Instant now = Instant.now();
         Project project = Project.builder()
-                .builderUser(builder)
-                .owner(owner)
+                .user(user)
+                .role(role)
                 .location(location)
                 .createdAt(now)
                 .lastUpdatedAt(now)
                 .build();
 
-        log.info("Persisting new project for user ID [{}], who is {}a builder, at location: {}",
-                request.getUserId(), request.isBuilder() ? "" : "not ", location);
+        log.info("Persisting new project for user ID [{}] with role [{}] at location: {}",
+                request.getUserId(), role, location);
         Project savedProject = projectRepository.save(project);
 
         return CreateProjectResponse.builder()
@@ -117,13 +124,14 @@ public class ProjectService {
     }
 
     public List<Project> findByBuilderId(@NonNull UUID builderId) {
-        return projectRepository.findByBuilderUserId(builderId);
+        return projectRepository.findByUserId(builderId);
     }
 
     public List<Project> findByOwnerId(@NonNull UUID ownerId) {
-        return projectRepository.findByOwnerId(ownerId);
+        return projectRepository.findByUserId(ownerId);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
         // Verify builder exists and is persisted
         Optional<User> persistedBuilder = userService.findById(builderId);
@@ -137,6 +145,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId) {
         // Verify owner exists and is persisted
         Optional<User> persistedOwner = userService.findById(ownerId);
@@ -156,7 +165,7 @@ public class ProjectService {
      */
     public Page<Project> findByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
         Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByBuilderUserId(builderId, pageableWithSort);
+        return projectRepository.findByUserId(builderId, pageableWithSort);
     }
 
     /**
@@ -165,12 +174,13 @@ public class ProjectService {
      */
     public Page<Project> findByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
         Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByOwnerId(ownerId, pageableWithSort);
+        return projectRepository.findByUserId(ownerId, pageableWithSort);
     }
 
     /**
      * Get paginated project DTOs by builder ID with default sorting.
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
         // Verify builder exists and is persisted
         Optional<User> persistedBuilder = userService.findById(builderId);
@@ -185,6 +195,7 @@ public class ProjectService {
     /**
      * Get paginated project DTOs by owner ID with default sorting.
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
         // Verify owner exists and is persisted
         Optional<User> persistedOwner = userService.findById(ownerId);
@@ -220,6 +231,7 @@ public class ProjectService {
      * @param pageable Pagination and sorting parameters
      * @return Page of ProjectDto with de-duplicated, filtered, and sorted results
      */
+    @Transactional(readOnly = true)
     public Page<ProjectDto> getCombinedProjects(
             @NonNull UUID userId,
             @NonNull String scope,

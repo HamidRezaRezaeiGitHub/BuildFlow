@@ -494,9 +494,10 @@ This enables:
 ### Core Domain Models Implemented
 
 1. **Project Management**
-   - **Project**: Core project entity with builder/owner relationships and location management
+   - **Project**: Core project entity with role-based user assignments (BUILDER/OWNER) and location management
+   - **ProjectParticipant**: Links projects to contacts with specific roles, supporting multiple stakeholders
    - **ProjectLocation**: Physical location details inheriting from BaseAddress
-   - Relationships with estimates and users, cascade operations for location management
+   - Relationships with estimates, users, and participants, cascade operations for participant and location management
    - Complete CRUD operations with JPA repositories and DTO mapping
 
 2. **Estimation System**

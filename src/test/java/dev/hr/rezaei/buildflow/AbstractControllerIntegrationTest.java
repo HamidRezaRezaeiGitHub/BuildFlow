@@ -253,7 +253,7 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
     protected ProjectDto createProject(String token, UUID userId, boolean isBuilder, ProjectLocationRequestDto locationRequestDto) throws Exception {
         CreateProjectRequest projectRequest = CreateProjectRequest.builder()
                 .userId(userId)
-                .isBuilder(isBuilder)
+                .role(isBuilder ? "BUILDER" : "OWNER")
                 .locationRequestDto(locationRequestDto)
                 .build();
         String role = isBuilder ? "builder" : "owner";
@@ -265,7 +265,8 @@ public abstract class AbstractControllerIntegrationTest extends AbstractDtoTest 
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project." + role + "Id").value(userId.toString()));
+                .andExpect(jsonPath("$.project.userId").value(userId.toString()))
+                .andExpect(jsonPath("$.project.role").value(isBuilder ? "BUILDER" : "OWNER"));
         String responseContent = result.andReturn().getResponse().getContentAsString();
         CreateProjectResponse responseDto = objectMapper.readValue(responseContent, CreateProjectResponse.class);
         return responseDto.getProjectDto();

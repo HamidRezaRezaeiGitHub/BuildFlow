@@ -1,33 +1,38 @@
 # Project Management Package
 
-This package provides comprehensive project management functionality for BuildFlow construction projects. It handles project creation, user assignments, location management, authorization, and integration with estimates and other project components.
+This package provides comprehensive project management functionality for BuildFlow construction projects. It handles project creation, user assignments with role-based access, location management, authorization, and integration with estimates and other project components.
 
 ## Summary
 
-This package manages construction projects with builder/owner assignments, location tracking, authorization controls, and comprehensive CRUD operations with pagination support.
+This package manages construction projects with role-based user assignments (BUILDER/OWNER), participant tracking, location management, authorization controls, and comprehensive CRUD operations with pagination support.
 
 ## Files Structure
 
 ```
 project/
 ├── dto/
-│   ├── CreateProjectRequest.java          # Request for creating new projects
-│   ├── CreateProjectResponse.java         # Response containing created project details
-│   ├── ProjectLocationRequestDto.java     # Location info for project creation (no ID)
-│   └── README.md                          # DTO package documentation
-├── Project.java                           # Core project entity
-├── ProjectAuthService.java                # Authorization service for access control
-├── ProjectController.java                 # REST API controller for projects
-├── ProjectDto.java                        # DTO for project API operations
-├── ProjectDtoMapper.java                  # MapStruct mapper for Project conversions
-├── ProjectLocation.java                   # Location/address entity specific to projects
-├── ProjectLocationDto.java                # DTO for project location operations
-├── ProjectLocationDtoMapper.java          # MapStruct mapper for ProjectLocation conversions
-├── ProjectLocationRepository.java         # JPA repository for project locations
-├── ProjectLocationService.java            # Business logic for project locations
-├── ProjectRepository.java                 # JPA repository for projects
-├── ProjectService.java                    # Business logic for project operations
-└── README.md                              # This file
+│   ├── CreateProjectParticipantRequest.java  # Request for adding participants
+│   ├── CreateProjectRequest.java             # Request for creating new projects
+│   ├── CreateProjectResponse.java            # Response containing created project details
+│   ├── ProjectLocationRequestDto.java        # Location info for project creation (no ID)
+│   └── README.md                             # DTO package documentation
+├── Project.java                              # Core project entity
+├── ProjectAuthService.java                   # Authorization service for access control
+├── ProjectController.java                    # REST API controller for projects
+├── ProjectDto.java                           # DTO for project API operations
+├── ProjectDtoMapper.java                     # Mapper for Project conversions
+├── ProjectLocation.java                      # Location/address entity specific to projects
+├── ProjectLocationDto.java                   # DTO for project location operations
+├── ProjectLocationDtoMapper.java             # Mapper for ProjectLocation conversions
+├── ProjectLocationRepository.java            # JPA repository for project locations
+├── ProjectLocationService.java               # Business logic for project locations
+├── ProjectParticipant.java                   # Entity linking projects to contacts with roles
+├── ProjectParticipantDto.java                # DTO for project participants
+├── ProjectParticipantRepository.java         # JPA repository for project participants
+├── ProjectRepository.java                    # JPA repository for projects
+├── ProjectRole.java                          # Enum defining project roles (BUILDER, OWNER)
+├── ProjectService.java                       # Business logic for project operations
+└── README.md                                 # This file
 ```
 
 ## Subfolder References
@@ -41,8 +46,10 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | File | Description |
 |------|-------------|
-| [Project.java](Project.java) | Core project entity representing construction projects |
+| [Project.java](Project.java) | Core project entity with role-based user assignment |
 | [ProjectLocation.java](ProjectLocation.java) | Location/address information specific to projects |
+| [ProjectParticipant.java](ProjectParticipant.java) | Links projects to contacts with specific roles |
+| [ProjectRole.java](ProjectRole.java) | Enum defining project roles (BUILDER, OWNER) |
 
 ### Controller Classes
 
@@ -54,8 +61,9 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | File | Description |
 |------|-------------|
-| [ProjectDto.java](ProjectDto.java) | Data transfer object for project API operations |
+| [ProjectDto.java](ProjectDto.java) | Data transfer object for project API operations with role and participants |
 | [ProjectLocationDto.java](ProjectLocationDto.java) | Data transfer object for project location operations |
+| [ProjectParticipantDto.java](ProjectParticipantDto.java) | Data transfer object for project participant information |
 
 ### DTO Sub-package
 
@@ -67,8 +75,8 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | File | Description |
 |------|-------------|
-| [ProjectDtoMapper.java](ProjectDtoMapper.java) | MapStruct mapper for Project entity-DTO conversions |
-| [ProjectLocationDtoMapper.java](ProjectLocationDtoMapper.java) | MapStruct mapper for ProjectLocation entity-DTO conversions |
+| [ProjectDtoMapper.java](ProjectDtoMapper.java) | Mapper for Project entity-DTO conversions with participant mapping |
+| [ProjectLocationDtoMapper.java](ProjectLocationDtoMapper.java) | Mapper for ProjectLocation entity-DTO conversions |
 
 ### Repository Classes
 
@@ -76,6 +84,7 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 |------|-------------|
 | [ProjectRepository.java](ProjectRepository.java) | Spring Data JPA repository for project persistence |
 | [ProjectLocationRepository.java](ProjectLocationRepository.java) | Spring Data JPA repository for project location persistence |
+| [ProjectParticipantRepository.java](ProjectParticipantRepository.java) | Spring Data JPA repository for project participant persistence |
 
 ### Service Classes
 
@@ -91,10 +100,10 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | Method | Endpoint | Description | Authorization |
 |--------|----------|-------------|---------------|
-| `POST` | `/api/v1/projects` | Create a new project with builder, owner, and location information | `CREATE_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/builder/{builderId}` | Retrieve projects assigned to a specific builder (with pagination) | `VIEW_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/owner/{ownerId}` | Retrieve projects owned by a specific property owner (with pagination) | `VIEW_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/combined/{userId}` | Retrieve projects where user is builder, owner, or both (with pagination and date filtering) | `VIEW_PROJECT` + custom auth check |
+| `POST` | `/api/v1/projects` | Create a new project with user, role, participants, and location | `CREATE_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/builder/{builderId}` | Retrieve projects where user has BUILDER role (with pagination) | `VIEW_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/owner/{ownerId}` | Retrieve projects where user has OWNER role (with pagination) | `VIEW_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/combined/{userId}` | Retrieve projects by user regardless of role (with pagination and date filtering) | `VIEW_PROJECT` + custom auth check |
 
 **Pagination Support:**
 - Query parameters: `page`, `size`, `sort`, `orderBy`, `direction`
@@ -106,26 +115,28 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 ## Technical Overview
 
 ### Project Entity
-Core entity representing construction projects in the BuildFlow system.
+Core entity representing construction projects in the BuildFlow system with role-based user assignment.
 
 **Key Features:**
-- **User Assignments**: Supports both builder and owner user assignments
+- **Role-Based Assignment**: Single user with a defined role (BUILDER or OWNER)
+- **Participant Management**: Additional project participants linked through ProjectParticipant entities
 - **Location Integration**: One-to-one relationship with project location
 - **Estimate Integration**: Can have multiple estimates for cost planning
 - **Audit Trail**: Inherits creation and modification tracking from UpdatableEntity
 - **Authorization Support**: Integration with authorization services for access control
-- **Validation Rule**: Enforces that at least one of `builderUser` or `owner` must be non-null at all times (see below)
+- **Validation Rule**: Enforces that user and role must be non-null at all times
 
 **Structure:**
 - `id` (UUID): Primary key
-- `builderUser` (User): Assigned builder for the project (many-to-one relationship, nullable)
-- `owner` (User): Project owner/client (many-to-one relationship, nullable)
+- `user` (User): Primary user for the project (many-to-one relationship, non-null)
+- `role` (ProjectRole): Role of the primary user (BUILDER or OWNER, non-null)
+- `participants` (List<ProjectParticipant>): Additional project participants with roles (one-to-many relationship, cascade all)
 - `location` (ProjectLocation): Project location information (one-to-one relationship, non-null, cascade all)
 - `estimates` (List<Estimate>): Associated cost estimates (one-to-many relationship, non-null, cascade all)
 
 **Relationships:**
-- **Builder User**: Many projects can have the same builder user (bidirectional)
-- **Owner**: Many projects can have the same owner user (bidirectional)
+- **User**: Many projects can have the same user (bidirectional)
+- **Participants**: One project can have multiple participants (bidirectional)
 - **Location**: One-to-one relationship with project location (unique constraint)
 - **Estimates**: One project can have multiple estimates (bidirectional)
 
@@ -133,7 +144,33 @@ Core entity representing construction projects in the BuildFlow system.
 - Location ID uniqueness (one location per project)
 
 **Validation Logic:**
-- The entity uses JPA lifecycle hooks (`@PrePersist` and `@PreUpdate`) to ensure that at least one of `builderUser` or `owner` is always set. If both are null, an `IllegalStateException` is thrown and the operation is aborted. This enforces business rules at the persistence layer and prevents invalid project records.
+- The entity uses JPA lifecycle hooks (`@PrePersist` and `@PreUpdate`) via `ensureUserAndRole()` to ensure that both `user` and `role` are always set. If either is null, an `IllegalStateException` is thrown and the operation is aborted. This enforces business rules at the persistence layer and prevents invalid project records.
+
+### ProjectParticipant Entity
+Links projects to contacts with specific roles, enabling multiple stakeholders per project.
+
+**Key Features:**
+- **Role-Based Linking**: Associates contacts with projects using defined roles
+- **Contact Integration**: Links to Contact entities for participant information
+- **Project Scoping**: All participants belong to a specific project
+- **Cascade Management**: Automatically removed when parent project is deleted
+
+**Structure:**
+- `id` (UUID): Primary key
+- `project` (Project): Parent project (many-to-one relationship, non-null)
+- `role` (ProjectRole): Participant's role in the project (BUILDER or OWNER, non-null)
+- `contact` (Contact): Contact information for the participant (many-to-one relationship, non-null)
+
+**Relationships:**
+- **Project**: Many participants can belong to one project (bidirectional)
+- **Contact**: Many participants can reference the same contact
+
+### ProjectRole Enum
+Defines the possible roles a user or participant can have in a project.
+
+**Values:**
+- `BUILDER`: User or participant is the construction builder
+- `OWNER`: User or participant is the property owner
 
 ### ProjectLocation Entity
 Address/location information specific to construction projects.
@@ -172,41 +209,42 @@ Specialized service for project authorization and access control.
 
 ### Project Management
 - **Project Lifecycle**: Manages complete project lifecycle from creation to completion
-- **User Assignment**: Handles builder and owner assignments with validation
+- **Role-Based Assignment**: Handles user role assignment (BUILDER/OWNER) with validation
+- **Participant Management**: Coordinates multiple project participants with different roles
 - **Location Management**: Coordinates project site location information
 - **Estimate Integration**: Supports multiple estimates for project cost analysis
 
 ### Authorization and Security
-- **Role-Based Access**: Users can only access projects they have rights to
-- **Builder Permissions**: Builders can view and modify assigned projects
-- **Owner Permissions**: Owners can view project progress and estimates
+- **Role-Based Access**: Users can access projects based on their role and participation
+- **User Permissions**: Primary user and participants have different access levels
 - **Administrative Access**: Full access for system administrators
 
 ### Data Integrity
-- **Relationship Validation**: Ensures proper user and location assignments
+- **Relationship Validation**: Ensures proper user, role, and participant assignments
 - **Unique Constraints**: Prevents duplicate location assignments
-- **Cascade Operations**: Proper handling of related entity operations
+- **Cascade Operations**: Proper handling of related entity operations (participants deleted with project)
 - **Audit Trail**: Complete tracking of project changes and access
 
 ## Data Flow Patterns
 
 ### Project Creation Workflow
 ```
-1. Validate builder and owner user assignments
-2. Create/validate project location information
-3. Create Project entity with relationships:
-   ├── Builder user assignment
-   ├── Owner user assignment
+1. Validate user and role assignment
+2. Validate participants (if any)
+3. Create/validate project location information
+4. Create Project entity with relationships:
+   ├── User assignment with role
+   ├── Participant associations
    └── Location association
-4. Apply authorization rules
-5. Save project with audit trail
+5. Apply authorization rules
+6. Save project with audit trail
 ```
 
 ### Project Access Control
 ```
 Authorization Check:
 1. Identify requesting user
-2. Determine user role (builder/owner/admin)
+2. Determine user role and participation status
 3. Check project relationships
 4. Validate access permissions
 5. Grant/deny access based on rules
@@ -236,10 +274,10 @@ This package integrates with:
 ### ProjectController
 Provides REST endpoints for project management:
 - **Project CRUD**: Create, read, update, delete projects
-- **User Assignment**: Manage builder and owner assignments
+- **Role-Based Assignment**: Manage user roles and participants
 - **Location Management**: Handle project location operations
 - **Authorization**: Secure access to project operations
-- **Search and Filtering**: Find projects by various criteria
+- **Search and Filtering**: Find projects by user role or ID
 - **Pagination**: Support for paginated project queries with default sorting
 
 #### Pagination Support
@@ -309,7 +347,7 @@ Project Operations:
 ### ProjectService
 Core business logic for project operations:
 - **Project Lifecycle**: Manages project creation, updates, and lifecycle
-- **Relationship Management**: Handles user and location assignments
+- **Relationship Management**: Handles user role and participant assignments
 - **Business Rules**: Enforces project-specific business rules
 - **Integration Coordination**: Works with other domain services
 
@@ -338,8 +376,9 @@ All repositories follow Spring Data JPA patterns:
 - **Performance Optimization**: Efficient relationship loading
 
 ### Query Capabilities
-- **Project Queries**: Find by users, location, creation date
+- **Project Queries**: Find by user, role, location, creation date
 - **Authorization Queries**: Filter projects based on user permissions
+- **Participant Queries**: Find participants by project or contact
 - **Location Queries**: Geographic and address-based searches
 - **Relationship Queries**: Complex queries across project relationships
 
@@ -348,8 +387,8 @@ All repositories follow Spring Data JPA patterns:
 ### Access Control Rules
 ```
 Authorization Matrix:
-- Builders: Can access assigned projects (read/write)
-- Owners: Can access owned projects (read-only)
+- Primary User: Can access project based on role (BUILDER/OWNER)
+- Participants: Can access based on participant role
 - Admins: Can access all projects (full access)
 - Anonymous: No project access
 ```
@@ -375,7 +414,8 @@ Authorization Matrix:
 
 ## Design Principles
 
-- **User-Centric**: Designed around builder and owner relationships
+- **Role-Based**: Designed around role-based user assignments (BUILDER/OWNER)
+- **Participant Tracking**: Supports multiple project stakeholders through participants
 - **Security First**: Built-in authorization and access control
 - **Location Aware**: Comprehensive geographic information handling
 - **Integration Ready**: Designed for seamless integration with estimation and work management

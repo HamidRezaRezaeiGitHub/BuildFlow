@@ -31,7 +31,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
 
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builderResponse.getUserDto().getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -43,7 +43,8 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builderResponse.getUserDto().getId().toString()))
+                .andExpect(jsonPath("$.project.userId").value(builderResponse.getUserDto().getId().toString()))
+                .andExpect(jsonPath("$.project.role").value("BUILDER"))
                 .andExpect(jsonPath("$.project.location").exists())
                 .andExpect(jsonPath("$.project.location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$.project.location.city").value(projectLocationRequestDto.getCity()))
@@ -59,7 +60,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         UUID builderId = builderResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builderId)
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -77,7 +78,8 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].builderId").value(builderId.toString()))
+                .andExpect(jsonPath("$[0].userId").value(builderId.toString()))
+                .andExpect(jsonPath("$[0].role").value("BUILDER"))
                 .andExpect(jsonPath("$[0].location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$[0].location.city").value(projectLocationRequestDto.getCity()));
     }
@@ -90,7 +92,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
         UUID ownerId = ownerResponse.getUserDto().getId();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(ownerId)
-                .isBuilder(false)
+                .role("OWNER")
                 .locationRequestDto(projectLocationRequestDto)
                 .build();
 
@@ -108,7 +110,8 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].ownerId").value(ownerId.toString()))
+                .andExpect(jsonPath("$[0].userId").value(ownerId.toString()))
+                .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$[0].location.city").value(projectLocationRequestDto.getCity()));
     }

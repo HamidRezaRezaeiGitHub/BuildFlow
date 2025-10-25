@@ -15,6 +15,7 @@ import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -156,14 +157,16 @@ public abstract class AbstractDtoTest {
 
         testProjectDto = ProjectDto.builder()
                 .id(UUID.randomUUID())
-                .builderId(testBuilderUserDto.getId())
-                .ownerId(testOwnerUserDto.getId())
+                .userId(testBuilderUserDto.getId())
+                .role("BUILDER")
+                .participants(new ArrayList<>())
                 .locationDto(testProjectLocationDto)
                 .build();
 
         testCreateProjectRequest = CreateProjectRequest.builder()
                 .userId(testBuilderUserDto.getId())
-                .isBuilder(true)
+                .role("BUILDER")
+                .participants(new ArrayList<>())
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
@@ -238,13 +241,13 @@ public abstract class AbstractDtoTest {
         // Invalid Project DTOs for validation testing
         testCreateProjectRequestWithNullBuilderUserId = CreateProjectRequest.builder()
                 .userId(null)  // Invalid: null
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
         testCreateProjectRequestWithNullLocation = CreateProjectRequest.builder()
                 .userId(testBuilderUserDto.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(null)  // Invalid: null
                 .build();
 

@@ -23,7 +23,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User builder = registerBuilder();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -35,7 +35,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$.project.role").value("BUILDER"));
     }
 
     @Test
@@ -44,7 +45,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String token = login(builder);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -56,7 +57,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.project.id").exists())
-                .andExpect(jsonPath("$.project.builderId").value(builder.getId().toString()));
+                .andExpect(jsonPath("$.project.userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$.project.role").value("BUILDER"));
     }
 
     @Test
@@ -66,7 +68,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         User builder = registerBuilder();
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -84,7 +86,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         String token = login(viewer);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(viewer.getId())
-                .isBuilder(false)
+                .role("OWNER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -101,7 +103,7 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
         var builder = userService.createUser(testCreateBuilderRequest);
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builder.getUserDto().getId())
-                .isBuilder(true)
+                .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();
         mockMvc.perform(post("/api/v1/projects")
@@ -125,7 +127,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("BUILDER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -141,7 +144,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].builderId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(builder.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("BUILDER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -211,7 +215,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 
@@ -227,7 +232,8 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].ownerId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(owner.getId().toString()))
+                .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].id").value(projectDto.getId().toString()));
     }
 

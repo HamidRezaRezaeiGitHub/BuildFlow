@@ -5,6 +5,7 @@ import dev.hr.rezaei.buildflow.estimate.EstimateLineRepository;
 import dev.hr.rezaei.buildflow.estimate.EstimateRepository;
 import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectLocationRepository;
+import dev.hr.rezaei.buildflow.project.ProjectParticipantRepository;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
@@ -21,6 +22,8 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
     protected ProjectRepository projectRepository;
     @Autowired
     protected ProjectLocationRepository projectLocationRepository;
+    @Autowired
+    protected ProjectParticipantRepository projectParticipantRepository;
     @Autowired
     protected ContactRepository contactRepository;
     @Autowired
@@ -43,6 +46,7 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
         estimateGroupRepository.deleteAll();
         estimateRepository.deleteAll();
         workItemRepository.deleteAll();
+        projectParticipantRepository.deleteAll();
         projectRepository.deleteAll();
         projectLocationRepository.deleteAll();
         userRepository.deleteAll();
@@ -67,16 +71,18 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
     }
 
     protected void persistProjectDependencies(Project project) {
-        User builder = project.getBuilderUser();
-        if (builder.getId() == null || !userRepository.existsById(builder.getId())) {
-            persistUserDependencies(builder);
-            userRepository.save(builder);
+        User user = project.getUser();
+        if (user.getId() == null || !userRepository.existsById(user.getId())) {
+            persistUserDependencies(user);
+            userRepository.save(user);
         }
-
-        User owner = project.getOwner();
-        if (owner.getId() == null || !userRepository.existsById(owner.getId())) {
-            persistUserDependencies(owner);
-            userRepository.save(owner);
+        
+        // Persist participant contacts
+        for (var participant : project.getParticipants()) {
+            Contact contact = participant.getContact();
+            if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
+                contactRepository.save(contact);
+            }
         }
     }
 }

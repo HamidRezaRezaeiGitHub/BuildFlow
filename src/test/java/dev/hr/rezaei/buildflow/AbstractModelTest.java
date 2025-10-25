@@ -6,6 +6,7 @@ import dev.hr.rezaei.buildflow.estimate.EstimateLine;
 import dev.hr.rezaei.buildflow.estimate.EstimateLineStrategy;
 import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectLocation;
+import dev.hr.rezaei.buildflow.project.ProjectRole;
 import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.ContactAddress;
 import dev.hr.rezaei.buildflow.user.ContactLabel;
@@ -83,8 +84,7 @@ public abstract class AbstractModelTest {
                 .email("testuser@example.com")
                 .registered(true)
                 .contact(testBuilderUserContact)
-                .builtProjects(new ArrayList<>())
-                .ownedProjects(new ArrayList<>())
+                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -94,8 +94,7 @@ public abstract class AbstractModelTest {
                 .email("testowner@example.com")
                 .registered(true)
                 .contact(testOwnerUserContact)
-                .builtProjects(new ArrayList<>())
-                .ownedProjects(new ArrayList<>())
+                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -110,10 +109,11 @@ public abstract class AbstractModelTest {
                 .build();
 
         testProject = Project.builder()
-                .builderUser(testBuilderUser)
-                .owner(testOwnerUser)
+                .user(testBuilderUser)
+                .role(ProjectRole.BUILDER)
                 .location(testProjectLocation)
                 .estimates(new ArrayList<>())
+                .participants(new ArrayList<>())
                 .build();
 
         testWorkItem = WorkItem.builder()
@@ -219,8 +219,7 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .builtProjects(new ArrayList<>())
-                .ownedProjects(new ArrayList<>())
+                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -240,8 +239,7 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .builtProjects(new ArrayList<>())
-                .ownedProjects(new ArrayList<>())
+                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -261,15 +259,15 @@ public abstract class AbstractModelTest {
     }
 
     protected Project createRandomProject() {
-        User builderUser = createRandomBuilderUser();
-        User ownerUser = createRandomOwnerUser();
+        User user = createRandomBuilderUser();
         ProjectLocation location = createRandomProjectLocation();
 
         return Project.builder()
-                .builderUser(builderUser)
-                .owner(ownerUser)
+                .user(user)
+                .role(ProjectRole.BUILDER)
                 .location(location)
                 .estimates(new ArrayList<>())
+                .participants(new ArrayList<>())
                 .build();
     }
 
