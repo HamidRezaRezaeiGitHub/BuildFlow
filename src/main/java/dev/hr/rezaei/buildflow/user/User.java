@@ -1,11 +1,8 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.quote.Quote;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,31 +48,4 @@ public class User {
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "contact_id", nullable = false, foreignKey = @ForeignKey(name = "fk_users_contact"))
     private Contact contact = new Contact();
-
-    // Bidirectional relationship: One User (as creator) can have many Quotes.
-    // Table: quotes, Foreign Key: created_by_id
-    @NonNull
-    @Builder.Default
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
-    private List<Quote> createdQuotes = new ArrayList<>();
-
-    // Bidirectional relationship: One User (as supplier) can have many Quotes.
-    // Table: quotes, Foreign Key: supplier_id
-    @NonNull
-    @Builder.Default
-    @OneToMany(mappedBy = "supplier", fetch = FetchType.EAGER)
-    private List<Quote> suppliedQuotes = new ArrayList<>();
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", registered=" + registered +
-                ", contact.id=" + contact.getId() +
-                ", createdQuotes.size=" + createdQuotes.size() +
-                ", suppliedQuotes.size=" + suppliedQuotes.size() +
-                '}';
-    }
 }

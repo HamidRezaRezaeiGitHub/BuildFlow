@@ -84,8 +84,6 @@ public abstract class AbstractModelTest {
                 .email("testuser@example.com")
                 .registered(true)
                 .contact(testBuilderUserContact)
-                .createdQuotes(new ArrayList<>())
-                .suppliedQuotes(new ArrayList<>())
                 .build();
 
         testOwnerUser = User.builder()
@@ -93,8 +91,6 @@ public abstract class AbstractModelTest {
                 .email("testowner@example.com")
                 .registered(true)
                 .contact(testOwnerUserContact)
-                .createdQuotes(new ArrayList<>())
-                .suppliedQuotes(new ArrayList<>())
                 .build();
 
         testProjectLocation = ProjectLocation.builder()
@@ -217,8 +213,6 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .createdQuotes(new ArrayList<>())
-                .suppliedQuotes(new ArrayList<>())
                 .build();
         builder.setUsername(builder.getEmail());
         return builder;
@@ -236,8 +230,6 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .createdQuotes(new ArrayList<>())
-                .suppliedQuotes(new ArrayList<>())
                 .build();
         owner.setUsername(owner.getEmail());
         return owner;

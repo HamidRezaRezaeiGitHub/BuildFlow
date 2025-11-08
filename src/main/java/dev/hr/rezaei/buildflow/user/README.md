@@ -121,7 +121,7 @@ Core entity representing system users who participate in construction projects.
 - **Registration Status**: Tracks user registration completion
 - **Contact Integration**: One-to-one relationship with contact information
 - **Project Relationships**: Participates in projects as builders, owners, or other roles
-- **Quote Relationships**: Can be quote creators or suppliers
+- **Quote Relationships**: Can be quote creators or suppliers (unidirectional: Quote → User)
 
 **Structure:**
 - `id` (UUID): Primary key
@@ -133,7 +133,7 @@ Core entity representing system users who participate in construction projects.
 **Relationships:**
 - **Contact**: One-to-one relationship with contact details
 - **Projects**: Users participate in projects via unidirectional relationship (Project → User). To fetch a user's projects, use `ProjectRepository.findByUserId(userId)` or the `/api/v1/projects/combined/{userId}` endpoint.
-- **Quotes**: Can create quotes or be suppliers
+- **Quotes**: Users can create quotes or act as suppliers via unidirectional relationship (Quote → User). Quotes are **not** stored in User entity.
 - **WorkItems**: Can be assigned work items
 
 **Project Access Pattern:**
@@ -141,6 +141,15 @@ Core entity representing system users who participate in construction projects.
 - Use repository queries to fetch projects on-demand: `ProjectRepository.findByUserId(UUID userId, Pageable pageable)`
 - API endpoints: `/api/v1/projects/builder/{builderId}`, `/api/v1/projects/owner/{ownerId}`, `/api/v1/projects/combined/{userId}`
 - This prevents N+1 queries and reduces memory footprint when loading users
+
+**Quote Access Pattern:**
+- Quotes are **not** eagerly loaded with User entities
+- Use repository queries to fetch quotes on-demand:
+  - `QuoteRepository.findByCreatedById(UUID createdById, Pageable pageable)` - quotes created by user
+  - `QuoteRepository.findBySupplierId(UUID supplierId, Pageable pageable)` - quotes supplied by user
+- API endpoints: `/api/v1/quotes?createdById={userId}`, `/api/v1/quotes?supplierId={userId}`
+- Count endpoints: `/api/v1/quotes/count/{userId}` returns both `createdCount` and `suppliedCount`
+- This prevents N+1 queries and heavy object graphs when loading users
 
 **Unique Constraints:**
 - Username uniqueness across the system

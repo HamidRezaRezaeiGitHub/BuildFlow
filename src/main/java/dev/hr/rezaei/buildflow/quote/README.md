@@ -34,6 +34,12 @@ quote/
 | [Quote.java](Quote.java) | Main quote entity for supplier pricing and work item associations |
 | [QuoteLocation.java](QuoteLocation.java) | Location/address information specific to quotes |
 
+### Controller Classes
+
+| File | Description |
+|------|-------------|
+| [QuoteController.java](QuoteController.java) | REST API controller for quote management operations |
+
 ### DTO Classes
 
 | File | Description |
@@ -76,7 +82,10 @@ Core entity representing a supplier quote for construction work items.
 
 **Key Features:**
 - **Work Item Association**: Each quote is linked to a specific work item
-- **User Tracking**: Tracks both quote creator and supplier
+- **User Relationships** (unidirectional: Quote → User):
+  - `createdBy`: User who created the quote (`@ManyToOne(fetch = LAZY)`)
+  - `supplier`: Supplier providing the quote (`@ManyToOne(fetch = LAZY)`)
+  - **Design Rationale**: Lazy loading prevents unnecessary User hydration; queries/endpoints support reverse lookup
 - **Pricing Information**: Detailed pricing with unit and currency support
 - **Location Integration**: Includes location-specific information
 - **Domain Classification**: Categorizes quotes by public/private domains
@@ -96,8 +105,18 @@ Core entity representing a supplier quote for construction work items.
 
 **Relationships:**
 - **WorkItem**: Many quotes can reference one work item
-- **Users**: Multiple relationships to User entity (creator and supplier)
+- **Users** (unidirectional: Quote → User):
+  - `createdBy`: References User with LAZY fetch (prevents N+1 queries)
+  - `supplier`: References User with LAZY fetch (prevents N+1 queries)
+  - **Note**: Users do NOT store quote collections; use repository queries or API endpoints to list quotes by user
 - **Location**: Each quote has one location with cascade operations
+
+**Querying Quotes by User:**
+- Repository methods: `QuoteRepository.findByCreatedById(UUID, Pageable)`, `QuoteRepository.findBySupplierId(UUID, Pageable)`
+- REST API endpoints:
+  - `GET /api/v1/quotes?createdById={userId}` - List quotes created by user (paginated)
+  - `GET /api/v1/quotes?supplierId={userId}` - List quotes supplied by user (paginated)
+  - `GET /api/v1/quotes/count/{userId}` - Get counts: `{createdCount: N, suppliedCount: M}`
 
 ### QuoteLocation Entity
 Address/location information specific to quotes, extending the base address structure.

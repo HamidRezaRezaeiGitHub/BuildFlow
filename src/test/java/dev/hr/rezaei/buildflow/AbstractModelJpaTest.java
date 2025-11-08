@@ -7,6 +7,7 @@ import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectLocationRepository;
 import dev.hr.rezaei.buildflow.project.ProjectParticipantRepository;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
+import dev.hr.rezaei.buildflow.quote.QuoteRepository;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.WorkItem;
 import dev.hr.rezaei.buildflow.workitem.WorkItemRepository;
@@ -38,6 +39,8 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
     protected EstimateLineRepository estimateLineRepository;
     @Autowired
     protected WorkItemRepository workItemRepository;
+    @Autowired
+    protected QuoteRepository quoteRepository;
 
     @BeforeEach
     @AfterEach
@@ -45,6 +48,7 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
         estimateLineRepository.deleteAll();
         estimateGroupRepository.deleteAll();
         estimateRepository.deleteAll();
+        quoteRepository.deleteAll();
         workItemRepository.deleteAll();
         projectParticipantRepository.deleteAll();
         projectRepository.deleteAll();

@@ -38,8 +38,6 @@ public class ProjectEntityValidation {
                 .email("john@example.com")
                 .contact(contact)
                 .registered(true)
-                .createdQuotes(new ArrayList<>())
-                .suppliedQuotes(new ArrayList<>())
                 .build();
         
         // Create a project location
