@@ -6,6 +6,7 @@ import dev.hr.rezaei.buildflow.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class Project extends UpdatableEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    // Bidirectional relationship: Many Projects can have the same User.
+    // Unidirectional relationship: Many Projects can have the same User.
     // Table: projects, Foreign Key: user_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)

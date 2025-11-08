@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.quote.Quote;
 import jakarta.persistence.*;
 import lombok.*;
@@ -53,13 +52,6 @@ public class User {
     @JoinColumn(name = "contact_id", nullable = false, foreignKey = @ForeignKey(name = "fk_users_contact"))
     private Contact contact = new Contact();
 
-    // Bidirectional relationship: One User can have many Projects.
-    // Table: projects, Foreign Key: user_id
-    @NonNull
-    @Builder.Default
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<Project> projects = new ArrayList<>();
-
     // Bidirectional relationship: One User (as creator) can have many Quotes.
     // Table: quotes, Foreign Key: created_by_id
     @NonNull
@@ -82,7 +74,6 @@ public class User {
                 ", email='" + email + '\'' +
                 ", registered=" + registered +
                 ", contact.id=" + contact.getId() +
-                ", projects.size=" + projects.size() +
                 ", createdQuotes.size=" + createdQuotes.size() +
                 ", suppliedQuotes.size=" + suppliedQuotes.size() +
                 '}';

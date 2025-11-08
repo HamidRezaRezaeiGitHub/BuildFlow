@@ -132,9 +132,15 @@ Core entity representing system users who participate in construction projects.
 
 **Relationships:**
 - **Contact**: One-to-one relationship with contact details
-- **Projects**: Bidirectional relationships as builder/owner
+- **Projects**: Users participate in projects via unidirectional relationship (Project → User). To fetch a user's projects, use `ProjectRepository.findByUserId(userId)` or the `/api/v1/projects/combined/{userId}` endpoint.
 - **Quotes**: Can create quotes or be suppliers
 - **WorkItems**: Can be assigned work items
+
+**Project Access Pattern:**
+- Projects are **not** eagerly loaded with User entities
+- Use repository queries to fetch projects on-demand: `ProjectRepository.findByUserId(UUID userId, Pageable pageable)`
+- API endpoints: `/api/v1/projects/builder/{builderId}`, `/api/v1/projects/owner/{ownerId}`, `/api/v1/projects/combined/{userId}`
+- This prevents N+1 queries and reduces memory footprint when loading users
 
 **Unique Constraints:**
 - Username uniqueness across the system

@@ -84,7 +84,6 @@ public abstract class AbstractModelTest {
                 .email("testuser@example.com")
                 .registered(true)
                 .contact(testBuilderUserContact)
-                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -94,7 +93,6 @@ public abstract class AbstractModelTest {
                 .email("testowner@example.com")
                 .registered(true)
                 .contact(testOwnerUserContact)
-                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -219,7 +217,6 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();
@@ -239,7 +236,6 @@ public abstract class AbstractModelTest {
                 .email(email)
                 .registered(true)
                 .contact(contact)
-                .projects(new ArrayList<>())
                 .createdQuotes(new ArrayList<>())
                 .suppliedQuotes(new ArrayList<>())
                 .build();

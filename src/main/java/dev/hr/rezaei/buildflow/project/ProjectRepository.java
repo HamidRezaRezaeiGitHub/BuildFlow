@@ -18,6 +18,11 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     Page<Project> findByUserId(UUID userId, Pageable pageable);
     
     /**
+     * Count projects by user ID without loading entities.
+     */
+    long countByUserId(UUID userId);
+
+    /**
      * Find projects where user matches with date filtering.
      */
     @Query("""
@@ -67,4 +72,3 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
         Pageable pageable
     );
 }
-
