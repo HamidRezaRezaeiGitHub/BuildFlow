@@ -13,10 +13,11 @@ import org.springframework.http.MediaType;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -25,8 +26,17 @@ class UserControllerTest extends AbstractControllerTest {
 
     @Test
     void createUser_shouldReturnCreated_whenValidRequest() throws Exception {
-        // Given
-        when(userService.createUser(any(CreateUserRequest.class))).thenReturn(testCreateBuilderResponse);
+        // Given - create an entity from DTO for mocking
+        User mockUser = User.builder()
+                .id(testBuilderUserDto.getId())
+                .username(testBuilderUserDto.getUsername())
+                .email(testBuilderUserDto.getEmail())
+                .registered(testBuilderUserDto.isRegistered())
+                .contact(ContactDtoMapper.toContactEntity(testBuilderUserDto.getContactDto()))
+                .build();
+        
+        when(userService.createUser(any(Contact.class), anyString(), anyBoolean()))
+                .thenReturn(mockUser);
 
         // When & Then
         mockMvc.perform(post("/api/v1/users")
@@ -177,7 +187,8 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnOk_whenUserExists() throws Exception {
         // Given
         String username = testBuilderUserDto.getEmail();
-        when(userService.getUserDtoByUsername(username)).thenReturn(testBuilderUserDto);
+        User mockUser = UserDtoMapper.toUserEntity(testBuilderUserDto);
+        when(userService.getUserByUsername(username)).thenReturn(mockUser);
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
@@ -195,7 +206,7 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
         // Given
         String username = "nonexistent.user@example.com";
-        when(userService.getUserDtoByUsername(username))
+        when(userService.getUserByUsername(username))
                 .thenThrow(new UserNotFoundException("User not found with username: " + username));
 
         // When & Then
@@ -208,7 +219,8 @@ class UserControllerTest extends AbstractControllerTest {
     void getUserByUsername_shouldReturnOk_whenOwnerExists() throws Exception {
         // Given
         String username = testOwnerUserDto.getEmail();
-        when(userService.getUserDtoByUsername(username)).thenReturn(testOwnerUserDto);
+        User mockUser = UserDtoMapper.toUserEntity(testOwnerUserDto);
+        when(userService.getUserByUsername(username)).thenReturn(mockUser);
 
         // When & Then
         mockMvc.perform(get("/api/v1/users/{username}", username))
@@ -225,7 +237,9 @@ class UserControllerTest extends AbstractControllerTest {
     @Test
     void getAllUsers_shouldReturnOk_withAllUsers() throws Exception {
         // Given
-        when(userService.getAllUserDtos()).thenReturn(List.of(testBuilderUserDto, testOwnerUserDto));
+        User mockBuilderUser = UserDtoMapper.toUserEntity(testBuilderUserDto);
+        User mockOwnerUser = UserDtoMapper.toUserEntity(testOwnerUserDto);
+        when(userService.getAllUsers()).thenReturn(List.of(mockBuilderUser, mockOwnerUser));
 
         // When & Then
         mockMvc.perform(get("/api/v1/users"))
@@ -243,7 +257,7 @@ class UserControllerTest extends AbstractControllerTest {
     @Test
     void getAllUsers_shouldReturnOk_withEmptyList() throws Exception {
         // Given
-        when(userService.getAllUserDtos()).thenReturn(List.of());
+        when(userService.getAllUsers()).thenReturn(List.of());
 
         // When & Then
         mockMvc.perform(get("/api/v1/users"))

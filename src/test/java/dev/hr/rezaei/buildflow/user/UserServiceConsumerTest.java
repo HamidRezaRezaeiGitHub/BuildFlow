@@ -1,13 +1,10 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.NonNull;
 
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactDto;
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactRequestDto;
-import static dev.hr.rezaei.buildflow.user.UserDtoMapper.toUserEntity;
 
 public interface UserServiceConsumerTest {
 
@@ -22,25 +19,12 @@ public interface UserServiceConsumerTest {
     }
 
     default User registerUser(@NonNull UserService userService, @NonNull ContactRequestDto contactRequestDto) {
-        CreateUserRequest createUserRequest = CreateUserRequest.builder()
-                .contactRequestDto(contactRequestDto)
-                .registered(true)
-                .username(contactRequestDto.getEmail())
-                .build();
-        return registerUser(userService, createUserRequest);
+        Contact contact = ContactDtoMapper.toContactEntity(contactRequestDto);
+        return userService.createUser(contact, contactRequestDto.getEmail(), true);
     }
 
     default User registerUser(@NonNull UserService userService, @NonNull ContactRequestDto contactRequestDto, String username) {
-        CreateUserRequest createUserRequest = CreateUserRequest.builder()
-                .contactRequestDto(contactRequestDto)
-                .registered(true)
-                .username(username)
-                .build();
-        return registerUser(userService, createUserRequest);
-    }
-
-    default User registerUser(@NonNull UserService userService, @NonNull CreateUserRequest createUserRequest) {
-        CreateUserResponse response = userService.createUser(createUserRequest);
-        return toUserEntity(response.getUserDto());
+        Contact contact = ContactDtoMapper.toContactEntity(contactRequestDto);
+        return userService.createUser(contact, username, true);
     }
 }

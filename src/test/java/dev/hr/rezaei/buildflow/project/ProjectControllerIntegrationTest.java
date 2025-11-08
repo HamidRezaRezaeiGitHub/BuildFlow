@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -100,9 +99,9 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
 
     @Test
     void createProject_shouldReturnUnauthorized_whenNoJwtProvided() throws Exception {
-        var builder = userService.createUser(testCreateBuilderRequest);
+        User builder = registerBuilder();
         var projectRequest = CreateProjectRequest.builder()
-                .userId(builder.getUserDto().getId())
+                .userId(builder.getId())
                 .role("BUILDER")
                 .locationRequestDto(testCreateProjectRequest.getLocationRequestDto())
                 .build();

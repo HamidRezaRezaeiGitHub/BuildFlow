@@ -2,10 +2,6 @@ package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,32 +37,35 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     @Test
     void createUser_shouldCreateUser_whenValidRequest() {
         // Given
-        CreateUserRequest request = createValidCreateUserRequest();
+        Contact contact = createRandomContact();
+        String username = "testuser_" + System.currentTimeMillis();
+        boolean registered = true;
 
         // When
-        CreateUserResponse response = userService.createUser(request);
+        User user = userService.createUser(contact, username, registered);
 
         // Then
-        assertNotNull(response);
-        assertNotNull(response.getUserDto());
-        assertNotNull(response.getUserDto().getId());
-        assertEquals(request.getUsername(), response.getUserDto().getUsername());
-        assertEquals(request.getContactRequestDto().getEmail(), response.getUserDto().getEmail());
-        assertEquals(request.isRegistered(), response.getUserDto().isRegistered());
-        assertNotNull(response.getUserDto().getContactDto());
+        assertNotNull(user);
+        assertNotNull(user.getId());
+        assertEquals(username, user.getUsername());
+        assertEquals(contact.getEmail(), user.getEmail());
+        assertEquals(registered, user.isRegistered());
+        assertNotNull(user.getContact());
     }
 
     @Test
     void createUser_shouldThrow_whenEmailAlreadyExists() {
         // Given
-        CreateUserRequest request1 = createValidCreateUserRequest();
-        userService.createUser(request1);
+        Contact contact1 = createRandomContact();
+        String username1 = "testuser1_" + System.currentTimeMillis();
+        userService.createUser(contact1, username1, true);
 
-        CreateUserRequest request2 = createValidCreateUserRequest();
-        request2.getContactRequestDto().setEmail(request1.getContactRequestDto().getEmail());
+        Contact contact2 = createRandomContact();
+        contact2.setEmail(contact1.getEmail());
+        String username2 = "testuser2_" + System.currentTimeMillis();
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(request2));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(contact2, username2, true));
     }
 
     @Test
@@ -254,20 +252,20 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void getUserByUsername_shouldReturnUserDto_whenUserExists() {
+    void getUserByUsername_shouldReturnUser_whenUserExists() {
         // Given
         User user = createRandomBuilderUser();
         persistUserDependencies(user);
         userRepository.save(user);
 
         // When
-        UserDto userDto = userService.getUserDtoByUsername(user.getUsername());
+        User foundUser = userService.getUserByUsername(user.getUsername());
 
         // Then
-        assertNotNull(userDto);
-        assertEquals(user.getUsername(), userDto.getUsername());
-        assertEquals(user.getEmail(), userDto.getEmail());
-        assertEquals(user.isRegistered(), userDto.isRegistered());
+        assertNotNull(foundUser);
+        assertEquals(user.getUsername(), foundUser.getUsername());
+        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.isRegistered(), foundUser.isRegistered());
     }
 
     @Test
@@ -276,32 +274,6 @@ class UserServiceIntegrationTest extends AbstractModelJpaTest {
         String nonExistentUsername = "nonexistent_user";
 
         // When & Then
-        assertThrows(UserNotFoundException.class, () -> userService.getUserDtoByUsername(nonExistentUsername));
-    }
-
-    private CreateUserRequest createValidCreateUserRequest() {
-        ContactAddressRequestDto addressRequestDto = ContactAddressRequestDto.builder()
-                .unitNumber("1")
-                .streetNumberAndName("123 Test Street")
-                .city("Test City")
-                .stateOrProvince("Test State")
-                .postalOrZipCode("12345")
-                .country("Test Country")
-                .build();
-
-        ContactRequestDto contactRequestDto = ContactRequestDto.builder()
-                .firstName("Test")
-                .lastName("User")
-                .email("testuser" + System.currentTimeMillis() + "@example.com")
-                .phone("1234567890")
-                .labels(List.of("BUILDER"))
-                .addressRequestDto(addressRequestDto)
-                .build();
-
-        return CreateUserRequest.builder()
-                .username("testuser" + System.currentTimeMillis())
-                .registered(true)
-                .contactRequestDto(contactRequestDto)
-                .build();
+        assertThrows(UserNotFoundException.class, () -> userService.getUserByUsername(nonExistentUsername));
     }
 }

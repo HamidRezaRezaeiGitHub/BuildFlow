@@ -2,10 +2,12 @@ package dev.hr.rezaei.buildflow.config.security;
 
 import dev.hr.rezaei.buildflow.base.DuplicateUserException;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
+import dev.hr.rezaei.buildflow.user.Contact;
+import dev.hr.rezaei.buildflow.user.ContactDtoMapper;
 import dev.hr.rezaei.buildflow.user.User;
+import dev.hr.rezaei.buildflow.user.UserDtoMapper;
 import dev.hr.rezaei.buildflow.user.UserService;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,16 +71,9 @@ public class AuthService {
             throw new DuplicateUserException("There is already a user with the email: " + email);
         }
 
-        // Create new user using UserService with proper Contact information
-        CreateUserRequest createUserRequest = CreateUserRequest.builder()
-                .registered(true)
-                .contactRequestDto(contactRequestDto)
-                .username(username)
-                .build();
-
-        CreateUserResponse response = userService.createUser(createUserRequest);
-        User user = userService.findById(response.getUserDto().getId())
-                .orElseThrow(() -> new RuntimeException("Failed to create user"));
+        // Map DTO to entity and create new user using UserService
+        Contact contact = ContactDtoMapper.toContactEntity(contactRequestDto);
+        User user = userService.createUser(contact, username, true);
         log.info("Created new user: {} with role: {}", user.getId(), role);
 
         // Create authentication entry with specified role
@@ -89,6 +84,11 @@ public class AuthService {
                 .enabled(true)
                 .build();
         userAuthenticationRepository.save(userAuth);
+
+        // Map entity back to response DTO to maintain API contract
+        CreateUserResponse response = CreateUserResponse.builder()
+                .userDto(UserDtoMapper.toUserDto(user))
+                .build();
 
         securityAuditService.logRegistrationAttempt(username, email, true, "User registered successfully");
         return response;

@@ -1,19 +1,17 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import lombok.NonNull;
 
 public interface UserServiceConsumer {
 
     default CreateUserResponse createUser(@NonNull UserService userService, @NonNull ContactRequestDto contactRequestDto) {
-        CreateUserRequest createUserRequest = CreateUserRequest.builder()
-                .contactRequestDto(contactRequestDto)
-                .registered(true)
-                .username(contactRequestDto.getEmail())
+        Contact contact = ContactDtoMapper.toContactEntity(contactRequestDto);
+        User user = userService.createUser(contact, contactRequestDto.getEmail(), true);
+        return CreateUserResponse.builder()
+                .userDto(UserDtoMapper.toUserDto(user))
                 .build();
-        return userService.createUser(createUserRequest);
     }
 
     default CreateUserResponse createUniqUser(@NonNull UserService userService, @NonNull ContactRequestDto baseContactRequestDto) {

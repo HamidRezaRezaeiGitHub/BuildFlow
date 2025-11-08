@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -44,10 +45,13 @@ public class UserController {
     public ResponseEntity<List<UserDto>> getAllUsers() {
         log.info("Getting all users");
 
-        List<UserDto> users = userService.getAllUserDtos();
+        List<User> users = userService.getAllUsers();
+        List<UserDto> userDtos = users.stream()
+                .map(UserDtoMapper::toUserDto)
+                .collect(Collectors.toList());
 
-        log.info("Successfully retrieved {} users", users.size());
-        return ResponseEntity.ok(users);
+        log.info("Successfully retrieved {} users", userDtos.size());
+        return ResponseEntity.ok(userDtos);
     }
 
     @Operation(summary = "Create a new user", description = "Creates a new user with contact information, username, and registration status")
@@ -64,7 +68,17 @@ public class UserController {
     ) {
         log.info("Creating user with request: {}", request);
 
-        CreateUserResponse response = userService.createUser(request);
+        // Map DTO to entity
+        Contact contact = ContactDtoMapper.toContactEntity(request.getContactRequestDto());
+        
+        // Call service with entities
+        User user = userService.createUser(contact, request.getUsername(), request.isRegistered());
+
+        // Map entity back to DTO
+        UserDto userDto = UserDtoMapper.toUserDto(user);
+        CreateUserResponse response = CreateUserResponse.builder()
+                .userDto(userDto)
+                .build();
 
         log.info("Successfully created user with ID: {}", response.getUserDto().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -86,7 +100,8 @@ public class UserController {
     ) {
         log.info("Getting user with username: {}", username);
 
-        UserDto userDto = userService.getUserDtoByUsername(username);
+        User user = userService.getUserByUsername(username);
+        UserDto userDto = UserDtoMapper.toUserDto(user);
 
         log.info("Successfully found user with username: {}", username);
         return ResponseEntity.ok(userDto);

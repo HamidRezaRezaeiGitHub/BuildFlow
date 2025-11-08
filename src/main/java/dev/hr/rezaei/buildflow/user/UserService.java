@@ -1,8 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
-import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactEntity;
-import static dev.hr.rezaei.buildflow.user.UserDtoMapper.toUserDto;
 
 /**
  * UserService providing business logic for user management operations.
@@ -36,23 +30,19 @@ public class UserService {
     private final ContactService contactService;
 
     @Transactional
-    public CreateUserResponse createUser(@NonNull CreateUserRequest request) {
-        Contact contact = toContactEntity(request.getContactRequestDto());
+    public User createUser(@NonNull Contact contact, @NonNull String username, boolean registered) {
         contact = contactService.save(contact);
 
         User user = User.builder()
                 .contact(contact)
-                .username(request.getUsername())
+                .username(username)
                 .email(contact.getEmail())
-                .registered(request.isRegistered())
+                .registered(registered)
                 .build();
-        log.info("Persisting new user with contact: {}, username: {}, registered: {}", contact, request.getUsername(), request.isRegistered());
+        log.info("Persisting new user with contact: {}, username: {}, registered: {}", contact, username, registered);
         user = userRepository.save(user);
 
-        UserDto userDto = toUserDto(user);
-        return CreateUserResponse.builder()
-                .userDto(userDto)
-                .build();
+        return user;
     }
 
     @Transactional
@@ -75,22 +65,17 @@ public class UserService {
         return user.getId() != null && userRepository.existsById(user.getId());
     }
 
-    public UserDto getUserDtoByUsername(@NonNull String username) {
+    public User getUserByUsername(@NonNull String username) {
         Optional<User> userOptional = findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User not found with username: " + username);
         }
-        return toUserDto(userOptional.get());
+        return userOptional.get();
     }
 
-    public List<UserDto> getAllUserDtos() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(UserDtoMapper::toUserDto)
-                .collect(Collectors.toList());
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
-
-    // Existence check methods
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);

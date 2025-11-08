@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -27,7 +26,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
     void createProject_shouldReturnCreated_whenValidRequest() throws Exception {
         // Given
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
-        var builderResponse = userService.createUser(testCreateBuilderRequest);
+        var builderResponse = createUser(userService, testBuilderContactRequestDto);
 
         var projectRequest = CreateProjectRequest.builder()
                 .userId(builderResponse.getUserDto().getId())
