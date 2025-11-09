@@ -43,7 +43,7 @@ public class ProjectParticipant {
     @Column(name = "role", nullable = false, length = 50)
     private ProjectRole role;
 
-    // Bidirectional relationship: Many ProjectParticipants can reference one Contact.
+    // Unidirectional relationship: Many ProjectParticipants can reference one Contact.
     // Table: project_participants, Foreign Key: contact_id
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)

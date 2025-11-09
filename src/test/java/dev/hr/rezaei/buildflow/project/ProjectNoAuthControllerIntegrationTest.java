@@ -52,7 +52,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
     }
 
     @Test
-    void getProjectsByBuilderId_shouldReturnOk_whenBuilderHasProjects() throws Exception {
+    void getProjectsByUserId_shouldReturnOk_whenBuilderHasProjects() throws Exception {
         // Given
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
         var builderResponse = createUniqUser(userService, testBuilderContactRequestDto);
@@ -70,7 +70,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(status().isCreated());
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builderId))
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builderId))
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -84,7 +84,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
     }
 
     @Test
-    void getProjectsByOwnerId_shouldReturnOk_whenOwnerHasProjects() throws Exception {
+    void getProjectsByUserId_shouldReturnOk_whenOwnerHasProjects() throws Exception {
         // Given
         var projectLocationRequestDto = testCreateProjectRequest.getLocationRequestDto();
         CreateUserResponse ownerResponse = createUniqUser(userService, testOwnerContactRequestDto);
@@ -102,7 +102,7 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(status().isCreated());
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", ownerId))
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", ownerId))
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -113,34 +113,6 @@ class ProjectNoAuthControllerIntegrationTest extends AbstractNoAuthControllerInt
                 .andExpect(jsonPath("$[0].role").value("OWNER"))
                 .andExpect(jsonPath("$[0].location.streetNumberAndName").value(projectLocationRequestDto.getStreetNumberAndName()))
                 .andExpect(jsonPath("$[0].location.city").value(projectLocationRequestDto.getCity()));
-    }
-
-    @Test
-    void getProjectsByBuilderId_shouldReturnEmptyList_whenBuilderHasNoProjects() throws Exception {
-        // Given
-        CreateUserResponse builderResponse = createUniqUser(userService, testBuilderContactRequestDto);
-        UUID builderId = builderResponse.getUserDto().getId();
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", builderId))
-                // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    @Test
-    void getProjectsByOwnerId_shouldReturnEmptyList_whenOwnerHasNoProjects() throws Exception {
-        // Given
-        CreateUserResponse ownerResponse = createUniqUser(userService, testOwnerContactRequestDto);
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", ownerResponse.getUserDto().getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test

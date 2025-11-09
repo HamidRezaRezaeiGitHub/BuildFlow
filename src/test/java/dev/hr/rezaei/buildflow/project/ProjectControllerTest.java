@@ -2,7 +2,6 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +15,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -26,11 +24,11 @@ class ProjectControllerTest extends AbstractControllerTest {
     @Test
     void createProject_shouldReturnCreated_whenValidRequest() throws Exception {
         // Given
-        when(projectService.createProject(any(CreateProjectRequest.class))).thenReturn(testCreateProjectResponse);
-        ProjectDto projectDto = testCreateProjectResponse.getProjectDto();
-        UUID userId = projectDto.getUserId();
-        String role = projectDto.getRole();
-        ProjectLocationDto locationDto = projectDto.getLocationDto();
+        when(projectService.createProject(any(UUID.class), any(String.class), any(ProjectLocation.class)))
+                .thenReturn(testProject);
+        UUID userId = testProject.getUser().getId();
+        String role = testProject.getRole().name();
+        ProjectLocation location = testProject.getLocation();
 
         // When & Then
         mockMvc.perform(post("/api/v1/projects")
@@ -42,8 +40,8 @@ class ProjectControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.project.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.project.role").value(role))
                 .andExpect(jsonPath("$.project.location").exists())
-                .andExpect(jsonPath("$.project.location.streetNumberAndName").value(locationDto.getStreetNumberAndName()))
-                .andExpect(jsonPath("$.project.location.city").value(locationDto.getCity()));
+                .andExpect(jsonPath("$.project.location.streetNumberAndName").value(location.getStreetNumberAndName()))
+                .andExpect(jsonPath("$.project.location.city").value(location.getCity()));
     }
 
     @Test
@@ -76,7 +74,7 @@ class ProjectControllerTest extends AbstractControllerTest {
     void createProject_shouldReturnNotFound_whenBuilderNotFound() throws Exception {
         // Given
         UUID nonExistentBuilderId = UUID.randomUUID();
-        when(projectService.createProject(any(CreateProjectRequest.class)))
+        when(projectService.createProject(any(UUID.class), any(String.class), any(ProjectLocation.class)))
                 .thenThrow(new UserNotFoundException("Builder with ID " + nonExistentBuilderId + " does not exist."));
 
         // When & Then
@@ -91,7 +89,7 @@ class ProjectControllerTest extends AbstractControllerTest {
     void createProject_shouldReturnNotFound_whenOwnerNotFound() throws Exception {
         // Given
         UUID nonExistentOwnerId = UUID.randomUUID();
-        when(projectService.createProject(any(CreateProjectRequest.class)))
+        when(projectService.createProject(any(UUID.class), any(String.class), any(ProjectLocation.class)))
                 .thenThrow(new UserNotFoundException("Owner with ID " + nonExistentOwnerId + " does not exist."));
 
         // When & Then
@@ -103,67 +101,34 @@ class ProjectControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void getProjectsByBuilderId_shouldReturnOk_whenBuilderExists() throws Exception {
+    void getProjectsByUserId_shouldReturnOk_whenUserExists() throws Exception {
         // Given
-        org.springframework.data.domain.Page<ProjectDto> page = 
-                new org.springframework.data.domain.PageImpl<>(List.of(testProjectDto));
-        when(projectService.getProjectsByBuilderId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+        org.springframework.data.domain.Page<Project> page = 
+                new org.springframework.data.domain.PageImpl<>(List.of(testProject));
+        when(projectService.getProjectsByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(page);
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", testBuilderUserDto.getId()))
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", testBuilderUserDto.getId()))
                 // .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
-                .andExpect(jsonPath("$[0].userId").value(testProjectDto.getUserId().toString()))
-                .andExpect(jsonPath("$[0].role").value(testProjectDto.getRole()));
+                .andExpect(jsonPath("$[0].id").value(testProject.getId().toString()))
+                .andExpect(jsonPath("$[0].userId").value(testProject.getUser().getId().toString()))
+                .andExpect(jsonPath("$[0].role").value(testProject.getRole().name()));
     }
 
     @Test
-    void getProjectsByBuilderId_shouldReturnNotFound_whenBuilderNotFound() throws Exception {
+    void getProjectsByUserId_shouldReturnNotFound_whenUserNotFound() throws Exception {
         // Given
-        UUID nonExistentBuilderId = UUID.randomUUID();
-        when(projectService.getProjectsByBuilderId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
-                .thenThrow(new UserNotFoundException("Builder with ID " + nonExistentBuilderId + " does not exist."));
+        UUID nonExistentUserId = UUID.randomUUID();
+        when(projectService.getProjectsByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+                .thenThrow(new UserNotFoundException("User with ID " + nonExistentUserId + " does not exist."));
 
         // When & Then
-        mockMvc.perform(get("/api/v1/projects/builder/{builderId}", nonExistentBuilderId))
-                // .andDo(print())
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getProjectsByOwnerId_shouldReturnOk_whenOwnerExists() throws Exception {
-        // Given
-        org.springframework.data.domain.Page<ProjectDto> page = 
-                new org.springframework.data.domain.PageImpl<>(List.of(testProjectDto));
-        when(projectService.getProjectsByOwnerId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
-                .thenReturn(page);
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", testOwnerUserDto.getId()))
-                // .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(testProjectDto.getId().toString()))
-                .andExpect(jsonPath("$[0].userId").value(testProjectDto.getUserId().toString()))
-                .andExpect(jsonPath("$[0].role").value(testProjectDto.getRole()));
-    }
-
-    @Test
-    void getProjectsByOwnerId_shouldReturnNotFound_whenOwnerNotFound() throws Exception {
-        // Given
-        UUID nonExistentOwnerId = UUID.randomUUID();
-        when(projectService.getProjectsByOwnerId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
-                .thenThrow(new UserNotFoundException("Owner with ID " + nonExistentOwnerId + " does not exist."));
-
-        // When & Then
-        mockMvc.perform(get("/api/v1/projects/owner/{ownerId}", nonExistentOwnerId))
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", nonExistentUserId))
                 // .andDo(print())
                 .andExpect(status().isNotFound());
     }

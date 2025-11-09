@@ -41,11 +41,11 @@ public class ProjectAuthService extends AbstractAuthorizationHandler {
             return true;
         }
 
-        User user = getAuthenticatedUser(authentication, "view builder/owner projects");
+        User user = getAuthenticatedUser(authentication, "view user projects");
         UUID requestorId = user.getId();
 
         if (!requestorId.equals(requestedId)) {
-            log.debug("User [{}] is not authorized to view projects for another builder/owner [{}].", requestorId, requestedId);
+            log.debug("User [{}] is not authorized to view projects for another user [{}].", requestorId, requestedId);
             return false;
         }
         return true;

@@ -56,95 +56,38 @@ public class ProjectController {
     @PreAuthorize("hasAuthority('CREATE_PROJECT') and @projectAuthService.isCreateRequestAuthorized(#request)")
     @PostMapping
     public ResponseEntity<CreateProjectResponse> createProject(
-            @Parameter(description = "Project creation request containing builder, owner, and location information")
+            @Parameter(description = "Project creation request containing user ID, role, and location information")
             @Valid @RequestBody CreateProjectRequest request
     ) {
         log.info("Creating project with request: {}", request);
-        CreateProjectResponse response = projectService.createProject(request);
+        
+        // Map DTO to entity
+        ProjectLocation location = ProjectLocationDtoMapper.toProjectLocationEntity(request.getLocationRequestDto());
+        
+        // Call service with entities
+        Project project = projectService.createProject(request.getUserId(), request.getRole(), location);
+        
+        // Map entity back to DTO
+        ProjectDto projectDto = ProjectDtoMapper.toProjectDto(project);
+        CreateProjectResponse response = CreateProjectResponse.builder()
+                .projectDto(projectDto)
+                .build();
+        
         log.info("Successfully created project with ID: {}", response.getProjectDto().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Get projects by builder ID", description = "Retrieves projects assigned to a specific builder with pagination support")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
-    })
-    @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#builderId)")
-    @GetMapping("/builder/{builderId}")
-    public ResponseEntity<List<ProjectDto>> getProjectsByBuilderId(
-            @Parameter(description = "ID of the builder whose projects to retrieve")
-            @PathVariable UUID builderId,
-            @Parameter(description = "Page number (0-based, default: 0)")
-            @RequestParam(required = false) Integer page,
-            @Parameter(description = "Page size (default: 25)")
-            @RequestParam(required = false) Integer size,
-            @Parameter(description = "Sort specification (e.g., 'lastUpdatedAt,DESC')")
-            @RequestParam(required = false) String[] sort,
-            @Parameter(description = "Order by field (alternative to sort)")
-            @RequestParam(required = false) String orderBy,
-            @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
-            @RequestParam(required = false) String direction
-    ) {
-        log.info("Getting projects for builder ID: {} with pagination", builderId);
-        
-        Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
-        Page<ProjectDto> projectPage = projectService.getProjectsByBuilderId(builderId, pageable);
-        
-        return build(projectPage, "/api/v1/projects/builder/" + builderId);
-    }
-
-    @Operation(summary = "Get projects by owner ID", description = "Retrieves projects owned by a specific property owner with pagination support")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
-                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
-    })
-    @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#ownerId)")
-    @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<List<ProjectDto>> getProjectsByOwnerId(
-            @Parameter(description = "ID of the owner whose projects to retrieve")
-            @PathVariable UUID ownerId,
-            @Parameter(description = "Page number (0-based, default: 0)")
-            @RequestParam(required = false) Integer page,
-            @Parameter(description = "Page size (default: 25)")
-            @RequestParam(required = false) Integer size,
-            @Parameter(description = "Sort specification (e.g., 'lastUpdatedAt,DESC')")
-            @RequestParam(required = false) String[] sort,
-            @Parameter(description = "Order by field (alternative to sort)")
-            @RequestParam(required = false) String orderBy,
-            @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
-            @RequestParam(required = false) String direction
-    ) {
-        log.info("Getting projects for owner ID: {} with pagination", ownerId);
-        
-        Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
-        Page<ProjectDto> projectPage = projectService.getProjectsByOwnerId(ownerId, pageable);
-        
-        return build(projectPage, "/api/v1/projects/owner/" + ownerId);
-    }
-    
-    @Operation(
-        summary = "Get combined projects",
-        description = "Retrieves projects where the user is either builder, owner, or both, with optional date filtering and pagination support"
-    )
+    @Operation(summary = "Get projects by user ID", description = "Retrieves all projects for a specific user with pagination support")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
     })
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('VIEW_PROJECT') and @projectAuthService.isViewProjectsAuthorized(#userId)")
-    @GetMapping("/combined/{userId}")
-    public ResponseEntity<List<ProjectDto>> getCombinedProjects(
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByUserId(
             @Parameter(description = "ID of the user whose projects to retrieve")
             @PathVariable UUID userId,
-            @Parameter(description = "Scope: 'builder', 'owner', or 'both' (default: both)")
-            @RequestParam(required = false, defaultValue = "both") String scope,
-            @Parameter(description = "Filter by created date from (ISO-8601 format)")
-            @RequestParam(required = false) String createdFrom,
-            @Parameter(description = "Filter by created date to (ISO-8601 format)")
-            @RequestParam(required = false) String createdTo,
             @Parameter(description = "Page number (0-based, default: 0)")
             @RequestParam(required = false) Integer page,
             @Parameter(description = "Page size (default: 25)")
@@ -156,17 +99,12 @@ public class ProjectController {
             @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
             @RequestParam(required = false) String direction
     ) {
-        log.info("Getting combined projects for user ID: {} with scope: {}", userId, scope);
-        
-        // Parse date filters
-        java.time.Instant createdFromInstant = createdFrom != null ? java.time.Instant.parse(createdFrom) : null;
-        java.time.Instant createdToInstant = createdTo != null ? java.time.Instant.parse(createdTo) : null;
+        log.info("Getting projects for user ID: {} with pagination", userId);
         
         Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
-        Page<ProjectDto> projectPage = projectService.getCombinedProjects(
-            userId, scope, createdFromInstant, createdToInstant, pageable
-        );
+        Page<Project> projectPage = projectService.getProjectsByUserId(userId, pageable);
+        Page<ProjectDto> projectDtoPage = projectPage.map(ProjectDtoMapper::toProjectDto);
         
-        return build(projectPage, "/api/v1/projects/combined/" + userId);
+        return build(projectDtoPage, "/api/v1/projects/user/" + userId);
     }
 }

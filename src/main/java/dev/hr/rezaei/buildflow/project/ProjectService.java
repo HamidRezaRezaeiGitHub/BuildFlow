@@ -1,13 +1,12 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UserNotFoundException;
-import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
-import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -17,9 +16,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static dev.hr.rezaei.buildflow.project.ProjectDtoMapper.toProjectDto;
-import static dev.hr.rezaei.buildflow.project.ProjectLocationDtoMapper.toProjectLocationEntity;
 
 /**
  * ProjectService providing business logic for project management operations.
@@ -44,26 +40,21 @@ public class ProjectService {
         this.userService = userService;
     }
 
-    public void validate(CreateProjectRequest request) {
-        UUID userId = request.getUserId();
+    public void validate(UUID userId, String roleStr, ProjectLocation location) {
         if (!userService.existsById(userId)) {
             throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
-        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
+        if (roleStr == null || roleStr.trim().isEmpty()) {
             throw new IllegalArgumentException("Role is required.");
         }
         
         try {
-            ProjectRole.valueOf(request.getRole());
+            ProjectRole.valueOf(roleStr);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid role: " + request.getRole() + ". Must be BUILDER or OWNER.");
+            throw new IllegalArgumentException("Invalid role: " + roleStr + ". Must be BUILDER or OWNER.");
         }
 
-        if (request.getLocationRequestDto() == null) {
-            throw new IllegalArgumentException("Cannot create project with null location.");
-        }
-        ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
         if (location == null) {
             throw new IllegalArgumentException("Cannot create project with null location.");
         }
@@ -73,12 +64,11 @@ public class ProjectService {
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public CreateProjectResponse createProject(@NonNull CreateProjectRequest request) {
-        validate(request);
+    public Project createProject(@NonNull UUID userId, @NonNull String roleStr, @NonNull ProjectLocation location) {
+        validate(userId, roleStr, location);
         
-        User user = userService.findById(request.getUserId()).get();
-        ProjectRole role = ProjectRole.valueOf(request.getRole());
-        ProjectLocation location = toProjectLocationEntity(request.getLocationRequestDto());
+        User user = userService.findById(userId).get();
+        ProjectRole role = ProjectRole.valueOf(roleStr);
 
         Instant now = Instant.now();
         Project project = Project.builder()
@@ -90,12 +80,10 @@ public class ProjectService {
                 .build();
 
         log.info("Persisting new project for user ID [{}] with role [{}] at location: {}",
-                request.getUserId(), role, location);
+                userId, role, location);
         Project savedProject = projectRepository.save(project);
 
-        return CreateProjectResponse.builder()
-                .projectDto(toProjectDto(savedProject))
-                .build();
+        return savedProject;
     }
 
     public Project update(@NonNull Project project) {
@@ -123,88 +111,40 @@ public class ProjectService {
         return projectRepository.findById(id);
     }
 
-    public List<Project> findByBuilderId(@NonNull UUID builderId) {
-        return projectRepository.findByUserId(builderId);
-    }
-
-    public List<Project> findByOwnerId(@NonNull UUID ownerId) {
-        return projectRepository.findByUserId(ownerId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId) {
-        // Verify builder exists and is persisted
-        Optional<User> persistedBuilder = userService.findById(builderId);
-        if (persistedBuilder.isEmpty()) {
-            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
-        }
-
-        List<Project> projects = findByBuilderId(builderId);
-        return projects.stream()
-                .map(ProjectDtoMapper::toProjectDto)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId) {
-        // Verify owner exists and is persisted
-        Optional<User> persistedOwner = userService.findById(ownerId);
-        if (persistedOwner.isEmpty()) {
-            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
-        }
-
-        List<Project> projects = findByOwnerId(ownerId);
-        return projects.stream()
-                .map(ProjectDtoMapper::toProjectDto)
-                .toList();
+    public List<Project> findByUserId(@NonNull UUID userId) {
+        return projectRepository.findByUserId(userId);
     }
 
     /**
-     * Find projects by builder ID with pagination support.
+     * Get all projects for a user with validation.
+     * Transaction ensures participants are loaded within session.
+     */
+    @Transactional(readOnly = true)
+    public List<Project> getProjectsByUserId(@NonNull UUID userId) {
+        // Verify user exists and is persisted
+        Optional<User> persistedUser = userService.findById(userId);
+        if (persistedUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + userId + " does not exist.");
+        }
+
+        return findByUserId(userId);
+    }
+
+    /**
+     * Find projects by user ID with pagination support.
      * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
-     */
-    public Page<Project> findByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
-        Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByUserId(builderId, pageableWithSort);
-    }
-
-    /**
-     * Find projects by owner ID with pagination support.
-     * Applies default sort by lastUpdatedAt DESC if pageable is unsorted.
-     */
-    public Page<Project> findByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
-        Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByUserId(ownerId, pageableWithSort);
-    }
-
-    /**
-     * Get paginated project DTOs by builder ID with default sorting.
+     * Transaction ensures participants are loaded within session.
      */
     @Transactional(readOnly = true)
-    public Page<ProjectDto> getProjectsByBuilderId(@NonNull UUID builderId, @NonNull Pageable pageable) {
-        // Verify builder exists and is persisted
-        Optional<User> persistedBuilder = userService.findById(builderId);
-        if (persistedBuilder.isEmpty()) {
-            throw new UserNotFoundException("Builder with ID " + builderId + " does not exist.");
+    public Page<Project> getProjectsByUserId(@NonNull UUID userId, @NonNull Pageable pageable) {
+        // Verify user exists and is persisted
+        Optional<User> persistedUser = userService.findById(userId);
+        if (persistedUser.isEmpty()) {
+            throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
-        Page<Project> projects = findByBuilderId(builderId, pageable);
-        return projects.map(ProjectDtoMapper::toProjectDto);
-    }
-
-    /**
-     * Get paginated project DTOs by owner ID with default sorting.
-     */
-    @Transactional(readOnly = true)
-    public Page<ProjectDto> getProjectsByOwnerId(@NonNull UUID ownerId, @NonNull Pageable pageable) {
-        // Verify owner exists and is persisted
-        Optional<User> persistedOwner = userService.findById(ownerId);
-        if (persistedOwner.isEmpty()) {
-            throw new UserNotFoundException("Owner with ID " + ownerId + " does not exist.");
-        }
-
-        Page<Project> projects = findByOwnerId(ownerId, pageable);
-        return projects.map(ProjectDtoMapper::toProjectDto);
+        Pageable pageableWithSort = ensureDefaultSort(pageable);
+        return projectRepository.findByUserId(userId, pageableWithSort);
     }
 
     /**
@@ -212,56 +152,12 @@ public class ProjectService {
      */
     private Pageable ensureDefaultSort(Pageable pageable) {
         if (pageable.getSort().isUnsorted()) {
-            return org.springframework.data.domain.PageRequest.of(
+            return PageRequest.of(
                     pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "lastUpdatedAt")
             );
         }
         return pageable;
-    }
-    
-    /**
-     * Get combined projects where user is either builder OR owner with date filtering.
-     * 
-     * @param userId The user ID to search for
-     * @param scope The scope: "both", "builder", or "owner"
-     * @param createdFrom Optional start date filter (inclusive)
-     * @param createdTo Optional end date filter (inclusive)
-     * @param pageable Pagination and sorting parameters
-     * @return Page of ProjectDto with de-duplicated, filtered, and sorted results
-     */
-    @Transactional(readOnly = true)
-    public Page<ProjectDto> getCombinedProjects(
-            @NonNull UUID userId,
-            @NonNull String scope,
-            Instant createdFrom,
-            Instant createdTo,
-            @NonNull Pageable pageable) {
-        
-        // Verify user exists
-        Optional<User> persistedUser = userService.findById(userId);
-        if (persistedUser.isEmpty()) {
-            throw new UserNotFoundException("User with ID " + userId + " does not exist.");
-        }
-        
-        Pageable pageableWithSort = ensureDefaultSort(pageable);
-        Page<Project> projects;
-        
-        // Route to appropriate query based on scope
-        switch (scope.toLowerCase()) {
-            case "builder":
-                projects = projectRepository.findBuilderProjects(userId, createdFrom, createdTo, pageableWithSort);
-                break;
-            case "owner":
-                projects = projectRepository.findOwnerProjects(userId, createdFrom, createdTo, pageableWithSort);
-                break;
-            case "both":
-            default:
-                projects = projectRepository.findCombinedProjects(userId, createdFrom, createdTo, pageableWithSort);
-                break;
-        }
-        
-        return projects.map(ProjectDtoMapper::toProjectDto);
     }
 }
