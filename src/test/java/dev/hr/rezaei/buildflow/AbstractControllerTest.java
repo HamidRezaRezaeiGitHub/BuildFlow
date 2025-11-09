@@ -107,7 +107,6 @@ public class AbstractControllerTest extends AbstractDtoTest {
         testProject = Project.builder()
                 .user(testBuilderUser)
                 .role(ProjectRole.BUILDER)
-                .participants(new ArrayList<>())
                 .location(location)
                 .build();
         testProject.setId(testProjectDto.getId());

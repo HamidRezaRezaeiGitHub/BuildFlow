@@ -13,16 +13,16 @@ import java.util.UUID;
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
     /**
      * Find all projects for a given user ID.
-     * Uses EntityGraph to eagerly fetch participants and location to avoid LazyInitializationException.
+     * Uses EntityGraph to eagerly fetch location to avoid LazyInitializationException.
      */
-    @EntityGraph(attributePaths = {"participants", "location"})
+    @EntityGraph(attributePaths = {"location"})
     List<Project> findByUserId(UUID userId);
     
     /**
      * Find projects for a given user ID with pagination.
-     * Uses EntityGraph to eagerly fetch participants and location to avoid LazyInitializationException.
+     * Uses EntityGraph to eagerly fetch location to avoid LazyInitializationException.
      */
-    @EntityGraph(attributePaths = {"participants", "location"})
+    @EntityGraph(attributePaths = {"location"})
     Page<Project> findByUserId(UUID userId, Pageable pageable);
     
     /**

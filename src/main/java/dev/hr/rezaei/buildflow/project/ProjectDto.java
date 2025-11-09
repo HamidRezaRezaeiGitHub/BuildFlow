@@ -7,8 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,10 +35,6 @@ public class ProjectDto extends UpdatableEntityDto implements Dto<Project> {
     
     @Schema(description = "Role of the main user in the project", example = "BUILDER")
     private String role;
-    
-    @Schema(description = "List of additional project participants")
-    @Builder.Default
-    private List<ProjectParticipantDto> participants = new ArrayList<>();
     
     @JsonProperty("location")
     @Schema(description = "Location information for the project")

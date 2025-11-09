@@ -81,13 +81,7 @@ public abstract class AbstractModelJpaTest extends AbstractModelTest {
             userRepository.save(user);
         }
         
-        // Persist participant contacts
-        for (var participant : project.getParticipants()) {
-            Contact contact = participant.getContact();
-            if (contact.getId() == null || !contactRepository.existsById(contact.getId())) {
-                contactRepository.save(contact);
-            }
-        }
+        // Note: Participants are now managed separately via ProjectParticipantRepository
+        // No need to persist them here as Project no longer has a participants collection
     }
 }
-

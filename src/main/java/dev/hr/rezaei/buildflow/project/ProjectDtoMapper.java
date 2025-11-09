@@ -6,10 +6,6 @@ import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.User;
 import lombok.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class ProjectDtoMapper {
 
     public static ProjectDto toProjectDto(Project project) {
@@ -17,16 +13,10 @@ public class ProjectDtoMapper {
         
         User user = project.getUser();
         
-        // Map participants
-        List<ProjectParticipantDto> participantDtos = project.getParticipants().stream()
-                .map(ProjectDtoMapper::toProjectParticipantDto)
-                .collect(Collectors.toList());
-        
         return ProjectDto.builder()
                 .id(project.getId())
                 .userId(user != null ? user.getId() : null)
                 .role(project.getRole() != null ? project.getRole().name() : null)
-                .participants(participantDtos)
                 .locationDto(ProjectLocationDtoMapper.toProjectLocationDto(project.getLocation()))
                 .createdAt(UpdatableEntityDtoMapper.toString(project.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.toString(project.getLastUpdatedAt()))
@@ -68,7 +58,6 @@ public class ProjectDtoMapper {
                 .user(user)
                 .role(role)
                 .location(ProjectLocationDtoMapper.toProjectLocationEntity(dto.getLocationDto()))
-                .participants(new ArrayList<>())
                 .createdAt(UpdatableEntityDtoMapper.fromString(dto.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.fromString(dto.getLastUpdatedAt()))
                 .build();

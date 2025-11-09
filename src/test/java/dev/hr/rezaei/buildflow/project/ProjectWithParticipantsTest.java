@@ -28,7 +28,7 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
     }
 
     @Test
-    void persistProject_withParticipants_shouldCascade() {
+    void persistProject_withParticipants_shouldSucceed() {
         // Given: A project with participants
         persistProjectDependencies(testProject);
         Project savedProject = projectRepository.save(testProject);
@@ -47,21 +47,23 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                 .role(ProjectRole.OWNER)
                 .contact(participantContact)
                 .build();
-        savedProject.getParticipants().add(participant);
+        
+        // When: Saving the participant directly (unidirectional)
+        ProjectParticipant savedParticipant = projectParticipantRepository.save(participant);
 
-        // When: Saving the project with participants
-        Project updatedProject = projectRepository.save(savedProject);
-
-        // Then: Participants should be persisted
-        assertEquals(1, updatedProject.getParticipants().size());
-        ProjectParticipant savedParticipant = updatedProject.getParticipants().get(0);
+        // Then: Participant should be persisted
         assertNotNull(savedParticipant.getId());
         assertEquals(ProjectRole.OWNER, savedParticipant.getRole());
+        assertEquals(savedProject.getId(), savedParticipant.getProject().getId());
+        
+        // Verify we can query participants by project
+        var participants = projectParticipantRepository.findByProjectId(savedProject.getId());
+        assertEquals(1, participants.size());
     }
 
     @Test
-    void deleteProject_shouldRemoveParticipants() {
-        // Given: A project with participants
+    void deleteProject_shouldRequireManualParticipantDeletion() {
+        // Given: A project with participants (unidirectional relationship)
         persistProjectDependencies(testProject);
         Project savedProject = projectRepository.save(testProject);
 
@@ -79,14 +81,18 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                 .role(ProjectRole.OWNER)
                 .contact(participantContact)
                 .build();
-        savedProject.getParticipants().add(participant);
-        projectRepository.save(savedProject);
+        projectParticipantRepository.save(participant);
 
-        // When: Deleting the project
+        // Verify participant was saved
+        var participantsBeforeDelete = projectParticipantRepository.findByProjectId(savedProject.getId());
+        assertEquals(1, participantsBeforeDelete.size());
+
+        // When: Deleting participants manually before deleting the project
+        projectParticipantRepository.deleteAll(participantsBeforeDelete);
         projectRepository.delete(savedProject);
-        projectRepository.flush();
 
-        // Then: Participants should be removed (orphanRemoval)
+        // Then: Both project and participants should be deleted
+        assertFalse(projectRepository.existsById(savedProject.getId()));
         var remainingParticipants = projectParticipantRepository.findByProjectId(savedProject.getId());
         assertEquals(0, remainingParticipants.size());
     }
@@ -100,7 +106,6 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                     .role(ProjectRole.BUILDER)
                     .location(testProjectLocation)
                     .estimates(new ArrayList<>())
-                    .participants(new ArrayList<>())
                     .build();
         });
     }
@@ -114,7 +119,6 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                     .role(null)
                     .location(testProjectLocation)
                     .estimates(new ArrayList<>())
-                    .participants(new ArrayList<>())
                     .build();
         });
     }

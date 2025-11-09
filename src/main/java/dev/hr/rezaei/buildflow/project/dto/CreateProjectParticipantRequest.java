@@ -1,13 +1,13 @@
 package dev.hr.rezaei.buildflow.project.dto;
 
+import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 /**
  * CreateProjectParticipantRequest representing request object for adding participants to a project.
@@ -30,7 +30,8 @@ public class CreateProjectParticipantRequest {
     @NotNull(message = "Role is required")
     private String role;
 
-    @Schema(description = "Contact ID of the participant", example = "123e4567-e89b-12d3-a456-426614174001")
-    @NotNull(message = "Contact ID is required")
-    private UUID contactId;
+    @Schema(description = "Contact information for the participant")
+    @NotNull(message = "Contact information is required")
+    @Valid
+    private ContactRequestDto contactRequestDto;
 }

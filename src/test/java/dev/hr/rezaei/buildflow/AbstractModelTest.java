@@ -107,7 +107,6 @@ public abstract class AbstractModelTest {
                 .role(ProjectRole.BUILDER)
                 .location(testProjectLocation)
                 .estimates(new ArrayList<>())
-                .participants(new ArrayList<>())
                 .build();
 
         testWorkItem = WorkItem.builder()
@@ -255,7 +254,6 @@ public abstract class AbstractModelTest {
                 .role(ProjectRole.BUILDER)
                 .location(location)
                 .estimates(new ArrayList<>())
-                .participants(new ArrayList<>())
                 .build();
     }
 

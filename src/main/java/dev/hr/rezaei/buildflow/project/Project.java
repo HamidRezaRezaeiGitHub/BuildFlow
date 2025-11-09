@@ -51,13 +51,6 @@ public class Project extends UpdatableEntity {
     @Column(name = "role", nullable = false, length = 50)
     private ProjectRole role;
 
-    // Bidirectional relationship: One Project has many ProjectParticipants.
-    // Table: project_participants, Foreign Key: project_id
-    @NonNull
-    @Builder.Default
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProjectParticipant> participants = new ArrayList<>();
-
     @NonNull
     @Builder.Default
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -95,7 +88,6 @@ public class Project extends UpdatableEntity {
                 ", lastUpdatedAt=" + getLastUpdatedAt() +
                 ", user.id=" + (user != null ? user.getId() : "null") +
                 ", role=" + role +
-                ", participants.size=" + participants.size() +
                 ", location.id=" + location.getId() +
                 ", estimates.size=" + estimates.size() +
                 '}';

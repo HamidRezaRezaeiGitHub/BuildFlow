@@ -15,7 +15,6 @@ import dev.hr.rezaei.buildflow.user.dto.CreateUserRequest;
 import dev.hr.rezaei.buildflow.user.dto.CreateUserResponse;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -159,14 +158,12 @@ public abstract class AbstractDtoTest {
                 .id(UUID.randomUUID())
                 .userId(testBuilderUserDto.getId())
                 .role("BUILDER")
-                .participants(new ArrayList<>())
                 .locationDto(testProjectLocationDto)
                 .build();
 
         testCreateProjectRequest = CreateProjectRequest.builder()
                 .userId(testBuilderUserDto.getId())
                 .role("BUILDER")
-                .participants(new ArrayList<>())
                 .locationRequestDto(testProjectLocationRequestDto)
                 .build();
 
