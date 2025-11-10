@@ -1,15 +1,12 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UpdatableEntity;
-import dev.hr.rezaei.buildflow.estimate.Estimate;
 import dev.hr.rezaei.buildflow.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -57,13 +54,6 @@ public class Project extends UpdatableEntity {
     @JoinColumn(name = "location_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_location"))
     private ProjectLocation location = new ProjectLocation();
 
-    // Bidirectional relationship: One Project has many Estimates.
-    // Table: estimates, Foreign Key: project_id
-    @NonNull
-    @Builder.Default
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Estimate> estimates = new ArrayList<>();
-
     @PrePersist
     private void prePersist() {
         ensureUserAndRole();
@@ -89,7 +79,6 @@ public class Project extends UpdatableEntity {
                 ", user.id=" + (user != null ? user.getId() : "null") +
                 ", role=" + role +
                 ", location.id=" + location.getId() +
-                ", estimates.size=" + estimates.size() +
                 '}';
     }
 }
