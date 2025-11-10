@@ -132,13 +132,12 @@ Core entity representing construction projects in the BuildFlow system with role
 - `role` (ProjectRole): Role of the primary user (BUILDER or OWNER, non-null)
 - `participants` (List<ProjectParticipant>): Additional project participants with roles (one-to-many relationship, cascade all)
 - `location` (ProjectLocation): Project location information (one-to-one relationship, non-null, cascade all)
-- `estimates` (List<Estimate>): Associated cost estimates (one-to-many relationship, non-null, cascade all)
 
 **Relationships:**
 - **User**: Unidirectional relationship from Project to User (`@ManyToOne(fetch = LAZY)`). Projects reference their associated user, but users do not have a collection of projects. To fetch a user's projects, use repository queries.
 - **Participants**: One project can have multiple participants (bidirectional)
 - **Location**: One-to-one relationship with project location (unique constraint)
-- **Estimates**: One project can have multiple estimates (bidirectional)
+- **Estimates**: Unidirectional relationship from Estimate to Project (`@ManyToOne(fetch = LAZY)`). Estimates reference their project, but projects do not maintain a collection of estimates. To fetch estimates for a project, use `EstimateRepository.findByProjectId(projectId, pageable)`. See Estimate Management Package for details.
 
 **User Access Pattern:**
 - The `user` field uses `@ManyToOne(fetch = FetchType.LAZY)` to avoid unnecessary loading
