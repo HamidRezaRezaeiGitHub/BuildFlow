@@ -12,12 +12,10 @@ This package provides foundational infrastructure including base entities with a
 base/
 ├── BaseAddress.java                  # Abstract entity for address fields
 ├── BaseAddressDto.java               # Abstract DTO for address fields
-├── DuplicateUserException.java       # Exception for duplicate user attempts
 ├── UpdatableEntity.java              # Abstract entity with audit fields
 ├── UpdatableEntityDto.java           # Abstract DTO with audit fields
 ├── UpdatableEntityDtoMapper.java     # Base mapper for entity-DTO conversions
 ├── UserNotAuthorizedException.java   # Exception for authorization failures
-├── UserNotFoundException.java        # Exception for user lookup failures
 └── README.md                         # This file
 ```
 
@@ -37,9 +35,7 @@ base/
 
 | File | Description |
 |------|-------------|
-| [DuplicateUserException.java](DuplicateUserException.java) | Runtime exception for duplicate user creation attempts |
-| [UserNotAuthorizedException.java](UserNotAuthorizedException.java) | Runtime exception for unauthorized access attempts |
-| [UserNotFoundException.java](UserNotFoundException.java) | Runtime exception for user lookup failures |
+| [UserNotAuthorizedException.java](UserNotAuthorizedException.java) | Runtime exception for unauthorized access attempts (cross-domain) |
 
 ## Technical Overview
 
@@ -102,29 +98,19 @@ Base mapper interface for entity-DTO conversions.
 
 ## Exception Hierarchy
 
-### DuplicateUserException
-Specialized runtime exception for user duplication scenarios.
-
-**Usage:**
-- Thrown when attempting to create a user with an existing username/email
-- Handled by global exception handler for consistent error responses
-- Provides clear error messaging for API consumers
-
 ### UserNotAuthorizedException
-Security-focused exception for authorization failures.
+Security-focused exception for authorization failures across all domains.
 
 **Usage:**
 - Thrown when users attempt to access resources without proper permissions
 - Integrates with Spring Security for authorization checks
 - Provides secure error messaging without exposing sensitive information
+- Cross-domain exception that can be used by any package
 
-### UserNotFoundException
-Data access exception for user lookup failures.
-
-**Usage:**
-- Thrown when user lookups fail to find the requested user
-- Used across user management operations
-- Provides clear messaging for debugging and API responses
+**Note:** Domain-specific exceptions have been moved to their respective packages:
+- `UserNotFoundException`, `DuplicateUserException`, `ContactNotFoundException` → [user package](../user/)
+- `ProjectNotFoundException`, `ParticipantNotFoundException` → [project package](../project/)
+- `EstimateNotFoundException` → [estimate package](../estimate/)
 
 ## Design Patterns
 

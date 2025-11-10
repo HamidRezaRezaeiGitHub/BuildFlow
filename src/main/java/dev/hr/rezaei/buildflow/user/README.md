@@ -25,12 +25,15 @@ user/
 ├── ContactDto.java                        # DTO for contact operations
 ├── ContactDtoMapper.java                  # MapStruct mapper for Contact conversions
 ├── ContactLabel.java                      # Contact role/type classification enum
+├── ContactNotFoundException.java          # Exception for contact lookup failures
 ├── ContactRepository.java                 # JPA repository for contacts
 ├── ContactService.java                    # Business logic for contact operations
+├── DuplicateUserException.java            # Exception for duplicate user creation attempts
 ├── User.java                              # Core user entity
 ├── UserController.java                    # REST API controller for user management
 ├── UserDto.java                           # DTO for user operations
 ├── UserDtoMapper.java                     # MapStruct mapper for User conversions
+├── UserNotFoundException.java             # Exception for user lookup failures
 ├── UserRepository.java                    # JPA repository for users
 ├── UserService.java                       # Business logic for user operations
 └── README.md                              # This file
@@ -50,6 +53,15 @@ Specialized Data Transfer Objects for user creation workflows with nested contac
 | [User.java](User.java) | Core user entity for system authentication and project participation |
 | [Contact.java](Contact.java) | Contact information entity linked to users |
 | [ContactAddress.java](ContactAddress.java) | Address information specific to contacts |
+| [ContactLabel.java](ContactLabel.java) | Enum for contact type classification (PERSONAL, BUSINESS, etc.) |
+
+### Exception Classes
+
+| File | Description |
+|------|-------------|
+| [UserNotFoundException.java](UserNotFoundException.java) | Runtime exception for user lookup failures |
+| [ContactNotFoundException.java](ContactNotFoundException.java) | Runtime exception for contact lookup failures |
+| [DuplicateUserException.java](DuplicateUserException.java) | Runtime exception for duplicate user creation attempts |
 
 ### Controller Classes
 
