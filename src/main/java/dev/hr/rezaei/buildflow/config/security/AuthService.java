@@ -1,6 +1,6 @@
 package dev.hr.rezaei.buildflow.config.security;
 
-import dev.hr.rezaei.buildflow.base.DuplicateUserException;
+import dev.hr.rezaei.buildflow.user.DuplicateUserException;
 import dev.hr.rezaei.buildflow.config.security.dto.SignUpRequest;
 import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.ContactDtoMapper;

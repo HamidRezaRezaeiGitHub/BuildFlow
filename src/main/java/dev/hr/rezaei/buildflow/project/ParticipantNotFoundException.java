@@ -1,4 +1,4 @@
-package dev.hr.rezaei.buildflow.base;
+package dev.hr.rezaei.buildflow.project;
 
 public class ParticipantNotFoundException extends RuntimeException {
     public ParticipantNotFoundException(String message) {

@@ -1,4 +1,4 @@
-package dev.hr.rezaei.buildflow.base;
+package dev.hr.rezaei.buildflow.project;
 
 public class ProjectNotFoundException extends RuntimeException {
     public ProjectNotFoundException(String message) {
