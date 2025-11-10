@@ -54,22 +54,6 @@ public class Project extends UpdatableEntity {
     @JoinColumn(name = "location_id", nullable = false, foreignKey = @ForeignKey(name = "fk_projects_location"))
     private ProjectLocation location = new ProjectLocation();
 
-    @PrePersist
-    private void prePersist() {
-        ensureUserAndRole();
-    }
-
-    @PreUpdate
-    private void preUpdate() {
-        ensureUserAndRole();
-    }
-
-    private void ensureUserAndRole() {
-        if (user == null || role == null) {
-            throw new IllegalStateException("Project must have both a user and a role.");
-        }
-    }
-
     @Override
     public String toString() {
         return "Project{" +
