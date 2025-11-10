@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.estimate;
 
+import dev.hr.rezaei.buildflow.base.EstimateNotFoundException;
 import dev.hr.rezaei.buildflow.base.ProjectNotFoundException;
 import dev.hr.rezaei.buildflow.project.Project;
 import dev.hr.rezaei.buildflow.project.ProjectRepository;
@@ -65,6 +66,7 @@ public class EstimateService {
     /**
      * Count estimates by project ID.
      */
+    @Transactional(readOnly = true)
     public long countByProjectId(@NonNull UUID projectId) {
         return estimateRepository.countByProjectId(projectId);
     }
@@ -97,7 +99,7 @@ public class EstimateService {
     @Transactional
     public Estimate updateEstimate(@NonNull UUID estimateId, double overallMultiplier) {
         Estimate estimate = estimateRepository.findById(estimateId)
-                .orElseThrow(() -> new IllegalArgumentException("Estimate with ID " + estimateId + " does not exist."));
+                .orElseThrow(() -> new EstimateNotFoundException("Estimate with ID " + estimateId + " does not exist."));
 
         estimate.setOverallMultiplier(overallMultiplier);
         Instant now = Instant.now();
@@ -114,7 +116,7 @@ public class EstimateService {
     @Transactional
     public void deleteEstimate(@NonNull UUID estimateId) {
         if (!estimateRepository.existsById(estimateId)) {
-            throw new IllegalArgumentException("Estimate with ID " + estimateId + " does not exist.");
+            throw new EstimateNotFoundException("Estimate with ID " + estimateId + " does not exist.");
         }
         estimateRepository.deleteById(estimateId);
         log.info("Deleted estimate with ID {}", estimateId);

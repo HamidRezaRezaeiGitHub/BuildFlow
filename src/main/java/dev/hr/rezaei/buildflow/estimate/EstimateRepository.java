@@ -21,6 +21,7 @@ public interface EstimateRepository extends JpaRepository<Estimate, UUID> {
     long countByProjectId(UUID projectId);
     
     @EntityGraph(attributePaths = {"groups"})
+    @Override
     Optional<Estimate> findById(UUID id);
 }
 

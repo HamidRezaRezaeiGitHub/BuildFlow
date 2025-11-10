@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.estimate;
 
+import dev.hr.rezaei.buildflow.base.EstimateNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.PaginationHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +39,8 @@ import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
 @Tag(name = "Project Estimates", description = "API endpoints for managing project estimates")
 public class EstimateController {
 
+    @SuppressWarnings("unused")
+    private final EstimateAuthService estimateAuthService;
     private final EstimateService estimateService;
 
     // Pagination helper configured with estimate-specific sort fields
@@ -50,6 +55,8 @@ public class EstimateController {
             @ApiResponse(responseCode = "200", description = "Estimates retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = EstimateDto.class))))
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @estimateAuthService.isViewEstimatesAuthorized(#projectId)")
     @GetMapping
     public ResponseEntity<List<EstimateDto>> getEstimates(
             @Parameter(description = "ID of the project whose estimates to retrieve")
@@ -80,6 +87,8 @@ public class EstimateController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = EstimateDto.class))),
             @ApiResponse(responseCode = "404", description = "Estimate not found")
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('VIEW_PROJECT') and @estimateAuthService.isViewEstimatesAuthorized(#projectId)")
     @GetMapping("/{estimateId}")
     public ResponseEntity<EstimateDto> getEstimate(
             @Parameter(description = "ID of the project")
@@ -90,7 +99,7 @@ public class EstimateController {
         log.info("Getting estimate ID: {} for project ID: {}", estimateId, projectId);
         
         Estimate estimate = estimateService.findById(estimateId)
-                .orElseThrow(() -> new IllegalArgumentException("Estimate with ID " + estimateId + " not found"));
+                .orElseThrow(() -> new EstimateNotFoundException("Estimate with ID " + estimateId + " not found"));
         
         // Verify estimate belongs to the requested project
         if (!estimate.getProject().getId().equals(projectId)) {
@@ -105,6 +114,8 @@ public class EstimateController {
             @ApiResponse(responseCode = "201", description = "Estimate created successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = EstimateDto.class)))
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('CREATE_PROJECT') and @estimateAuthService.isCreateEstimateAuthorized(#projectId)")
     @PostMapping
     public ResponseEntity<EstimateDto> createEstimate(
             @Parameter(description = "ID of the project")
@@ -129,6 +140,8 @@ public class EstimateController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = EstimateDto.class))),
             @ApiResponse(responseCode = "404", description = "Estimate not found")
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('UPDATE_PROJECT') and @estimateAuthService.isModifyEstimateAuthorized(#projectId)")
     @PutMapping("/{estimateId}")
     public ResponseEntity<EstimateDto> updateEstimate(
             @Parameter(description = "ID of the project")
@@ -142,7 +155,7 @@ public class EstimateController {
         
         // Verify estimate exists and belongs to project
         Estimate existing = estimateService.findById(estimateId)
-                .orElseThrow(() -> new IllegalArgumentException("Estimate with ID " + estimateId + " not found"));
+                .orElseThrow(() -> new EstimateNotFoundException("Estimate with ID " + estimateId + " not found"));
         
         if (!existing.getProject().getId().equals(projectId)) {
             throw new IllegalArgumentException("Estimate " + estimateId + " does not belong to project " + projectId);
@@ -162,6 +175,8 @@ public class EstimateController {
             @ApiResponse(responseCode = "204", description = "Estimate deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Estimate not found")
     })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('DELETE_PROJECT') and @estimateAuthService.isDeleteEstimateAuthorized(#projectId)")
     @DeleteMapping("/{estimateId}")
     public ResponseEntity<Void> deleteEstimate(
             @Parameter(description = "ID of the project")
@@ -173,7 +188,7 @@ public class EstimateController {
         
         // Verify estimate exists and belongs to project
         Estimate existing = estimateService.findById(estimateId)
-                .orElseThrow(() -> new IllegalArgumentException("Estimate with ID " + estimateId + " not found"));
+                .orElseThrow(() -> new EstimateNotFoundException("Estimate with ID " + estimateId + " not found"));
         
         if (!existing.getProject().getId().equals(projectId)) {
             throw new IllegalArgumentException("Estimate " + estimateId + " does not belong to project " + projectId);
