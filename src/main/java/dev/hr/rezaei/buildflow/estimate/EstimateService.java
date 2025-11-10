@@ -37,6 +37,7 @@ public class EstimateService {
     /**
      * Find estimate by ID.
      */
+    @Transactional(readOnly = true)
     public Optional<Estimate> findById(@NonNull UUID id) {
         return estimateRepository.findById(id);
     }

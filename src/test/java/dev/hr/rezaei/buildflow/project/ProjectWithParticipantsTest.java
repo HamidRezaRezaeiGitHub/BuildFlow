@@ -105,7 +105,6 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                     .user(null)
                     .role(ProjectRole.BUILDER)
                     .location(testProjectLocation)
-                    .estimates(new ArrayList<>())
                     .build();
         });
     }
@@ -118,7 +117,6 @@ class ProjectWithParticipantsTest extends AbstractModelJpaTest {
                     .user(testBuilderUser)
                     .role(null)
                     .location(testProjectLocation)
-                    .estimates(new ArrayList<>())
                     .build();
         });
     }
