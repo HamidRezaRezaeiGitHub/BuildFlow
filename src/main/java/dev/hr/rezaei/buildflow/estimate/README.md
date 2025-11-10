@@ -11,16 +11,17 @@ This package handles hierarchical cost estimation for construction projects with
 ```
 estimate/
 ├── Estimate.java                      # Main estimate entity for project cost calculations
+├── EstimateController.java            # REST API controller for estimate sub-resource endpoints
 ├── EstimateDto.java                   # DTO for estimate API operations
-├── EstimateDtoMapper.java             # MapStruct mapper for Estimate conversions
+├── EstimateDtoMapper.java             # Mapper for Estimate conversions
 ├── EstimateGroup.java                 # Group entity for organizing line items
 ├── EstimateGroupDto.java              # DTO for estimate group operations
-├── EstimateGroupDtoMapper.java        # MapStruct mapper for EstimateGroup conversions
+├── EstimateGroupDtoMapper.java        # Mapper for EstimateGroup conversions
 ├── EstimateGroupRepository.java       # JPA repository for estimate groups
 ├── EstimateGroupService.java          # Business logic for estimate groups
 ├── EstimateLine.java                  # Line item entity with cost calculations
 ├── EstimateLineDto.java               # DTO for estimate line item operations
-├── EstimateLineDtoMapper.java         # MapStruct mapper for EstimateLine conversions
+├── EstimateLineDtoMapper.java         # Mapper for EstimateLine conversions
 ├── EstimateLineRepository.java        # JPA repository for estimate lines
 ├── EstimateLineService.java           # Business logic for estimate lines
 ├── EstimateLineStrategy.java          # Strategy enum for cost calculation methods
@@ -30,6 +31,12 @@ estimate/
 ```
 
 ## Package Contents
+
+### Controller Classes
+
+| File | Description |
+|------|-------------|
+| [EstimateController.java](EstimateController.java) | REST API controller for estimate management under `/api/v1/projects/{projectId}/estimates` |
 
 ### Entity Classes
 
@@ -51,15 +58,15 @@ estimate/
 
 | File | Description |
 |------|-------------|
-| [EstimateDtoMapper.java](EstimateDtoMapper.java) | MapStruct mapper for Estimate entity-DTO conversions |
-| [EstimateGroupDtoMapper.java](EstimateGroupDtoMapper.java) | MapStruct mapper for EstimateGroup entity-DTO conversions |
-| [EstimateLineDtoMapper.java](EstimateLineDtoMapper.java) | MapStruct mapper for EstimateLine entity-DTO conversions |
+| [EstimateDtoMapper.java](EstimateDtoMapper.java) | Mapper for Estimate entity-DTO conversions |
+| [EstimateGroupDtoMapper.java](EstimateGroupDtoMapper.java) | Mapper for EstimateGroup entity-DTO conversions |
+| [EstimateLineDtoMapper.java](EstimateLineDtoMapper.java) | Mapper for EstimateLine entity-DTO conversions |
 
 ### Repository Classes
 
 | File | Description |
 |------|-------------|
-| [EstimateRepository.java](EstimateRepository.java) | Spring Data JPA repository for estimate persistence |
+| [EstimateRepository.java](EstimateRepository.java) | Spring Data JPA repository for estimate persistence with project-scoped queries |
 | [EstimateGroupRepository.java](EstimateGroupRepository.java) | Spring Data JPA repository for estimate group persistence |
 | [EstimateLineRepository.java](EstimateLineRepository.java) | Spring Data JPA repository for estimate line persistence |
 
@@ -77,25 +84,46 @@ estimate/
 |------|-------------|
 | [EstimateLineStrategy.java](EstimateLineStrategy.java) | Strategy enum for estimate line cost calculation methods |
 
+## Endpoints
+
+### EstimateController
+
+All estimate endpoints are scoped as sub-resources under `/api/v1/projects/{projectId}/estimates`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/projects/{projectId}/estimates` | Retrieve all estimates for a project (paginated) |
+| `POST` | `/api/v1/projects/{projectId}/estimates` | Create a new estimate for a project |
+| `GET` | `/api/v1/projects/{projectId}/estimates/{estimateId}` | Retrieve a specific estimate |
+| `PUT` | `/api/v1/projects/{projectId}/estimates/{estimateId}` | Update an existing estimate |
+| `DELETE` | `/api/v1/projects/{projectId}/estimates/{estimateId}` | Delete an estimate |
+
+**Pagination Support:**
+- Query parameters: `page`, `size`, `sort`, `orderBy`, `direction`
+- Default sort: `lastUpdatedAt,DESC`
+- Default page size: 25
+- Response headers: `X-Total-Count`, `X-Total-Pages`, `X-Page`, `X-Size`, `Link`
+- Sortable fields: `lastUpdatedAt`, `createdAt`
+
 ## Technical Overview
 
 ### Estimate Entity
 Core entity representing a complete project cost estimate.
 
 **Key Features:**
-- **Project Association**: Each estimate belongs to a specific project
+- **Project Association**: Each estimate belongs to a specific project (unidirectional relationship)
 - **Multiplier Support**: Overall multiplier for estimate adjustments
 - **Group Organization**: Contains multiple estimate groups for organization
 - **Audit Trail**: Inherits creation and modification tracking from UpdatableEntity
 
 **Structure:**
 - `id` (UUID): Primary key
-- `project` (Project): Associated project (many-to-one relationship)
+- `project` (Project): Associated project (many-to-one relationship, non-null, lazy-loaded)
 - `overallMultiplier` (double): Global multiplier applied to entire estimate
 - `groups` (Set<EstimateGroup>): Collection of estimate groups
 
 **Relationships:**
-- **Project**: Many estimates can belong to one project
+- **Project**: Unidirectional relationship from Estimate to Project (`@ManyToOne(fetch = LAZY)`). Estimates reference their project, but projects do not maintain a collection of estimates. To fetch estimates for a project, use `EstimateRepository.findByProjectId(projectId, pageable)` or the REST API endpoints under `/api/v1/projects/{projectId}/estimates`.
 - **Groups**: One estimate can have many groups (one-to-many, bidirectional)
 
 ### EstimateGroup Entity
@@ -204,32 +232,51 @@ Estimate Total Calculation:
 ## Integration Points
 
 This package integrates with:
-- **Project Package**: Estimates belong to projects
+- **Project Package**: Estimates belong to projects via unidirectional relationship
 - **WorkItem Package**: Estimate lines reference work items for pricing
 - **Base Package**: Inherits audit functionality and exception handling
-- **User Package**: User permissions control estimate access
+- **User Package**: User permissions control estimate access via project ownership
 - **Quote Package**: Estimates can be converted to client quotes
 
 ## Repository Patterns
+
+### EstimateRepository
+Extends Spring Data JPA with custom query methods for project-scoped operations:
+- **Project-Scoped Queries**: `findByProjectId(UUID, Pageable)` for retrieving estimates by project
+- **Eager Fetching**: Uses `@EntityGraph(attributePaths = {"groups"})` to avoid N+1 queries when loading estimates with their groups
+- **Count Operations**: `countByProjectId(UUID)` for efficient count queries
+- **Performance Optimization**: Lazy loading for project relationship, eager loading for groups collection when needed
 
 All repositories follow Spring Data JPA patterns:
 - **Standard CRUD**: Basic create, read, update, delete operations
 - **Custom Queries**: Business-specific query methods
 - **Relationship Handling**: Proper cascade and fetch strategies
-- **Performance Optimization**: Lazy loading and query optimization
+- **Performance Optimization**: Strategic use of lazy vs. eager loading
 
 ## Service Layer Architecture
 
 Services provide business logic and transaction management:
-- **EstimateService**: Main estimate operations and calculations
+- **EstimateService**: Main estimate operations, CRUD methods, project validation, and pagination. Operates on entities (not DTOs) following the pattern from ProjectParticipantService.
 - **EstimateGroupService**: Group management and organization
 - **EstimateLineService**: Line item operations and cost calculations
 
+## API Layer
+
+### EstimateController
+Provides REST endpoints as sub-resources under projects:
+- **Sub-Resource Pattern**: All endpoints scoped under `/api/v1/projects/{projectId}/estimates`
+- **CRUD Operations**: Create, read, update, delete estimates for a project
+- **Pagination Support**: Paginated queries with default sorting by lastUpdatedAt DESC
+- **Entity Mapping**: Mapping between entities and DTOs happens at controller layer
+- **Validation**: Ensures estimates belong to the correct project before operations
+
 ## Design Principles
 
+- **Unidirectional Relationships**: Estimate → Project relationship prevents circular dependencies and serialization issues
 - **Hierarchical Organization**: Estimate → Groups → Lines structure
 - **Strategy Pattern**: Pluggable calculation strategies
 - **Separation of Concerns**: Clear distinction between entities, DTOs, and services
-- **Performance**: Optimized relationships and lazy loading
+- **Performance**: Optimized relationships with strategic use of `@EntityGraph` and lazy loading
 - **Flexibility**: Support for various estimation approaches and organizations
 - **Audit Trail**: Complete tracking of estimate changes and calculations
+- **Sub-Resource Design**: Estimates are managed as sub-resources of projects, reflecting domain model
