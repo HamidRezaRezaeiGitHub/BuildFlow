@@ -10,10 +10,11 @@ This package contains specialized DTOs for project creation workflows, providing
 
 ```
 dto/
-├── CreateProjectRequest.java          # Request for creating new projects
-├── CreateProjectResponse.java         # Response containing created project details
-├── ProjectLocationRequestDto.java     # Location info for project creation (no ID)
-└── README.md                          # This file
+├── CreateProjectParticipantRequest.java # Request for adding participants to a project
+├── CreateProjectRequest.java           # Request for creating new projects
+├── CreateProjectResponse.java          # Response containing created project details
+├── ProjectLocationRequestDto.java      # Location info for project creation (no ID)
+└── README.md                           # This file
 ```
 
 ## Package Contents
@@ -22,11 +23,29 @@ dto/
 
 | File | Description |
 |------|-------------|
+| [CreateProjectParticipantRequest.java](CreateProjectParticipantRequest.java) | Request object for adding participants to a project with role and contact details |
 | [CreateProjectRequest.java](CreateProjectRequest.java) | Request object for creating new projects with user, builder flag, and location |
 | [CreateProjectResponse.java](CreateProjectResponse.java) | Response object containing the created project details |
 | [ProjectLocationRequestDto.java](ProjectLocationRequestDto.java) | Location information for project creation (without ID field) |
 
 ## Technical Overview
+
+### CreateProjectParticipantRequest
+Request DTO for adding participants to existing projects.
+
+**Key Features:**
+- **Role Assignment**: Specifies the participant's role in the project (BUILDER or OWNER)
+- **Contact Integration**: Embeds complete contact information for the new participant
+- **Validation Chain**: Cascading validation through nested contact objects
+- **API Documentation**: Full Swagger documentation for API consumers
+
+**Structure:**
+- `role` (String, required): Role of the participant in the project (BUILDER or OWNER)
+- `contactRequestDto` (ContactRequestDto, required): Complete contact information for the participant
+
+**Validation Rules:**
+- Role is required and must be a valid ProjectRole value (BUILDER or OWNER)
+- Contact information is required with nested validation
 
 ### CreateProjectRequest
 Primary request DTO for project creation operations.
@@ -105,7 +124,8 @@ CreateProjectRequest
 ## Integration Points
 
 This package integrates with:
-- **ProjectController**: Uses these DTOs for all project creation endpoints
+- **ProjectController**: Uses CreateProjectRequest/Response DTOs for project creation endpoints
+- **ProjectParticipantController**: Uses CreateProjectParticipantRequest for adding participants to projects
 - **ProjectService**: Processes requests and generates responses
 - **Project Entities**: Maps to/from domain entities through mappers
 - **Base Address System**: Inherits validation and structure from base package
