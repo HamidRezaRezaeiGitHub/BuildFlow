@@ -5,7 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
 import { Project, PagedResponse } from '@/services/dtos';
-import '@testing-library/jest-dom';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock, MockedFunction } from 'vitest';
 
 // Mock the dependencies
 vi.mock('@/contexts/AuthContext');
@@ -14,9 +15,9 @@ vi.mock('@/services/ProjectService', () => ({
   ProjectServiceWithAuth: vi.fn()
 }));
 
-const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
-const mockUseNavigate = useNavigate as vi.MockedFunction<typeof useNavigate>;
-const MockedProjectServiceWithAuth = ProjectServiceWithAuth as unknown as vi.MockedFunction<typeof ProjectServiceWithAuth>;
+const mockUseAuth = useAuth as MockedFunction<typeof useAuth>;
+const mockUseNavigate = useNavigate as MockedFunction<typeof useNavigate>;
+const MockedProjectServiceWithAuth = ProjectServiceWithAuth as unknown as MockedFunction<typeof ProjectServiceWithAuth>;
 
 describe('ProjectsSection', () => {
   // Helper to render with router context

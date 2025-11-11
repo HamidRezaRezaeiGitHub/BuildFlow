@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StandardBottomNavbar } from './StandardNavbar';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Mock the auth context
 const mockLogout = vi.fn();

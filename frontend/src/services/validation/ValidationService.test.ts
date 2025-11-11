@@ -1,5 +1,6 @@
 import { ValidationService } from './ValidationService';
 import { FieldValidationConfig, ValidationRule } from './types';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 describe('ValidationService', () => {
     let validationService: ValidationService;

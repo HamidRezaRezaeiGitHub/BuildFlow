@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CountryField } from './Country';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('CountryField', () => {
     beforeEach(() => {

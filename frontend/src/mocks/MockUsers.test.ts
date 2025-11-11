@@ -17,6 +17,7 @@ import {
   storeMockCredentials,
   validateMockCredentials,
 } from './MockUsers';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
 describe('MockUsers', () => {
   // Store original data to restore after each test

@@ -1,6 +1,7 @@
 import { AddressData } from '@/services/dtos';
 import { render, screen } from '@testing-library/react';
 import FlexibleAddressForm, { FlexibleAddressFormProps } from './FlexibleAddressForm';
+import { describe, expect, test, vi } from 'vitest';
 
 describe('FlexibleAddressForm', () => {
     const mockOnAddressChange = vi.fn();

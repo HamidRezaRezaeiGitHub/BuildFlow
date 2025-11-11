@@ -4,6 +4,8 @@ import { NewProject } from './NewProject';
 import { useAuth } from '@/contexts/AuthContext';
 import { projectService } from '@/services';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock, MockedFunction } from 'vitest';
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -32,8 +34,8 @@ vi.mock('@/components/navbar', () => ({
   StandardBottomNavbar: () => <div data-testid="bottom-navbar">Bottom Nav</div>
 }));
 
-const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
-const mockCreateProject = projectService.createProject as vi.MockedFunction<typeof projectService.createProject>;
+const mockUseAuth = useAuth as MockedFunction<typeof useAuth>;
+const mockCreateProject = projectService.createProject as MockedFunction<typeof projectService.createProject>;
 
 // Mock user for testing
 const mockUser = {

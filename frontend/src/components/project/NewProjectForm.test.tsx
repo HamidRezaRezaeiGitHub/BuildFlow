@@ -2,13 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NewProjectForm } from './NewProjectForm';
 import { useAuth } from '@/contexts/AuthContext';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock, MockedFunction } from 'vitest';
 
 // Mock the useAuth hook
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: vi.fn()
 }));
 
-const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
+const mockUseAuth = useAuth as MockedFunction<typeof useAuth>;
 
 // Mock user for testing
 const mockUser = {

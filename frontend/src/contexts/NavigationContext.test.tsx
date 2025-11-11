@@ -2,6 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { NavigationProvider, useNavigate } from './NavigationContext';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Test component that uses the navigation context
 const TestNavigationComponent: React.FC = () => {

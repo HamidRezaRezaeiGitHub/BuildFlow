@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { PostalCodeField } from './PostalCode';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('PostalCodeField', () => {
     beforeEach(() => {

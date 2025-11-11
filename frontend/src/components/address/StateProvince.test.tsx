@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { StateProvinceField } from './StateProvince';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('StateProvinceField', () => {
     beforeEach(() => {

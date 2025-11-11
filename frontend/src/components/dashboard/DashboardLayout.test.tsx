@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { DashboardLayout, DashboardSection } from './DashboardLayout';
-import '@testing-library/jest-dom';
+import { describe, expect, test } from 'vitest';
 
 describe('DashboardLayout', () => {
   describe('Basic Rendering', () => {

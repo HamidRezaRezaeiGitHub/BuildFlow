@@ -13,6 +13,8 @@ vi.mock('./ValidationService', () => ({
 }));
 
 import { validationService } from './ValidationService';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 const mockValidationService = validationService as vi.Mocked<typeof validationService>;
 

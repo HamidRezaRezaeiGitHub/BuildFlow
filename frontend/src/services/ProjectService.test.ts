@@ -1,6 +1,8 @@
 import { apiService } from './ApiService';
 import { projectService, ProjectServiceWithAuth } from './ProjectService';
 import { CreateProjectRequest, CreateProjectResponse, Project } from './dtos';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Mock the config module to disable mock data in tests
 vi.mock('@/config/environment', () => ({
@@ -65,7 +67,7 @@ describe('ProjectService', () => {
 
     describe('createProject', () => {
         test('ProjectService_shouldCreateProject_whenValidRequestProvided', async () => {
-            (apiService.create as vi.Mock).mockResolvedValue(mockCreateResponse);
+            (apiService.create as Mock).mockResolvedValue(mockCreateResponse);
 
             const result = await projectService.createProject(mockCreateRequest, mockToken);
 
@@ -79,7 +81,7 @@ describe('ProjectService', () => {
 
         test('ProjectService_shouldThrowError_whenApiServiceFails', async () => {
             const errorMessage = 'Failed to create project';
-            (apiService.create as vi.Mock).mockRejectedValue(new Error(errorMessage));
+            (apiService.create as Mock).mockRejectedValue(new Error(errorMessage));
 
             await expect(
                 projectService.createProject(mockCreateRequest, mockToken)
@@ -102,7 +104,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -128,7 +130,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -155,7 +157,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -181,7 +183,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -199,7 +201,7 @@ describe('ProjectService', () => {
     });
 
     describe('ProjectServiceWithAuth', () => {
-        let getToken: vi.Mock;
+        let getToken: Mock;
         let serviceWithAuth: ProjectServiceWithAuth;
 
         beforeEach(() => {
@@ -209,7 +211,7 @@ describe('ProjectService', () => {
 
         test('ProjectServiceWithAuth_shouldUseTokenFromContext_whenCreatingProject', async () => {
             getToken.mockReturnValue(mockToken);
-            (apiService.create as vi.Mock).mockResolvedValue(mockCreateResponse);
+            (apiService.create as Mock).mockResolvedValue(mockCreateResponse);
 
             const result = await serviceWithAuth.createProject(mockCreateRequest);
 
@@ -241,7 +243,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -268,7 +270,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -296,7 +298,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -331,7 +333,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '50',
                 'X-Total-Pages': '5'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -380,7 +382,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -416,7 +418,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '100',
                 'X-Total-Pages': '7'
             });
-            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,

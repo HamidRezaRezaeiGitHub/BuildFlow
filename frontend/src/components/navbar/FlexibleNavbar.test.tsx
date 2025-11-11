@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { FlexibleNavbar } from './FlexibleNavbar';
 import { NavbarUser } from './types';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Mock the theme context
 const mockSetTheme = vi.fn();

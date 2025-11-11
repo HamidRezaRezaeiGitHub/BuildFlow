@@ -5,6 +5,7 @@
  */
 
 import { cn } from '@/utils/utils';
+import { describe, expect, test } from 'vitest';
 
 describe('cn', () => {
   test('cn_shouldCombineClasses_whenMultipleClassesProvided', () => {

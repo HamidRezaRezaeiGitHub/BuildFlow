@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { PasswordField } from './Password';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('PasswordField', () => {
     const mockOnChange = vi.fn();

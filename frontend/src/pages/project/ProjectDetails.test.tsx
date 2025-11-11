@@ -4,14 +4,15 @@ import { ProjectDetails } from './ProjectDetails';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
 import { Project } from '@/services/dtos';
-import '@testing-library/jest-dom';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock, MockedClass, MockedFunction } from 'vitest';
 
 // Mock the dependencies
 vi.mock('@/contexts/AuthContext');
 vi.mock('@/services/ProjectService');
 
-const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
-const MockedProjectServiceWithAuth = ProjectServiceWithAuth as vi.MockedClass<typeof ProjectServiceWithAuth>;
+const mockUseAuth = useAuth as MockedFunction<typeof useAuth>;
+const MockedProjectServiceWithAuth = ProjectServiceWithAuth as MockedClass<typeof ProjectServiceWithAuth>;
 
 describe('ProjectDetails', () => {
   // Helper to render with router context and route params

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { PhoneField } from './Phone';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 describe('PhoneField', () => {
     const mockOnChange = vi.fn();

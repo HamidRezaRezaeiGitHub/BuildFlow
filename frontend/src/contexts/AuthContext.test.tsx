@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { authService } from '../services';
 import type { AuthResponse, UserSummary } from '../services/dtos';
 import { AuthProvider, useAuth } from './AuthContext';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Create mock timer service in hoisted scope
 const { mockTimerService } = vi.hoisted(() => {
@@ -178,7 +180,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldFetchCurrentUser_whenTokenExists', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             renderWithAuthProvider(<TestComponent />);
 
@@ -196,7 +198,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearTokenAndUser_whenGetCurrentUserFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('invalid-token');
-            (authService.getCurrentUser as vi.Mock).mockRejectedValue(new Error('Unauthorized'));
+            (authService.getCurrentUser as Mock).mockRejectedValue(new Error('Unauthorized'));
 
             renderWithAuthProvider(<TestComponent />);
 
@@ -211,8 +213,8 @@ describe('AuthProvider', () => {
 
     describe('login', () => {
         test('AuthProvider_shouldLoginSuccessfully_whenCredentialsValid', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -237,8 +239,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldScheduleTokenRefresh_whenLoginSuccessful', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -259,7 +261,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldHandleLoginError_whenCredentialsInvalid', async () => {
             const loginError = new Error('Invalid credentials');
-            (authService.login as vi.Mock).mockRejectedValue(loginError);
+            (authService.login as Mock).mockRejectedValue(loginError);
 
             const user = userEvent.setup();
 
@@ -277,7 +279,7 @@ describe('AuthProvider', () => {
 
     describe('register', () => {
         test('AuthProvider_shouldRegisterSuccessfully_whenDataValid', async () => {
-            (authService.register as vi.Mock).mockResolvedValue(undefined);
+            (authService.register as Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -300,7 +302,7 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldNotLoginUser_whenRegistrationSuccessful', async () => {
-            (authService.register as vi.Mock).mockResolvedValue(undefined);
+            (authService.register as Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -318,8 +320,8 @@ describe('AuthProvider', () => {
     describe('logout', () => {
         test('AuthProvider_shouldLogoutSuccessfully_whenUserAuthenticated', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
-            (authService.logout as vi.Mock).mockResolvedValue(undefined);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
+            (authService.logout as Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -344,8 +346,8 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearLocalState_whenBackendLogoutFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
-            (authService.logout as vi.Mock).mockRejectedValue(new Error('Network error'));
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
+            (authService.logout as Mock).mockRejectedValue(new Error('Network error'));
 
             const user = userEvent.setup();
 
@@ -374,8 +376,8 @@ describe('AuthProvider', () => {
             };
 
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
-            (authService.refreshToken as vi.Mock).mockResolvedValue(newAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
+            (authService.refreshToken as Mock).mockResolvedValue(newAuthResponse);
 
             const user = userEvent.setup();
 
@@ -397,8 +399,8 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenTokenRefreshFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
-            (authService.refreshToken as vi.Mock).mockRejectedValue(new Error('Token expired'));
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
+            (authService.refreshToken as Mock).mockRejectedValue(new Error('Token expired'));
 
             const user = userEvent.setup();
 
@@ -426,8 +428,8 @@ describe('AuthProvider', () => {
                 expiresInSeconds: 300, // 5 minutes
             };
 
-            (authService.login as vi.Mock).mockResolvedValue(longExpiryResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(longExpiryResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -451,8 +453,8 @@ describe('AuthProvider', () => {
                 expiresInSeconds: 20, // 20 seconds
             };
 
-            (authService.login as vi.Mock).mockResolvedValue(shortExpiryResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(shortExpiryResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -469,8 +471,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldRefreshAutomatically_whenTimerTriggers', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -492,8 +494,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldLogoutUser_whenAutomaticRefreshFails', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -511,7 +513,7 @@ describe('AuthProvider', () => {
             expect(scheduled.delayMs).toBe(3570000);
 
             // Test manual refresh failure behavior (same logic as auto-refresh)
-            (authService.refreshToken as vi.Mock).mockRejectedValue(new Error('Refresh failed'));
+            (authService.refreshToken as Mock).mockRejectedValue(new Error('Refresh failed'));
             
             await user.click(screen.getByText('Refresh Token'));
 
@@ -524,8 +526,8 @@ describe('AuthProvider', () => {
 
     describe('timer cleanup', () => {
         test('AuthProvider_shouldClearTimer_whenComponentUnmounts', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -551,8 +553,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldClearPreviousTimer_whenNewRefreshScheduled', async () => {
-            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -588,7 +590,7 @@ describe('AuthProvider', () => {
             };
 
             // Suppress error boundary console.error for this test
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
             expect(() => {
                 render(<TestComponentWithoutProvider />);

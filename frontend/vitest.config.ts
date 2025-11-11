@@ -14,8 +14,8 @@ export default mergeConfig(
       // Test environment - Simulate a browser environment
       environment: 'jsdom',
       
-      // Enable globals (describe, it, expect, etc.) without imports
-      globals: true,
+      // Disable globals - use explicit imports (recommended pattern)
+      globals: false,
       
       // Setup files - Run before each test file
       setupFiles: ['./src/test/setup.ts'],

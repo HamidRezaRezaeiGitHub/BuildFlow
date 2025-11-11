@@ -4,6 +4,8 @@ import FlexibleSignUpForm, {
     SignUpFieldConfig,
     signUpFieldConfigs
 } from './FlexibleSignUpForm';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 // Mock functions
 const mockRegister = vi.fn();

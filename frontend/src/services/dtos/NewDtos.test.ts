@@ -23,6 +23,7 @@ import {
   // Base types
   UpdatableEntityDto
 } from './index';
+import { describe, expect, test } from 'vitest';
 
 describe('Estimate DTOs', () => {
   test('EstimateLine type should have correct structure', () => {

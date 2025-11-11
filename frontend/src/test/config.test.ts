@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 /**
  * Simple test to verify Jest configuration is working
  * Command to run: npx jest src/test/config.test.ts
