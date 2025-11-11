@@ -11,6 +11,7 @@ This package manages supplier quotes for construction work items with pricing de
 ```
 quote/
 ├── Quote.java                         # Main quote entity for supplier pricing
+├── QuoteController.java               # REST API controller for quote management
 ├── QuoteDto.java                      # DTO for quote API operations
 ├── QuoteDtoMapper.java                # MapStruct mapper for Quote conversions
 ├── QuoteDomain.java                   # Domain classification enum (PUBLIC/PRIVATE)

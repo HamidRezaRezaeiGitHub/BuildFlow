@@ -60,6 +60,14 @@ buildflow/
 │   │   ├── UserAuthenticationRepository.java      # Authentication repository
 │   │   └── UserPrincipal.java                     # User principal
 │   └── README.md                                  # Config package documentation
+├── data/
+│   └── migration/
+│       ├── dto/
+│       │   ├── MockAddressData.java               # Mock address data for initialization
+│       │   ├── MockAuthenticationData.java        # Mock authentication data
+│       │   ├── MockContactData.java               # Mock contact data
+│       │   └── MockUserData.java                  # Mock user data
+│       └── JsonLoadUtil.java                      # JSON data loading utility
 ├── dto/
 │   ├── Dto.java                          # Marker interface for all DTOs
 │   ├── DtoMappingException.java          # Exception for DTO mapping failures
@@ -87,10 +95,11 @@ buildflow/
 │   └── README.md                          # Estimate package documentation
 ├── project/
 │   ├── dto/
-│   │   ├── CreateProjectRequest.java          # Request for creating projects
-│   │   ├── CreateProjectResponse.java         # Response with created project
-│   │   ├── ProjectLocationRequestDto.java     # Location info for creation
-│   │   └── README.md                          # Project DTO documentation
+│   │   ├── CreateProjectParticipantRequest.java # Request for adding participants
+│   │   ├── CreateProjectRequest.java            # Request for creating projects
+│   │   ├── CreateProjectResponse.java           # Response with created project
+│   │   ├── ProjectLocationRequestDto.java       # Location info for creation
+│   │   └── README.md                            # Project DTO documentation
 │   ├── ParticipantNotFoundException.java      # Exception for participant lookup failures
 │   ├── Project.java                           # Core project entity
 │   ├── ProjectAuthService.java                # Authorization service
@@ -115,6 +124,7 @@ buildflow/
 │   └── README.md                              # Project package documentation
 ├── quote/
 │   ├── Quote.java                         # Main quote entity
+│   ├── QuoteController.java               # REST API controller
 │   ├── QuoteDto.java                      # DTO for quote operations
 │   ├── QuoteDtoMapper.java                # MapStruct mapper for Quote
 │   ├── QuoteDomain.java                   # Domain classification enum
@@ -184,6 +194,9 @@ Base classes, DTOs, exceptions providing foundational infrastructure for all dom
 ### [config/](config/) - Configuration Package
 Application configuration with MVC and Security sub-packages providing web layer setup, SPA integration, JWT authentication, and role-based access control.
 
+### [data/](data/) - Data Migration Package
+Mock data initialization utilities for development and testing, providing JSON-based data loading for users, contacts, addresses, and authentication records.
+
 ### [dto/](dto/) - Core DTO Package
 Core DTO interfaces and exceptions providing the foundational DTO framework that all domain DTOs build upon.
 
@@ -219,6 +232,7 @@ Supplier quote management with pricing details, location information, domain cla
 |-----------|-------------|
 | [base/](base/) | Foundation classes, base entities, DTOs, exceptions, and common utilities |
 | [config/](config/) | Application configuration including MVC setup and security infrastructure |
+| [data/](data/) | Data migration and initialization utilities for development and testing |
 | [dto/](dto/) | Core DTO interfaces and mapping exception handling |
 | [util/](util/) | Utility classes for enum processing and string operations |
 
@@ -384,6 +398,7 @@ Each package contains comprehensive documentation:
 - **[dto/](dto/)**: DTO framework with type-safe interfaces and mapping support
 - **[util/](util/)**: Utilities for enum processing and string manipulation
 - **[config/](config/)**: Application configuration with MVC and security setup
+- **[data/](data/)**: Data migration and mock data initialization for development/testing
 
 ### Domain Packages
 - **[user/](user/)**: Complete user management with contacts and addresses

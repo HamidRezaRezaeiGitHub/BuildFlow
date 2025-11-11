@@ -39,16 +39,27 @@ A comprehensive error response DTO designed to provide consistent error reportin
 **Structure:**
 - `timestamp` (Instant): When the error occurred
 - `status` (String): HTTP status code
-- `message` (String): Primary error message
-- `errors` (List<String>): Detailed list of specific errors
+- `message` (String): Primary error message describing the failure
+- `errors` (List<String>): Detailed list of specific error details
+- `path` (String): Request path where the error occurred
+- `method` (String): HTTP method used in the request
+- `errorType` (ResponseErrorType): Type/category of error that occurred
 
 ### MessageResponse
-A simple response DTO for successful operations that need to return confirmation messages.
+A comprehensive response DTO for API operations that provides operation status and feedback messages.
 
 **Key Features:**
-- **Operation Confirmation**: Provides feedback for successful operations
+- **Operation Confirmation**: Provides feedback for successful operations with success flag
+- **Timestamp Tracking**: Records when the response was generated
+- **HTTP Status Integration**: Includes HTTP status codes for proper REST API compliance
 - **Consistent Messaging**: Standardizes success response format
 - **API Documentation**: Swagger-annotated for API documentation
+
+**Structure:**
+- `timestamp` (Instant): When the response was generated
+- `success` (boolean): Indicates if the operation was successful
+- `status` (String): HTTP status code of the response
+- `message` (String): Message related to the response
 
 **Usage Pattern:**
 Used primarily by controllers and exception handlers to provide consistent response structures for both success and error scenarios.
