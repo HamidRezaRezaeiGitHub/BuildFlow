@@ -6,31 +6,34 @@ import { projectService } from '@/services';
 import { BrowserRouter } from 'react-router-dom';
 
 // Mock navigate function
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
 // Mock dependencies
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn()
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: vi.fn()
 }));
 
-jest.mock('@/services', () => ({
+vi.mock('@/services', () => ({
   projectService: {
-    createProject: jest.fn()
+    createProject: vi.fn()
   }
 }));
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate
+  };
+});
 
 // Mock StandardBottomNavbar to avoid NavigationProvider dependency
-jest.mock('@/components/navbar', () => ({
+vi.mock('@/components/navbar', () => ({
   StandardBottomNavbar: () => <div data-testid="bottom-navbar">Bottom Nav</div>
 }));
 
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const mockCreateProject = projectService.createProject as jest.MockedFunction<typeof projectService.createProject>;
+const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
+const mockCreateProject = projectService.createProject as vi.MockedFunction<typeof projectService.createProject>;
 
 // Mock user for testing
 const mockUser = {
@@ -59,17 +62,17 @@ const mockUser = {
 
 describe('NewProject - Multi-Step Accordion Flow', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     mockUseAuth.mockReturnValue({
       user: mockUser,
       token: 'mock-token',
       isAuthenticated: true,
-      login: jest.fn(),
-      logout: jest.fn(),
-      register: jest.fn(),
-      refreshToken: jest.fn(),
-      getCurrentUser: jest.fn(),
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+      refreshToken: vi.fn(),
+      getCurrentUser: vi.fn(),
       isLoading: false,
       role: 'USER'
     });
@@ -307,11 +310,11 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       await user.click(nextButtons[0]); // Step 2 -> Step 3
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Street/i)).toBeVisible();
       });
 
       expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/Province\/State/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Province/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Country/i)).toBeInTheDocument();
     });
 
@@ -368,20 +371,20 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       // Wait for all address fields to be visible with increased timeout
       await waitFor(() => {
-        expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Street/i)).toBeVisible();
         expect(screen.getByLabelText(/City/i)).toBeVisible();
-        expect(screen.getByLabelText(/Province\/State/i)).toBeVisible();
+        expect(screen.getByLabelText(/Province/i)).toBeVisible();
         expect(screen.getByLabelText(/Country/i)).toBeVisible();
       }, { timeout: 3000 });
 
       // Fill required address fields using fireEvent for reliability
-      const streetInput = screen.getByLabelText(/Street Number & Name/i);
+      const streetInput = screen.getByLabelText(/Street/i);
       fireEvent.change(streetInput, { target: { value: '123 Main St' } });
       
       const cityInput = screen.getByLabelText(/City/i);
       fireEvent.change(cityInput, { target: { value: 'Toronto' } });
       
-      const stateInput = screen.getByLabelText(/Province\/State/i);
+      const stateInput = screen.getByLabelText(/Province/i);
       fireEvent.change(stateInput, { target: { value: 'ON' } });
       
       const countryInput = screen.getByLabelText(/Country/i);
@@ -454,7 +457,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       await user.click(nextButtons[0]);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Street/i)).toBeVisible();
       });
 
       // Navigate back to Step 2
@@ -504,20 +507,20 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       // Wait for all address fields to be visible
       await waitFor(() => {
-        expect(screen.getByLabelText(/Street Number & Name/i)).toBeVisible();
+        expect(screen.getByLabelText(/Street/i)).toBeVisible();
         expect(screen.getByLabelText(/City/i)).toBeVisible();
-        expect(screen.getByLabelText(/Province\/State/i)).toBeVisible();
+        expect(screen.getByLabelText(/Province/i)).toBeVisible();
         expect(screen.getByLabelText(/Country/i)).toBeVisible();
       }, { timeout: 3000 });
 
       // Fill required fields using fireEvent for reliability
-      const streetInput = screen.getByLabelText(/Street Number & Name/i);
+      const streetInput = screen.getByLabelText(/Street/i);
       fireEvent.change(streetInput, { target: { value: '123 Main St' } });
       
       const cityInput = screen.getByLabelText(/City/i);
       fireEvent.change(cityInput, { target: { value: 'Toronto' } });
       
-      const stateInput = screen.getByLabelText(/Province\/State/i);
+      const stateInput = screen.getByLabelText(/Province/i);
       fireEvent.change(stateInput, { target: { value: 'ON' } });
       
       const countryInput = screen.getByLabelText(/Country/i);

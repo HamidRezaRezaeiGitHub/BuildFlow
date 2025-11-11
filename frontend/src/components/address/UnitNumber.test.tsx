@@ -3,11 +3,11 @@ import { UnitNumberField } from './UnitNumber';
 
 describe('UnitNumberField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('UnitNumberField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -26,7 +26,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -42,7 +42,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['Unit number is invalid'];
 
         render(
@@ -61,7 +61,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldBeDisabled_whenDisabledPropTrue', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -77,7 +77,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -93,7 +93,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldNotShowValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -115,8 +115,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldShowValidationErrors_whenValidationEnabledAndFieldTooLong', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <UnitNumberField
@@ -156,8 +156,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldShowRequiredError_whenValidationRequiredAndFieldEmpty', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -180,8 +180,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldPassValidation_whenValidValueProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         // Start with a value that will pass validation
         const { rerender } = render(
@@ -222,8 +222,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -244,8 +244,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldValidateOnChangeAfterFirstBlur', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <UnitNumberField
@@ -282,8 +282,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -306,7 +306,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const externalErrors = ['External error message'];
 
         render(
@@ -330,7 +330,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldShowRequiredAsterisk_whenValidationEnabledAndRequired', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -346,7 +346,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldNotShowRequiredAsterisk_whenValidationEnabledButOptional', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -362,7 +362,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldNotShowRequiredAsterisk_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -378,7 +378,7 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldShowRequiredAsterisk_withCorrectLabelText', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <UnitNumberField
@@ -401,8 +401,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <UnitNumberField
@@ -441,8 +441,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldReValidate_whenValidationModeChanges', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <UnitNumberField
@@ -480,8 +480,8 @@ describe('UnitNumberField', () => {
     });
 
     test('UnitNumberField_shouldClearErrors_whenChangingFromRequiredToOptional', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <UnitNumberField

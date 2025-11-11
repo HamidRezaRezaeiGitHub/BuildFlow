@@ -3,11 +3,11 @@ import { StreetNumberField } from './StreetNumber';
 
 describe('StreetNumberField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('StreetNumberField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -26,7 +26,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -42,7 +42,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['Custom validation error'];
         
         render(
@@ -61,7 +61,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldBeDisabled_whenDisabledPropTrue', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -77,7 +77,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -93,7 +93,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldDisplayValue_whenValueProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -108,7 +108,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldAcceptNumericText_withoutValidation', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -125,7 +125,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldAcceptNonNumericText_withoutValidation', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNumberField
@@ -144,8 +144,8 @@ describe('StreetNumberField', () => {
     // === VALIDATION TESTS ===
 
     test('StreetNumberField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNumberField
@@ -168,8 +168,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldPassValidation_whenValidNumberProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNumberField
@@ -209,8 +209,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNumberField
@@ -247,8 +247,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldAcceptAlphanumericValues_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNumberField
@@ -286,8 +286,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNumberField
@@ -309,8 +309,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNumberField
@@ -333,8 +333,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldAcceptValidInputOnChangeAfterFirstBlur', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNumberField
@@ -372,7 +372,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const externalErrors = ['External error message'];
 
         render(
@@ -396,7 +396,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <StreetNumberField
@@ -413,7 +413,7 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <StreetNumberField
@@ -428,8 +428,8 @@ describe('StreetNumberField', () => {
     });
 
     test('StreetNumberField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNumberField

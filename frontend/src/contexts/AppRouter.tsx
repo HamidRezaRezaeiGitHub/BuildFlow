@@ -136,6 +136,7 @@ const DevPanelWithRouting: React.FC = () => {
             console.group('🔧 DevPanel Debug Info');
             console.log('config.isDevelopment:', config.isDevelopment);
             console.log('config.environment:', config.environment);
+            console.log('config.backendEnabled:', config.backendEnabled);
             console.log('shouldShowDevPanel:', shouldShowDevPanel);
             console.log('isAuthenticated:', isAuthenticated);
             console.log('role:', role);

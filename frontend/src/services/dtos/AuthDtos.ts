@@ -1,4 +1,4 @@
-import type { ContactRequestDto, UserDto } from './UserDtos';
+import { ContactRequest, User } from '..';
 
 /**
  * User roles enum
@@ -23,7 +23,7 @@ export interface SignUpRequest {
   password: string;
   
   /** Contact information for the new user */
-  contactRequestDto: ContactRequestDto;
+  contact: ContactRequest;
 }
 
 /**
@@ -38,7 +38,7 @@ export interface CreateUserRequest {
   username: string;
 
   /** Contact information for the user */
-  contactRequestDto: ContactRequestDto;
+  contact: ContactRequest;
 }
 
 /**
@@ -47,7 +47,7 @@ export interface CreateUserRequest {
  * Note: Backend serializes userDto as "user" in JSON
  */
 export interface CreateUserResponse {
-    user: UserDto;
+    user: User;
 }
 
 /**

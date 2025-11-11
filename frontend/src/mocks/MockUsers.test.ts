@@ -379,7 +379,7 @@ describe('MockUsers', () => {
         labels: ['Builder'],
         email: 'john.doe@example.com',
         phone: '+1-555-0123',
-        addressRequestDto: {
+        address: {
           streetNumberAndName: '123 Main Street',
           city: 'Toronto',
           stateOrProvince: 'ON',

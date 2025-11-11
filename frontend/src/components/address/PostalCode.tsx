@@ -105,7 +105,7 @@ export const PostalCodeField: FC<PostalCodeFieldProps> = ({
     return (
         <div className={`space-y-2 ${className}`}>
             <Label htmlFor={id} className="text-xs">
-                Postal Code/Zip Code
+                Postal Code
                 {isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <Input

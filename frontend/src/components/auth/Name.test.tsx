@@ -3,11 +3,11 @@ import React from 'react';
 import { NameField } from './Name';
 
 describe('NameField', () => {
-    const mockOnChange = jest.fn();
-    const mockOnValidationChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnValidationChange = vi.fn();
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('FirstName Configuration', () => {

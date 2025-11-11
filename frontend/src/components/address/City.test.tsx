@@ -3,11 +3,11 @@ import { CityField } from './City';
 
 describe('CityField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('CityField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <CityField
@@ -26,7 +26,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <CityField
@@ -42,7 +42,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['City is invalid'];
         
         render(
@@ -61,7 +61,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldBeDisabled_whenDisabledPropTrue', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <CityField
@@ -77,7 +77,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <CityField
@@ -93,7 +93,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldDisplayValue_whenValueProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <CityField
@@ -110,8 +110,8 @@ describe('CityField', () => {
     // === VALIDATION TESTS ===
 
     test('CityField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <CityField
@@ -134,8 +134,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldPassValidation_whenValidCityProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField
@@ -176,8 +176,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const longCityName = 'A'.repeat(51); // 51 characters
 
@@ -216,8 +216,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldShowMinLengthError_whenTooShort', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField
@@ -254,8 +254,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldShowInvalidCharacterError_whenContainsNumbers', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField
@@ -292,8 +292,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldAllowValidSpecialCharacters_inCityNames', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField
@@ -330,8 +330,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <CityField
@@ -353,8 +353,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <CityField
@@ -378,8 +378,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldValidateOnChangeAfterFirstBlur', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField
@@ -416,7 +416,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const externalErrors = ['External error message'];
 
         render(
@@ -440,7 +440,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <CityField
@@ -457,7 +457,7 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <CityField
@@ -472,8 +472,8 @@ describe('CityField', () => {
     });
 
     test('CityField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CityField

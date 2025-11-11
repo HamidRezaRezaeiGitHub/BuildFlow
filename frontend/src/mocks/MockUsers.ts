@@ -243,13 +243,13 @@ export function createMockUser(contactRequestDto: ContactRequest, username: stri
             labels: contactRequestDto.labels,
             email: contactRequestDto.email,
             phone: contactRequestDto.phone || '',
-            address: contactRequestDto.addressRequestDto ? {
+            address: contactRequestDto.address ? {
                 id: String(mockUsers.length + 1),
-                streetNumberAndName: contactRequestDto.addressRequestDto.streetNumberAndName || '',
-                city: contactRequestDto.addressRequestDto.city || '',
-                stateOrProvince: contactRequestDto.addressRequestDto.stateOrProvince || '',
-                postalOrZipCode: contactRequestDto.addressRequestDto.postalOrZipCode || '',
-                country: contactRequestDto.addressRequestDto.country || '',
+                streetNumberAndName: contactRequestDto.address.streetNumberAndName || '',
+                city: contactRequestDto.address.city || '',
+                stateOrProvince: contactRequestDto.address.stateOrProvince || '',
+                postalOrZipCode: contactRequestDto.address.postalOrZipCode || '',
+                country: contactRequestDto.address.country || '',
             } : {
                 id: String(mockUsers.length + 1),
                 streetNumberAndName: '',

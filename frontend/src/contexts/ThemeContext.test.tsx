@@ -11,21 +11,21 @@ import { ThemeProvider, useTheme } from './ThemeContext';
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock window.matchMedia
-const mockMatchMedia = jest.fn().mockImplementation(query => ({
+const mockMatchMedia = vi.fn().mockImplementation(query => ({
   matches: false,
   media: query,
   onchange: null,
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  dispatchEvent: jest.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
 }));
 Object.defineProperty(window, 'matchMedia', { value: mockMatchMedia });
 
@@ -56,15 +56,15 @@ const TestComponentWithoutProvider = () => {
 
 describe('ThemeProvider', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
     mockMatchMedia.mockReturnValue({
       matches: false,
       media: '(prefers-color-scheme: dark)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onchange: null,
-      dispatchEvent: jest.fn(),
+      dispatchEvent: vi.fn(),
     });
     // Clear document classes
     document.documentElement.className = '';
@@ -187,10 +187,10 @@ describe('ThemeProvider', () => {
     const mockMediaQuery = {
       matches: false,
       media: '(prefers-color-scheme: dark)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onchange: null,
-      dispatchEvent: jest.fn(),
+      dispatchEvent: vi.fn(),
     };
     mockMatchMedia.mockReturnValue(mockMediaQuery);
     
@@ -209,10 +209,10 @@ describe('ThemeProvider', () => {
     const mockMediaQuery = {
       matches: false,
       media: '(prefers-color-scheme: dark)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onchange: null,
-      dispatchEvent: jest.fn(),
+      dispatchEvent: vi.fn(),
     };
     mockMatchMedia.mockReturnValue(mockMediaQuery);
     
@@ -256,10 +256,10 @@ describe('ThemeProvider system theme detection', () => {
     mockMatchMedia.mockReturnValue({
       matches: true,
       media: '(prefers-color-scheme: dark)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onchange: null,
-      dispatchEvent: jest.fn(),
+      dispatchEvent: vi.fn(),
     });
     
     render(
@@ -277,10 +277,10 @@ describe('ThemeProvider system theme detection', () => {
     mockMatchMedia.mockReturnValue({
       matches: false,
       media: '(prefers-color-scheme: dark)',
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onchange: null,
-      dispatchEvent: jest.fn(),
+      dispatchEvent: vi.fn(),
     });
     
     render(

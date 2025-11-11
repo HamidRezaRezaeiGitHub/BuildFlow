@@ -3,12 +3,12 @@ import { CountryField } from './Country';
 
 describe('CountryField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     // Basic functionality tests
     test('CountryField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(<CountryField value="" onChange={mockOnChange} />);
 
@@ -22,7 +22,7 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(<CountryField value="" onChange={mockOnChange} />);
 
@@ -33,7 +33,7 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['Country is invalid'];
         
         render(<CountryField value="Invalid" onChange={mockOnChange} errors={errors} />);
@@ -44,8 +44,8 @@ describe('CountryField', () => {
 
     // Validation tests
     test('CountryField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <CountryField
@@ -66,8 +66,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldPassValidation_whenValidCountryProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CountryField
@@ -100,8 +100,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
         const longName = 'A'.repeat(61);
 
         const { rerender } = render(
@@ -135,8 +135,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldShowMinLengthError_whenTooShort', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CountryField
@@ -169,8 +169,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldShowInvalidCharacterError_whenContainsNumbers', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CountryField
@@ -203,8 +203,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldAllowValidSpecialCharacters_inCountryNames', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CountryField
@@ -237,8 +237,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <CountryField
@@ -257,7 +257,7 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <CountryField
@@ -274,8 +274,8 @@ describe('CountryField', () => {
     });
 
     test('CountryField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <CountryField

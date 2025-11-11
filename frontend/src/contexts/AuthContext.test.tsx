@@ -4,34 +4,77 @@ import { authService } from '../services';
 import type { AuthResponse, UserSummary } from '../services/dtos';
 import { AuthProvider, useAuth } from './AuthContext';
 
+// Create mock timer service in hoisted scope
+const { mockTimerService } = vi.hoisted(() => {
+    const scheduledCallbacks = new Map<number, { callback: () => void | Promise<void>; delayMs: number }>();
+    let nextId = 1;
+    
+    return {
+        mockTimerService: {
+            schedule(callback: () => void | Promise<void>, delayMs: number) {
+                const timerId = nextId++;
+                scheduledCallbacks.set(timerId, { callback, delayMs });
+                return timerId;
+            },
+            cancel(timerId: number) {
+                scheduledCallbacks.delete(timerId);
+            },
+            cancelAll() {
+                scheduledCallbacks.clear();
+                nextId = 1;
+            },
+            getScheduledCount() {
+                return scheduledCallbacks.size;
+            },
+            getAllScheduled() {
+                return Array.from(scheduledCallbacks.entries()).map(([timerId, data]) => ({
+                    timerId,
+                    ...data
+                }));
+            },
+            async executeCallback(timerId: number) {
+                const scheduled = scheduledCallbacks.get(timerId);
+                if (scheduled) {
+                    scheduledCallbacks.delete(timerId);
+                    await scheduled.callback();
+                }
+            },
+            async executeAllCallbacks() {
+                const callbacks = Array.from(scheduledCallbacks.values());
+                scheduledCallbacks.clear();
+                for (const { callback } of callbacks) {
+                    await callback();
+                }
+            }
+        }
+    };
+});
+
 // Mock the auth service
-jest.mock('../services', () => ({
+vi.mock('../services', () => ({
     authService: {
-        login: jest.fn(),
-        register: jest.fn(),
-        logout: jest.fn(),
-        getCurrentUser: jest.fn(),
-        refreshToken: jest.fn(),
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        getCurrentUser: vi.fn(),
+        refreshToken: vi.fn(),
     },
-    handleApiError: jest.fn(),
-    timerService: new (require('../services/TimerService').MockTimerService)(),
+    handleApiError: vi.fn(),
+    timerService: mockTimerService,
 }));
 
 // Mock localStorage
 const mockLocalStorage = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
 };
 
 Object.defineProperty(window, 'localStorage', {
     value: mockLocalStorage,
     writable: true,
 });
-
-// Get the mocked timer service
-const { timerService } = require('../services');
 
 // Test component to access the context
 const TestComponent = () => {
@@ -62,7 +105,7 @@ const TestComponent = () => {
             <button onClick={() => register({
                 username: 'johndoe',
                 password: 'password',
-                contactRequestDto: {
+                contact: {
                     firstName: 'John',
                     lastName: 'Doe',
                     labels: ['Builder'],
@@ -103,15 +146,15 @@ describe('AuthProvider', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         mockLocalStorage.getItem.mockReturnValue(null);
         // Reset timer service
-        timerService.cancelAll();
+        mockTimerService.cancelAll();
     });
 
     afterEach(() => {
         // Clean up any remaining timers
-        timerService.cancelAll();
+        mockTimerService.cancelAll();
     });
 
     describe('initialization', () => {
@@ -135,7 +178,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldFetchCurrentUser_whenTokenExists', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             renderWithAuthProvider(<TestComponent />);
 
@@ -153,7 +196,7 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearTokenAndUser_whenGetCurrentUserFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('invalid-token');
-            (authService.getCurrentUser as jest.Mock).mockRejectedValue(new Error('Unauthorized'));
+            (authService.getCurrentUser as vi.Mock).mockRejectedValue(new Error('Unauthorized'));
 
             renderWithAuthProvider(<TestComponent />);
 
@@ -168,8 +211,8 @@ describe('AuthProvider', () => {
 
     describe('login', () => {
         test('AuthProvider_shouldLoginSuccessfully_whenCredentialsValid', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -194,8 +237,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldScheduleTokenRefresh_whenLoginSuccessful', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -208,15 +251,15 @@ describe('AuthProvider', () => {
             });
 
             // Verify timer was scheduled
-            expect(timerService.getScheduledCount()).toBe(1);
+            expect(mockTimerService.getScheduledCount()).toBe(1);
             
-            const scheduled = timerService.getAllScheduled()[0];
+            const scheduled = mockTimerService.getAllScheduled()[0];
             expect(scheduled.delayMs).toBe(3570000); // 3600 - 30 seconds = 3570 seconds
         });
 
         test('AuthProvider_shouldHandleLoginError_whenCredentialsInvalid', async () => {
             const loginError = new Error('Invalid credentials');
-            (authService.login as jest.Mock).mockRejectedValue(loginError);
+            (authService.login as vi.Mock).mockRejectedValue(loginError);
 
             const user = userEvent.setup();
 
@@ -234,7 +277,7 @@ describe('AuthProvider', () => {
 
     describe('register', () => {
         test('AuthProvider_shouldRegisterSuccessfully_whenDataValid', async () => {
-            (authService.register as jest.Mock).mockResolvedValue(undefined);
+            (authService.register as vi.Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -246,7 +289,7 @@ describe('AuthProvider', () => {
                 expect(authService.register).toHaveBeenCalledWith({
                     username: 'johndoe',
                     password: 'password',
-                    contactRequestDto: {
+                    contact: {
                         firstName: 'John',
                         lastName: 'Doe',
                         labels: ['Builder'],
@@ -257,7 +300,7 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldNotLoginUser_whenRegistrationSuccessful', async () => {
-            (authService.register as jest.Mock).mockResolvedValue(undefined);
+            (authService.register as vi.Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -275,8 +318,8 @@ describe('AuthProvider', () => {
     describe('logout', () => {
         test('AuthProvider_shouldLogoutSuccessfully_whenUserAuthenticated', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
-            (authService.logout as jest.Mock).mockResolvedValue(undefined);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.logout as vi.Mock).mockResolvedValue(undefined);
 
             const user = userEvent.setup();
 
@@ -301,8 +344,8 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldClearLocalState_whenBackendLogoutFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
-            (authService.logout as jest.Mock).mockRejectedValue(new Error('Network error'));
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.logout as vi.Mock).mockRejectedValue(new Error('Network error'));
 
             const user = userEvent.setup();
 
@@ -331,8 +374,8 @@ describe('AuthProvider', () => {
             };
 
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
-            (authService.refreshToken as jest.Mock).mockResolvedValue(newAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.refreshToken as vi.Mock).mockResolvedValue(newAuthResponse);
 
             const user = userEvent.setup();
 
@@ -354,8 +397,8 @@ describe('AuthProvider', () => {
 
         test('AuthProvider_shouldLogoutUser_whenTokenRefreshFails', async () => {
             mockLocalStorage.getItem.mockReturnValue('existing-token');
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
-            (authService.refreshToken as jest.Mock).mockRejectedValue(new Error('Token expired'));
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
+            (authService.refreshToken as vi.Mock).mockRejectedValue(new Error('Token expired'));
 
             const user = userEvent.setup();
 
@@ -383,8 +426,8 @@ describe('AuthProvider', () => {
                 expiresInSeconds: 300, // 5 minutes
             };
 
-            (authService.login as jest.Mock).mockResolvedValue(longExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(longExpiryResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -397,8 +440,8 @@ describe('AuthProvider', () => {
             });
 
             // Verify timer was scheduled with correct delay (270 seconds = 300 - 30)
-            expect(timerService.getScheduledCount()).toBe(1);
-            const scheduled = timerService.getAllScheduled()[0];
+            expect(mockTimerService.getScheduledCount()).toBe(1);
+            const scheduled = mockTimerService.getAllScheduled()[0];
             expect(scheduled.delayMs).toBe(270000);
         });
 
@@ -408,8 +451,8 @@ describe('AuthProvider', () => {
                 expiresInSeconds: 20, // 20 seconds
             };
 
-            (authService.login as jest.Mock).mockResolvedValue(shortExpiryResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(shortExpiryResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -422,12 +465,12 @@ describe('AuthProvider', () => {
             });
 
             // Verify no timer was scheduled
-            expect(timerService.getScheduledCount()).toBe(0);
+            expect(mockTimerService.getScheduledCount()).toBe(0);
         });
 
         test('AuthProvider_shouldRefreshAutomatically_whenTimerTriggers', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -440,8 +483,8 @@ describe('AuthProvider', () => {
             });
 
             // Verify timer was scheduled with correct delay
-            expect(timerService.getScheduledCount()).toBe(1);
-            const scheduled = timerService.getAllScheduled()[0];
+            expect(mockTimerService.getScheduledCount()).toBe(1);
+            const scheduled = mockTimerService.getAllScheduled()[0];
             expect(scheduled.delayMs).toBe(3570000); // 3600 - 30 seconds = 3570 seconds
 
             // Verify that the scheduled callback is a function (contains refresh logic)
@@ -449,8 +492,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldLogoutUser_whenAutomaticRefreshFails', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -463,12 +506,12 @@ describe('AuthProvider', () => {
             });
 
             // Verify timer was scheduled
-            expect(timerService.getScheduledCount()).toBe(1);
-            const scheduled = timerService.getAllScheduled()[0];
+            expect(mockTimerService.getScheduledCount()).toBe(1);
+            const scheduled = mockTimerService.getAllScheduled()[0];
             expect(scheduled.delayMs).toBe(3570000);
 
             // Test manual refresh failure behavior (same logic as auto-refresh)
-            (authService.refreshToken as jest.Mock).mockRejectedValue(new Error('Refresh failed'));
+            (authService.refreshToken as vi.Mock).mockRejectedValue(new Error('Refresh failed'));
             
             await user.click(screen.getByText('Refresh Token'));
 
@@ -481,8 +524,8 @@ describe('AuthProvider', () => {
 
     describe('timer cleanup', () => {
         test('AuthProvider_shouldClearTimer_whenComponentUnmounts', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -496,7 +539,7 @@ describe('AuthProvider', () => {
             });
 
             // Verify timer was scheduled
-            expect(timerService.getScheduledCount()).toBe(1);
+            expect(mockTimerService.getScheduledCount()).toBe(1);
 
             // Unmount the component
             unmount();
@@ -508,8 +551,8 @@ describe('AuthProvider', () => {
         });
 
         test('AuthProvider_shouldClearPreviousTimer_whenNewRefreshScheduled', async () => {
-            (authService.login as jest.Mock).mockResolvedValue(mockAuthResponse);
-            (authService.getCurrentUser as jest.Mock).mockResolvedValue(mockUserSummary);
+            (authService.login as vi.Mock).mockResolvedValue(mockAuthResponse);
+            (authService.getCurrentUser as vi.Mock).mockResolvedValue(mockUserSummary);
 
             const user = userEvent.setup();
 
@@ -523,7 +566,7 @@ describe('AuthProvider', () => {
             });
 
             // Verify first timer was scheduled
-            expect(timerService.getScheduledCount()).toBe(1);
+            expect(mockTimerService.getScheduledCount()).toBe(1);
 
             // Login again to schedule second timer (should clear first)
             await user.click(screen.getByText('Login'));
@@ -533,7 +576,7 @@ describe('AuthProvider', () => {
             });
 
             // Should still have only one timer (new one replaced old one)
-            expect(timerService.getScheduledCount()).toBe(1);
+            expect(mockTimerService.getScheduledCount()).toBe(1);
         });
     });
 
@@ -545,7 +588,7 @@ describe('AuthProvider', () => {
             };
 
             // Suppress error boundary console.error for this test
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
             expect(() => {
                 render(<TestComponentWithoutProvider />);

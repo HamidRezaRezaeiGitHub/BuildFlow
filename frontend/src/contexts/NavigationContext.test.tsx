@@ -21,33 +21,36 @@ const TestNavigationComponent: React.FC = () => {
 };
 
 // Mock React Router's useNavigate hook
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  };
+});
 
 // Mock window methods
 Object.defineProperty(window, 'history', {
   writable: true,
   value: {
-    back: jest.fn(),
-    forward: jest.fn(),
-    pushState: jest.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    pushState: vi.fn(),
   },
 });
 
 Object.defineProperty(window, 'open', {
   writable: true,
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 // Mock scroll methods
-Element.prototype.scrollIntoView = jest.fn();
+Element.prototype.scrollIntoView = vi.fn();
 
 // Mock getElementById
-const mockGetElementById = jest.fn();
+const mockGetElementById = vi.fn();
 Object.defineProperty(document, 'getElementById', {
   writable: true,
   value: mockGetElementById,
@@ -55,7 +58,7 @@ Object.defineProperty(document, 'getElementById', {
 
 describe('NavigationContext', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const renderWithNavigationProvider = (component: React.ReactElement) => {
@@ -70,7 +73,7 @@ describe('NavigationContext', () => {
 
   test('NavigationContext_shouldThrowError_whenUsedOutsideProvider', () => {
     // Suppress console.error for this test
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => {
       render(<TestNavigationComponent />);
@@ -102,7 +105,7 @@ describe('NavigationContext', () => {
   });
 
   test('NavigationContext_shouldCallScrollIntoView_whenScrollingToSection', () => {
-    const mockElement = { scrollIntoView: jest.fn() };
+    const mockElement = { scrollIntoView: vi.fn() };
     mockGetElementById.mockReturnValue(mockElement);
 
     renderWithNavigationProvider(<TestNavigationComponent />);
@@ -133,7 +136,7 @@ describe('NavigationContext', () => {
   });
 
   test('NavigationContext_shouldHandleAuthNavigation_withTabId', () => {
-    const mockElement = { scrollIntoView: jest.fn() };
+    const mockElement = { scrollIntoView: vi.fn() };
     mockGetElementById.mockReturnValue(mockElement);
 
     renderWithNavigationProvider(<TestNavigationComponent />);
@@ -145,7 +148,7 @@ describe('NavigationContext', () => {
   });
 
   test('NavigationContext_shouldWarnWhenElementNotFound', () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     mockGetElementById.mockReturnValue(null);
 
     renderWithNavigationProvider(<TestNavigationComponent />);

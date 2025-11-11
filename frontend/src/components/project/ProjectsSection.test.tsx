@@ -8,13 +8,15 @@ import { Project, PagedResponse } from '@/services/dtos';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies
-jest.mock('@/contexts/AuthContext');
-jest.mock('@/contexts/NavigationContext');
-jest.mock('@/services/ProjectService');
+vi.mock('@/contexts/AuthContext');
+vi.mock('@/contexts/NavigationContext');
+vi.mock('@/services/ProjectService', () => ({
+  ProjectServiceWithAuth: vi.fn()
+}));
 
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
-const MockedProjectServiceWithAuth = ProjectServiceWithAuth as jest.MockedClass<typeof ProjectServiceWithAuth>;
+const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
+const mockUseNavigate = useNavigate as vi.MockedFunction<typeof useNavigate>;
+const MockedProjectServiceWithAuth = ProjectServiceWithAuth as unknown as vi.MockedFunction<typeof ProjectServiceWithAuth>;
 
 describe('ProjectsSection', () => {
   // Helper to render with router context
@@ -46,7 +48,7 @@ describe('ProjectsSection', () => {
     }
   };
 
-  const mockNavigateToNewProject = jest.fn();
+  const mockNavigateToNewProject = vi.fn();
 
   const mockProjects: Project[] = [
     {
@@ -98,7 +100,7 @@ describe('ProjectsSection', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -106,43 +108,45 @@ describe('ProjectsSection', () => {
       isAuthenticated: true,
       isLoading: false,
       role: 'USER',
-      login: jest.fn(),
-      register: jest.fn(),
-      logout: jest.fn(),
-      refreshToken: jest.fn(),
-      getCurrentUser: jest.fn(),
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      refreshToken: vi.fn(),
+      getCurrentUser: vi.fn(),
     });
 
     mockUseNavigate.mockReturnValue({
-      navigate: jest.fn(),
-      goBack: jest.fn(),
-      goForward: jest.fn(),
-      scrollToSection: jest.fn(),
-      navigateToAuth: jest.fn(),
-      navigateToSignup: jest.fn(),
-      navigateToLogin: jest.fn(),
-      navigateToHome: jest.fn(),
-      navigateToDashboard: jest.fn(),
-      navigateToAdmin: jest.fn(),
-      navigateToProjects: jest.fn(),
+      navigate: vi.fn(),
+      goBack: vi.fn(),
+      goForward: vi.fn(),
+      scrollToSection: vi.fn(),
+      navigateToAuth: vi.fn(),
+      navigateToSignup: vi.fn(),
+      navigateToLogin: vi.fn(),
+      navigateToHome: vi.fn(),
+      navigateToDashboard: vi.fn(),
+      navigateToAdmin: vi.fn(),
+      navigateToProjects: vi.fn(),
       navigateToNewProject: mockNavigateToNewProject,
-      navigateToEstimates: jest.fn(),
-      openExternalLink: jest.fn(),
+      navigateToEstimates: vi.fn(),
+      openExternalLink: vi.fn(),
     });
   });
 
   describe('Loading State', () => {
     test('displays loading skeletons while fetching data', () => {
       // Mock service to never resolve
-      const mockGetCombinedProjectsPaginated = jest.fn(() => new Promise(() => {}));
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+      const mockGetCombinedProjectsPaginated = vi.fn(() => new Promise(() => {}));
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByBuilderIdPaginated: vi.fn(),
+          getProjectsByOwnerIdPaginated: vi.fn(),
+          getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
+          createProject: vi.fn(),
+          getProjectsByBuilderId: vi.fn(),
+          getProjectsByOwnerId: vi.fn(),
+        } as any;
+      });
 
       renderWithRouter(<ProjectsSection />);
 
@@ -156,15 +160,15 @@ describe('ProjectsSection', () => {
 
   describe('Success State - Projects Loaded', () => {
     beforeEach(() => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
     });
 
     test('renders section title by default', async () => {
@@ -242,15 +246,15 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(emptyResponse);
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(emptyResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
     });
 
     test('displays empty state when no projects exist', async () => {
@@ -281,15 +285,15 @@ describe('ProjectsSection', () => {
 
   describe('Error State', () => {
     beforeEach(() => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockRejectedValue(new Error('Network error'));
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockRejectedValue(new Error('Network error'));
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
     });
 
     test('displays error state when fetch fails', async () => {
@@ -310,18 +314,18 @@ describe('ProjectsSection', () => {
     });
 
     test('retry button refetches data without page reload', async () => {
-      const mockGetCombinedProjectsPaginated = jest.fn()
+      const mockGetCombinedProjectsPaginated = vi.fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection />);
 
@@ -348,16 +352,16 @@ describe('ProjectsSection', () => {
 
   describe('Filter by Role', () => {
     test('fetches builder projects when filterByRole is "builder"', async () => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection filterByRole="builder" />);
 
@@ -367,16 +371,16 @@ describe('ProjectsSection', () => {
     });
 
     test('fetches owner projects when filterByRole is "owner"', async () => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection filterByRole="owner" />);
 
@@ -386,16 +390,16 @@ describe('ProjectsSection', () => {
     });
 
     test('fetches combined projects by default when no filterByRole is specified', async () => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection />);
 
@@ -413,22 +417,22 @@ describe('ProjectsSection', () => {
         isAuthenticated: false,
         isLoading: false,
         role: null,
-        login: jest.fn(),
-        register: jest.fn(),
-        logout: jest.fn(),
-        refreshToken: jest.fn(),
-        getCurrentUser: jest.fn(),
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshToken: vi.fn(),
+        getCurrentUser: vi.fn(),
       });
 
-      const mockGetCombinedProjectsPaginated = jest.fn();
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn();
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection />);
 
@@ -440,16 +444,16 @@ describe('ProjectsSection', () => {
 
   describe('Pagination Parameters', () => {
     test('passes pagination parameters to service', async () => {
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       const paginationParams = { page: 1, size: 10 };
       renderWithRouter(<ProjectsSection paginationParams={paginationParams} />);
@@ -493,15 +497,15 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 
@@ -543,15 +547,15 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 
@@ -592,15 +596,15 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetCombinedProjectsPaginated = jest.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(() => ({
-        getProjectsByBuilderIdPaginated: jest.fn(),
-        getProjectsByOwnerIdPaginated: jest.fn(),
+      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() { return {
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
         getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: jest.fn(),
-        getProjectsByBuilderId: jest.fn(),
-        getProjectsByOwnerId: jest.fn(),
-      }) as any);
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+      } as any; });
 
       renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
 

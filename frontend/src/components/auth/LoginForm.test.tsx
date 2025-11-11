@@ -3,22 +3,25 @@ import { BrowserRouter } from 'react-router-dom';
 import LoginForm from './LoginForm';
 
 // Mock the auth context
-const mockLogin = jest.fn();
-const mockNavigate = jest.fn();
+const mockLogin = vi.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
+vi.mock('../../contexts/AuthContext', () => ({
     useAuth: () => ({
         login: mockLogin
     })
 }));
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: () => mockNavigate
-}));
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate
+    };
+});
 
 // Mock the field components
-jest.mock('./UsernameEmail', () => ({
+vi.mock('./UsernameEmail', () => ({
     UsernameEmailField: ({ value, onChange, id, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Username or Email</label>
@@ -33,7 +36,7 @@ jest.mock('./UsernameEmail', () => ({
     )
 }));
 
-jest.mock('./Password', () => ({
+vi.mock('./Password', () => ({
     PasswordField: ({ value, onChange, id, showPassword, onToggleVisibility, onValidationChange }: any) => (
         <div data-testid={`${id}-container`}>
             <label htmlFor={id}>Password</label>
@@ -55,7 +58,7 @@ jest.mock('./Password', () => ({
 const renderLoginForm = (props = {}) => {
     const defaultProps = {
         showPassword: false,
-        onTogglePassword: jest.fn(),
+        onTogglePassword: vi.fn(),
         ...props
     };
 
@@ -68,7 +71,7 @@ const renderLoginForm = (props = {}) => {
 
 describe('LoginForm Component', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     // Helper function to fill form fields with proper validation triggering
@@ -146,7 +149,7 @@ describe('LoginForm Component', () => {
     });
 
     test('LoginForm_shouldTogglePasswordVisibility_whenToggleButtonClicked', () => {
-        const mockOnTogglePassword = jest.fn();
+        const mockOnTogglePassword = vi.fn();
         renderLoginForm({ onTogglePassword: mockOnTogglePassword });
 
         const toggleButton = screen.getByTestId('loginPassword-toggle');
@@ -264,7 +267,7 @@ describe('LoginForm Component', () => {
 
     // Callback tests
     test('LoginForm_shouldCallOnLoginSuccess_whenLoginSuccessful', async () => {
-        const mockOnLoginSuccess = jest.fn();
+        const mockOnLoginSuccess = vi.fn();
         mockLogin.mockResolvedValueOnce({ success: true });
         renderLoginForm({ onLoginSuccess: mockOnLoginSuccess });
 
@@ -292,7 +295,7 @@ describe('LoginForm Component', () => {
     });
 
     test('LoginForm_shouldCallOnLoginError_whenLoginFails', async () => {
-        const mockOnLoginError = jest.fn();
+        const mockOnLoginError = vi.fn();
         const errorMessage = 'Invalid credentials';
         mockLogin.mockRejectedValueOnce(new Error(errorMessage));
         renderLoginForm({ onLoginError: mockOnLoginError });
@@ -354,7 +357,7 @@ describe('LoginForm Component', () => {
 
     // New callback tests
     test('LoginForm_shouldCallOnFormDataChange_whenFieldValuesChange', () => {
-        const mockOnFormDataChange = jest.fn();
+        const mockOnFormDataChange = vi.fn();
         renderLoginForm({ onFormDataChange: mockOnFormDataChange });
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
@@ -367,7 +370,7 @@ describe('LoginForm Component', () => {
     });
 
     test('LoginForm_shouldCallOnValidationStateChange_whenValidationChanges', async () => {
-        const mockOnValidationStateChange = jest.fn();
+        const mockOnValidationStateChange = vi.fn();
         renderLoginForm({ onValidationStateChange: mockOnValidationStateChange });
 
         const usernameField = screen.getByTestId('loginUsernameEmail');
@@ -387,7 +390,7 @@ describe('LoginForm Component', () => {
     });
 
     test('LoginForm_shouldCallOnLoadingStateChange_whenSubmitting', async () => {
-        const mockOnLoadingStateChange = jest.fn();
+        const mockOnLoadingStateChange = vi.fn();
         mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
         renderLoginForm({ onLoadingStateChange: mockOnLoadingStateChange });
 
@@ -419,7 +422,7 @@ describe('LoginForm Component', () => {
     });
 
     test('LoginForm_shouldCallOnFormSubmit_whenFormSubmitted', async () => {
-        const mockOnFormSubmit = jest.fn();
+        const mockOnFormSubmit = vi.fn();
         mockLogin.mockResolvedValueOnce({ success: true });
         renderLoginForm({ onFormSubmit: mockOnFormSubmit });
 
@@ -449,11 +452,11 @@ describe('LoginForm Component', () => {
 
     test('LoginForm_shouldCallMultipleCallbacks_whenAllProvided', async () => {
         const mockCallbacks = {
-            onFormDataChange: jest.fn(),
-            onValidationStateChange: jest.fn(),
-            onLoadingStateChange: jest.fn(),
-            onFormSubmit: jest.fn(),
-            onLoginSuccess: jest.fn()
+            onFormDataChange: vi.fn(),
+            onValidationStateChange: vi.fn(),
+            onLoadingStateChange: vi.fn(),
+            onFormSubmit: vi.fn(),
+            onLoginSuccess: vi.fn()
         };
 
         mockLogin.mockResolvedValueOnce({ success: true });

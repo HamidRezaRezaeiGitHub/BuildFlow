@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import FlexibleAddressForm, { FlexibleAddressFormProps } from './FlexibleAddressForm';
 
 describe('FlexibleAddressForm', () => {
-    const mockOnAddressChange = jest.fn();
-    const mockOnSubmit = jest.fn();
+    const mockOnAddressChange = vi.fn();
+    const mockOnSubmit = vi.fn();
 
     const defaultAddressData: AddressData = {
         unitNumber: '',

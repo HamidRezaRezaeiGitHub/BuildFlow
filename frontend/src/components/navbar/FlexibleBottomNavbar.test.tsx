@@ -3,32 +3,32 @@ import userEvent from '@testing-library/user-event';
 import { FlexibleBottomNavbar } from './FlexibleBottomNavbar';
 
 // Mock the auth context
-const mockLogout = jest.fn();
+const mockLogout = vi.fn();
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     role: null,
     token: null,
     isAuthenticated: false,
     isLoading: false,
-    login: jest.fn(),
-    register: jest.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
     logout: mockLogout,
-    refreshToken: jest.fn(),
-    getCurrentUser: jest.fn(),
+    refreshToken: vi.fn(),
+    getCurrentUser: vi.fn(),
   }),
 }));
 
 // Mock useMediaQuery hook
-const mockUseMediaQuery = jest.fn();
-jest.mock('@/utils/useMediaQuery', () => ({
+const mockUseMediaQuery = vi.fn();
+vi.mock('@/utils/useMediaQuery', () => ({
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 
 describe('FlexibleBottomNavbar', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Default to desktop view
     mockUseMediaQuery.mockReturnValue(false);
   });
@@ -104,7 +104,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldCallHandlerWhenCreateNewProjectClicked', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<FlexibleBottomNavbar onCreateNewProject={mockHandler} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
@@ -161,7 +161,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldCallHandlerWhenCreateNewEstimateClicked', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<FlexibleBottomNavbar onCreateNewEstimate={mockHandler} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
@@ -195,8 +195,8 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldShowBothDefaultActions', async () => {
       const user = userEvent.setup();
-      const mockProjectHandler = jest.fn();
-      const mockEstimateHandler = jest.fn();
+      const mockProjectHandler = vi.fn();
+      const mockEstimateHandler = vi.fn();
       render(
         <FlexibleBottomNavbar 
           onCreateNewProject={mockProjectHandler}
@@ -218,8 +218,8 @@ describe('FlexibleBottomNavbar', () => {
     test('FlexibleBottomNavbar_shouldRenderCustomMenuItems', async () => {
       const user = userEvent.setup();
       const customItems = [
-        { label: 'Custom Action 1', onClick: jest.fn() },
-        { label: 'Custom Action 2', onClick: jest.fn() },
+        { label: 'Custom Action 1', onClick: vi.fn() },
+        { label: 'Custom Action 2', onClick: vi.fn() },
       ];
       
       render(<FlexibleBottomNavbar plusMenuItems={customItems} />);
@@ -235,7 +235,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldCallCustomItemHandler', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const customItems = [
         { label: 'Custom Action', onClick: mockHandler },
       ];
@@ -257,9 +257,9 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldShowDefaultAndCustomItemsTogether', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const customItems = [
-        { label: 'Custom Action', onClick: jest.fn() },
+        { label: 'Custom Action', onClick: vi.fn() },
       ];
       
       render(
@@ -280,7 +280,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldHandleDisabledCustomItems', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const customItems = [
         { label: 'Disabled Action', onClick: mockHandler, disabled: true },
       ];
@@ -305,7 +305,7 @@ describe('FlexibleBottomNavbar', () => {
       // Mock mobile view
       mockUseMediaQuery.mockReturnValue(true);
       
-      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      render(<FlexibleBottomNavbar onCreateNewProject={vi.fn()} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
       await user.click(fabButton);
@@ -321,7 +321,7 @@ describe('FlexibleBottomNavbar', () => {
       // Mock desktop view
       mockUseMediaQuery.mockReturnValue(false);
       
-      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      render(<FlexibleBottomNavbar onCreateNewProject={vi.fn()} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
       await user.click(fabButton);
@@ -339,7 +339,7 @@ describe('FlexibleBottomNavbar', () => {
       
       render(
         <FlexibleBottomNavbar 
-          onCreateNewProject={jest.fn()}
+          onCreateNewProject={vi.fn()}
           plusMenuVariant="sheet"
         />
       );
@@ -360,7 +360,7 @@ describe('FlexibleBottomNavbar', () => {
       
       render(
         <FlexibleBottomNavbar 
-          onCreateNewProject={jest.fn()}
+          onCreateNewProject={vi.fn()}
           plusMenuVariant="dropdown"
         />
       );
@@ -381,7 +381,7 @@ describe('FlexibleBottomNavbar', () => {
   describe('Plus Menu - Layout and Accessibility', () => {
     test('FlexibleBottomNavbar_shouldMaintainLayoutWhenMenuOpens', async () => {
       const user = userEvent.setup();
-      const { container } = render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      const { container } = render(<FlexibleBottomNavbar onCreateNewProject={vi.fn()} />);
       
       const initialBottom = container.querySelector('[class*="fixed bottom"]');
       
@@ -417,7 +417,7 @@ describe('FlexibleBottomNavbar', () => {
 
   describe('Legacy FAB Support', () => {
     test('FlexibleBottomNavbar_shouldSupportLegacyFabOnClick', () => {
-      const mockFabClick = jest.fn();
+      const mockFabClick = vi.fn();
       render(
         <FlexibleBottomNavbar 
           fab={{ onClick: mockFabClick }}
@@ -431,11 +431,11 @@ describe('FlexibleBottomNavbar', () => {
     });
 
     test('FlexibleBottomNavbar_shouldNotOpenMenuWithLegacyFabOnClick', async () => {
-      const mockFabClick = jest.fn();
+      const mockFabClick = vi.fn();
       render(
         <FlexibleBottomNavbar 
           fab={{ onClick: mockFabClick }}
-          onCreateNewProject={jest.fn()}
+          onCreateNewProject={vi.fn()}
         />
       );
       
@@ -469,7 +469,7 @@ describe('FlexibleBottomNavbar', () => {
     });
 
     test('FlexibleBottomNavbar_shouldCallProjectsHandler', () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<FlexibleBottomNavbar onProjectsClick={mockHandler} />);
       
       const projectsButton = screen.getByText('Projects');
@@ -549,7 +549,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldCallProfileHandlerFromMoreMenu', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<FlexibleBottomNavbar onProfileClick={mockHandler} />);
       
       const moreButton = screen.getByText('More');
@@ -567,7 +567,7 @@ describe('FlexibleBottomNavbar', () => {
 
     test('FlexibleBottomNavbar_shouldCallLogoutHandlerFromMoreMenu', async () => {
       const user = userEvent.setup();
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<FlexibleBottomNavbar onLogoutClick={mockHandler} />);
       
       const moreButton = screen.getByText('More');
@@ -618,7 +618,7 @@ describe('FlexibleBottomNavbar', () => {
       // Mock mobile view to ensure Sheet is used
       mockUseMediaQuery.mockReturnValue(true);
       
-      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      render(<FlexibleBottomNavbar onCreateNewProject={vi.fn()} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
       await user.click(fabButton);
@@ -666,7 +666,7 @@ describe('FlexibleBottomNavbar', () => {
       // Mock desktop view to ensure Dropdown is used
       mockUseMediaQuery.mockReturnValue(false);
       
-      render(<FlexibleBottomNavbar onCreateNewProject={jest.fn()} />);
+      render(<FlexibleBottomNavbar onCreateNewProject={vi.fn()} />);
       
       const fabButton = screen.getByLabelText(/Create new item/i);
       await user.click(fabButton);

@@ -57,7 +57,7 @@ const AddressPage: React.FC = () => {
     // Field labels for UI
     const fieldLabels: { [K in keyof AddressData]: string } = {
         unitNumber: 'Unit Number',
-        streetNumberAndName: 'Street Number & Name',
+        streetNumberAndName: 'Street',
         city: 'City',
         stateOrProvince: 'State/Province',
         postalOrZipCode: 'Postal/Zip Code',

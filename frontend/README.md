@@ -31,10 +31,11 @@ BuildFlow is a construction management platform that helps construction professi
 - **CVA (Class Variance Authority)** - Component variant management
 
 ### Testing
-- **Jest 30.1** - Testing framework
+- **Vitest 4.0** - Fast testing framework powered by Vite
 - **React Testing Library 16.3** - Component testing utilities
-- **ts-jest 29.4** - TypeScript support for Jest
 - **jsdom** - Browser environment simulation
+- **@vitest/ui** - Interactive test UI
+- **@vitest/coverage-v8** - Code coverage reporting
 
 ### Development Tools
 - **ESLint** - Code linting and quality
@@ -176,8 +177,10 @@ frontend/
 ├── .env.development            # Development environment config
 ├── .env.production             # Production environment config
 ├── .env.uat                    # UAT environment config
+├── .env.integrated             # Integrated backend config
 ├── .env.github-pages           # GitHub Pages config
-├── jest.config.js              # Jest test configuration
+├── .env.test                   # Test environment config
+├── vitest.config.ts            # Vitest test configuration
 ├── tsconfig.json               # TypeScript configuration
 ├── vite.config.ts              # Vite build configuration
 ├── tailwind.config.js          # Tailwind CSS configuration
@@ -243,16 +246,17 @@ npm run lint         # Run ESLint for code quality checks
 
 ### Testing
 ```bash
-npm test             # Run all tests
+npm test             # Run all tests with Vitest
 npm run test:watch   # Run tests in watch mode
 npm run test:coverage # Run tests with coverage report
+npm run test:ui      # Open Vitest UI for interactive testing
 ```
 
 ### Individual Test Files
 ```bash
-npx jest src/test/config.test.ts                    # Test Jest configuration
-npx jest src/components/ui/button.test.tsx          # Test button component
-npx jest src/contexts/ThemeContext.test.tsx         # Test theme context
+npm test -- src/test/config.test.ts                    # Test configuration
+npm test -- src/components/ui/button.test.tsx          # Test button component
+npm test -- src/contexts/ThemeContext.test.tsx         # Test theme context
 ```
 
 ## 🚀 Deployment

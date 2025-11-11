@@ -3,54 +3,54 @@ import userEvent from '@testing-library/user-event';
 import { StandardBottomNavbar } from './StandardNavbar';
 
 // Mock the auth context
-const mockLogout = jest.fn();
+const mockLogout = vi.fn();
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     role: null,
     token: null,
     isAuthenticated: false,
     isLoading: false,
-    login: jest.fn(),
-    register: jest.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
     logout: mockLogout,
-    refreshToken: jest.fn(),
-    getCurrentUser: jest.fn(),
+    refreshToken: vi.fn(),
+    getCurrentUser: vi.fn(),
   }),
 }));
 
 // Mock the navigation context
-const mockNavigateToDashboard = jest.fn();
+const mockNavigateToDashboard = vi.fn();
 
-jest.mock('@/contexts/NavigationContext', () => ({
+vi.mock('@/contexts/NavigationContext', () => ({
   useNavigate: () => ({
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-    goForward: jest.fn(),
-    scrollToSection: jest.fn(),
-    navigateToAuth: jest.fn(),
-    navigateToSignup: jest.fn(),
-    navigateToLogin: jest.fn(),
-    navigateToHome: jest.fn(),
+    navigate: vi.fn(),
+    goBack: vi.fn(),
+    goForward: vi.fn(),
+    scrollToSection: vi.fn(),
+    navigateToAuth: vi.fn(),
+    navigateToSignup: vi.fn(),
+    navigateToLogin: vi.fn(),
+    navigateToHome: vi.fn(),
     navigateToDashboard: mockNavigateToDashboard,
-    navigateToAdmin: jest.fn(),
-    navigateToProjects: jest.fn(),
-    navigateToNewProject: jest.fn(),
-    navigateToEstimates: jest.fn(),
-    openExternalLink: jest.fn(),
+    navigateToAdmin: vi.fn(),
+    navigateToProjects: vi.fn(),
+    navigateToNewProject: vi.fn(),
+    navigateToEstimates: vi.fn(),
+    openExternalLink: vi.fn(),
   }),
 }));
 
 // Mock useMediaQuery hook
-const mockUseMediaQuery = jest.fn();
-jest.mock('@/utils/useMediaQuery', () => ({
+const mockUseMediaQuery = vi.fn();
+vi.mock('@/utils/useMediaQuery', () => ({
   useMediaQuery: (query: string) => mockUseMediaQuery(query),
 }));
 
 describe('StandardBottomNavbar', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Default to desktop view
     mockUseMediaQuery.mockReturnValue(false);
   });
@@ -93,7 +93,7 @@ describe('StandardBottomNavbar', () => {
     });
 
     test('StandardBottomNavbar_shouldUseCustomProjectsHandler', () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       render(<StandardBottomNavbar onProjectsClick={mockHandler} />);
       
       const projectsButton = screen.getByText('Projects');
@@ -106,7 +106,7 @@ describe('StandardBottomNavbar', () => {
 
   describe('Profile Handler', () => {
     test('StandardBottomNavbar_shouldLogProfileClickByDefault', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
       const user = userEvent.setup();
       
       // Mock mobile view for Sheet variant
@@ -130,7 +130,7 @@ describe('StandardBottomNavbar', () => {
     });
 
     test('StandardBottomNavbar_shouldUseCustomProfileHandler', async () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const user = userEvent.setup();
       
       // Mock mobile view for Sheet variant
@@ -175,7 +175,7 @@ describe('StandardBottomNavbar', () => {
     });
 
     test('StandardBottomNavbar_shouldUseCustomLogoutHandler', async () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const user = userEvent.setup();
       
       // Mock mobile view for Sheet variant
@@ -200,7 +200,7 @@ describe('StandardBottomNavbar', () => {
 
   describe('Create Actions', () => {
     test('StandardBottomNavbar_shouldPassCreateProjectHandler', async () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const user = userEvent.setup();
       
       render(<StandardBottomNavbar onCreateNewProject={mockHandler} />);
@@ -219,7 +219,7 @@ describe('StandardBottomNavbar', () => {
     });
 
     test('StandardBottomNavbar_shouldPassCreateEstimateHandler', async () => {
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const user = userEvent.setup();
       
       render(<StandardBottomNavbar onCreateNewEstimate={mockHandler} />);

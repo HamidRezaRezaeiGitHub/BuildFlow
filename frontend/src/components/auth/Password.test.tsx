@@ -3,12 +3,12 @@ import React from 'react';
 import { PasswordField } from './Password';
 
 describe('PasswordField', () => {
-    const mockOnChange = jest.fn();
-    const mockOnToggleVisibility = jest.fn();
-    const mockOnValidationChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnToggleVisibility = vi.fn();
+    const mockOnValidationChange = vi.fn();
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('PasswordField_shouldRenderWithMinimalProps', () => {

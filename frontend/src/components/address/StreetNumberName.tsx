@@ -110,7 +110,7 @@ export const StreetNumberNameField: FC<StreetNumberNameFieldProps> = ({
     return (
         <div className={`space-y-2 ${className}`}>
             <Label htmlFor={id} className="text-xs">
-                Street Number & Name
+                Street
                 {isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <Input

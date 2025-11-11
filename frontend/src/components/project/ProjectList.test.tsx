@@ -146,7 +146,7 @@ describe('ProjectList', () => {
     });
 
     test('calls onProjectSelect when card is clicked', () => {
-      const handleProjectSelect = jest.fn();
+      const handleProjectSelect = vi.fn();
       const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
@@ -166,7 +166,7 @@ describe('ProjectList', () => {
     });
 
     test('calls handlers with correct project IDs for different projects', () => {
-      const handleProjectSelect = jest.fn();
+      const handleProjectSelect = vi.fn();
       const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
@@ -176,7 +176,7 @@ describe('ProjectList', () => {
     });
 
     test('card activates on Enter key press', () => {
-      const handleProjectSelect = jest.fn();
+      const handleProjectSelect = vi.fn();
       const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');
@@ -186,7 +186,7 @@ describe('ProjectList', () => {
     });
 
     test('card activates on Space key press', () => {
-      const handleProjectSelect = jest.fn();
+      const handleProjectSelect = vi.fn();
       const { container } = renderWithRouter(<ProjectList projects={mockProjects} onProjectSelect={handleProjectSelect} />);
       
       const cards = container.querySelectorAll('[role="button"]');

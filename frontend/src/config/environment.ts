@@ -6,13 +6,13 @@
  * 
  * Environment files:
  * - .env.development - Standalone development (npm run dev)
- * - .env.development.integrated - With backend (npm run dev:integrated)
+ * - .env.integrated - With backend (npm run dev:integrated)
  * - .env.uat - UAT deployment (npm run build:uat)
  * - .env.production - Production deployment (npm run build)
  */
 
 export type AppMode = 'standalone' | 'integrated';
-export type Environment = 'development' | 'development-integrated' | 'uat' | 'production';
+export type Environment = 'development' | 'integrated' | 'uat' | 'production';
 
 interface EnvironmentConfig {
   // Application Mode
@@ -39,32 +39,17 @@ interface EnvironmentConfig {
 
 /**
  * Get environment variable with type safety
+ *
+ * Uses Vite's import.meta.env (replaced at build/dev time).
  */
 function getEnvVar(key: string, defaultValue?: string): string {
-  // Handle test environment where import.meta might not be available
-  let value: string | undefined;
-  
-  if (typeof globalThis !== 'undefined' && (globalThis as any).import?.meta?.env) {
-    value = (globalThis as any).import.meta.env[key];
-  } else if (typeof process !== 'undefined' && process.env) {
-    // Fallback to process.env for Node.js environments (like Jest)
-    value = process.env[key];
-  } else {
-    // Final fallback for test environments
-    const testEnvValues: Record<string, string> = {
-      'VITE_API_BASE_URL': 'http://localhost:8080/api',
-      'VITE_APP_NAME': 'BuildFlow Test',
-      'VITE_APP_VERSION': '0.0.1',
-      'NODE_ENV': 'test',
-    };
-    value = testEnvValues[key];
-  }
-  
-  if (value === undefined && defaultValue === undefined) {
+  const env = (import.meta as any).env as Record<string, any>;
+  const value = env?.[key] ?? defaultValue;
+  if (value === undefined) {
     console.warn(`Environment variable ${key} is not defined`);
     return '';
   }
-  return value ?? defaultValue ?? '';
+  return String(value);
 }
 
 /**
@@ -118,7 +103,7 @@ class Config implements EnvironmentConfig {
 
     // Environment Info
     this.environment = (getEnvVar('VITE_ENVIRONMENT', 'development') as Environment);
-    this.isDevelopment = this.environment.startsWith('development');
+    this.isDevelopment = this.environment === 'development' || this.environment === 'integrated';
     this.isProduction = this.environment === 'production';
     this.isUAT = this.environment === 'uat';
 

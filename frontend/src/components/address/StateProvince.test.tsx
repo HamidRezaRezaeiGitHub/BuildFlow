@@ -3,17 +3,17 @@ import { StateProvinceField } from './StateProvince';
 
 describe('StateProvinceField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     // Basic functionality tests
     test('StateProvinceField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(<StateProvinceField value="" onChange={mockOnChange} />);
 
         const input = screen.getByRole('textbox');
-        const label = screen.getByText('Province/State');
+        const label = screen.getByText('Province');
 
         expect(input).toBeInTheDocument();
         expect(label).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(<StateProvinceField value="" onChange={mockOnChange} />);
 
@@ -33,7 +33,7 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['State/Province is invalid'];
         
         render(<StateProvinceField value="Invalid" onChange={mockOnChange} errors={errors} />);
@@ -44,8 +44,8 @@ describe('StateProvinceField', () => {
 
     // Validation tests
     test('StateProvinceField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StateProvinceField
@@ -66,8 +66,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldPassValidation_whenValidStateProvinceProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StateProvinceField
@@ -100,8 +100,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
         const longName = 'A'.repeat(51);
 
         const { rerender } = render(
@@ -135,8 +135,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldShowMinLengthError_whenTooShort', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StateProvinceField
@@ -169,8 +169,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldShowInvalidCharacterError_whenContainsNumbers', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StateProvinceField
@@ -203,8 +203,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StateProvinceField
@@ -223,7 +223,7 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <StateProvinceField
@@ -240,8 +240,8 @@ describe('StateProvinceField', () => {
     });
 
     test('StateProvinceField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StateProvinceField

@@ -83,7 +83,7 @@ export interface ContactRequestDto {
     phone?: string;
 
     /** Address information for the contact */
-    addressRequestDto?: ContactAddressRequestDto;
+    address?: ContactAddressRequestDto;
 }
 
 /**

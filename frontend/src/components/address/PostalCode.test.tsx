@@ -3,11 +3,11 @@ import { PostalCodeField } from './PostalCode';
 
 describe('PostalCodeField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('PostalCodeField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <PostalCodeField
@@ -17,7 +17,7 @@ describe('PostalCodeField', () => {
         );
 
         const input = screen.getByRole('textbox');
-        const label = screen.getByText('Postal Code/Zip Code');
+        const label = screen.getByText('Postal Code');
 
         expect(input).toBeInTheDocument();
         expect(label).toBeInTheDocument();
@@ -26,7 +26,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <PostalCodeField
@@ -42,7 +42,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['Postal code is invalid'];
         
         render(
@@ -61,7 +61,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldBeDisabled_whenDisabledPropTrue', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <PostalCodeField
@@ -77,7 +77,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <PostalCodeField
@@ -93,7 +93,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldDisplayValue_whenValueProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <PostalCodeField
@@ -110,8 +110,8 @@ describe('PostalCodeField', () => {
     // === VALIDATION TESTS ===
 
     test('PostalCodeField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <PostalCodeField
@@ -134,8 +134,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidCanadianPostalCodeProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -176,8 +176,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidUSZipCodeProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -216,8 +216,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldPassValidation_whenValidExtendedUSZipCodeProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -255,8 +255,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const longPostalCode = 'M5H2N2EXTRA'; // 11 characters
 
@@ -298,8 +298,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldShowMinLengthError_whenTooShort', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -339,8 +339,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldShowInvalidFormatError_whenInvalidFormat', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -377,8 +377,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldAcceptCanadianPostalCodeWithoutSpace', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -415,8 +415,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <PostalCodeField
@@ -438,8 +438,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <PostalCodeField
@@ -463,8 +463,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldValidateOnChangeAfterFirstBlur', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField
@@ -501,7 +501,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const externalErrors = ['External error message'];
 
         render(
@@ -525,7 +525,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <PostalCodeField
@@ -542,7 +542,7 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <PostalCodeField
@@ -557,8 +557,8 @@ describe('PostalCodeField', () => {
     });
 
     test('PostalCodeField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <PostalCodeField

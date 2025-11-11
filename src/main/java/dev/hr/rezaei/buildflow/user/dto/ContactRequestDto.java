@@ -14,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * ContactRequestDto representing contact information for creation requests (without ID).
  * <p>
@@ -56,5 +58,6 @@ public class ContactRequestDto {
 
     @Schema(description = "Address information for the contact")
     @Valid
+    @JsonProperty("address")
     private ContactAddressRequestDto addressRequestDto;
 }

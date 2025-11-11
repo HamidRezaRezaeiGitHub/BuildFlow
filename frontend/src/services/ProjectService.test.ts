@@ -3,7 +3,7 @@ import { projectService, ProjectServiceWithAuth } from './ProjectService';
 import { CreateProjectRequest, CreateProjectResponse, Project } from './dtos';
 
 // Mock the config module to disable mock data in tests
-jest.mock('@/config/environment', () => ({
+vi.mock('@/config/environment', () => ({
     config: {
         enableMockData: false,
         enableConsoleLogs: false,
@@ -12,11 +12,11 @@ jest.mock('@/config/environment', () => ({
 }));
 
 // Mock the ApiService
-jest.mock('./ApiService', () => ({
+vi.mock('./ApiService', () => ({
     apiService: {
-        create: jest.fn(),
-        get: jest.fn(),
-        requestWithMetadata: jest.fn(),
+        create: vi.fn(),
+        get: vi.fn(),
+        requestWithMetadata: vi.fn(),
     },
 }));
 
@@ -60,12 +60,12 @@ describe('ProjectService', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('createProject', () => {
         test('ProjectService_shouldCreateProject_whenValidRequestProvided', async () => {
-            (apiService.create as jest.Mock).mockResolvedValue(mockCreateResponse);
+            (apiService.create as vi.Mock).mockResolvedValue(mockCreateResponse);
 
             const result = await projectService.createProject(mockCreateRequest, mockToken);
 
@@ -79,7 +79,7 @@ describe('ProjectService', () => {
 
         test('ProjectService_shouldThrowError_whenApiServiceFails', async () => {
             const errorMessage = 'Failed to create project';
-            (apiService.create as jest.Mock).mockRejectedValue(new Error(errorMessage));
+            (apiService.create as vi.Mock).mockRejectedValue(new Error(errorMessage));
 
             await expect(
                 projectService.createProject(mockCreateRequest, mockToken)
@@ -102,7 +102,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -128,7 +128,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -155,7 +155,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -181,7 +181,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -199,17 +199,17 @@ describe('ProjectService', () => {
     });
 
     describe('ProjectServiceWithAuth', () => {
-        let getToken: jest.Mock;
+        let getToken: vi.Mock;
         let serviceWithAuth: ProjectServiceWithAuth;
 
         beforeEach(() => {
-            getToken = jest.fn();
+            getToken = vi.fn();
             serviceWithAuth = new ProjectServiceWithAuth(getToken);
         });
 
         test('ProjectServiceWithAuth_shouldUseTokenFromContext_whenCreatingProject', async () => {
             getToken.mockReturnValue(mockToken);
-            (apiService.create as jest.Mock).mockResolvedValue(mockCreateResponse);
+            (apiService.create as vi.Mock).mockResolvedValue(mockCreateResponse);
 
             const result = await serviceWithAuth.createProject(mockCreateRequest);
 
@@ -241,7 +241,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -268,7 +268,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -296,7 +296,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -331,7 +331,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '50',
                 'X-Total-Pages': '5'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -380,7 +380,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '1',
                 'X-Total-Pages': '1'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,
@@ -416,7 +416,7 @@ describe('ProjectService', () => {
                 'X-Total-Count': '100',
                 'X-Total-Pages': '7'
             });
-            (apiService.requestWithMetadata as jest.Mock).mockResolvedValue({
+            (apiService.requestWithMetadata as vi.Mock).mockResolvedValue({
                 data: mockProjects,
                 headers: mockHeaders,
                 status: 200,

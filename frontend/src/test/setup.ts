@@ -1,9 +1,10 @@
 /**
- * Jest setup configuration for React Testing Library
+ * Vitest setup configuration for React Testing Library
  * 
  * This file is run once before all tests and sets up:
- * - jest-dom custom matchers
+ * - jest-dom custom matchers (compatible with Vitest)
  * - Global test configurations
+ * - Browser API mocks
  */
 
 import '@testing-library/jest-dom';
@@ -43,19 +44,3 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   takeRecords() { return []; }
 };
-
-// Mock import.meta for Vite environments
-Object.defineProperty(global, 'import', {
-  value: {
-    meta: {
-      env: {
-        VITE_API_BASE_URL: 'http://localhost:8080/api',
-        VITE_APP_NAME: 'BuildFlow Test',
-        VITE_APP_VERSION: '0.0.1',
-        NODE_ENV: 'test',
-        PROD: false,
-        DEV: false,
-      },
-    },
-  },
-});

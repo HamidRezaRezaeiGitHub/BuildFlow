@@ -630,7 +630,7 @@ const ConfigSection: React.FC = () => {
                         Build Info
                     </div>
                     <div className="grid grid-cols-1 gap-2 text-xs">
-                        <ConfigItem label="Node Env" value={process.env.NODE_ENV || 'unknown'} />
+                        <ConfigItem label="Mode" value={import.meta.env.MODE || 'unknown'} />
                         <ConfigItem label="Timestamp" value={new Date().toLocaleString()} />
                     </div>
                 </div>

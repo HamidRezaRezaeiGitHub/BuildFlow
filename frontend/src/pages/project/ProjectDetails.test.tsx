@@ -7,11 +7,11 @@ import { Project } from '@/services/dtos';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies
-jest.mock('@/contexts/AuthContext');
-jest.mock('@/services/ProjectService');
+vi.mock('@/contexts/AuthContext');
+vi.mock('@/services/ProjectService');
 
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const MockedProjectServiceWithAuth = ProjectServiceWithAuth as jest.MockedClass<typeof ProjectServiceWithAuth>;
+const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
+const MockedProjectServiceWithAuth = ProjectServiceWithAuth as vi.MockedClass<typeof ProjectServiceWithAuth>;
 
 describe('ProjectDetails', () => {
   // Helper to render with router context and route params
@@ -42,10 +42,10 @@ describe('ProjectDetails', () => {
     lastUpdatedAt: '2024-10-20T14:20:00Z',
   };
 
-  const mockGetProjectById = jest.fn();
+  const mockGetProjectById = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     mockUseAuth.mockReturnValue({
       user: null,
@@ -53,22 +53,24 @@ describe('ProjectDetails', () => {
       isAuthenticated: true,
       isLoading: false,
       role: null,
-      login: jest.fn(),
-      register: jest.fn(),
-      logout: jest.fn(),
-      refreshToken: jest.fn(),
-      getCurrentUser: jest.fn(),
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      refreshToken: vi.fn(),
+      getCurrentUser: vi.fn(),
     });
 
-    MockedProjectServiceWithAuth.mockImplementation(() => ({
-      getProjectById: mockGetProjectById,
-      createProject: jest.fn(),
-      getProjectsByBuilderId: jest.fn(),
-      getProjectsByBuilderIdPaginated: jest.fn(),
-      getProjectsByOwnerId: jest.fn(),
-      getProjectsByOwnerIdPaginated: jest.fn(),
-      getCombinedProjectsPaginated: jest.fn(),
-    } as any));
+    MockedProjectServiceWithAuth.mockImplementation(function() {
+      return {
+        getProjectById: mockGetProjectById,
+        createProject: vi.fn(),
+        getProjectsByBuilderId: vi.fn(),
+        getProjectsByBuilderIdPaginated: vi.fn(),
+        getProjectsByOwnerId: vi.fn(),
+        getProjectsByOwnerIdPaginated: vi.fn(),
+        getCombinedProjectsPaginated: vi.fn(),
+      } as any;
+    });
   });
 
   describe('Loading State', () => {
@@ -103,11 +105,11 @@ describe('ProjectDetails', () => {
         isAuthenticated: false,
         isLoading: false,
         role: null,
-        login: jest.fn(),
-        register: jest.fn(),
-        logout: jest.fn(),
-        refreshToken: jest.fn(),
-        getCurrentUser: jest.fn(),
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshToken: vi.fn(),
+        getCurrentUser: vi.fn(),
       });
 
       renderWithRouterAndParams('1');

@@ -1,5 +1,7 @@
 package dev.hr.rezaei.buildflow.config.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -40,6 +42,7 @@ public class SignUpRequest {
     @Schema(description = "Contact information for the new user")
     @Valid
     @NotNull(message = "Contact information is required")
+    @JsonProperty("contact")
     private ContactRequestDto contactRequestDto;
 
 }

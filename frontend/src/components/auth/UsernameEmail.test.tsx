@@ -3,11 +3,11 @@ import React from 'react';
 import { UsernameEmailField } from './UsernameEmail';
 
 describe('UsernameEmailField', () => {
-    const mockOnChange = jest.fn();
-    const mockOnValidationChange = jest.fn();
+    const mockOnChange = vi.fn();
+    const mockOnValidationChange = vi.fn();
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('UsernameEmailField_shouldRenderWithMinimalProps', () => {

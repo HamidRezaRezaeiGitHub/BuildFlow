@@ -3,10 +3,10 @@ import { FlexibleNavbar } from './FlexibleNavbar';
 import { NavbarUser } from './types';
 
 // Mock the theme context
-const mockSetTheme = jest.fn();
-const mockToggleTheme = jest.fn();
+const mockSetTheme = vi.fn();
+const mockToggleTheme = vi.fn();
 
-jest.mock('@/contexts/ThemeContext', () => ({
+vi.mock('@/contexts/ThemeContext', () => ({
   useTheme: () => ({
     theme: 'light',
     actualTheme: 'light',
@@ -16,11 +16,11 @@ jest.mock('@/contexts/ThemeContext', () => ({
 }));
 
 // Mock the auth context
-const mockLogin = jest.fn();
-const mockRegister = jest.fn();
-const mockLogout = jest.fn();
+const mockLogin = vi.fn();
+const mockRegister = vi.fn();
+const mockLogout = vi.fn();
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     role: null,
@@ -30,19 +30,19 @@ jest.mock('@/contexts/AuthContext', () => ({
     login: mockLogin,
     register: mockRegister,
     logout: mockLogout,
-    refreshToken: jest.fn(),
-    getCurrentUser: jest.fn(),
+    refreshToken: vi.fn(),
+    getCurrentUser: vi.fn(),
   }),
 }));
 
 // Mock the navigation context
-const mockNavigateToHome = jest.fn();
-const mockNavigateToDashboard = jest.fn();
-const mockScrollToSection = jest.fn();
-const mockGoBack = jest.fn();
-const mockOpenExternalLink = jest.fn();
+const mockNavigateToHome = vi.fn();
+const mockNavigateToDashboard = vi.fn();
+const mockScrollToSection = vi.fn();
+const mockGoBack = vi.fn();
+const mockOpenExternalLink = vi.fn();
 
-jest.mock('@/contexts/NavigationContext', () => ({
+vi.mock('@/contexts/NavigationContext', () => ({
   useNavigate: () => ({
     navigateToHome: mockNavigateToHome,
     navigateToDashboard: mockNavigateToDashboard,
@@ -63,7 +63,7 @@ const mockUser: NavbarUser = {
 
 describe('FlexibleNavbar', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Clear specific mocks
     mockSetTheme.mockClear();
     mockToggleTheme.mockClear();
@@ -109,9 +109,9 @@ describe('FlexibleNavbar', () => {
 
   test('FlexibleNavbar_shouldRenderNavigationItems', () => {
     const navItems = [
-      { label: 'Home', onClick: jest.fn() },
-      { label: 'About', onClick: jest.fn() },
-      { label: 'Contact', onClick: jest.fn() }
+      { label: 'Home', onClick: vi.fn() },
+      { label: 'About', onClick: vi.fn() },
+      { label: 'Contact', onClick: vi.fn() }
     ];
 
     render(<FlexibleNavbar navItems={navItems} />);
@@ -122,7 +122,7 @@ describe('FlexibleNavbar', () => {
   });
 
   test('FlexibleNavbar_shouldCallNavItemOnClick_whenNavItemClicked', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     const navItems = [
       { label: 'Home', onClick: mockOnClick }
     ];
@@ -134,8 +134,8 @@ describe('FlexibleNavbar', () => {
   });
 
   test('FlexibleNavbar_shouldCallAuthCallbacks_whenAuthButtonsClicked', () => {
-    const mockOnLoginClick = jest.fn();
-    const mockOnSignUpClick = jest.fn();
+    const mockOnLoginClick = vi.fn();
+    const mockOnSignUpClick = vi.fn();
 
     render(
       <FlexibleNavbar 
@@ -152,7 +152,7 @@ describe('FlexibleNavbar', () => {
   });
 
   test('FlexibleNavbar_shouldCallAvatarCallback_whenAvatarClicked', () => {
-    const mockOnAvatarClick = jest.fn();
+    const mockOnAvatarClick = vi.fn();
 
     render(
       <FlexibleNavbar 
@@ -208,8 +208,8 @@ describe('FlexibleNavbar', () => {
 
   test('FlexibleNavbar_shouldShowMobileMenu_whenMobileMenuButtonClicked', () => {
     const navItems = [
-      { label: 'Home', onClick: jest.fn() },
-      { label: 'About', onClick: jest.fn() }
+      { label: 'Home', onClick: vi.fn() },
+      { label: 'About', onClick: vi.fn() }
     ];
 
     render(<FlexibleNavbar navItems={navItems} />);

@@ -1,3 +1,4 @@
+import { SignUpData } from '@/services/dtos';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -169,7 +170,7 @@ export interface FlexibleSignUpFormProps {
     onSignUpError?: (error: string) => void;
 
     /** Context alternatives - provide either contexts or callback functions */
-    onRegister?: (signupData: FlexibleSignUpFormData & { address?: AddressData }) => Promise<void>;
+    onRegister?: (signUpData: SignUpData) => Promise<void>;
     onNavigate?: (path: string, options?: { replace?: boolean }) => void;
 
     /** Redirect configuration */
@@ -242,7 +243,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     }
 
     // Use provided callbacks or context functions
-    const registerFunction = onRegister || authRegisterContext?.register;
+    const registerFunction: (signUpData: SignUpData) => Promise<void> = onRegister || authRegisterContext?.register;
     const navigateFunction = onNavigate || navigationContext?.navigate;
 
     // Initialize form data with empty address
@@ -275,6 +276,12 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     // Validation states
     const [personalInfoValidation, setPersonalInfoValidation] = useState<Record<string, ValidationResult>>({});
     const [isFormValid, setIsFormValid] = useState(false);
+
+    // Local submitting state
+    const [localIsSubmitting, setLocalIsSubmitting] = useState(false);
+
+    // Use prop isSubmitting if provided, otherwise use local state
+    const effectiveIsSubmitting = isSubmitting ?? localIsSubmitting;
 
     // Determine which fields to show based on configuration
     const fieldsToShow = useMemo(() => {
@@ -354,7 +361,8 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             return;
         }
 
-        setIsFormValid(false);
+        // Set submitting state
+        setLocalIsSubmitting(true);
         onLoadingStateChange?.(true);
 
         try {
@@ -365,42 +373,25 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 throw new Error('No register function available. Please provide either useAuth context or onRegister callback.');
             }
 
-            // Call the signup API - use callback if provided, otherwise use context
-            if (onRegister) {
-                const addressData = includeAddress ? {
-                    unitNumber: signUpForm.unitNumber || undefined,
-                    streetNumberAndName: signUpForm.streetNumberAndName,
-                    city: signUpForm.city,
-                    stateOrProvince: signUpForm.stateOrProvince,
-                    postalOrZipCode: signUpForm.postalOrZipCode,
-                    country: signUpForm.country
-                } : undefined;
-
-                await onRegister({
-                    ...signUpForm,
-                    address: addressData
-                });
-            } else {
-                await authRegisterContext?.register({
-                    username: signUpForm.username,
-                    password: signUpForm.password,
-                    contactRequestDto: {
-                        firstName: signUpForm.firstName,
-                        lastName: signUpForm.lastName,
-                        labels: [],
-                        email: signUpForm.email,
-                        phone: signUpForm.phone || undefined,
-                        addressRequestDto: includeAddress ? {
-                            unitNumber: signUpForm.unitNumber || undefined,
-                            streetNumberAndName: signUpForm.streetNumberAndName,
-                            city: signUpForm.city,
-                            stateOrProvince: signUpForm.stateOrProvince,
-                            postalOrZipCode: signUpForm.postalOrZipCode,
-                            country: signUpForm.country
-                        } : undefined
-                    }
-                });
-            }
+            await registerFunction({
+                username: signUpForm.username,
+                password: signUpForm.password,
+                contact: {
+                    firstName: signUpForm.firstName,
+                    lastName: signUpForm.lastName,
+                    labels: [],
+                    email: signUpForm.email,
+                    phone: signUpForm.phone || undefined,
+                    address: includeAddress ? {
+                        unitNumber: signUpForm.unitNumber || undefined,
+                        streetNumberAndName: signUpForm.streetNumberAndName,
+                        city: signUpForm.city,
+                        stateOrProvince: signUpForm.stateOrProvince,
+                        postalOrZipCode: signUpForm.postalOrZipCode,
+                        country: signUpForm.country
+                    } : undefined
+                }
+            });
 
             onSignUpSuccess?.();
 
@@ -411,6 +402,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             const errorMessage = error instanceof Error ? error.message : 'An error occurred during signup';
             onSignUpError?.(errorMessage);
         } finally {
+            setLocalIsSubmitting(false);
             onLoadingStateChange?.(false);
         }
     };
@@ -457,7 +449,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
         const fieldProps = {
             value: signUpForm[fieldConfig.field],
             onChange: (value: string) => handleFieldChange(fieldConfig.field, value),
-            disabled: disabled || isSubmitting,
+            disabled: disabled || effectiveIsSubmitting,
             errors: errors[fieldConfig.field] || [],
             enableValidation,
             validationMode: fieldConfig.required ? 'required' as const : 'optional' as const,
@@ -582,7 +574,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     type="button"
                                     variant="ghost"
                                     className="w-full justify-between"
-                                    disabled={disabled || isSubmitting}
+                                    disabled={disabled || effectiveIsSubmitting}
                                 >
                                     <span>{addressSectionTitle}</span>
                                     {addressExpanded ? (
@@ -608,7 +600,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                     showAddressPanelHeader={showAddressPanelHeader}
                                     addressPanelHeaderText={addressPanelHeaderText}
                                     inline={true}
-                                    disabled={disabled || isSubmitting}
+                                    disabled={disabled || effectiveIsSubmitting}
                                     errors={{
                                         unitNumber: errors.unitNumber,
                                         streetNumberAndName: errors.streetNumberAndName,
@@ -641,7 +633,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                                 showAddressPanelHeader={showAddressPanelHeader}
                                 addressPanelHeaderText={addressPanelHeaderText}
                                 inline={true}
-                                disabled={disabled || isSubmitting}
+                                disabled={disabled || effectiveIsSubmitting}
                                 errors={{
                                     unitNumber: errors.unitNumber,
                                     streetNumberAndName: errors.streetNumberAndName,
@@ -664,10 +656,10 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 <Button
                     type="submit"
                     variant={submitButtonVariant}
-                    disabled={(!isFormValid && enableValidation) || disabled || isSubmitting}
+                    disabled={(!isFormValid && enableValidation) || disabled || effectiveIsSubmitting}
                     className="w-full"
                 >
-                    {isSubmitting ? submittingText : submitButtonText}
+                    {effectiveIsSubmitting ? submittingText : submitButtonText}
                 </Button>
             </div>
         </form>

@@ -97,7 +97,7 @@ export const StateProvinceField: FC<StateProvinceFieldProps> = ({
     return (
         <div className={`space-y-2 ${className}`}>
             <Label htmlFor={id} className="text-xs">
-                Province/State
+                Province
                 {isRequired && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <Input

@@ -70,8 +70,8 @@ class AuthService {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     try {
-                        const { username, password, contactRequestDto } = signUpData;
-                        const newUser = createMockUser(contactRequestDto, username, password);
+                        const { username, password, contact } = signUpData;
+                        const newUser = createMockUser(contact, username, password);
                         resolve(generateMockCreateUserResponse(newUser));
                     } catch (error) {
                         reject(new Error('Registration failed'));
@@ -206,12 +206,12 @@ class AuthService {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     try {
-                        const { username, password, contactRequestDto } = signUpData;
+                        const { username, password, contact } = signUpData;
 
                         // Ensure admin label is present
                         const adminContactDto = {
-                            ...contactRequestDto,
-                            labels: [...(contactRequestDto.labels || []), 'Administrator']
+                            ...contact,
+                            labels: [...(contact.labels || []), 'Administrator']
                         };
 
                         const newAdminUser = createMockUser(adminContactDto, username, password);

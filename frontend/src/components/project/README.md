@@ -74,7 +74,7 @@ const NewProjectPage = () => (
 
 **Form Fields:**
 - User Role Selection (required): Builder or Owner
-- Street Number & Name (required)
+- Street (required)
 - Unit/Apt/Suite (optional)
 - City (required)
 - Province/State (required)

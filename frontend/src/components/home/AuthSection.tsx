@@ -32,16 +32,16 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
     { field: 'confirmPassword', colSpan: 1, required: true, show: true }
   ];
 
-  // Address configuration: unitNumber, streetNumberName (combined), city, stateOrProvince, country, postalOrZipCode
+  // Address configuration: unitNumber, streetNumberAndName (combined), city, stateOrProvince, country, postalOrZipCode
   // Required: city, stateOrProvince, country, postalOrZipCode
-  // Optional: unitNumber, streetNumberName
+  // Optional: unitNumber, streetNumberAndName
   const addressFieldsConfig: AddressFieldConfig[] = [
     { field: 'unitNumber', colSpan: 1, required: false, show: true },
-    { field: 'streetNumberName' as any, colSpan: 1, required: false, show: true },
+    { field: 'streetNumberAndName' as any, colSpan: 1, required: false, show: true },
     { field: 'city', colSpan: 1, required: true, show: true },
     { field: 'stateOrProvince', colSpan: 1, required: true, show: true },
     { field: 'country', colSpan: 1, required: true, show: true },
-    { field: 'postalOrZipCode', colSpan: 1, required: true, show: true }
+    { field: 'postalOrZipCode', colSpan: 1, required: false, show: true }
   ];
 
   // Listen for URL hash changes and navigation events
@@ -120,7 +120,7 @@ const Auth: React.FC<AuthSectionProps> = ({ className = '' }) => {
                 enableValidation={true}
                 includeAddress={true}
                 addressCollapsible={false}
-                showPersonalInfoHeader={false}
+                showPersonalInfoHeader={true}
                 showAddressPanelHeader={false}
               />
             </TabsContent>

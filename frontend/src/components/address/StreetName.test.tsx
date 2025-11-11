@@ -3,11 +3,11 @@ import { StreetNameField } from './StreetName';
 
 describe('StreetNameField', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('StreetNameField_shouldRenderWithDefaultProps', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNameField
@@ -26,7 +26,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldCallOnChange_whenValueChanges', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNameField
@@ -42,7 +42,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldDisplayExternalErrors_whenErrorsProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const errors = ['Street name is invalid'];
         
         render(
@@ -61,7 +61,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldBeDisabled_whenDisabledPropTrue', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNameField
@@ -77,7 +77,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldUseCustomPlaceholder_whenPlaceholderProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNameField
@@ -93,7 +93,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldDisplayValue_whenValueProvided', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         
         render(
             <StreetNameField
@@ -110,8 +110,8 @@ describe('StreetNameField', () => {
     // === VALIDATION TESTS ===
 
     test('StreetNameField_shouldShowRequiredError_whenEmptyAndRequired', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNameField
@@ -134,8 +134,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldPassValidation_whenValidNameProvided', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNameField
@@ -175,8 +175,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldShowMaxLengthError_whenExceedsLimit', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const longStreetName = 'A'.repeat(101); // 101 characters
 
@@ -215,8 +215,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldShowMinLengthError_whenTooShort', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNameField
@@ -253,8 +253,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldHandleEmptyValueInOptionalMode', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNameField
@@ -276,8 +276,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldNotValidateBeforeTouch_whenValidationEnabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         render(
             <StreetNameField
@@ -301,8 +301,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldValidateOnChangeAfterFirstBlur', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNameField
@@ -339,7 +339,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldPrioritizeValidationErrors_overExternalErrors_whenBothPresent', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
         const externalErrors = ['External error message'];
 
         render(
@@ -363,7 +363,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldShowRequiredIndicator_whenRequiredModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <StreetNameField
@@ -380,7 +380,7 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldNotShowRequiredIndicator_whenOptionalModeEnabled', () => {
-        const mockOnChange = jest.fn();
+        const mockOnChange = vi.fn();
 
         render(
             <StreetNameField
@@ -395,8 +395,8 @@ describe('StreetNameField', () => {
     });
 
     test('StreetNameField_shouldClearValidationErrors_whenValidationDisabled', () => {
-        const mockOnChange = jest.fn();
-        const mockOnValidationChange = jest.fn();
+        const mockOnChange = vi.fn();
+        const mockOnValidationChange = vi.fn();
 
         const { rerender } = render(
             <StreetNameField

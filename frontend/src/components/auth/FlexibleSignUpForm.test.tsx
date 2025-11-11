@@ -6,30 +6,30 @@ import FlexibleSignUpForm, {
 } from './FlexibleSignUpForm';
 
 // Mock functions
-const mockRegister = jest.fn();
-const mockNavigateToDashboard = jest.fn();
+const mockRegister = vi.fn();
+const mockNavigateToDashboard = vi.fn();
 
 // Mock the contexts
-jest.mock('../../contexts/AuthContext', () => ({
+vi.mock('../../contexts/AuthContext', () => ({
     useAuth: () => ({
         register: mockRegister,
         isLoading: false,
     })
 }));
 
-jest.mock('../../contexts/NavigationContext', () => ({
+vi.mock('../../contexts/NavigationContext', () => ({
     useNavigate: () => ({
         navigateToDashboard: mockNavigateToDashboard
     })
 }));
 
 describe('FlexibleSignUpForm', () => {
-    const mockOnFormDataChange = jest.fn();
-    const mockOnValidationStateChange = jest.fn();
-    const mockOnLoadingStateChange = jest.fn();
-    const mockOnFormSubmit = jest.fn();
-    const mockOnSignUpSuccess = jest.fn();
-    const mockOnSignUpError = jest.fn();
+    const mockOnFormDataChange = vi.fn();
+    const mockOnValidationStateChange = vi.fn();
+    const mockOnLoadingStateChange = vi.fn();
+    const mockOnFormSubmit = vi.fn();
+    const mockOnSignUpSuccess = vi.fn();
+    const mockOnSignUpError = vi.fn();
 
     const defaultProps: FlexibleSignUpFormProps = {
         onFormDataChange: mockOnFormDataChange,
@@ -41,7 +41,7 @@ describe('FlexibleSignUpForm', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     // Basic rendering tests
@@ -192,13 +192,13 @@ describe('FlexibleSignUpForm', () => {
             expect(addressButton).toBeInTheDocument();
 
             // Address fields should not be visible initially
-            expect(screen.queryByLabelText(/Street Number/)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText(/Street/)).not.toBeInTheDocument();
 
             // Click to expand
             fireEvent.click(addressButton);
 
             // Address fields should now be visible
-            expect(screen.getByLabelText(/Street Number/)).toBeInTheDocument();
+            expect(screen.getByLabelText(/Street/)).toBeInTheDocument();
         });
 
         test('FlexibleSignUpForm_shouldRenderExpandedAddressSectionByDefault', () => {
@@ -210,7 +210,7 @@ describe('FlexibleSignUpForm', () => {
             );
 
             // Address fields should be visible initially
-            expect(screen.getByLabelText(/Street Number/)).toBeInTheDocument();
+            expect(screen.getByLabelText(/Street/)).toBeInTheDocument();
         });
 
         test('FlexibleSignUpForm_shouldRenderNonCollapsibleAddressSection', () => {
@@ -220,7 +220,7 @@ describe('FlexibleSignUpForm', () => {
             expect(screen.queryByRole('button', { name: /Address Information/ })).not.toBeInTheDocument();
 
             // Address fields should be visible
-            expect(screen.getByLabelText(/Street Number/)).toBeInTheDocument();
+            expect(screen.getByLabelText(/Street/)).toBeInTheDocument();
         });
 
         test('FlexibleSignUpForm_shouldCustomizeAddressSectionTitle', () => {

@@ -4,11 +4,11 @@ import { NewProjectForm } from './NewProjectForm';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Mock the useAuth hook
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn()
+vi.mock('@/contexts/AuthContext', () => ({
+  useAuth: vi.fn()
 }));
 
-const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+const mockUseAuth = useAuth as vi.MockedFunction<typeof useAuth>;
 
 // Mock user for testing
 const mockUser = {
@@ -36,22 +36,22 @@ const mockUser = {
 };
 
 describe('NewProjectForm', () => {
-  const mockOnSubmit = jest.fn();
-  const mockOnCancel = jest.fn();
+  const mockOnSubmit = vi.fn();
+  const mockOnCancel = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Setup default mock return value
     mockUseAuth.mockReturnValue({
       user: mockUser,
       token: 'mock-token',
       isAuthenticated: true,
-      login: jest.fn(),
-      logout: jest.fn(),
-      register: jest.fn(),
-      refreshToken: jest.fn(),
-      getCurrentUser: jest.fn(),
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+      refreshToken: vi.fn(),
+      getCurrentUser: vi.fn(),
       isLoading: false,
       role: 'USER'
     });
@@ -76,12 +76,12 @@ describe('NewProjectForm', () => {
     expect(screen.getByRole('button', { name: /Owner/i })).toBeInTheDocument();
 
     // Check for address fields - the critical one we're testing
-    expect(screen.getByLabelText(/Street Number & Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Street/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Province\/State/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Province/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Country/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Unit\/Apt\/Suite/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Postal Code\/Zip Code/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Postal Code/i)).toBeInTheDocument();
   });
 
   it('has Create Project button disabled initially', () => {
@@ -96,9 +96,9 @@ describe('NewProjectForm', () => {
     renderForm();
 
     // Fill in required address fields
-    await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main Street');
+    await user.type(screen.getByLabelText(/Street/i), '123 Main Street');
     await user.type(screen.getByLabelText(/City/i), 'Toronto');
-    await user.type(screen.getByLabelText(/Province\/State/i), 'ON');
+    await user.type(screen.getByLabelText(/Province/i), 'ON');
     await user.type(screen.getByLabelText(/Country/i), 'Canada');
 
     // Wait for validation to complete
@@ -113,7 +113,7 @@ describe('NewProjectForm', () => {
     renderForm();
 
     // Fill only some fields
-    await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main Street');
+    await user.type(screen.getByLabelText(/Street/i), '123 Main Street');
     await user.type(screen.getByLabelText(/City/i), 'Toronto');
     // Don't fill Province/State and Country
 
@@ -127,9 +127,9 @@ describe('NewProjectForm', () => {
     renderForm();
 
     // Fill only required fields (not unitNumber and postalOrZipCode)
-    await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main Street');
+    await user.type(screen.getByLabelText(/Street/i), '123 Main Street');
     await user.type(screen.getByLabelText(/City/i), 'Toronto');
-    await user.type(screen.getByLabelText(/Province\/State/i), 'ON');
+    await user.type(screen.getByLabelText(/Province/i), 'ON');
     await user.type(screen.getByLabelText(/Country/i), 'Canada');
 
     // Button should be enabled even without optional fields
@@ -147,12 +147,12 @@ describe('NewProjectForm', () => {
     await user.click(screen.getByRole('button', { name: /Builder/i }));
 
     // Fill in all required fields
-    await user.type(screen.getByLabelText(/Street Number & Name/i), '123 Main Street');
+    await user.type(screen.getByLabelText(/Street/i), '123 Main Street');
     await user.type(screen.getByLabelText(/City/i), 'Toronto');
-    await user.type(screen.getByLabelText(/Province\/State/i), 'ON');
+    await user.type(screen.getByLabelText(/Province/i), 'ON');
     await user.type(screen.getByLabelText(/Country/i), 'Canada');
     await user.type(screen.getByLabelText(/Unit\/Apt\/Suite/i), 'Unit 5');
-    await user.type(screen.getByLabelText(/Postal Code\/Zip Code/i), 'M5H 2N2');
+    await user.type(screen.getByLabelText(/Postal Code/i), 'M5H 2N2');
 
     // Wait for button to be enabled
     await waitFor(() => {
