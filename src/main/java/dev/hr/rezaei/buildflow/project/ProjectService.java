@@ -1,6 +1,6 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
+import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.User;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;

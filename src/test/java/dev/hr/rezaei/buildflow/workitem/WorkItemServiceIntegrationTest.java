@@ -1,7 +1,7 @@
 package dev.hr.rezaei.buildflow.workitem;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
+import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.*;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemRequest;
 import dev.hr.rezaei.buildflow.workitem.dto.CreateWorkItemResponse;

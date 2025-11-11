@@ -1,8 +1,8 @@
 package dev.hr.rezaei.buildflow.config.mvc;
 
-import dev.hr.rezaei.buildflow.base.DuplicateUserException;
+import dev.hr.rezaei.buildflow.user.DuplicateUserException;
 import dev.hr.rezaei.buildflow.base.UserNotAuthorizedException;
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
+import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -105,20 +105,20 @@ public class GlobalExceptionHandler {
         return responseFacilitator.notFound(request, List.of(ex.getMessage()));
     }
 
-    @ExceptionHandler(dev.hr.rezaei.buildflow.base.ProjectNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProjectNotFoundException(dev.hr.rezaei.buildflow.base.ProjectNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(dev.hr.rezaei.buildflow.project.ProjectNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProjectNotFoundException(dev.hr.rezaei.buildflow.project.ProjectNotFoundException ex, HttpServletRequest request) {
         log.warn("Project not found exception: {}", ex.getMessage());
         return responseFacilitator.notFound(request, List.of(ex.getMessage()));
     }
 
-    @ExceptionHandler(dev.hr.rezaei.buildflow.base.ContactNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleContactNotFoundException(dev.hr.rezaei.buildflow.base.ContactNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(dev.hr.rezaei.buildflow.user.ContactNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleContactNotFoundException(dev.hr.rezaei.buildflow.user.ContactNotFoundException ex, HttpServletRequest request) {
         log.warn("Contact not found exception: {}", ex.getMessage());
         return responseFacilitator.notFound(request, List.of(ex.getMessage()));
     }
 
-    @ExceptionHandler(dev.hr.rezaei.buildflow.base.ParticipantNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleParticipantNotFoundException(dev.hr.rezaei.buildflow.base.ParticipantNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(dev.hr.rezaei.buildflow.project.ParticipantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleParticipantNotFoundException(dev.hr.rezaei.buildflow.project.ParticipantNotFoundException ex, HttpServletRequest request) {
         log.warn("Participant not found exception: {}", ex.getMessage());
         return responseFacilitator.notFound(request, List.of(ex.getMessage()));
     }

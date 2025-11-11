@@ -11,6 +11,7 @@ This package handles hierarchical cost estimation for construction projects with
 ```
 estimate/
 ├── Estimate.java                      # Main estimate entity for project cost calculations
+├── EstimateAuthService.java           # Authorization service for estimate access control
 ├── EstimateController.java            # REST API controller for estimate sub-resource endpoints
 ├── EstimateDto.java                   # DTO for estimate API operations
 ├── EstimateDtoMapper.java             # Mapper for Estimate conversions
@@ -25,6 +26,7 @@ estimate/
 ├── EstimateLineRepository.java        # JPA repository for estimate lines
 ├── EstimateLineService.java           # Business logic for estimate lines
 ├── EstimateLineStrategy.java          # Strategy enum for cost calculation methods
+├── EstimateNotFoundException.java     # Exception for estimate lookup failures
 ├── EstimateRepository.java            # JPA repository for estimates
 ├── EstimateService.java               # Business logic for estimate operations
 └── README.md                          # This file
@@ -45,6 +47,13 @@ estimate/
 | [Estimate.java](Estimate.java) | Main estimate entity for project cost calculations |
 | [EstimateGroup.java](EstimateGroup.java) | Organizational grouping for estimate line items |
 | [EstimateLine.java](EstimateLine.java) | Individual line item within an estimate with cost calculations |
+| [EstimateLineStrategy.java](EstimateLineStrategy.java) | Enum defining calculation strategies (AVERAGE, LATEST, LOWEST) |
+
+### Exception Classes
+
+| File | Description |
+|------|-------------|
+| [EstimateNotFoundException.java](EstimateNotFoundException.java) | Runtime exception for estimate lookup failures |
 
 ### DTO Classes
 

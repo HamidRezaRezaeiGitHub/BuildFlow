@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.base.ParticipantNotFoundException;
 import dev.hr.rezaei.buildflow.config.mvc.PaginationHelper;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectParticipantRequest;
 import dev.hr.rezaei.buildflow.user.Contact;

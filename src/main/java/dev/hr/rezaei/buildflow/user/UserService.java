@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.user;
 
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

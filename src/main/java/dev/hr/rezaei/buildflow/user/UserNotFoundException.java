@@ -1,4 +1,4 @@
-package dev.hr.rezaei.buildflow.base;
+package dev.hr.rezaei.buildflow.user;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

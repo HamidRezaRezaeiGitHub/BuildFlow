@@ -1,7 +1,7 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
-import dev.hr.rezaei.buildflow.base.UserNotFoundException;
+import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

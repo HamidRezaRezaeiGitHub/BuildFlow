@@ -16,6 +16,7 @@ project/
 │   ├── CreateProjectResponse.java            # Response containing created project details
 │   ├── ProjectLocationRequestDto.java        # Location info for project creation (no ID)
 │   └── README.md                             # DTO package documentation
+├── ParticipantNotFoundException.java         # Exception for participant lookup failures
 ├── Project.java                              # Core project entity
 ├── ProjectAuthService.java                   # Authorization service for access control
 ├── ProjectController.java                    # REST API controller for projects
@@ -26,9 +27,13 @@ project/
 ├── ProjectLocationDtoMapper.java             # Mapper for ProjectLocation conversions
 ├── ProjectLocationRepository.java            # JPA repository for project locations
 ├── ProjectLocationService.java               # Business logic for project locations
+├── ProjectNotFoundException.java             # Exception for project lookup failures
 ├── ProjectParticipant.java                   # Entity linking projects to contacts with roles
+├── ProjectParticipantAuthService.java        # Authorization for participant operations
+├── ProjectParticipantController.java         # REST API controller for participants
 ├── ProjectParticipantDto.java                # DTO for project participants
 ├── ProjectParticipantRepository.java         # JPA repository for project participants
+├── ProjectParticipantService.java            # Business logic for participants
 ├── ProjectRepository.java                    # JPA repository for projects
 ├── ProjectRole.java                          # Enum defining project roles (BUILDER, OWNER)
 ├── ProjectService.java                       # Business logic for project operations
@@ -50,6 +55,13 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 | [ProjectLocation.java](ProjectLocation.java) | Location/address information specific to projects |
 | [ProjectParticipant.java](ProjectParticipant.java) | Links projects to contacts with specific roles |
 | [ProjectRole.java](ProjectRole.java) | Enum defining project roles (BUILDER, OWNER) |
+
+### Exception Classes
+
+| File | Description |
+|------|-------------|
+| [ProjectNotFoundException.java](ProjectNotFoundException.java) | Runtime exception for project lookup failures |
+| [ParticipantNotFoundException.java](ParticipantNotFoundException.java) | Runtime exception for participant lookup failures |
 
 ### Controller Classes
 

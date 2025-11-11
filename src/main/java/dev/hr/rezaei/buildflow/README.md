@@ -13,12 +13,10 @@ buildflow/
 ├── base/
 │   ├── BaseAddress.java                  # Abstract entity for address fields
 │   ├── BaseAddressDto.java               # Abstract DTO for address fields
-│   ├── DuplicateUserException.java       # Exception for duplicate user attempts
 │   ├── UpdatableEntity.java              # Abstract entity with audit fields
 │   ├── UpdatableEntityDto.java           # Abstract DTO with audit fields
 │   ├── UpdatableEntityDtoMapper.java     # Base mapper for entity-DTO conversions
 │   ├── UserNotAuthorizedException.java   # Exception for authorization failures
-│   ├── UserNotFoundException.java        # Exception for user lookup failures
 │   └── README.md                         # Base package documentation
 ├── config/
 │   ├── mvc/
@@ -68,6 +66,8 @@ buildflow/
 │   └── README.md                         # Core DTO documentation
 ├── estimate/
 │   ├── Estimate.java                      # Main estimate entity
+│   ├── EstimateAuthService.java           # Authorization service for estimates
+│   ├── EstimateController.java            # REST API controller
 │   ├── EstimateDto.java                   # DTO for estimate operations
 │   ├── EstimateDtoMapper.java             # MapStruct mapper for Estimate
 │   ├── EstimateGroup.java                 # Group entity for line items
@@ -81,6 +81,7 @@ buildflow/
 │   ├── EstimateLineRepository.java        # JPA repository for lines
 │   ├── EstimateLineService.java           # Business logic for lines
 │   ├── EstimateLineStrategy.java          # Strategy enum for calculations
+│   ├── EstimateNotFoundException.java     # Exception for estimate lookup failures
 │   ├── EstimateRepository.java            # JPA repository for estimates
 │   ├── EstimateService.java               # Business logic for estimates
 │   └── README.md                          # Estimate package documentation
@@ -90,6 +91,7 @@ buildflow/
 │   │   ├── CreateProjectResponse.java         # Response with created project
 │   │   ├── ProjectLocationRequestDto.java     # Location info for creation
 │   │   └── README.md                          # Project DTO documentation
+│   ├── ParticipantNotFoundException.java      # Exception for participant lookup failures
 │   ├── Project.java                           # Core project entity
 │   ├── ProjectAuthService.java                # Authorization service
 │   ├── ProjectController.java                 # REST API controller
@@ -100,7 +102,15 @@ buildflow/
 │   ├── ProjectLocationDtoMapper.java          # MapStruct mapper for Location
 │   ├── ProjectLocationRepository.java         # JPA repository for locations
 │   ├── ProjectLocationService.java            # Business logic for locations
+│   ├── ProjectNotFoundException.java          # Exception for project lookup failures
+│   ├── ProjectParticipant.java                # Participant entity
+│   ├── ProjectParticipantAuthService.java     # Authorization for participants
+│   ├── ProjectParticipantController.java      # REST API for participants
+│   ├── ProjectParticipantDto.java             # DTO for participant
+│   ├── ProjectParticipantRepository.java      # JPA repository for participants
+│   ├── ProjectParticipantService.java         # Business logic for participants
 │   ├── ProjectRepository.java                 # JPA repository for projects
+│   ├── ProjectRole.java                       # Role enum for participants
 │   ├── ProjectService.java                    # Business logic for projects
 │   └── README.md                              # Project package documentation
 ├── quote/
@@ -133,12 +143,15 @@ buildflow/
 │   ├── ContactDto.java                        # DTO for contact operations
 │   ├── ContactDtoMapper.java                  # MapStruct mapper for Contact
 │   ├── ContactLabel.java                      # Contact role/type enum
+│   ├── ContactNotFoundException.java          # Exception for contact lookup failures
 │   ├── ContactRepository.java                 # JPA repository for contacts
 │   ├── ContactService.java                    # Business logic for contacts
+│   ├── DuplicateUserException.java            # Exception for duplicate user attempts
 │   ├── User.java                              # Core user entity
 │   ├── UserController.java                    # REST API controller
 │   ├── UserDto.java                           # DTO for user operations
 │   ├── UserDtoMapper.java                     # MapStruct mapper for User
+│   ├── UserNotFoundException.java             # Exception for user lookup failures
 │   ├── UserRepository.java                    # JPA repository for users
 │   ├── UserService.java                       # Business logic for users
 │   └── README.md                              # User package documentation
