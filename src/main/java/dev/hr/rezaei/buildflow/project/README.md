@@ -131,25 +131,23 @@ Core entity representing construction projects in the BuildFlow system with role
 
 **Key Features:**
 - **Role-Based Assignment**: Single user with a defined role (BUILDER or OWNER)
-- **Participant Management**: Additional project participants linked through ProjectParticipant entities
 - **Location Integration**: One-to-one relationship with project location
 - **Estimate Integration**: Can have multiple estimates for cost planning
+- **Participant Support**: Additional project participants can be linked through separate ProjectParticipant entities (unidirectional)
 - **Audit Trail**: Inherits creation and modification tracking from UpdatableEntity
 - **Authorization Support**: Integration with authorization services for access control
-- **Validation Rule**: Enforces that user and role must be non-null at all times
 
 **Structure:**
 - `id` (UUID): Primary key
-- `user` (User): Primary user for the project (many-to-one relationship, non-null)
+- `user` (User): Primary user for the project (many-to-one relationship, non-null, lazy-loaded)
 - `role` (ProjectRole): Role of the primary user (BUILDER or OWNER, non-null)
-- `participants` (List<ProjectParticipant>): Additional project participants with roles (one-to-many relationship, cascade all)
-- `location` (ProjectLocation): Project location information (one-to-one relationship, non-null, cascade all)
+- `location` (ProjectLocation): Project location information (one-to-one relationship, non-null, eager-loaded, cascade all, orphan removal)
 
 **Relationships:**
 - **User**: Unidirectional relationship from Project to User (`@ManyToOne(fetch = LAZY)`). Projects reference their associated user, but users do not have a collection of projects. To fetch a user's projects, use repository queries.
-- **Participants**: One project can have multiple participants (bidirectional)
-- **Location**: One-to-one relationship with project location (unique constraint)
+- **Location**: One-to-one relationship with project location (`@OneToOne(fetch = EAGER, cascade = ALL, orphanRemoval = true)`). Has unique constraint on location_id.
 - **Estimates**: Unidirectional relationship from Estimate to Project (`@ManyToOne(fetch = LAZY)`). Estimates reference their project, but projects do not maintain a collection of estimates. To fetch estimates for a project, use `EstimateRepository.findByProjectId(projectId, pageable)`. See Estimate Management Package for details.
+- **Participants**: Unidirectional relationship from ProjectParticipant to Project (`@ManyToOne`). ProjectParticipant entities reference projects, but projects do not maintain a collection of participants. To fetch participants for a project, use `ProjectParticipantRepository.findByProjectId(projectId, pageable)`.
 
 **User Access Pattern:**
 - The `user` field uses `@ManyToOne(fetch = FetchType.LAZY)` to avoid unnecessary loading
@@ -158,10 +156,7 @@ Core entity representing construction projects in the BuildFlow system with role
 - This prevents N+1 queries and circular serialization issues
 
 **Unique Constraints:**
-- Location ID uniqueness (one location per project)
-
-**Validation Logic:**
-- The entity uses JPA lifecycle hooks (`@PrePersist` and `@PreUpdate`) via `ensureUserAndRole()` to ensure that both `user` and `role` are always set. If either is null, an `IllegalStateException` is thrown and the operation is aborted. This enforces business rules at the persistence layer and prevents invalid project records.
+- Location ID uniqueness (one location per project) - enforced via `@UniqueConstraint` on location_id column
 
 ### ProjectParticipant Entity
 Links projects to contacts with specific roles, enabling multiple stakeholders per project.
