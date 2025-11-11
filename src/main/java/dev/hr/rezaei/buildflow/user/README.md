@@ -137,16 +137,16 @@ Core entity representing system users who participate in construction projects.
 
 **Structure:**
 - `id` (UUID): Primary key
-- `username` (String, 100 chars): Unique username
-- `email` (String, 100 chars): Unique email address
-- `registered` (boolean): Registration completion status
-- `contact` (Contact): Associated contact information (one-to-one)
+- `username` (String, 100 chars, non-null): Unique username
+- `email` (String, 100 chars, non-null): Unique email address
+- `registered` (boolean, non-null, default false): Registration completion status
+- `contact` (Contact, non-null): Associated contact information (one-to-one, eager-loaded)
 
 **Relationships:**
-- **Contact**: One-to-one relationship with contact details
+- **Contact**: One-to-one relationship with contact details (`@OneToOne(fetch = EAGER, optional = false)`). Contact is required and eagerly loaded.
 - **Projects**: Users participate in projects via unidirectional relationship (Project → User). To fetch a user's projects, use `ProjectRepository.findByUserId(userId)` or the `/api/v1/projects/combined/{userId}` endpoint.
 - **Quotes**: Users can create quotes or act as suppliers via unidirectional relationship (Quote → User). Quotes are **not** stored in User entity.
-- **WorkItems**: Can be assigned work items
+- **WorkItems**: Users can be assigned work items via unidirectional relationship (WorkItem → User). Work items are **not** stored in User entity. To fetch a user's work items, use `WorkItemRepository.findByUserId(userId)`.
 
 **Project Access Pattern:**
 - Projects are **not** eagerly loaded with User entities
