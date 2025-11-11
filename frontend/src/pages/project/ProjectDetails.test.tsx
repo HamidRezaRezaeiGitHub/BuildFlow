@@ -1,11 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ProjectDetails } from './ProjectDetails';
-import { useAuth } from '@/contexts/AuthContext';
-import { ProjectServiceWithAuth } from '@/services/ProjectService';
-import { Project } from '@/services/dtos';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Mock, MockedClass, MockedFunction } from 'vitest';
+import { useAuth } from '../../contexts/AuthContext';
+import { ProjectServiceWithAuth, Project } from '../../services';
 
 // Mock the dependencies
 vi.mock('@/contexts/AuthContext');

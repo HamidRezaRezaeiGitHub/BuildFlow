@@ -1,11 +1,11 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NewProject } from './NewProject';
-import { useAuth } from '@/contexts/AuthContext';
-import { projectService } from '@/services';
 import { BrowserRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock, MockedFunction } from 'vitest';
+import { useAuth } from '../../contexts/AuthContext';
+import { projectService } from '../../services';
 
 // Mock navigate function
 const mockNavigate = vi.fn();
