@@ -24,7 +24,7 @@ config/
 │   ├── ResponseErrorType.java                 # Error type categorization
 │   ├── ResponseFacilitator.java               # Response formatting utility
 │   ├── SpaPathResourceResolver.java           # SPA routing resolver
-│   └── WebMvcConfig.java                      # Central MVC configuration
+│   └── WebMvcConfig.java                      # Central MVC configuration (includes CORS)
 ├── security/
 │   ├── dto/
 │   │   ├── JwtAuthenticationResponse.java     # JWT token response
@@ -81,7 +81,7 @@ Complete security infrastructure with JWT authentication, role-based access cont
 
 | Directory | Description |
 |-----------|-------------|
-| [mvc/](mvc/) | MVC configuration, exception handling, SPA support, and API documentation |
+| [mvc/](mvc/) | MVC configuration, exception handling, SPA support, API documentation, and CORS |
 | [security/](security/) | Security configuration, authentication, authorization, and JWT management |
 
 ## Technical Overview
@@ -199,11 +199,12 @@ Security Layers:
 ### Development Environment
 - **H2 Console**: Database management interface enabled
 - **Relaxed Security**: Convenient development settings
-- **CORS Enabled**: Frontend development server integration
+- **CORS Enabled**: Allows frontend dev server (localhost:3000) to call backend API (localhost:8080)
 - **Debug Logging**: Enhanced logging for development
 
 ### Production Environment
 - **Strict Security**: Enhanced security headers and protection
+- **No CORS Configuration**: Frontend served from same origin as backend (single JAR)
 - **Performance Optimized**: Optimized static resource serving
 - **Audit Enabled**: Comprehensive security event logging
 - **Rate Limiting**: Active protection against attacks

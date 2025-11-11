@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,6 @@ public interface EstimateRepository extends JpaRepository<Estimate, UUID> {
     
     @EntityGraph(attributePaths = {"groups"})
     @Override
-    Optional<Estimate> findById(UUID id);
+    Optional<Estimate> findById(@NonNull UUID id);
 }
 

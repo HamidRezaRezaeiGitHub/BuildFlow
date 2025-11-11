@@ -23,7 +23,7 @@ mvc/
 ├── ResponseErrorType.java                 # Enum for categorizing error types
 ├── ResponseFacilitator.java               # Utility for building consistent API responses
 ├── SpaPathResourceResolver.java           # Custom resolver for SPA routing
-└── WebMvcConfig.java                      # Central Spring MVC configuration
+└── WebMvcConfig.java                      # Central Spring MVC configuration (includes CORS)
 ```
 
 ## Subfolder References
@@ -37,7 +37,7 @@ Data Transfer Objects for standardized error and success message responses acros
 
 | File | Description |
 |------|-------------|
-| [WebMvcConfig.java](WebMvcConfig.java) | Central Spring MVC configuration for frontend and API integration |
+| [WebMvcConfig.java](WebMvcConfig.java) | Central Spring MVC configuration for frontend/API integration and CORS |
 | [OpenApiConfig.java](OpenApiConfig.java) | OpenAPI/Swagger documentation configuration |
 
 ### Exception Handling
@@ -85,13 +85,14 @@ This package does not contain controller classes, but it provides infrastructure
 ## Technical Overview
 
 ### WebMvcConfig
-Central Spring MVC configuration enabling full-stack application deployment.
+Central Spring MVC configuration enabling full-stack application deployment with CORS support.
 
 **Key Features:**
 - **Frontend Integration**: Serves React frontend assets from classpath
 - **Client-Side Routing**: Handles SPA routing with fallback to index.html
 - **Static Resource Management**: Configures serving of JS, CSS, and image assets
 - **Route Preservation**: Maintains API endpoints and administrative interfaces
+- **CORS Configuration**: Environment-aware CORS for development mode
 
 **Route Handling Strategy:**
 - **Static Assets**: Direct serving of files in /static directory
@@ -105,6 +106,43 @@ Central Spring MVC configuration enabling full-stack application deployment.
 2. Static resources served from classpath:/static/
 3. SpaPathResourceResolver handles client-side routing
 4. API endpoints remain accessible for backend operations
+```
+
+**CORS Configuration (Development Only):**
+- **Allowed Origins**: `http://localhost:3000`, `http://127.0.0.1:3000`
+- **Allowed Methods**: GET, POST, PUT, DELETE, PATCH, OPTIONS
+- **Allowed Headers**: All headers including Authorization for JWT
+- **Credentials**: Enabled for cookie and header-based authentication
+- **Cache Duration**: Preflight responses cached for 1 hour
+
+**Environment Detection:**
+```
+Development: Profiles 'dev', 'development', 'test', 'default'
+Production:  Profiles 'production', 'prod', 'uat'
+```
+
+**Production Mode**: No CORS configuration (frontend served from same origin as backend)
+
+### WebConfig
+Global web configuration managing CORS and other cross-cutting web concerns.
+
+**Key Features:**
+- **Environment-Aware CORS**: Different CORS policies for development and production
+- **Development Mode**: Allows frontend dev server (localhost:3000) to call backend API
+- **Production Mode**: No CORS configuration needed (same-origin serving)
+- **Centralized Management**: Single location for all CORS configuration
+
+**CORS Configuration (Development Only):**
+- **Allowed Origins**: `http://localhost:3000`, `http://127.0.0.1:3000`
+- **Allowed Methods**: GET, POST, PUT, DELETE, PATCH, OPTIONS
+- **Allowed Headers**: All headers including Authorization for JWT
+- **Credentials**: Enabled for cookie and header-based authentication
+- **Cache Duration**: Preflight responses cached for 1 hour
+
+**Environment Detection:**
+```
+Development: Profiles 'dev', 'development', 'test', 'default'
+Production:  Profiles 'production', 'prod', 'uat'
 ```
 
 ### SpaPathResourceResolver
