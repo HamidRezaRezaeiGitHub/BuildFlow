@@ -415,34 +415,7 @@ export const ProjectDetails: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Additional Participants */}
-                {project.participants && project.participants.length > 0 ? (
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Additional Participants</h3>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {project.participants.map((participant) => (
-                        <div key={participant.id} className="p-4 border rounded-lg bg-muted/50">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-semibold">{participant.role}</h4>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary-foreground">
-                              Participant
-                            </span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Contact ID: {participant.contactId}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Contact details will be displayed here in a future update.
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <p className="text-sm">No additional participants added yet.</p>
-                  </div>
-                )}
+                {/* Note: Additional participants are managed separately via ProjectParticipant API */}
               </div>
             </CardContent>
           </Card>

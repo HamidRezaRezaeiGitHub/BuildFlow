@@ -84,7 +84,7 @@ export type QuoteDto = UpdatableEntityDto & {
   supplierId: string;
   
   /** Unit of measurement for the quote */
-  quoteUnit: QuoteUnit;
+  quoteUnit: string;
   
   /** Unit price (BigDecimal in backend) */
   unitPrice: string;
@@ -93,7 +93,7 @@ export type QuoteDto = UpdatableEntityDto & {
   currency: string;
   
   /** Domain/category of the quote (PUBLIC or PRIVATE) */
-  quoteDomain: QuoteDomain;
+  quoteDomain: string;
   
   /** Location information for the quote */
   location: QuoteLocationDto;

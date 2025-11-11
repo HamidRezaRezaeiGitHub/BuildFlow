@@ -15,9 +15,6 @@ describe('ProjectList', () => {
       id: '1',
       userId: '1',
       role: 'BUILDER',
-      participants: [
-        { id: 'p1', role: 'OWNER', contactId: '2' }
-      ],
       location: {
         id: '1',
         unitNumber: '',
@@ -34,9 +31,6 @@ describe('ProjectList', () => {
       id: '2',
       userId: '1',
       role: 'BUILDER',
-      participants: [
-        { id: 'p2', role: 'OWNER', contactId: '3' }
-      ],
       location: {
         id: '2',
         unitNumber: '302',
@@ -53,9 +47,6 @@ describe('ProjectList', () => {
       id: '3',
       userId: '2',
       role: 'BUILDER',
-      participants: [
-        { id: 'p3', role: 'OWNER', contactId: '1' }
-      ],
       location: {
         id: '3',
         unitNumber: '5B',
@@ -305,7 +296,6 @@ describe('ProjectList', () => {
         id: '99',
         userId: '1',
         role: 'BUILDER',
-        participants: [],
         location: {
           id: '99',
           unitNumber: '',
@@ -330,7 +320,6 @@ describe('ProjectList', () => {
         id: '100',
         userId: '1',
         role: 'OWNER',
-        participants: [],
         location: {
           id: '100',
           unitNumber: '',

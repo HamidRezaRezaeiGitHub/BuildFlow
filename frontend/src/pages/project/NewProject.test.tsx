@@ -476,7 +476,6 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
           id: 'project-123',
           userId: '1',
           role: 'BUILDER',
-          participants: [],
           location: {
             id: 'loc-1',
             streetNumberAndName: '123 Main St',
@@ -544,8 +543,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
               city: 'Toronto',
               stateOrProvince: 'ON',
               country: 'Canada'
-            }),
-            participants: []
+            })
           }),
           'mock-token'
         );

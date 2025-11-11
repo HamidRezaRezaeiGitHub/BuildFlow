@@ -1,6 +1,6 @@
 import mockProjectsData from '../../../mock-data/Projects.json';
 import { config } from '../config/environment';
-import type { CreateProjectResponse, Project, ProjectLocationRequest, ProjectRole } from '../services/dtos';
+import type { CreateProjectResponse, Project, ProjectLocationRequest } from '../services/dtos';
 
 /**
  * Mock Projects Database - Canadian Projects
@@ -61,9 +61,9 @@ export function findProjectsByOwnerId(ownerId: string): Project[] {
  */
 export function createMockProject(
     userId: string,
-    role: ProjectRole,
+    role: string,
     locationRequestDto: ProjectLocationRequest,
-    participants: Array<{ role: ProjectRole; contactId: string }> = []
+    _participants: Array<{ role: string; contactId: string }> = [] // kept for backwards compatibility but ignored
 ): Project {
     const newProjectId = String(mockProjects.length + 1);
     const now = new Date().toISOString();
@@ -71,11 +71,6 @@ export function createMockProject(
         id: newProjectId,
         userId,
         role,
-        participants: participants.map((p, index) => ({
-            id: `${newProjectId}-p${index}`,
-            role: p.role,
-            contactId: p.contactId
-        })),
         location: {
             id: newProjectId,
             unitNumber: locationRequestDto.unitNumber || '',

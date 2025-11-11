@@ -42,7 +42,7 @@ export type WorkItemDto = UpdatableEntityDto & {
   defaultGroupName?: string;
   
   /** Domain/category of the work item (PUBLIC or PRIVATE) */
-  domain: WorkItemDomain;
+  domain: string;
 };
 
 /**

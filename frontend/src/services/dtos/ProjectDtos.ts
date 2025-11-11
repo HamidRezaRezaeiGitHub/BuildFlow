@@ -18,8 +18,8 @@ export interface ProjectParticipantDto {
   /** Unique identifier of the participant */
   id: string;
   
-  /** Role of the participant in the project */
-  role: ProjectRole;
+  /** Role of the participant in the project (BUILDER or OWNER) */
+  role: string;
   
   /** Contact ID of the participant */
   contactId: string;
@@ -30,8 +30,8 @@ export interface ProjectParticipantDto {
  * Matches backend CreateProjectParticipantRequest structure
  */
 export interface CreateProjectParticipantRequest {
-  /** Role of the participant in the project */
-  role: ProjectRole;
+  /** Role of the participant in the project (BUILDER or OWNER) */
+  role: string;
   
   /** Contact ID of the participant */
   contactId: string;
@@ -54,13 +54,10 @@ export interface CreateProjectRequest {
   userId: string;
   
   /** Role of the user in the project (BUILDER or OWNER) */
-  role: ProjectRole;
+  role: string;
   
   /** Location information for the project */
   locationRequestDto: ProjectLocationRequestDto;
-  
-  /** List of additional project participants (optional) */
-  participants?: CreateProjectParticipantRequest[];
 }
 
 /**
@@ -76,11 +73,8 @@ export interface ProjectDto {
   /** User ID who created/owns the project */
   userId: string;
 
-  /** Role of the main user in the project */
-  role: ProjectRole;
-
-  /** List of additional project participants */
-  participants: ProjectParticipantDto[];
+  /** Role of the main user in the project (BUILDER or OWNER) */
+  role: string;
 
   /** Project location */
   location: ProjectLocationDto;

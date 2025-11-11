@@ -53,9 +53,6 @@ describe('ProjectsSection', () => {
       id: '1',
       userId: '1',
       role: 'BUILDER',
-      participants: [
-        { id: 'p1', role: 'OWNER', contactId: '2' }
-      ],
       location: {
         id: '1',
         unitNumber: '',
@@ -72,9 +69,6 @@ describe('ProjectsSection', () => {
       id: '2',
       userId: '1',
       role: 'BUILDER',
-      participants: [
-        { id: 'p2', role: 'OWNER', contactId: '3' }
-      ],
       location: {
         id: '2',
         unitNumber: '302',
@@ -472,7 +466,6 @@ describe('ProjectsSection', () => {
         id: String(i + 1),
         userId: '1',
         role: 'BUILDER',
-        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',
@@ -523,7 +516,6 @@ describe('ProjectsSection', () => {
         id: String(i + 1),
         userId: '1',
         role: 'BUILDER',
-        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',
@@ -573,7 +565,6 @@ describe('ProjectsSection', () => {
         id: String(i + 1),
         userId: '1',
         role: 'BUILDER',
-        participants: [],
         location: {
           id: String(i + 1),
           unitNumber: '',
