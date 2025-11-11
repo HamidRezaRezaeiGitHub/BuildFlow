@@ -91,13 +91,13 @@ class ProjectService {
 
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const { userId, role, locationRequestDto, participants = [] } = request;
+                    const { userId, role, locationRequestDto } = request;
                     
                     const newProject = createMockProject(
                         userId, 
                         role, 
                         locationRequestDto,
-                        participants
+                        [] // participants not supported in backend DTO anymore
                     );
                     resolve(generateMockCreateProjectResponse(newProject));
                 }, 500); // Simulate network delay

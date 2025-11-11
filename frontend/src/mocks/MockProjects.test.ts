@@ -34,7 +34,6 @@ describe('MockProjects', () => {
                 expect(project).toHaveProperty('id');
                 expect(project).toHaveProperty('userId');
                 expect(project).toHaveProperty('role');
-                expect(project).toHaveProperty('participants');
                 expect(project).toHaveProperty('location');
                 expect(project.location).toHaveProperty('id');
                 expect(project.location).toHaveProperty('streetNumberAndName');
@@ -171,8 +170,6 @@ describe('MockProjects', () => {
             expect(newProject.id).toBe(String(initialLength + 1));
             expect(newProject.userId).toBe('1');
             expect(newProject.role).toBe('BUILDER');
-            expect(newProject.participants).toHaveLength(1);
-            expect(newProject.participants[0].role).toBe('OWNER');
             expect(newProject.location.streetNumberAndName).toBe('123 Test Street');
             expect(newProject.location.city).toBe('TestCity');
             expect(mockProjects.length).toBe(initialLength + 1);
@@ -190,7 +187,6 @@ describe('MockProjects', () => {
 
             expect(newProject.location.unitNumber).toBe('');
             expect(newProject.location.postalOrZipCode).toBe('');
-            expect(newProject.participants).toEqual([]);
         });
 
         test('MockProjects_shouldIncrementId_whenMultipleProjectsCreated', () => {

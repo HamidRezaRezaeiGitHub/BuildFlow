@@ -177,8 +177,7 @@ describe('NewProjectForm', () => {
             country: 'Canada',
             unitNumber: 'Unit 5',
             postalOrZipCode: 'M5H 2N2'
-          }),
-          participants: []
+          })
         })
       );
     });

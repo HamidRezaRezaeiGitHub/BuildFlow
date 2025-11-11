@@ -36,14 +36,12 @@ describe('ProjectService', () => {
             postalOrZipCode: '62701',
             country: 'USA',
         },
-        participants: [],
     };
 
     const mockProject: Project = {
         id: mockProjectId,
         userId: mockUserId,
         role: 'BUILDER',
-        participants: [],
         location: {
             id: 'location-id',
             unitNumber: '101',
