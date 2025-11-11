@@ -1,7 +1,6 @@
 package dev.hr.rezaei.buildflow.user;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
-import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
