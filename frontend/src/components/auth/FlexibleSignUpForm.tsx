@@ -1,6 +1,7 @@
 import { SignUpData } from '@/services/dtos';
 import { StructuredApiError } from '@/services';
-import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -225,8 +226,8 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     onSignUpError,
     onRegister,
     onNavigate,
-    redirectPath = '/dashboard',
-    autoRedirect = true
+    redirectPath = '/',
+    autoRedirect = false
 }) => {
     // Try to use contexts, but allow optional usage via callbacks
     let authRegisterContext: any;
@@ -247,9 +248,6 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     // Use provided callbacks or context functions
     const registerFunction: (signUpData: SignUpData) => Promise<void> = onRegister || authRegisterContext?.register;
     const navigateFunction = onNavigate || navigationContext?.navigate;
-
-    // Toast for error notifications
-    const { toast } = useToast();
 
     // Initialize form data with empty address
     const [signUpForm, setSignUpForm] = useState<FlexibleSignUpFormData>(() => {
@@ -281,6 +279,9 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     // Validation states
     const [personalInfoValidation, setPersonalInfoValidation] = useState<Record<string, ValidationResult>>({});
     const [isFormValid, setIsFormValid] = useState(false);
+
+    // Error state for Alert display
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     // Local submitting state
     const [localIsSubmitting, setLocalIsSubmitting] = useState(false);
@@ -334,7 +335,9 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             onFormDataChange?.(updated);
             return updated;
         });
-    }, [onFormDataChange]);
+        // Clear error when user starts typing
+        if (submitError) setSubmitError(null);
+    }, [onFormDataChange, submitError]);
 
     // Handle address changes
     const handleAddressChange = useCallback((field: keyof AddressData, value: string) => {
@@ -366,8 +369,9 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             return;
         }
 
-        // Set submitting state
+        // Set submitting state and clear any previous errors
         setLocalIsSubmitting(true);
+        setSubmitError(null);
         onLoadingStateChange?.(true);
 
         try {
@@ -404,18 +408,17 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 navigateFunction(redirectPath);
             }
         } catch (error) {
+            // Extract detailed error message from StructuredApiError if available
             const errorMessage = error instanceof StructuredApiError
-                    ? (error.apiErrorResponse?.errors?.join(', ') || error.message)
-                    : (error instanceof Error ? error.message : 'An unexpected error occurred during signup');
+                ? (error.apiErrorResponse?.errors?.join(', ') || error.message)
+                : (error instanceof Error ? error.message : 'An unexpected error occurred during signup');
+            
             // If parent provided onSignUpError callback, use it
             if (onSignUpError) {
                 onSignUpError(errorMessage);
             } else {
-                toast({
-                    title: 'Registration Failed',
-                    description: errorMessage,
-                    variant: 'destructive',
-                });
+                // Otherwise, show error in Alert component
+                setSubmitError(errorMessage);
             }
         } finally {
             setLocalIsSubmitting(false);
@@ -665,6 +668,14 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* Error Message */}
+            {submitError && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{submitError}</AlertDescription>
+                </Alert>
             )}
 
             {/* Submit Button */}

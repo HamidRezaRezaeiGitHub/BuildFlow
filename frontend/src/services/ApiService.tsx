@@ -74,33 +74,72 @@ class ApiService {
      * @returns Never (always throws an error)
      */
     private async handleErrorResponse(response: Response): Promise<never> {
-        let errorMessage = `HTTP ${response.status}`;
-        let structuredError: ApiErrorResponse | undefined;
-
-        try {
-            const errorData = await response.json();
-
-            // Check if response matches our ErrorResponse structure
-            if (errorData.timestamp && errorData.status && errorData.message) {
-                structuredError = errorData as ApiErrorResponse;
-                errorMessage = structuredError.message;
-
-                // Throw enhanced error with structured information
-                throw new StructuredApiError(errorMessage, response.status, structuredError);
-            } else {
-                // Fallback to simple message extraction
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch (parseError) {
-            // If we can't parse error response, use status message
-            if (!(parseError instanceof StructuredApiError)) {
-                errorMessage = response.statusText || errorMessage;
-            } else {
-                throw parseError; // Re-throw if it's already our structured error
+        const contentType = response.headers.get('content-type');
+        
+        // Try to parse JSON response body
+        if (contentType?.includes('application/json')) {
+            try {
+                const errorData = await response.json();
+                
+                // Check if it's our structured ErrorResponse format
+                if (errorData.timestamp && errorData.status && errorData.message) {
+                    throw new StructuredApiError(
+                        errorData.message,
+                        response.status,
+                        errorData as ApiErrorResponse
+                    );
+                }
+                
+                // Simple JSON with message field
+                if (errorData.message) {
+                    throw new ApiError(errorData.message, response.status);
+                }
+            } catch (error) {
+                // Re-throw our custom errors
+                if (error instanceof StructuredApiError || error instanceof ApiError) {
+                    throw error;
+                }
+                // JSON parse failed, fall through to default message
             }
         }
 
+        // Use default error message based on status code
+        const errorMessage = this.getDefaultErrorMessage(response.status, response.statusText);
         throw new ApiError(errorMessage, response.status);
+    }
+
+    /**
+     * Get a user-friendly error message based on HTTP status code
+     */
+    private getDefaultErrorMessage(status: number, statusText: string): string {
+        switch (status) {
+            case 400:
+                return 'Bad request. Please check your input.';
+            case 401:
+                return 'Unauthorized. Please log in again.';
+            case 403:
+                return 'Access forbidden. You do not have permission.';
+            case 404:
+                return 'Resource not found.';
+            case 408:
+                return 'Request timeout. Please try again.';
+            case 409:
+                return 'Conflict. The resource already exists.';
+            case 422:
+                return 'Validation failed. Please check your input.';
+            case 429:
+                return 'Too many requests. Please wait a moment and try again.';
+            case 500:
+                return 'Server error. Please try again later.';
+            case 502:
+                return 'Bad gateway. The server is temporarily unavailable.';
+            case 503:
+                return 'Service unavailable. Please try again later.';
+            case 504:
+                return 'Gateway timeout. Please try again later.';
+            default:
+                return statusText || `Request failed with status ${status}`;
+        }
     }
 
     /**
@@ -167,21 +206,25 @@ class ApiService {
                 headers,
             });
 
-            // !response.ok means status is not in the range 200-299
             if (!response.ok) {
                 await this.handleErrorResponse(response);
             }
 
-            // Parse and return the response data
             return await this.parseResponseData<T>(response);
         } catch (error) {
-            if (error instanceof ApiError) {
+            // Re-throw our custom errors as-is
+            if (error instanceof ApiError || error instanceof StructuredApiError) {
                 throw error;
             }
 
-            // Network or other errors
+            // Network/fetch failures
+            if (error instanceof TypeError) {
+                throw new ApiError('Unable to connect to the server. Please check your internet connection.');
+            }
+
+            // Unexpected errors
             throw new ApiError(
-                error instanceof Error ? error.message : 'Network error occurred'
+                error instanceof Error ? error.message : 'An unexpected error occurred'
             );
         }
     }

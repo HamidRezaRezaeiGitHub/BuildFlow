@@ -95,6 +95,8 @@ public class SecurityConfig {
                     .sessionManagement(session -> session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     )
+                    // Enable CORS with default configuration (uses WebMvcConfigurer)
+                    .cors(cors -> cors.configure(http))
                     // Disable form login for API-first approach
                     .formLogin(AbstractHttpConfigurer::disable)
                     // Keep HTTP Basic disabled for API endpoints
@@ -134,6 +136,8 @@ public class SecurityConfig {
                     .sessionManagement(session -> session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     )
+                    // Enable CORS with default configuration (uses WebMvcConfigurer)
+                    .cors(cors -> cors.configure(http))
                     .formLogin(AbstractHttpConfigurer::disable)
                     .httpBasic(AbstractHttpConfigurer::disable)
                     .logout(logout -> logout

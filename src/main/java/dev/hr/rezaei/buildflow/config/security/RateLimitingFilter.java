@@ -35,9 +35,9 @@ import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 @Order(1) // Execute before other filters
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    public static final int MAX_ATTEMPTS_PER_WINDOW = 5;
-    public static final int WINDOW_SIZE_MINUTES = 15;
-    public static final int LOCKOUT_DURATION_MINUTES = 30;
+    public static final int MAX_ATTEMPTS_PER_WINDOW = 10;
+    public static final int WINDOW_SIZE_MINUTES = 10;
+    public static final int LOCKOUT_DURATION_MINUTES = 20;
 
     private final ConcurrentHashMap<String, RateLimitEntry> attemptMap = new ConcurrentHashMap<>();
     private final SecurityAuditService securityAuditService;

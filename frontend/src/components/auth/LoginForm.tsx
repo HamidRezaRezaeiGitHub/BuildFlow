@@ -1,7 +1,10 @@
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
+import { Alert, AlertDescription } from '../ui/alert';
+import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { StructuredApiError } from '@/services';
 import { ValidationResult } from '../../services/validation';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -210,7 +213,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       if (onLoginSuccess) onLoginSuccess();
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
+      // Extract detailed error message from StructuredApiError if available
+      const errorMessage = error instanceof StructuredApiError
+        ? (error.apiErrorResponse?.errors?.join(', ') || error.message)
+        : (error instanceof Error ? error.message : 'Login failed. Please try again.');
+      
       setSubmitError(errorMessage);
       if (onLoginError) onLoginError(errorMessage);
     } finally {
@@ -294,9 +301,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       {/* Error Message */}
       {submitError && (
-        <div className="p-4 rounded-md bg-red-50 border border-red-200">
-          <p className="text-sm text-red-600">{submitError}</p>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{submitError}</AlertDescription>
+        </Alert>
       )}
 
       <Button
