@@ -339,19 +339,22 @@ class ApiService {
     }
 
     /**
-     * Centralized error handler for API errors - converts to standard Error
-     * Converts ApiError and StructuredApiError instances to user-friendly Error messages
+     * Centralized error handler for API errors with logging
+     * Preserves original error structure while providing centralized logging
      * @param error - The caught error (unknown type)
      * @param fallbackMessage - Message to use if error type is not recognized
-     * @returns Never (always throws an Error)
+     * @returns Never (always throws the original or constructed error)
      */
     static handleApiError(error: unknown, fallbackMessage: string): never {
         if (error instanceof StructuredApiError) {
-            throw new Error(error.getDetailedMessage());
+            console.error('[API Error]', error.getDetailedMessage());
+            throw error;
         }
         if (error instanceof ApiError) {
-            throw new Error(error.message);
+            console.error('[API Error]', error.message);
+            throw error;
         }
+        console.error('[Unknown Error]', error);
         throw new Error(fallbackMessage);
     }
 }

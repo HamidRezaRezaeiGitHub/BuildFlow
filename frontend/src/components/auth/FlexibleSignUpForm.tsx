@@ -1,4 +1,6 @@
 import { SignUpData } from '@/services/dtos';
+import { StructuredApiError } from '@/services';
+import { useToast } from '@/hooks/use-toast';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -246,6 +248,9 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     const registerFunction: (signUpData: SignUpData) => Promise<void> = onRegister || authRegisterContext?.register;
     const navigateFunction = onNavigate || navigationContext?.navigate;
 
+    // Toast for error notifications
+    const { toast } = useToast();
+
     // Initialize form data with empty address
     const [signUpForm, setSignUpForm] = useState<FlexibleSignUpFormData>(() => {
         const emptyAddress = createEmptyAddress();
@@ -374,7 +379,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
             }
 
             await registerFunction({
-                username: signUpForm.username,
+                username: signUpForm.username || signUpForm.email,
                 password: signUpForm.password,
                 contact: {
                     firstName: signUpForm.firstName,
@@ -399,8 +404,19 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
                 navigateFunction(redirectPath);
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An error occurred during signup';
-            onSignUpError?.(errorMessage);
+            const errorMessage = error instanceof StructuredApiError
+                    ? (error.apiErrorResponse?.errors?.join(', ') || error.message)
+                    : (error instanceof Error ? error.message : 'An unexpected error occurred during signup');
+            // If parent provided onSignUpError callback, use it
+            if (onSignUpError) {
+                onSignUpError(errorMessage);
+            } else {
+                toast({
+                    title: 'Registration Failed',
+                    description: errorMessage,
+                    variant: 'destructive',
+                });
+            }
         } finally {
             setLocalIsSubmitting(false);
             onLoadingStateChange?.(false);

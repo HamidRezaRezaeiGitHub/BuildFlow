@@ -3,6 +3,7 @@ import { AuthProvider } from './AuthContext';
 import { ThemeProvider } from './ThemeContext';
 import { NavigationProvider } from './NavigationContext';
 import { RouterProvider } from './RouterProvider';
+import { Toaster } from '@/components/ui/toaster';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -39,6 +40,7 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
             </NotificationProvider>
             */}
             {children}
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </NavigationProvider>
