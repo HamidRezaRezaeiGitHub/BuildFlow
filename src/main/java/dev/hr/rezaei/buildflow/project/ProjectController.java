@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.config.mvc.PaginationHelper;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,17 +16,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
+import static dev.hr.rezaei.buildflow.project.ProjectPaginationConfig.PAGINATION_HELPER;
 
 @Slf4j
 @RestController
@@ -36,16 +34,8 @@ import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
 @Tag(name = "Project Management", description = "API endpoints for managing construction projects")
 public class ProjectController {
 
-    @SuppressWarnings("unused")
     private final ProjectAuthService projectAuthService;
     private final ProjectService projectService;
-    
-    // Pagination helper configured with project-specific sort fields and defaults
-    private final PaginationHelper paginationHelper = new PaginationHelper(
-        Set.of("lastUpdatedAt", "createdAt"),
-        "lastUpdatedAt",
-        Sort.Direction.DESC
-    );
 
     @Operation(summary = "Create a new project", description = "Creates a new construction project with builder, owner, and location information")
     @ApiResponses(value = {
@@ -101,10 +91,71 @@ public class ProjectController {
     ) {
         log.info("Getting projects for user ID: {} with pagination", userId);
         
-        Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
+        Pageable pageable = PAGINATION_HELPER.createPageable(page, size, sort, orderBy, direction);
         Page<Project> projectPage = projectService.getProjectsByUserId(userId, pageable);
         Page<ProjectDto> projectDtoPage = projectPage.map(ProjectDtoMapper::toProjectDto);
         
         return build(projectDtoPage, "/api/v1/projects/user/" + userId);
+    }
+
+    @Operation(summary = "Get project by ID", description = "Retrieves a single project by its unique identifier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Project retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+            @ApiResponse(responseCode = "404", description = "Project not found"),
+            @ApiResponse(responseCode = "403", description = "Not authorized to view this project")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('VIEW_PROJECT')")
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectDto> getProjectById(
+            @Parameter(description = "ID of the project to retrieve")
+            @PathVariable UUID projectId
+    ) {
+        log.info("Getting project by ID: {}", projectId);
+        
+        // Fetch the project
+        Project project = projectService.findById(projectId)
+                .orElseThrow(() -> {
+                    log.warn("Project not found with ID: {}", projectId);
+                    return new ProjectNotFoundException("Project not found with ID: " + projectId);
+                });
+        
+        // Post-authorization: Check if the user is authorized to view this specific project
+        projectAuthService.postAuthorizeProjectView(project);
+        
+        ProjectDto projectDto = ProjectDtoMapper.toProjectDto(project);
+        
+        log.info("Successfully retrieved project with ID: {}", projectId);
+        return ResponseEntity.ok(projectDto);
+    }
+
+    @Operation(summary = "Get all projects (Admin only)", description = "Retrieves all projects in the system with pagination support. Requires ADMIN_USERS authority.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('ADMIN_USERS')")
+    @GetMapping
+    public ResponseEntity<List<ProjectDto>> getAllProjects(
+            @Parameter(description = "Page number (0-based, default: 0)")
+            @RequestParam(required = false) Integer page,
+            @Parameter(description = "Page size (default: 25)")
+            @RequestParam(required = false) Integer size,
+            @Parameter(description = "Sort specification (e.g., 'lastUpdatedAt,DESC')")
+            @RequestParam(required = false) String[] sort,
+            @Parameter(description = "Order by field (alternative to sort)")
+            @RequestParam(required = false) String orderBy,
+            @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
+            @RequestParam(required = false) String direction
+    ) {
+        log.info("Admin getting all projects with pagination");
+        
+        Pageable pageable = PAGINATION_HELPER.createPageable(page, size, sort, orderBy, direction);
+        Page<Project> projectPage = projectService.getAllProjects(pageable);
+        Page<ProjectDto> projectDtoPage = projectPage.map(ProjectDtoMapper::toProjectDto);
+        
+        return build(projectDtoPage, "/api/v1/projects");
     }
 }

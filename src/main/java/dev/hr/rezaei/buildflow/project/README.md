@@ -28,10 +28,12 @@ project/
 ├── ProjectLocationRepository.java            # JPA repository for project locations
 ├── ProjectLocationService.java               # Business logic for project locations
 ├── ProjectNotFoundException.java             # Exception for project lookup failures
+├── ProjectPaginationConfig.java              # Centralized pagination configuration
 ├── ProjectParticipant.java                   # Entity linking projects to contacts with roles
 ├── ProjectParticipantAuthService.java        # Authorization for participant operations
 ├── ProjectParticipantController.java         # REST API controller for participants
 ├── ProjectParticipantDto.java                # DTO for project participants
+├── ProjectParticipantDtoMapper.java          # Mapper for ProjectParticipant conversions
 ├── ProjectParticipantRepository.java         # JPA repository for project participants
 ├── ProjectParticipantService.java            # Business logic for participants
 ├── ProjectRepository.java                    # JPA repository for projects
@@ -63,6 +65,12 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 | [ProjectNotFoundException.java](ProjectNotFoundException.java) | Runtime exception for project lookup failures |
 | [ParticipantNotFoundException.java](ParticipantNotFoundException.java) | Runtime exception for participant lookup failures |
 
+### Configuration Classes
+
+| File | Description |
+|------|-------------|
+| [ProjectPaginationConfig.java](ProjectPaginationConfig.java) | Centralized pagination configuration with default values and shared helper |
+
 ### Controller Classes
 
 | File | Description |
@@ -87,16 +95,17 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | File | Description |
 |------|-------------|
-| [ProjectDtoMapper.java](ProjectDtoMapper.java) | Mapper for Project entity-DTO conversions with participant mapping |
+| [ProjectDtoMapper.java](ProjectDtoMapper.java) | Mapper for Project entity-DTO conversions |
 | [ProjectLocationDtoMapper.java](ProjectLocationDtoMapper.java) | Mapper for ProjectLocation entity-DTO conversions |
+| [ProjectParticipantDtoMapper.java](ProjectParticipantDtoMapper.java) | Mapper for ProjectParticipant entity-DTO conversions with contact details |
 
 ### Repository Classes
 
 | File | Description |
 |------|-------------|
-| [ProjectRepository.java](ProjectRepository.java) | Spring Data JPA repository for project persistence |
+| [ProjectRepository.java](ProjectRepository.java) | Spring Data JPA repository for project persistence with pagination |
 | [ProjectLocationRepository.java](ProjectLocationRepository.java) | Spring Data JPA repository for project location persistence |
-| [ProjectParticipantRepository.java](ProjectParticipantRepository.java) | Spring Data JPA repository for project participant persistence |
+| [ProjectParticipantRepository.java](ProjectParticipantRepository.java) | Spring Data JPA repository for project participant persistence (no pagination) |
 
 ### Service Classes
 
@@ -112,10 +121,10 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | Method | Endpoint | Description | Authorization |
 |--------|----------|-------------|---------------|
-| `POST` | `/api/v1/projects` | Create a new project with user, role, participants, and location | `CREATE_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/builder/{builderId}` | Retrieve projects where user has BUILDER role (with pagination) | `VIEW_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/owner/{ownerId}` | Retrieve projects where user has OWNER role (with pagination) | `VIEW_PROJECT` + custom auth check |
-| `GET` | `/api/v1/projects/combined/{userId}` | Retrieve projects by user regardless of role (with pagination and date filtering) | `VIEW_PROJECT` + custom auth check |
+| `POST` | `/api/v1/projects` | Create a new project with user, role, and location | `CREATE_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/user/{userId}` | Retrieve all projects for a specific user (with pagination) | `VIEW_PROJECT` + custom auth check |
+| `GET` | `/api/v1/projects/{projectId}` | Retrieve a single project by ID | `VIEW_PROJECT` + post-authorization check |
+| `GET` | `/api/v1/projects` | Retrieve all projects in the system (Admin only, with pagination) | `ADMIN_USERS` |
 
 **Pagination Support:**
 - Query parameters: `page`, `size`, `sort`, `orderBy`, `direction`
@@ -206,16 +215,49 @@ Address/location information specific to construction projects.
 Specialized service for project authorization and access control.
 
 **Key Features:**
-- **Access Control**: Manages user access to projects based on roles
+- **Access Control**: Manages user access to projects based on roles and ownership
 - **Permission Validation**: Validates user permissions for project operations
-- **Role-Based Security**: Integrates with user roles and contact labels
+- **Pre-Authorization**: Uses Spring Security @PreAuthorize for early access checks
+- **Post-Authorization**: Verifies project ownership after fetching the entity
+- **Role-Based Security**: Integrates with user roles for authorization decisions
 - **Secure Operations**: Ensures only authorized users can access/modify projects
 
 **Authorization Patterns:**
-- **Builder Access**: Builders can access projects they are assigned to
-- **Owner Access**: Owners can access projects they own
-- **Admin Access**: Administrators can access all projects
-- **Read/Write Permissions**: Granular permission control for different operations
+- **Project Owner Access**: Users can access projects they own
+- **Admin Access**: Administrators can access all projects (full access)
+- **Pre-Authorization**: Early permission checks before fetching data
+- **Post-Authorization**: Ownership verification after data retrieval
+- **Exception Handling**: Throws UserNotAuthorizedException for unauthorized access
+
+### ProjectPaginationConfig
+Centralized configuration for pagination across project endpoints.
+
+**Key Features:**
+- **Shared Configuration**: Single source of truth for pagination defaults
+- **Static Constants**: Sortable fields, default sort field/direction, page size
+- **Reusable Helper**: Static `PaginationHelper` instance configured with project defaults
+- **Security**: Whitelisted sortable fields prevent SQL injection
+- **Consistency**: Ensures all project endpoints use the same pagination behavior
+
+**Configuration:**
+- **Sortable Fields**: `lastUpdatedAt`, `createdAt` (whitelisted)
+- **Default Sort**: `lastUpdatedAt DESC` (newest first)
+- **Default Page Size**: 25 items per page
+- **Static Helper**: `PAGINATION_HELPER` instance ready for controller use
+
+**Usage Pattern:**
+```java
+// In controllers
+Pageable pageable = ProjectPaginationConfig.PAGINATION_HELPER.createPageable(
+    page, size, sort, orderBy, direction
+);
+```
+
+**Design Benefits:**
+- **No Duplication**: Single definition of pagination rules
+- **Easy Maintenance**: Change defaults in one place
+- **Type Safety**: Compile-time constants prevent typos
+- **Performance**: Static instance avoids repeated object creation
 
 ## Business Logic
 
@@ -316,24 +358,34 @@ The controller supports pagination for project queries with the following featur
 
 **Examples:**
 
-Get first page with default settings:
+Get all projects (admin only):
 ```
-GET /api/v1/projects/builder/{builderId}
+GET /api/v1/projects
+```
+
+Get first page of user's projects with default settings:
+```
+GET /api/v1/projects/user/{userId}
 ```
 
 Get second page with custom page size:
 ```
-GET /api/v1/projects/builder/{builderId}?page=1&size=10
+GET /api/v1/projects/user/{userId}?page=1&size=10
 ```
 
 Sort by creation date ascending:
 ```
-GET /api/v1/projects/builder/{builderId}?sort=createdAt,ASC
+GET /api/v1/projects/user/{userId}?sort=createdAt,ASC
 ```
 
 Sort using orderBy parameter:
 ```
-GET /api/v1/projects/owner/{ownerId}?orderBy=lastUpdatedAt&direction=DESC
+GET /api/v1/projects/user/{userId}?orderBy=lastUpdatedAt&direction=DESC
+```
+
+Get specific project by ID:
+```
+GET /api/v1/projects/{projectId}
 ```
 
 **Sortable Fields:**
@@ -374,8 +426,11 @@ Location-specific functionality:
 Authorization and security functionality:
 - **Access Control**: Implements project access control rules
 - **Permission Validation**: Validates user permissions for operations
+- **Pre-Authorization**: Early permission checks using Spring Security
+- **Post-Authorization**: Ownership verification after entity retrieval (postAuthorizeProjectView)
 - **Role Processing**: Handles role-based access decisions
 - **Security Integration**: Works with security framework
+- **Exception Handling**: Throws UserNotAuthorizedException for unauthorized access
 
 ## Repository Patterns
 
@@ -399,10 +454,16 @@ All repositories follow Spring Data JPA patterns:
 ### Access Control Rules
 ```
 Authorization Matrix:
-- Primary User: Can access project based on role (BUILDER/OWNER)
-- Participants: Can access based on participant role
+- Project Owner: Can access their own projects (verified via post-authorization)
 - Admins: Can access all projects (full access)
 - Anonymous: No project access
+
+Authorization Flow:
+1. Pre-Authorization: Check if user has required authority (e.g., VIEW_PROJECT)
+2. Fetch Project: Retrieve project from database
+3. Post-Authorization: Verify user owns the project or is admin
+4. Grant Access: Allow operation if authorized
+5. Deny Access: Throw UserNotAuthorizedException if not authorized
 ```
 
 ### Permission Enforcement

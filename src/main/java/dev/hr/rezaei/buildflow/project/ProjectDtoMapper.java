@@ -2,7 +2,6 @@ package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.base.UpdatableEntityDtoMapper;
 import dev.hr.rezaei.buildflow.dto.DtoMappingException;
-import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.User;
 import lombok.NonNull;
 
@@ -20,16 +19,6 @@ public class ProjectDtoMapper {
                 .locationDto(ProjectLocationDtoMapper.toProjectLocationDto(project.getLocation()))
                 .createdAt(UpdatableEntityDtoMapper.toString(project.getCreatedAt()))
                 .lastUpdatedAt(UpdatableEntityDtoMapper.toString(project.getLastUpdatedAt()))
-                .build();
-    }
-
-    public static ProjectParticipantDto toProjectParticipantDto(ProjectParticipant participant) {
-        if (participant == null) return null;
-        
-        return ProjectParticipantDto.builder()
-                .id(participant.getId())
-                .role(participant.getRole() != null ? participant.getRole().name() : null)
-                .contactId(participant.getContact() != null ? participant.getContact().getId() : null)
                 .build();
     }
 
@@ -63,28 +52,5 @@ public class ProjectDtoMapper {
                 .build();
         
         return project;
-    }
-    
-    public static ProjectParticipant toProjectParticipantEntity(
-            @NonNull ProjectParticipantDto dto, 
-            @NonNull Project project, 
-            @NonNull Contact contact) {
-        try {
-            ProjectRole role = dto.getRole() != null ? ProjectRole.valueOf(dto.getRole()) : null;
-            if (role == null) {
-                throw new DtoMappingException("Participant role is required");
-            }
-            
-            return ProjectParticipant.builder()
-                    .id(dto.getId())
-                    .project(project)
-                    .role(role)
-                    .contact(contact)
-                    .build();
-        } catch (IllegalArgumentException e) {
-            throw new DtoMappingException("Invalid participant role: " + dto.getRole(), e);
-        } catch (Exception e) {
-            throw new DtoMappingException("Invalid ProjectParticipantDto: " + dto, e);
-        }
     }
 }

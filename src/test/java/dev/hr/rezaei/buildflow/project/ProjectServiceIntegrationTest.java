@@ -295,8 +295,8 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
 
         // Assert
         assertTrue(userProjects.isEmpty());
-    }
 
+    }
 
     @Test
     void getProjectsByUserId_shouldReturnProjects_whenUserExists() {

@@ -1,6 +1,5 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.config.mvc.PaginationHelper;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectParticipantRequest;
 import dev.hr.rezaei.buildflow.user.Contact;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,24 +14,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
+import static dev.hr.rezaei.buildflow.project.ProjectParticipantDtoMapper.toProjectParticipantDto;
 import static dev.hr.rezaei.buildflow.user.ContactDtoMapper.toContactEntity;
 
 /**
  * ProjectParticipantController handles sub-resource endpoints for project participants.
  * All endpoints are scoped under /api/v1/projects/{projectId}/participants.
+ * 
+ * Note: Pagination is not needed for participants since the number per project is expected to be small.
  */
 @Slf4j
 @RestController
@@ -45,14 +43,7 @@ public class ProjectParticipantController {
     private final ProjectParticipantAuthService participantAuthService;
     private final ProjectParticipantService participantService;
 
-    // Pagination helper configured with participant-specific sort fields
-    private final PaginationHelper paginationHelper = new PaginationHelper(
-        Set.of("contact.id", "role"),
-        "contact.id",
-        Sort.Direction.ASC
-    );
-
-    @Operation(summary = "List participants for a project", description = "Retrieves all participants for a specific project with pagination support")
+    @Operation(summary = "List participants for a project", description = "Retrieves all participants for a specific project")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Participants retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectParticipantDto.class))))
@@ -62,25 +53,16 @@ public class ProjectParticipantController {
     @GetMapping
     public ResponseEntity<List<ProjectParticipantDto>> getParticipants(
             @Parameter(description = "ID of the project whose participants to retrieve")
-            @PathVariable UUID projectId,
-            @Parameter(description = "Page number (0-based, default: 0)")
-            @RequestParam(required = false) Integer page,
-            @Parameter(description = "Page size (default: 25)")
-            @RequestParam(required = false) Integer size,
-            @Parameter(description = "Sort specification (e.g., 'contact.id,ASC')")
-            @RequestParam(required = false) String[] sort,
-            @Parameter(description = "Order by field (alternative to sort)")
-            @RequestParam(required = false) String orderBy,
-            @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
-            @RequestParam(required = false) String direction
+            @PathVariable UUID projectId
     ) {
-        log.info("Getting participants for project ID: {} with pagination", projectId);
+        log.info("Getting participants for project ID: {}", projectId);
         
-        Pageable pageable = paginationHelper.createPageable(page, size, sort, orderBy, direction);
-        Page<ProjectParticipant> participantPage = participantService.getParticipantsByProjectId(projectId, pageable);
-        Page<ProjectParticipantDto> participantDtoPage = participantPage.map(this::toDto);
+        List<ProjectParticipant> participants = participantService.findByProjectId(projectId);
+        List<ProjectParticipantDto> participantDtos = participants.stream()
+                .map(ProjectParticipantDtoMapper::toProjectParticipantDto)
+                .collect(Collectors.toList());
         
-        return build(participantDtoPage, "/api/v1/projects/" + projectId + "/participants");
+        return ResponseEntity.ok(participantDtos);
     }
 
     @Operation(summary = "Get a specific participant", description = "Retrieves a specific participant by ID")
@@ -108,7 +90,7 @@ public class ProjectParticipantController {
             throw new IllegalArgumentException("Participant " + participantId + " does not belong to project " + projectId);
         }
         
-        return ResponseEntity.ok(toDto(participant));
+        return ResponseEntity.ok(toProjectParticipantDto(participant));
     }
 
     @Operation(summary = "Create a new participant", description = "Adds a new participant to the project")
@@ -137,7 +119,7 @@ public class ProjectParticipantController {
         );
         
         log.info("Successfully created participant with ID: {} for project ID: {}", participant.getId(), projectId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toDto(participant));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toProjectParticipantDto(participant));
     }
 
     @Operation(summary = "Update a participant", description = "Updates an existing participant")
@@ -177,7 +159,7 @@ public class ProjectParticipantController {
         );
         
         log.info("Successfully updated participant ID: {}", participantId);
-        return ResponseEntity.ok(toDto(updated));
+        return ResponseEntity.ok(toProjectParticipantDto(updated));
     }
 
     @Operation(summary = "Delete a participant", description = "Removes a participant from the project")
@@ -208,16 +190,5 @@ public class ProjectParticipantController {
         
         log.info("Successfully deleted participant ID: {}", participantId);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Map ProjectParticipant entity to DTO.
-     */
-    private ProjectParticipantDto toDto(ProjectParticipant participant) {
-        return ProjectParticipantDto.builder()
-                .id(participant.getId())
-                .role(participant.getRole() != null ? participant.getRole().name() : null)
-                .contactId(participant.getContact() != null ? participant.getContact().getId() : null)
-                .build();
     }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
-import { ProjectServiceWithAuth } from '@/services/ProjectService';
+import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
 import { Project, PagedResponse, PaginationParams } from '@/services/dtos';
 import { DashboardSection } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -123,44 +123,34 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 
     try {
       const projectService = new ProjectServiceWithAuth(() => token);
-      let response: PagedResponse<Project>;
-
-      // Determine which projects to fetch based on filter scope or legacy filterByRole
+      
+      // Fetch all projects for the user
+      // Note: Backend only supports GET /api/v1/projects/user/{userId}
+      // Role-based filtering (builder/owner) and date filtering are not supported by backend yet
+      const response = await projectService.getProjectsByUserId(user.id, paginationParams);
+      
+      // Apply client-side filtering if needed
+      let filteredProjects = response.content;
+      
+      // Apply date filters client-side
+      if (appliedFilter.createdAfter) {
+        const afterDate = new Date(appliedFilter.createdAfter);
+        filteredProjects = filteredProjects.filter((p: Project) => new Date(p.createdAt) >= afterDate);
+      }
+      if (appliedFilter.createdBefore) {
+        const beforeDate = new Date(appliedFilter.createdBefore);
+        filteredProjects = filteredProjects.filter((p: Project) => new Date(p.createdAt) <= beforeDate);
+      }
+      
+      // Apply role-based filter client-side if specified
       const effectiveScope = filterByRole || appliedFilter.scope;
-      
-      // Convert date strings to ISO-8601 format if provided
-      const createdAfter = appliedFilter.createdAfter ? new Date(appliedFilter.createdAfter).toISOString() : undefined;
-      const createdBefore = appliedFilter.createdBefore ? new Date(appliedFilter.createdBefore).toISOString() : undefined;
-      
       if (effectiveScope === 'builder') {
-        response = await projectService.getCombinedProjectsPaginated(
-          user.id, 
-          'builder', 
-          createdAfter, 
-          createdBefore, 
-          paginationParams
-        );
+        filteredProjects = filteredProjects.filter((p: Project) => p.role === 'BUILDER');
       } else if (effectiveScope === 'owner') {
-        response = await projectService.getCombinedProjectsPaginated(
-          user.id, 
-          'owner', 
-          createdAfter, 
-          createdBefore, 
-          paginationParams
-        );
-      } else {
-        // Default: fetch combined projects (both builder and owner)
-        response = await projectService.getCombinedProjectsPaginated(
-          user.id, 
-          'both', 
-          createdAfter, 
-          createdBefore, 
-          paginationParams
-        );
+        filteredProjects = filteredProjects.filter((p: Project) => p.role === 'OWNER');
       }
 
-      // No client-side filtering needed - server handles it all
-      setAllFetchedProjects(response.content);
+      setAllFetchedProjects(filteredProjects);
       setPagination(response.pagination);
       
       // Reset displayed count to initial on non-background fetches

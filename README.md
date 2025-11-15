@@ -245,6 +245,12 @@ BuildFlow/
 │   │   │   │   ├── AuthMockService.ts
 │   │   │   │   ├── authServiceFactory.ts
 │   │   │   │   └── README.md
+│   │   │   ├── project/       # Project service (Factory Pattern) - [📖 Documentation](src/services/project/README.md)
+│   │   │   │   ├── IProjectService.ts
+│   │   │   │   ├── ProjectService.ts
+│   │   │   │   ├── ProjectMockService.ts
+│   │   │   │   ├── projectServiceFactory.ts
+│   │   │   │   └── README.md
 │   │   │   ├── dtos/          # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
 │   │   │   │   ├── AddressDtos.ts
 │   │   │   │   ├── AuthDtos.ts
@@ -262,7 +268,6 @@ BuildFlow/
 │   │   │   │   ├── useSmartFieldValidation.ts
 │   │   │   │   └── index.ts
 │   │   │   ├── ApiService.tsx
-│   │   │   ├── ProjectService.ts
 │   │   │   ├── TimerService.ts
 │   │   │   ├── apiHelpers.ts
 │   │   │   └── index.ts
@@ -379,6 +384,12 @@ BuildFlow/
 │   │   │   │   ├── ProjectLocationDtoMapper.java          # MapStruct mapper for Location
 │   │   │   │   ├── ProjectLocationRepository.java         # JPA repository for locations
 │   │   │   │   ├── ProjectLocationService.java            # Business logic for locations
+│   │   │   │   ├── ProjectPaginationConfig.java           # Pagination configuration
+│   │   │   │   ├── ProjectParticipant.java                # Participant entity
+│   │   │   │   ├── ProjectParticipantDto.java             # DTO for participants
+│   │   │   │   ├── ProjectParticipantDtoMapper.java       # Mapper for participants
+│   │   │   │   ├── ProjectParticipantRepository.java      # JPA repository for participants
+│   │   │   │   ├── ProjectParticipantService.java         # Business logic for participants
 │   │   │   │   ├── ProjectRepository.java                 # JPA repository for projects
 │   │   │   │   └── ProjectService.java                    # Business logic for projects
 │   │   │   ├── quote/                       # Quote domain - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/quote/README.md)

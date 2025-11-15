@@ -10,9 +10,9 @@ export { authService as auth } from './auth/authServiceFactory';
 export * from './admin/adminServiceFactory';
 export { adminService as admin} from './admin/adminServiceFactory';
 
-// Re-export everything from ProjectService
-export * from './ProjectService';
-export { projectService as project } from './ProjectService';
+// Re-export everything from ProjectService (using new factory pattern)
+export * from './project/projectServiceFactory';
+export { projectService as project } from './project/projectServiceFactory';
 
 // Re-export timer service
 export * from './TimerService';

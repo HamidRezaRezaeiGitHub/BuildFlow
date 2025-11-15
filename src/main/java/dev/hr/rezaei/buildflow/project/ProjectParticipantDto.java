@@ -1,6 +1,8 @@
 package dev.hr.rezaei.buildflow.project;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.dto.Dto;
+import dev.hr.rezaei.buildflow.user.ContactDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -29,6 +31,7 @@ public class ProjectParticipantDto implements Dto<ProjectParticipant> {
     @Schema(description = "Role of the participant in the project", example = "OWNER")
     private String role;
     
-    @Schema(description = "Contact ID of the participant", example = "123e4567-e89b-12d3-a456-426614174001")
-    private UUID contactId;
+    @Schema(description = "Contact information of the participant")
+    @JsonProperty("contact")
+    private ContactDto contact;
 }

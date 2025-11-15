@@ -22,6 +22,12 @@ services/
 │   ├── AuthMockService.ts    # Mock implementation for standalone dev
 │   ├── authServiceFactory.ts # Factory creating correct implementation
 │   └── README.md             # Authentication service documentation
+├── project/                   # Project service (Factory Pattern)
+│   ├── IProjectService.ts    # Project service interface
+│   ├── ProjectService.ts     # Real backend implementation
+│   ├── ProjectMockService.ts # Mock implementation for standalone dev
+│   ├── projectServiceFactory.ts # Factory creating correct implementation
+│   └── README.md             # Project service documentation
 ├── dtos/                      # Data Transfer Objects
 │   ├── AddressDtos.ts        # Address data structures and base types
 │   ├── AuthDtos.ts           # Authentication data structures
@@ -36,8 +42,6 @@ services/
 ├── validation/               # Validation service and hooks
 │   └── README.md            # Comprehensive validation documentation
 ├── ApiService.tsx            # Base HTTP client and API utilities
-├── ProjectService.ts         # Project management API service
-├── ProjectService.test.ts    # Project service tests
 ├── TimerService.ts           # Timer utility service
 ├── apiHelpers.ts             # API helper functions
 └── index.ts                  # Service exports
@@ -147,58 +151,48 @@ const userDetails = await adminService.getUserDetails('username', token);
 const stats = adminService.calculateUserStats(userDetailsList);
 ```
 
-### dtos/ - Data Transfer Objects
+### project/ - Project Service (Factory Pattern)
+**Purpose:** Project management operations using clean architecture.
 
-### ProjectService.ts
-**Purpose:** Project management and CRUD operations.
+**[📖 Full Documentation](project/README.md)**
+
+**Architecture:**
+- **Interface (`IProjectService`)** - Defines project service contract
+- **Real Implementation (`ProjectService`)** - Makes HTTP calls to backend
+- **Mock Implementation (`ProjectMockService`)** - Uses local mock data
+- **Factory (`projectServiceFactory`)** - Creates correct implementation based on config
 
 **Features:**
 - Create new projects
-- Get projects by builder ID (with pagination)
-- Get projects by owner ID (with pagination)
-- Get combined projects (builder OR owner)
-- Mock project data (dev mode)
-- Environment-aware (standalone/integrated modes)
+- Retrieve projects by user ID (paginated)
+- Fetch individual project details
+- Zero runtime conditionals (factory pattern)
+- Aligned with simplified backend API
 
 **Backend Integration:**
 - Endpoint: `POST /api/v1/projects` for project creation
-- Endpoint: `GET /api/v1/projects/builder/{builderId}` for builder's projects
-- Endpoint: `GET /api/v1/projects/owner/{ownerId}` for owner's projects
-- Endpoint: `GET /api/v1/projects/combined/{userId}` for combined projects
+- Endpoint: `GET /api/v1/projects/user/{userId}` for user's projects
 - Requires JWT authentication token
-- Supports pagination with headers (`X-Page`, `X-Size`, `X-Total-Elements`, etc.)
+- Supports pagination with headers
 
-**Key Functions:**
+**Usage:**
 ```typescript
-class ProjectService {
-  // Create a new project
-  createProject(request: CreateProjectRequest, token: string): Promise<CreateProjectResponse>
-  
-  // Get projects by builder ID (deprecated - use paginated version)
-  getProjectsByBuilderId(builderId: string, token: string): Promise<Project[]>
-  
-  // Get paginated projects by builder ID
-  getProjectsByBuilderIdPaginated(builderId: string, token: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-  
-  // Get projects by owner ID (deprecated - use paginated version)
-  getProjectsByOwnerId(ownerId: string, token: string): Promise<Project[]>
-  
-  // Get paginated projects by owner ID
-  getProjectsByOwnerIdPaginated(ownerId: string, token: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-  
-  // Get combined projects (builder OR owner) with server-side filtering
-  getCombinedProjectsPaginated(userId: string, token: string, scope?: 'builder'|'owner'|'both', createdAfter?: string, createdBefore?: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-}
+import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
+import { useAuth } from '@/contexts/AuthContext';
 
-// Wrapper with automatic token injection from AuthContext
-class ProjectServiceWithAuth {
-  createProject(request: CreateProjectRequest): Promise<CreateProjectResponse>
-  getProjectsByBuilderId(builderId: string): Promise<Project[]>
-  getProjectsByBuilderIdPaginated(builderId: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-  getProjectsByOwnerId(ownerId: string): Promise<Project[]>
-  getProjectsByOwnerIdPaginated(ownerId: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-  getCombinedProjectsPaginated(userId: string, scope?: 'builder'|'owner'|'both', createdAfter?: string, createdBefore?: string, params?: PaginationParams): Promise<PagedResponse<Project>>
-}
+const { getToken } = useAuth();
+const projectService = new ProjectServiceWithAuth(getToken);
+
+// Create a project (token auto-injected)
+const response = await projectService.createProject(request);
+
+// Get projects for user (paginated, token auto-injected)
+const projects = await projectService.getProjectsByUserId(userId, params);
+```
+
+**Migration Note:** This service was refactored from a monolithic file to factory pattern, removing outdated builder/owner-specific endpoints and aligning with the current backend API.
+
+### dtos/ - Data Transfer Objects}
 ```
 
 **Mock Data Integration:**
@@ -423,27 +417,6 @@ All services use TypeScript with strict typing:
 async getUser(id: string): Promise<User> {
   return await apiService.get<User>(`/users/${id}`);
 }
-```
-
-## Testing
-
-### ProjectService.test.ts
-Comprehensive tests for ProjectService:
-- Mock data operations
-- API call verification
-- Error handling
-- Response transformation
-
-**Test Patterns:**
-```typescript
-test('ProjectService_shouldCreateProject_withValidData', async () => {
-  const mockProject = { /* ... */ };
-  
-  const result = await ProjectService.createProject(mockProject);
-  
-  expect(result).toHaveProperty('id');
-  expect(result.name).toBe(mockProject.name);
-});
 ```
 
 ## Development Guidelines

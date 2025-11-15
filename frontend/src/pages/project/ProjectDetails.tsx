@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProjectServiceWithAuth } from '@/services/ProjectService';
+import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
 import { Project } from '@/services/dtos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

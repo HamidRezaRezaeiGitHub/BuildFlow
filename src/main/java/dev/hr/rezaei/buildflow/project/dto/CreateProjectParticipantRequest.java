@@ -1,5 +1,6 @@
 package dev.hr.rezaei.buildflow.project.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -33,5 +34,6 @@ public class CreateProjectParticipantRequest {
     @Schema(description = "Contact information for the participant")
     @NotNull(message = "Contact information is required")
     @Valid
+    @JsonProperty("contact")
     private ContactRequestDto contactRequestDto;
 }

@@ -1,14 +1,12 @@
 package dev.hr.rezaei.buildflow.project;
 
-import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.User;
+import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.UserService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +46,7 @@ public class ProjectService {
         if (roleStr == null || roleStr.trim().isEmpty()) {
             throw new IllegalArgumentException("Role is required.");
         }
-        
+
         try {
             ProjectRole.valueOf(roleStr);
         } catch (IllegalArgumentException e) {
@@ -66,7 +64,7 @@ public class ProjectService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public Project createProject(@NonNull UUID userId, @NonNull String roleStr, @NonNull ProjectLocation location) {
         validate(userId, roleStr, location);
-        
+
         User user = userService.findById(userId).get();
         ProjectRole role = ProjectRole.valueOf(roleStr);
 
@@ -81,9 +79,7 @@ public class ProjectService {
 
         log.info("Persisting new project for user ID [{}] with role [{}] at location: {}",
                 userId, role, location);
-        Project savedProject = projectRepository.save(project);
-
-        return savedProject;
+        return projectRepository.save(project);
     }
 
     public Project update(@NonNull Project project) {
@@ -143,21 +139,17 @@ public class ProjectService {
             throw new UserNotFoundException("User with ID " + userId + " does not exist.");
         }
 
-        Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return projectRepository.findByUserId(userId, pageableWithSort);
+        return projectRepository.findByUserId(userId, pageable);
     }
 
     /**
-     * Ensures that the pageable has default sorting by lastUpdatedAt DESC if no sort is provided.
+     * Get all projects with pagination support (admin only).
+     * Transaction ensures participants are loaded within session.
+     * <p>
+     * Note: Pageable is already configured with default sort by the controller's PaginationHelper.
      */
-    private Pageable ensureDefaultSort(Pageable pageable) {
-        if (pageable.getSort().isUnsorted()) {
-            return PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by(Sort.Direction.DESC, "lastUpdatedAt")
-            );
-        }
-        return pageable;
+    @Transactional(readOnly = true)
+    public Page<Project> getAllProjects(@NonNull Pageable pageable) {
+        return projectRepository.findAll(pageable);
     }
 }

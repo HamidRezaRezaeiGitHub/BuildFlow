@@ -4,10 +4,6 @@ import dev.hr.rezaei.buildflow.user.Contact;
 import dev.hr.rezaei.buildflow.user.ContactService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +14,8 @@ import java.util.UUID;
 /**
  * ProjectParticipantService providing business logic for project participant management operations.
  * Follows the same pattern as ProjectService - operates on entities, not DTOs.
+ * 
+ * Note: Pagination removed since participant counts per project are expected to be small.
  */
 @Slf4j
 @Service
@@ -52,17 +50,6 @@ public class ProjectParticipantService {
     }
 
     /**
-     * List participants for a given project with pagination support.
-     * Applies default sort by contact name if pageable is unsorted.
-     */
-    @Transactional(readOnly = true)
-    public Page<ProjectParticipant> getParticipantsByProjectId(@NonNull UUID projectId, @NonNull Pageable pageable) {
-        verifyProjectExists(projectId);
-        Pageable pageableWithSort = ensureDefaultSort(pageable);
-        return participantRepository.findByProjectId(projectId, pageableWithSort);
-    }
-
-    /**
      * Count participants by project ID.
      */
     public long countByProjectId(@NonNull UUID projectId) {
@@ -79,9 +66,6 @@ public class ProjectParticipantService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project with ID " + projectId + " does not exist."));
 
-        // Save the contact (similar to UserService pattern)
-        contact = contactService.save(contact);
-
         // Validate role
         ProjectRole role;
         try {
@@ -89,6 +73,9 @@ public class ProjectParticipantService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid role: " + roleStr + ". Must be BUILDER or OWNER.");
         }
+
+        // Save the contact (similar to UserService pattern)
+        contact = contactService.save(contact);
 
         ProjectParticipant participant = ProjectParticipant.builder()
                 .project(project)
@@ -110,9 +97,6 @@ public class ProjectParticipantService {
         ProjectParticipant participant = participantRepository.findById(participantId)
                 .orElseThrow(() -> new ParticipantNotFoundException("Participant with ID " + participantId + " does not exist."));
 
-        // Save the contact (similar to UserService pattern)
-        contact = contactService.save(contact);
-
         // Validate role
         ProjectRole role;
         try {
@@ -120,6 +104,9 @@ public class ProjectParticipantService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid role: " + roleStr + ". Must be BUILDER or OWNER.");
         }
+
+        // Save the contact (similar to UserService pattern)
+        contact = contactService.save(contact);
 
         participant.setContact(contact);
         participant.setRole(role);
@@ -139,17 +126,6 @@ public class ProjectParticipantService {
         }
         participantRepository.deleteById(participantId);
         log.info("Deleted participant with ID {}", participantId);
-    }
-
-    /**
-     * Ensures that the pageable has default sorting by contact ID if no sort is provided.
-     */
-    private Pageable ensureDefaultSort(Pageable pageable) {
-        if (pageable.getSort().isUnsorted()) {
-            Sort defaultSort = Sort.by(Sort.Direction.ASC, "contact.id");
-            return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
-        }
-        return pageable;
     }
 
     /**
