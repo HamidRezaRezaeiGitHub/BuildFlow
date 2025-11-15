@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateUserException(DuplicateUserException ex, HttpServletRequest request) {
         log.warn("Duplicate user exception: {}", ex.getMessage());
-        return responseFacilitator.conflict(request, List.of("Username is already taken"));
+        return responseFacilitator.conflict(request, List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

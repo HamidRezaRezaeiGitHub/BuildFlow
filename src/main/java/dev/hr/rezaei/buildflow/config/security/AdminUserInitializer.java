@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Order(1) // Runs first
 @ConditionalOnProperty(value = "app.admin.initialize", havingValue = "true")
 public class AdminUserInitializer implements ApplicationRunner {
 
@@ -47,7 +49,7 @@ public class AdminUserInitializer implements ApplicationRunner {
             Role currentRole = optionalUserAuthentication.get().getRole();
             if (!Role.ADMIN.equals(currentRole)) {
                 log.error("Cannot create admin user. Username already exists with different role: {}", currentRole);
-                throw new DuplicateUserException("Username already exists with role: " + currentRole);
+                throw new DuplicateUserException("username", adminUsername);
             } else {
                 log.info("A user with admin role already exists with username: {}", adminUsername);
             }

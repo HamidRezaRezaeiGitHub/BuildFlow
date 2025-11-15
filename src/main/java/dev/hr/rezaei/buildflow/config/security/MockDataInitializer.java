@@ -9,8 +9,12 @@ import dev.hr.rezaei.buildflow.data.migration.dto.MockUserData;
 import dev.hr.rezaei.buildflow.user.ContactLabel;
 import dev.hr.rezaei.buildflow.user.dto.ContactAddressRequestDto;
 import dev.hr.rezaei.buildflow.user.dto.ContactRequestDto;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +25,19 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
+@Order(2) // Runs after AdminUserInitializer (Order 1)
 @ConditionalOnProperty(value = "app.users.mock.enabled", havingValue = "true")
-public class MockDataInitializer {
+public class MockDataInitializer implements ApplicationRunner {
 
     private final AuthService authService;
 
-    public MockDataInitializer(AuthService authService) {
-        this.authService = authService;
-
+    @Override
+    @Transactional
+    public void run(ApplicationArguments args) {
         initializeMockData();
     }
 
-    @Transactional
     protected void initializeMockData() {
         log.info("Starting mock data initialization from JSON files...");
 
@@ -61,8 +66,7 @@ public class MockDataInitializer {
         for (MockUserData userData : mockUsers) {
             try {
                 // Check if user already exists
-                if (authService.userAuthExistsByUsername(userData.getUsername()) || 
-                    authService.userExistsByUsername(userData.getUsername())) {
+                if (authService.userAuthExistsByUsername(userData.getUsername()) || authService.userExistsByUsername(userData.getUsername())) {
                     log.debug("Mock user '{}' already exists, skipping...", userData.getUsername());
                     continue;
                 }
@@ -89,7 +93,7 @@ public class MockDataInitializer {
                 // Create sign-up request
                 SignUpRequest signUpRequest = SignUpRequest.builder()
                         .username(userData.getUsername())
-                        .password(authData.getPasswordHash()) // Note: Will be hashed by registerUserWithRole
+                        .password(authData.getPasswordHash()) // Note: Will be hashed
                         .contactRequestDto(contactRequestDto)
                         .build();
 
@@ -106,11 +110,13 @@ public class MockDataInitializer {
     }
 
     private List<MockUserData> loadMockUsers() {
-        return JsonLoadUtil.loadJsonArray("Users.json", new TypeReference<List<MockUserData>>() {});
+        return JsonLoadUtil.loadJsonArray("Users.json", new TypeReference<List<MockUserData>>() {
+        });
     }
 
     private List<MockAuthenticationData> loadMockAuthentications() {
-        return JsonLoadUtil.loadJsonArray("UserAuthentications.json", new TypeReference<List<MockAuthenticationData>>() {});
+        return JsonLoadUtil.loadJsonArray("UserAuthentications.json", new TypeReference<List<MockAuthenticationData>>() {
+        });
     }
 
     private ContactRequestDto createContactRequestDto(MockContactData contactData) {
@@ -131,23 +137,9 @@ public class MockDataInitializer {
         // Create address DTO if address data exists
         ContactAddressRequestDto addressDto = null;
         if (contactData.getAddress() != null) {
-            addressDto = ContactAddressRequestDto.builder()
-                    .unitNumber(contactData.getAddress().getUnitNumber())
-                    .streetNumberAndName(contactData.getAddress().getStreetNumberAndName())
-                    .city(contactData.getAddress().getCity())
-                    .stateOrProvince(contactData.getAddress().getStateOrProvince())
-                    .postalOrZipCode(contactData.getAddress().getPostalOrZipCode())
-                    .country(contactData.getAddress().getCountry())
-                    .build();
+            addressDto = ContactAddressRequestDto.builder().unitNumber(contactData.getAddress().getUnitNumber()).streetNumberAndName(contactData.getAddress().getStreetNumberAndName()).city(contactData.getAddress().getCity()).stateOrProvince(contactData.getAddress().getStateOrProvince()).postalOrZipCode(contactData.getAddress().getPostalOrZipCode()).country(contactData.getAddress().getCountry()).build();
         }
 
-        return ContactRequestDto.builder()
-                .firstName(contactData.getFirstName())
-                .lastName(contactData.getLastName())
-                .labels(labelStrings)
-                .email(contactData.getEmail())
-                .phone(contactData.getPhone())
-                .addressRequestDto(addressDto)
-                .build();
+        return ContactRequestDto.builder().firstName(contactData.getFirstName()).lastName(contactData.getLastName()).labels(labelStrings).email(contactData.getEmail()).phone(contactData.getPhone()).addressRequestDto(addressDto).build();
     }
 }

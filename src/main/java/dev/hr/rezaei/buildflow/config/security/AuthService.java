@@ -62,13 +62,13 @@ public class AuthService {
         // Check if username already exists
         if (userAuthExistsByUsername(username) || userExistsByUsername(username)) {
             securityAuditService.logRegistrationAttempt(username, email, false, "Username already taken");
-            throw new DuplicateUserException("Username is already taken: " + username);
+            throw new DuplicateUserException("username", username);
         }
 
         // Check if user with email already exists
         if (userExistsByEmail(email)) {
             securityAuditService.logRegistrationAttempt(username, email, false, "Email already in use");
-            throw new DuplicateUserException("There is already a user with the email: " + email);
+            throw new DuplicateUserException("email", email);
         }
 
         // Map DTO to entity and create new user using UserService

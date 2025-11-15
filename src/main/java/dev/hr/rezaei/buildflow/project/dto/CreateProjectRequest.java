@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * CreateProjectRequest representing request object for creating new projects.
  * <p>
@@ -38,5 +40,6 @@ public class CreateProjectRequest {
     @Schema(description = "Location information for the project")
     @Valid
     @NotNull(message = "Location information is required")
+    @JsonProperty("location")
     private ProjectLocationRequestDto locationRequestDto;
 }

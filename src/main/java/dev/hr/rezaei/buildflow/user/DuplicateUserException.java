@@ -1,13 +1,16 @@
 package dev.hr.rezaei.buildflow.user;
 
+import lombok.Getter;
+
+@Getter
 public class DuplicateUserException extends RuntimeException {
-    public DuplicateUserException(String message) {
-        super(message);
-    }
-    public DuplicateUserException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    public DuplicateUserException(Throwable cause) {
-        super(cause);
+
+    private final String duplicateField;
+    private final String duplicateValue;
+
+    public DuplicateUserException(String duplicateField, String duplicateValue) {
+        super("Account with " + duplicateField + " '" + duplicateValue + "' already exists!");
+        this.duplicateField = duplicateField;
+        this.duplicateValue = duplicateValue;
     }
 }
