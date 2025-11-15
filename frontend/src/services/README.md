@@ -10,6 +10,18 @@ The services directory provides the data layer for the BuildFlow frontend, conta
 
 ```
 services/
+├── admin/                     # Admin service (Factory Pattern)
+│   ├── IAdminService.ts      # Admin service interface
+│   ├── AdminService.ts       # Real backend implementation
+│   ├── AdminMockService.ts   # Mock implementation for standalone dev
+│   ├── adminServiceFactory.ts # Factory creating correct implementation
+│   └── README.md             # Admin service documentation
+├── auth/                      # Authentication service (Factory Pattern)
+│   ├── IAuthService.ts       # Authentication service interface
+│   ├── AuthService.ts        # Real backend implementation
+│   ├── AuthMockService.ts    # Mock implementation for standalone dev
+│   ├── authServiceFactory.ts # Factory creating correct implementation
+│   └── README.md             # Authentication service documentation
 ├── dtos/                      # Data Transfer Objects
 │   ├── AddressDtos.ts        # Address data structures and base types
 │   ├── AuthDtos.ts           # Authentication data structures
@@ -23,9 +35,7 @@ services/
 │   └── index.ts              # DTO exports
 ├── validation/               # Validation service and hooks
 │   └── README.md            # Comprehensive validation documentation
-├── AdminService.tsx          # Admin operations API service
 ├── ApiService.tsx            # Base HTTP client and API utilities
-├── AuthService.tsx           # Authentication API service
 ├── ProjectService.ts         # Project management API service
 ├── ProjectService.test.ts    # Project service tests
 ├── TimerService.ts           # Timer utility service
@@ -72,52 +82,72 @@ const data = await apiService.get<User[]>('/users');
 const result = await apiService.post<Project>('/projects', projectData);
 ```
 
-### AuthService.tsx
-**Purpose:** Authentication and user session management.
+### auth/ - Authentication Service (Factory Pattern)
+**Purpose:** User authentication, registration, and session management using clean architecture.
+
+**[📖 Full Documentation](auth/README.md)**
+
+**Architecture:**
+- **Interface (`IAuthService`)** - Defines authentication contract
+- **Real Implementation (`AuthService`)** - Makes HTTP calls to backend
+- **Mock Implementation (`AuthMockService`)** - Uses local mock data
+- **Factory (`authServiceFactory`)** - Creates correct implementation based on config
 
 **Features:**
 - User login/logout
 - User registration
-- Token management
+- Token validation and refresh
 - Session persistence
-- Mock authentication (dev mode)
-- Password validation
-
-**Key Functions:**
-```typescript
-class AuthService {
-  login(credentials: LoginCredentials): Promise<AuthResponse>
-  register(signUpData: SignUpData): Promise<AuthResponse>
-  logout(): Promise<void>
-  getCurrentUser(): Promise<User | null>
-  refreshToken(): Promise<string>
-}
-```
-
-**Mock Authentication:**
-- Enabled via `config.enableMockAuth`
-- Uses mock users from `@/mocks/MockUsers`
-- Simulates backend responses
-- Perfect for standalone development
+- Admin user creation
+- Environment-aware (switches between mock and real based on `config.enableMockAuth`)
 
 **Usage:**
 ```typescript
-import { authService } from '@/services/AuthService';
+import { authService } from '@/services';
 
-// Login
+// Factory automatically provides the right implementation
 const response = await authService.login({
   username: 'admin',
   password: 'password123'
 });
 
-// Register
-const response = await authService.register({
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john@example.com',
-  password: 'SecurePass123!'
-});
+const user = await authService.getCurrentUser(token);
 ```
+
+### admin/ - Admin Service (Factory Pattern)
+**Purpose:** Administrative operations, user management, and system monitoring using clean architecture.
+
+**[📖 Full Documentation](admin/README.md)**
+
+**Architecture:**
+- **Interface (`IAdminService`)** - Defines admin service contract
+- **Real Implementation (`AdminService`)** - Makes HTTP calls to backend
+- **Mock Implementation (`AdminMockService`)** - Uses local mock data
+- **Factory (`adminServiceFactory`)** - Creates correct implementation based on config
+
+**Features:**
+- User management (CRUD operations)
+- User authentication record retrieval
+- Combined user details (User + UserAuthentication)
+- User statistics calculation
+- Admin user creation
+- Environment-aware (switches between mock and real based on `config.enableMockAuth`)
+
+**Usage:**
+```typescript
+import { adminService } from '@/services';
+
+// Get all users
+const users = await adminService.getAllUsers(token);
+
+// Get user details (User + Auth combined)
+const userDetails = await adminService.getUserDetails('username', token);
+
+// Calculate statistics
+const stats = adminService.calculateUserStats(userDetailsList);
+```
+
+### dtos/ - Data Transfer Objects
 
 ### ProjectService.ts
 **Purpose:** Project management and CRUD operations.

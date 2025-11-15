@@ -57,7 +57,7 @@ export interface CreateProjectRequest {
   role: string;
   
   /** Location information for the project */
-  locationRequestDto: ProjectLocationRequestDto;
+  location: ProjectLocationRequestDto;
 }
 
 /**

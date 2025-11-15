@@ -1,22 +1,23 @@
-import { config } from '@/config/environment';
-import { findUserAuthenticationByUsername, mockUsers } from '@/mocks/MockUsers';
-import { apiService } from './ApiService';
-import { CreateUserRequest, CreateUserResponse, User, UserAuthentication } from './dtos';
-import { UserDetails } from './dtos/UserDtos';
+import { apiService } from '../ApiService';
+import type {
+    CreateUserRequest,
+    CreateUserResponse,
+    User,
+    UserAuthentication
+} from '../dtos';
+import type { UserDetails } from '../dtos/UserDtos';
+import type { IAdminService } from './IAdminService';
 
 /**
- * AdminService class that handles all administrative operations
- * Uses the generic ApiService for HTTP communications while focusing on admin business logic
+ * Admin Service - Real Backend Implementation
  * 
- * This service provides functions for admin-only endpoints including:
- * - User management and authentication data
- * - Admin user creation
- * - User statistics and monitoring
+ * Handles all administrative operations by calling the Spring Boot backend.
+ * This implementation contains NO mock logic - it's pure API integration.
  * 
- * All methods require admin authentication (ADMIN_USERS authority)
- * Token must be provided as parameter to each method
+ * All methods require admin authentication (ADMIN_USERS or CREATE_ADMIN authority).
+ * Token must be provided as parameter to each method.
  */
-class AdminService {
+export class AdminService implements IAdminService {
 
     /**
      * Get all user authentication records
@@ -91,46 +92,13 @@ class AdminService {
     /**
      * Get user details (User + UserAuthentication combined)
      * This method combines user profile data with authentication data
-     * Environment-aware: Uses mock data when config.enableMockAuth is true
      * 
      * @param username - Username to get details for
-     * @param token - JWT authentication token (ignored in mock mode)
+     * @param token - JWT authentication token
      * @returns Promise with user details
      */
     async getUserDetails(username: string, token: string): Promise<UserDetails> {
-        // Use mock data in standalone mode
-        if (config.enableMockAuth) {
-            if (config.enableConsoleLogs) {
-                console.log('[AdminService] Getting mock user details for:', username);
-            }
-
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    const user = mockUsers.find(u => u.username === username);
-                    const userAuthentication = findUserAuthenticationByUsername(username);
-
-                    if (!user) {
-                        reject(new Error(`User not found: ${username}`));
-                        return;
-                    }
-
-                    if (!userAuthentication) {
-                        reject(new Error(`User authentication not found: ${username}`));
-                        return;
-                    }
-
-                    const userDetails: UserDetails = {
-                        username,
-                        user,
-                        userAuthentication
-                    };
-
-                    resolve(userDetails);
-                }, 300); // Simulate network delay
-            });
-        }
-
-        // Real API calls in integrated mode
+        // Fetch both datasets in parallel
         const [user, userAuthentication] = await Promise.all([
             apiService.get<User>(`/v1/users/${encodeURIComponent(username)}`, token),
             apiService.get<UserAuthentication>(`/auth/user-auth/${encodeURIComponent(username)}`, token)
@@ -146,40 +114,11 @@ class AdminService {
     /**
      * Get all user details (All Users + UserAuthentications combined)
      * This method fetches all users and their authentication data efficiently
-     * Environment-aware: Uses mock data when config.enableMockAuth is true
      * 
-     * @param token - JWT authentication token (ignored in mock mode)
+     * @param token - JWT authentication token
      * @returns Promise with array of user details
      */
     async getAllUserDetails(token: string): Promise<UserDetails[]> {
-        // Use mock data in standalone mode
-        if (config.enableMockAuth) {
-            if (config.enableConsoleLogs) {
-                console.log('[AdminService] Using mock user data');
-            }
-
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // Combine mock users with their corresponding authentication data
-                    const mockUserDetailsList: UserDetails[] = mockUsers.map(user => {
-                        const userAuthentication = findUserAuthenticationByUsername(user.username);
-                        if (!userAuthentication) {
-                            throw new Error(`Authentication data not found for user: ${user.username}`);
-                        }
-
-                        return {
-                            username: user.username,
-                            user: user,
-                            userAuthentication
-                        };
-                    });
-
-                    resolve(mockUserDetailsList);
-                }, 800); // Simulate network delay
-            });
-        }
-
-        // Real API calls in integrated mode
         // Fetch both datasets in parallel using bulk APIs
         const [authentications, users] = await Promise.all([
             apiService.get<UserAuthentication[]>('/auth/user-auth', token),
@@ -258,76 +197,3 @@ class AdminService {
         };
     }
 }
-
-/**
- * Service wrapper that integrates with AuthContext
- * This wrapper automatically provides the authentication token from context
- * Consumers don't need to handle token management
- */
-export class AdminServiceWithAuth {
-    private adminService: AdminService;
-    private getToken: () => string | null;
-
-    constructor(getToken: () => string | null) {
-        this.adminService = new AdminService();
-        this.getToken = getToken;
-    }
-
-    private ensureToken(): string {
-        const token = this.getToken();
-        if (!token) {
-            throw new Error('Authentication token required for admin operations');
-        }
-        return token;
-    }
-
-    async getAllUserAuthentications(): Promise<UserAuthentication[]> {
-        return this.adminService.getAllUserAuthentications(this.ensureToken());
-    }
-
-    async getUserAuthenticationByUsername(username: string): Promise<UserAuthentication> {
-        return this.adminService.getUserAuthenticationByUsername(username, this.ensureToken());
-    }
-
-    async getUserByUsername(username: string): Promise<User> {
-        return this.adminService.getUserByUsername(username, this.ensureToken());
-    }
-
-    async getAllUsers(): Promise<User[]> {
-        return this.adminService.getAllUsers(this.ensureToken());
-    }
-
-    async createUser(request: CreateUserRequest): Promise<CreateUserResponse> {
-        return this.adminService.createUser(request, this.ensureToken());
-    }
-
-    async createAdminUser(request: CreateUserRequest): Promise<CreateUserResponse> {
-        return this.adminService.createAdminUser(request, this.ensureToken());
-    }
-
-    async getUserDetails(username: string): Promise<UserDetails> {
-        return this.adminService.getUserDetails(username, this.ensureToken());
-    }
-
-    async getAllUserDetails(): Promise<UserDetails[]> {
-        return this.adminService.getAllUserDetails(this.ensureToken());
-    }
-
-    calculateUserStats(userDetailsList: UserDetails[]): {
-        totalUsers: number;
-        activeUsers: number;
-        inactiveUsers: number;
-        adminUsers: number;
-        regularUsers: number;
-        premiumUsers: number;
-        recentLogins: number;
-    } {
-        return this.adminService.calculateUserStats(userDetailsList);
-    }
-}
-
-// Create and export a singleton instance of the raw service
-export const adminService = new AdminService();
-
-// Also export the class for testing or custom instances
-// export default AdminService; // Removed to avoid confusion; use named export if needed

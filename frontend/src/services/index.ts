@@ -2,13 +2,13 @@
 export * from './ApiService';
 export { apiService as api } from './ApiService';
 
-// Re-export everything from AuthService
-export * from './AuthService';
-export { authService as auth } from './AuthService';
+// Re-export everything from AuthService (using new factory pattern)
+export * from './auth/authServiceFactory';
+export { authService as auth } from './auth/authServiceFactory';
 
-// Re-export everything from AdminService
-export * from './AdminService';
-export { adminService as admin } from './AdminService';
+// Re-export everything from AdminService (using new factory pattern)
+export * from './admin/adminServiceFactory';
+export { adminService as admin} from './admin/adminServiceFactory';
 
 // Re-export everything from ProjectService
 export * from './ProjectService';
@@ -25,4 +25,4 @@ export * from './dtos';
 export * from './apiHelpers';
 
 // Default export for the auth service (most commonly used)
-export { authService as default } from './AuthService';
+export { authService as default } from './auth/authServiceFactory';

@@ -91,12 +91,12 @@ class ProjectService {
 
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const { userId, role, locationRequestDto } = request;
+                    const { userId, role, location } = request;
                     
                     const newProject = createMockProject(
                         userId, 
                         role, 
-                        locationRequestDto,
+                        location,
                         [] // participants not supported in backend DTO anymore
                     );
                     resolve(generateMockCreateProjectResponse(newProject));

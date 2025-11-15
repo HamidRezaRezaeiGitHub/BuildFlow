@@ -233,6 +233,18 @@ BuildFlow/
 │   │   │   ├── HomePage.tsx
 │   │   │   └── index.ts
 │   │   ├── services/           # API services - [📖 Documentation](src/services/README.md)
+│   │   │   ├── admin/         # Admin service (Factory Pattern) - [📖 Documentation](src/services/admin/README.md)
+│   │   │   │   ├── IAdminService.ts
+│   │   │   │   ├── AdminService.ts
+│   │   │   │   ├── AdminMockService.ts
+│   │   │   │   ├── adminServiceFactory.ts
+│   │   │   │   └── README.md
+│   │   │   ├── auth/          # Authentication service (Factory Pattern) - [📖 Documentation](src/services/auth/README.md)
+│   │   │   │   ├── IAuthService.ts
+│   │   │   │   ├── AuthService.ts
+│   │   │   │   ├── AuthMockService.ts
+│   │   │   │   ├── authServiceFactory.ts
+│   │   │   │   └── README.md
 │   │   │   ├── dtos/          # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
 │   │   │   │   ├── AddressDtos.ts
 │   │   │   │   ├── AuthDtos.ts
@@ -249,9 +261,7 @@ BuildFlow/
 │   │   │   │   ├── ValidationService.ts
 │   │   │   │   ├── useSmartFieldValidation.ts
 │   │   │   │   └── index.ts
-│   │   │   ├── AdminService.tsx
 │   │   │   ├── ApiService.tsx
-│   │   │   ├── AuthService.tsx
 │   │   │   ├── ProjectService.ts
 │   │   │   ├── TimerService.ts
 │   │   │   ├── apiHelpers.ts
