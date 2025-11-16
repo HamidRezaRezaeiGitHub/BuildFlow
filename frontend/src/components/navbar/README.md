@@ -254,7 +254,7 @@ src/components/navbar/
 - **FlexibleNavbar**: Depends on all individual components + theme toggles
 - **Individual Components**: Standalone, no internal dependencies
 - **Theme Integration**: Uses theme toggles from `@/components/theme`
-- **Type Integration**: Uses User types from `@/services/dtos`
+- **Type Integration**: Uses User types from `@/services`
 
 ## 🧪 Testing Strategy
 
@@ -511,7 +511,7 @@ See `dependencies.ts` for complete interface requirements.
    - **Status**: FIXED - Theme integration is now optional and configurable
 
 3. **User Type Brittleness**
-   - **Issue**: Originally used BuildFlow-specific `User` type with nested `contactDto`
+   - **Issue**: Originally used BuildFlow-specific `User` type with nested `contact`
    - **Impact**: Consumers need exact matching user structure
    - **Solution Implemented**: ✅ Created generic `NavbarUser` interface with adapter function
    - **Status**: FIXED - Flexible user type system with adapter

@@ -233,41 +233,54 @@ BuildFlow/
 │   │   │   ├── HomePage.tsx
 │   │   │   └── index.ts
 │   │   ├── services/           # API services - [📖 Documentation](src/services/README.md)
-│   │   │   ├── admin/         # Admin service (Factory Pattern) - [📖 Documentation](src/services/admin/README.md)
-│   │   │   │   ├── IAdminService.ts
-│   │   │   │   ├── AdminService.ts
-│   │   │   │   ├── AdminMockService.ts
-│   │   │   │   ├── adminServiceFactory.ts
-│   │   │   │   └── README.md
-│   │   │   ├── auth/          # Authentication service (Factory Pattern) - [📖 Documentation](src/services/auth/README.md)
-│   │   │   │   ├── IAuthService.ts
-│   │   │   │   ├── AuthService.ts
-│   │   │   │   ├── AuthMockService.ts
-│   │   │   │   ├── authServiceFactory.ts
-│   │   │   │   └── README.md
-│   │   │   ├── project/       # Project service (Factory Pattern) - [📖 Documentation](src/services/project/README.md)
-│   │   │   │   ├── IProjectService.ts
-│   │   │   │   ├── ProjectService.ts
-│   │   │   │   ├── ProjectMockService.ts
-│   │   │   │   ├── projectServiceFactory.ts
-│   │   │   │   └── README.md
-│   │   │   ├── dtos/          # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
+│   │   │   ├── address/       # Address types
 │   │   │   │   ├── AddressDtos.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── admin/         # Admin service (Factory Pattern)
+│   │   │   │   ├── AdminMockService.ts
+│   │   │   │   ├── AdminService.ts
+│   │   │   │   ├── adminServiceFactory.ts
+│   │   │   │   ├── IAdminService.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── auth/          # Authentication service and types (Factory Pattern) - [📖 Documentation](src/services/auth/README.md)
 │   │   │   │   ├── AuthDtos.ts
+│   │   │   │   ├── AuthMockService.ts
+│   │   │   │   ├── AuthService.ts
+│   │   │   │   ├── authServiceFactory.ts
+│   │   │   │   ├── IAuthService.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── README.md
+│   │   │   ├── contact/       # Contact types
+│   │   │   │   ├── ContactDtos.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── estimate/      # Estimate types
 │   │   │   │   ├── EstimateDtos.ts
-│   │   │   │   ├── MvcDtos.ts
-│   │   │   │   ├── PaginationDtos.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── project/       # Project service and types (Factory Pattern) - [📖 Documentation](src/services/project/README.md)
+│   │   │   │   ├── IProjectService.ts
 │   │   │   │   ├── ProjectDtos.ts
+│   │   │   │   ├── ProjectMockService.ts
+│   │   │   │   ├── ProjectService.ts
+│   │   │   │   ├── projectServiceFactory.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── README.md
+│   │   │   ├── quote/         # Quote types
 │   │   │   │   ├── QuoteDtos.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── user/          # User types
 │   │   │   │   ├── UserDtos.ts
-│   │   │   │   ├── WorkItemDtos.ts
 │   │   │   │   └── index.ts
 │   │   │   ├── validation/    # Validation service - [📖 Documentation](src/services/validation/README.md)
 │   │   │   │   ├── types.ts
 │   │   │   │   ├── ValidationService.ts
 │   │   │   │   ├── useSmartFieldValidation.ts
 │   │   │   │   └── index.ts
+│   │   │   ├── workitem/      # Work item types
+│   │   │   │   ├── WorkItemDtos.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── ApiService.tsx
+│   │   │   ├── MvcDtos.ts
+│   │   │   ├── PaginationDtos.ts
 │   │   │   ├── TimerService.ts
 │   │   │   ├── apiHelpers.ts
 │   │   │   └── index.ts

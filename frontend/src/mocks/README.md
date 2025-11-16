@@ -83,7 +83,7 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
 
 ```typescript
 // mocks/projectMocks.ts
-import type { Project } from '../services/dtos';
+import type { Project } from '../services';
 
 export const mockProjects: Project[] = [
   {
@@ -180,12 +180,12 @@ All projects have Canadian addresses in various provinces (BC, ON, AB, QC).
 - `findProjectById(id)` - Find a project by its ID
 - `findProjectsByBuilderId(builderId)` - Get all projects for a builder
 - `findProjectsByOwnerId(ownerId)` - Get all projects for an owner
-- `createMockProject(builderId, ownerId, locationRequestDto)` - Create a new mock project
+- `createMockProject(builderId, ownerId, locationRequest)` - Create a new mock project
 - `generateMockCreateProjectResponse(project)` - Generate mock API response
 
 ### Usage in ProjectService
 The ProjectService automatically uses mock projects when `config.enableMockData = true`:
 - `createProject()` - Creates and stores new mock projects
-- `getProjectsByBuilderId()` - Returns filtered mock projects by builder
-- `getProjectsByOwnerId()` - Returns filtered mock projects by owner
+- `getProjectsByUserIdPaginated()` - Returns paginated filtered mock projects by user
+- `getProjectById()` - Returns specific mock project by ID
 - All methods simulate network delays (300-500ms) for realistic behavior

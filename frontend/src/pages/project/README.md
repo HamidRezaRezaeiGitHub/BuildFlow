@@ -23,9 +23,9 @@ project/
 **Route:** `/projects/new` (protected route, requires authentication)
 
 **Backend Integration:** ✅ **FULLY INTEGRATED**
-- Calls `ProjectService.createProject(request, token)` 
+- Calls `projectService.createProject(request, token)` 
 - Endpoint: `POST /api/v1/projects`
-- Request: `CreateProjectRequest` with userId, isBuilder, locationRequestDto
+- Request: `CreateProjectRequest` with userId, isBuilder, locationRequest
 - Response: `CreateProjectResponse` with created project details
 - Error handling: Structured errors from `ApiService` with user-friendly messages
 
@@ -274,7 +274,7 @@ export const NewProject: React.FC = () => {
       const createRequest: CreateProjectRequest = {
         userId: user.id,
         isBuilder: formData.userRole === 'builder',
-        locationRequestDto: formData.projectLocation
+        locationRequest: formData.projectLocation
       };
 
       const response = await projectService.createProject(createRequest, token);
@@ -436,8 +436,8 @@ Potential additions to this directory:
 
 - [NewProjectForm Component](../../components/project/README.md#newprojectformtsx) - Form component used in this page
 - [DashboardLayout](../../components/dashboard/README.md) - Layout wrapper
-- [ProjectService](../../services/README.md#projectservice) - Backend integration
-- [Project DTOs](../../services/dtos/README.md#projectdtos) - Data structures
+- [ProjectService](../../services/project/README.md) - Backend integration
+- [Project Types](../../services/project/ProjectDtos.ts) - Data structures
 - [AppRouter](../../contexts/README.md#approuter) - Route configuration
 
 ---
@@ -448,9 +448,9 @@ Potential additions to this directory:
 **Route:** `/projects/:id` (protected route, requires authentication)
 
 **Backend Integration:** ✅ **FULLY INTEGRATED**
-- Calls `ProjectService.getProjectById(projectId, token)`
+- Calls `projectService.getProjectById(projectId, token)`
 - Endpoint: `GET /api/v1/projects/{projectId}`
-- Response: `ProjectDto` with full project details including location
+- Response: `Project` with full project details including location
 - Error handling: Structured errors from `ApiService` with user-friendly messages
 - Supports mock mode with `findProjectById()` from MockProjects
 

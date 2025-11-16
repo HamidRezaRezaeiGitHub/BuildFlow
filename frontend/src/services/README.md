@@ -4,47 +4,59 @@ This directory contains all API services, business logic, and data transfer obje
 
 ## Summary
 
-The services directory provides the data layer for the BuildFlow frontend, containing service classes that communicate with the backend API, DTOs that define data structures, validation services, and helper utilities. Services follow a consistent pattern for API calls, error handling, and data transformation.
+The services directory provides the data layer for the BuildFlow frontend, containing service classes that communicate with the backend API, type definitions that define data structures, validation services, and helper utilities. Services follow a consistent pattern for API calls, error handling, and data transformation. Types are organized by domain entity for better maintainability.
 
 ## Files Structure
 
 ```
 services/
+├── address/                   # Address types
+│   ├── AddressDtos.ts        # Address data structures and base types
+│   └── index.ts              # Address type exports
 ├── admin/                     # Admin service (Factory Pattern)
 │   ├── IAdminService.ts      # Admin service interface
 │   ├── AdminService.ts       # Real backend implementation
 │   ├── AdminMockService.ts   # Mock implementation for standalone dev
-│   ├── adminServiceFactory.ts # Factory creating correct implementation
-│   └── README.md             # Admin service documentation
-├── auth/                      # Authentication service (Factory Pattern)
+│   └── adminServiceFactory.ts # Factory creating correct implementation
+├── auth/                      # Authentication service and types (Factory Pattern)
 │   ├── IAuthService.ts       # Authentication service interface
 │   ├── AuthService.ts        # Real backend implementation
 │   ├── AuthMockService.ts    # Mock implementation for standalone dev
 │   ├── authServiceFactory.ts # Factory creating correct implementation
+│   ├── AuthDtos.ts           # Authentication data structures
+│   ├── index.ts              # Auth exports
 │   └── README.md             # Authentication service documentation
-├── project/                   # Project service (Factory Pattern)
+├── contact/                   # Contact types
+│   ├── ContactDtos.ts        # Contact data structures
+│   └── index.ts              # Contact type exports
+├── estimate/                  # Estimate types
+│   ├── EstimateDtos.ts       # Estimate data structures
+│   └── index.ts              # Estimate type exports
+├── project/                   # Project service and types (Factory Pattern)
 │   ├── IProjectService.ts    # Project service interface
 │   ├── ProjectService.ts     # Real backend implementation
 │   ├── ProjectMockService.ts # Mock implementation for standalone dev
 │   ├── projectServiceFactory.ts # Factory creating correct implementation
-│   └── README.md             # Project service documentation
-├── dtos/                      # Data Transfer Objects
-│   ├── AddressDtos.ts        # Address data structures and base types
-│   ├── AuthDtos.ts           # Authentication data structures
-│   ├── EstimateDtos.ts       # Estimate data structures
-│   ├── MvcDtos.ts            # MVC response wrappers
-│   ├── PaginationDtos.ts     # Pagination data structures
 │   ├── ProjectDtos.ts        # Project data structures
+│   ├── index.ts              # Project exports
+│   └── README.md             # Project service documentation
+├── quote/                     # Quote types
 │   ├── QuoteDtos.ts          # Quote data structures
+│   └── index.ts              # Quote type exports
+├── user/                      # User types
 │   ├── UserDtos.ts           # User data structures
+│   └── index.ts              # User type exports
+├── validation/                # Validation service and hooks
+│   └── README.md             # Comprehensive validation documentation
+├── workitem/                  # Work item types
 │   ├── WorkItemDtos.ts       # Work item data structures
-│   └── index.ts              # DTO exports
-├── validation/               # Validation service and hooks
-│   └── README.md            # Comprehensive validation documentation
-├── ApiService.tsx            # Base HTTP client and API utilities
-├── TimerService.ts           # Timer utility service
-├── apiHelpers.ts             # API helper functions
-└── index.ts                  # Service exports
+│   └── index.ts              # Work item type exports
+├── ApiService.tsx             # Base HTTP client and API utilities
+├── MvcDtos.ts                 # MVC response wrappers
+├── PaginationDtos.ts          # Pagination data structures
+├── TimerService.ts            # Timer utility service
+├── apiHelpers.ts              # API helper functions
+└── index.ts                   # Central service exports
 ```
 
 ## Service Details
@@ -204,13 +216,13 @@ const projects = await projectService.getProjectsByUserId(userId, params);
 
 **Usage:**
 ```typescript
-import { projectService } from '@/services/ProjectService';
+import { projectService } from '@/services';
 
 // Create project (requires token)
 const response = await projectService.createProject({
   userId: '123e4567-e89b-12d3-a456-426614174000',
   isBuilder: true,
-  locationRequestDto: {
+  locationRequest: {
     unitNumber: '101',
     streetNumberAndName: '123 Main St',
     city: 'Toronto',
@@ -228,7 +240,7 @@ const pagedProjects = await projectService.getProjectsByBuilderIdPaginated(
 );
 
 // Usage with AuthContext wrapper (recommended)
-import { ProjectServiceWithAuth } from '@/services/ProjectService';
+import { ProjectServiceWithAuth } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 
 const { token } = useAuth();
@@ -254,7 +266,7 @@ const response = await projectServiceWithAuth.createProject(request);
 class AdminService {
   getAllUsers(): Promise<User[]>
   getUserById(id: string): Promise<User>
-  updateUser(id: string, updates: UserUpdateDto): Promise<User>
+  updateUser(id: string, updates: Partial<User>): Promise<User>
   deleteUser(id: string): Promise<void>
   changeUserRole(id: string, newRole: UserRole): Promise<User>
   getSystemStats(): Promise<SystemStats>
@@ -268,16 +280,42 @@ class AdminService {
 
 **Usage:**
 ```typescript
-import { AdminService } from '@/services/AdminService';
+import { adminService } from '@/services';
 
 // Get all users (admin only)
-const users = await AdminService.getAllUsers();
+const users = await adminService.getAllUsers();
 
 // Update user
-await AdminService.updateUser('123', {
+await adminService.updateUser('123', {
   firstName: 'Jane',
   role: 'PREMIUM_USER'
 });
+```
+
+## Type Definitions
+
+Types are organized by domain entity for better maintainability and discoverability.
+
+**Type Categories:**
+- **address/** - Address data structures and base types (`BaseAddress`, `UpdatableEntity`)
+- **auth/** - Login, signup, auth responses (`LoginRequest`, `SignUpRequest`, `AuthResponse`)
+- **contact/** - Contact data structures (`Contact`, `ContactAddress`, `ContactRequest`)
+- **estimate/** - Estimate data structures (`Estimate`, `EstimateGroup`, `EstimateLine`)
+- **project/** - Project creation and data (`Project`, `ProjectParticipant`, `ProjectLocation`, `CreateProjectRequest`)
+- **quote/** - Quote and QuoteLocation data structures (`Quote`, `QuoteLocation`)
+- **user/** - User profiles and updates (`User`, `UserRequest`, `UserAuthentication`)
+- **workitem/** - Work item creation and data (`WorkItem`)
+- **MvcDtos.ts** - Spring MVC response wrappers
+- **PaginationDtos.ts** - Paginated response structures
+
+**Import Pattern:**
+```typescript
+// Import from centralized index
+import { User, Project, LoginRequest, BaseAddress } from '@/services';
+
+// Or import from specific domain
+import { User } from '@/services/user';
+import { Project } from '@/services/project';
 ```
 
 ### TimerService.ts
@@ -348,21 +386,6 @@ transformResponse<T>(response: AxiosResponse): T
 // Format date for API
 formatDateForApi(date: Date): string
 ```
-
-## Data Transfer Objects (DTOs)
-
-See [dtos/README.md](./dtos/README.md) for detailed DTO documentation.
-
-**DTO Categories:**
-- **AddressDtos** - Address data structures and base types (UpdatableEntityDto)
-- **AuthDtos** - Login, signup, auth responses
-- **EstimateDtos** - Estimate, EstimateGroup, and EstimateLine data structures
-- **MvcDtos** - Spring MVC response wrappers
-- **PaginationDtos** - Paginated response structures
-- **ProjectDtos** - Project creation and data
-- **QuoteDtos** - Quote and QuoteLocation data structures
-- **UserDtos** - User profiles and updates
-- **WorkItemDtos** - Work item creation and data
 
 ## Validation Service
 
@@ -456,7 +479,8 @@ class MyService {
 
 ## Related Documentation
 
-- [DTOs](./dtos/README.md) - Data transfer object definitions
+- [Auth Service](./auth/README.md) - Authentication service documentation
+- [Project Service](./project/README.md) - Project service documentation
 - [Validation](./validation/README.md) - Validation service and hooks
 - [API Configuration](../config/README.md) - Environment configuration
 - [Mock Data](../mocks/README.md) - Mock data for development

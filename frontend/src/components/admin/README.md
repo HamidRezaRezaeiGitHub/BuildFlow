@@ -207,14 +207,14 @@ import { AdminService } from '@/services/AdminService';
 
 const users = await AdminService.getAllUsers();
 const userDetails = await AdminService.getUserById(userId);
-await AdminService.updateUser(userId, updates);
-await AdminService.deleteUser(userId);
+await adminService.updateUser(userId, updates);
+await adminService.deleteUser(userId);
 ```
 
-### User DTOs
-Uses type-safe user data transfer objects:
+### User Types
+Uses type-safe user data structures:
 ```typescript
-import { User, UserUpdateDto } from '@/services/dtos';
+import { User } from '@/services';
 ```
 
 ## Styling Approach
@@ -316,6 +316,6 @@ const AdminUsersPage = () => {
 ## Related Documentation
 
 - [AdminService](../../services/README.md#adminservice) - Admin API service
-- [User DTOs](../../services/dtos/README.md#userdtos) - User data structures
+- [User Types](../../services/user/UserDtos.ts) - User data structures
 - [AuthContext](../../contexts/README.md#authcontext) - Role-based access
 - [Admin Page](../../pages/AdminPage.tsx) - Complete admin page example

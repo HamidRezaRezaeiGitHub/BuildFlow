@@ -148,5 +148,5 @@ This service was migrated from a monolithic `ProjectService.ts` file that mixed 
 ## Related Files
 
 - `@/mocks/MockProjects.ts` - Mock project data and helper functions
-- `@/services/dtos/ProjectDtos.ts` - Project-related TypeScript types
-- `@/services/ApiService.ts` - HTTP client used by real implementation
+- `@/services/project/ProjectDtos.ts` - Project-related TypeScript types
+- `@/services/ApiService.tsx` - HTTP client used by real implementation

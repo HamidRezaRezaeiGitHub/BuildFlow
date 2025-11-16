@@ -31,7 +31,7 @@ project/
   
 - **Address Integration:**
   - FlexibleAddressForm for project location
-  - All BaseAddressDto fields rendered
+  - All address fields rendered (unitNumber, streetNumberAndName, city, stateOrProvince, postalOrZipCode, country)
   - Address validation with required/optional field distinction
   
 - **Form Validation:**
@@ -245,26 +245,26 @@ Page Load → ProjectsSection → ProjectService.getProjects() → Backend API
 ### ProjectService
 Uses ProjectService for all backend operations:
 ```typescript
-import { ProjectService } from '@/services/ProjectService';
+import { projectService } from '@/services';
 
 // Create project
-const project = await ProjectService.createProject(createProjectDto);
+const project = await projectService.createProject(request, token);
 
-// Get projects by builder
-const projects = await ProjectService.getProjectsByBuilderId(builderId);
+// Get projects by user
+const projects = await projectService.getProjectsByUserIdPaginated(userId, token, params);
 
-// Get projects by owner
-const projects = await ProjectService.getProjectsByOwnerId(ownerId);
+// Get project by ID
+const project = await projectService.getProjectById(projectId, token);
 ```
 
-### Project DTOs
-Uses type-safe data transfer objects:
+### Project Types
+Uses type-safe data structures:
 ```typescript
 import { 
   Project, 
-  CreateProjectRequestDto, 
-  LocationRequestDto 
-} from '@/services/dtos';
+  CreateProjectRequest, 
+  ProjectLocationRequest 
+} from '@/services';
 ```
 
 ### Address Components
@@ -383,8 +383,8 @@ const NewProjectPage = () => (
 
 ## Related Documentation
 
-- [ProjectService](../../services/README.md#projectservice) - Project API service
-- [Project DTOs](../../services/dtos/README.md#projectdtos) - Project data structures
+- [ProjectService](../../services/project/README.md) - Project API service
+- [Project Types](../../services/project/ProjectDtos.ts) - Project data structures
 - [Address Components](../address/README.md) - Address form integration
 - [New Project Page](../../pages/project/NewProject.tsx) - Complete page example
 - [Dashboard](../dashboard/README.md) - Projects section in dashboard

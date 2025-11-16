@@ -140,12 +140,39 @@ frontend/
 │   │   ├── HomePage.tsx
 │   │   └── index.ts
 │   ├── services/                # API services - [📖 Documentation](src/services/README.md)
-│   │   ├── dtos/               # Data Transfer Objects - [📖 Documentation](src/services/dtos/README.md)
+│   │   ├── address/            # Address types
 │   │   │   ├── AddressDtos.ts
+│   │   │   └── index.ts
+│   │   ├── admin/              # Admin service
+│   │   │   ├── AdminMockService.ts
+│   │   │   ├── AdminService.ts
+│   │   │   ├── adminServiceFactory.ts
+│   │   │   ├── IAdminService.ts
+│   │   │   └── index.ts
+│   │   ├── auth/               # Authentication service and types - [📖 Documentation](src/services/auth/README.md)
 │   │   │   ├── AuthDtos.ts
-│   │   │   ├── MvcDtos.ts
-│   │   │   ├── PaginationDtos.ts
+│   │   │   ├── AuthMockService.ts
+│   │   │   ├── AuthService.ts
+│   │   │   ├── authServiceFactory.ts
+│   │   │   ├── IAuthService.ts
+│   │   │   └── index.ts
+│   │   ├── contact/            # Contact types
+│   │   │   ├── ContactDtos.ts
+│   │   │   └── index.ts
+│   │   ├── estimate/           # Estimate types
+│   │   │   ├── EstimateDtos.ts
+│   │   │   └── index.ts
+│   │   ├── project/            # Project service and types - [📖 Documentation](src/services/project/README.md)
+│   │   │   ├── IProjectService.ts
 │   │   │   ├── ProjectDtos.ts
+│   │   │   ├── ProjectMockService.ts
+│   │   │   ├── ProjectService.ts
+│   │   │   ├── projectServiceFactory.ts
+│   │   │   └── index.ts
+│   │   ├── quote/              # Quote types
+│   │   │   ├── QuoteDtos.ts
+│   │   │   └── index.ts
+│   │   ├── user/               # User types
 │   │   │   ├── UserDtos.ts
 │   │   │   └── index.ts
 │   │   ├── validation/         # Validation service - [📖 Documentation](src/services/validation/README.md)
@@ -153,10 +180,12 @@ frontend/
 │   │   │   ├── ValidationService.ts
 │   │   │   ├── useSmartFieldValidation.ts
 │   │   │   └── index.ts
-│   │   ├── AdminService.tsx
+│   │   ├── workitem/           # Work item types
+│   │   │   ├── WorkItemDtos.ts
+│   │   │   └── index.ts
 │   │   ├── ApiService.tsx
-│   │   ├── AuthService.tsx
-│   │   ├── ProjectService.ts
+│   │   ├── MvcDtos.ts
+│   │   ├── PaginationDtos.ts
 │   │   ├── TimerService.ts
 │   │   ├── apiHelpers.ts
 │   │   └── index.ts

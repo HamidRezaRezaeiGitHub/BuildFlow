@@ -28,8 +28,16 @@ src/
 │   ├── project/         # Project-related pages
 │   └── temp/            # Temporary demo pages
 ├── services/            # API services and business logic
-│   ├── dtos/            # Data Transfer Objects
-│   └── validation/      # Validation service
+│   ├── address/         # Address types
+│   ├── admin/           # Admin service
+│   ├── auth/            # Authentication service and types
+│   ├── contact/         # Contact types
+│   ├── estimate/        # Estimate types
+│   ├── project/         # Project service and types
+│   ├── quote/           # Quote types
+│   ├── user/            # User types
+│   ├── validation/      # Validation service
+│   └── workitem/        # Work item types
 ├── test/                # Testing utilities and setup
 ├── utils/               # Utility functions and hooks
 ├── App.tsx              # Main application component
@@ -103,14 +111,14 @@ Pages → Components → Services → Backend API
 1. Create components in appropriate `components/` subdirectory
 2. Add page components in `pages/` if creating new routes
 3. Create services in `services/` for API integration
-4. Add DTOs in `services/dtos/` matching backend models
+4. Add type definitions in appropriate `services/` entity folder matching backend models
 5. Update relevant README files
 
 ### File Naming Conventions
 - **Components**: PascalCase (e.g., `UserProfile.tsx`)
 - **Utilities**: camelCase (e.g., `formatDate.ts`)
 - **Tests**: Same as source file + `.test.tsx` suffix
-- **Types**: PascalCase with `Dtos.ts` or `Types.ts` suffix
+- **Types**: PascalCase with `Dtos.ts` suffix (e.g., `UserDtos.ts`, `ProjectDtos.ts`)
 
 ### Import Path Aliases
 - `@/components/*` - Components directory

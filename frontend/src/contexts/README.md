@@ -102,7 +102,7 @@ const MyComponent = () => {
   
   return (
     <div>
-      <p>Welcome, {user.contactDto.firstName}!</p>
+      <p>Welcome, {user.contact.firstName}!</p>
       <button onClick={logout}>Logout</button>
     </div>
   );
