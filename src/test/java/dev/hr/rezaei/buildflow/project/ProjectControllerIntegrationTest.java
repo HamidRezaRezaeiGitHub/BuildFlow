@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
+import java.time.Instant;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -416,5 +418,416 @@ public class ProjectControllerIntegrationTest extends AbstractControllerIntegrat
                 .andExpect(header().string("X-Total-Pages", "0"))
                 .andExpect(header().string("X-Page", "0"))
                 .andExpect(header().string("X-Size", "10"));
+    }
+
+    // ==========================
+    // Date Filtering Tests
+    // ==========================
+
+    @Test
+    void getProjectsByUserId_shouldFilterByCreatedAfter() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create projects with controlled timestamps
+        var location1 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Old Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location1);
+        Thread.sleep(100); // Ensure different createdAt timestamps
+        
+        long midTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        var location2 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("New Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location2);
+
+        String builderToken = login(builder);
+        String createdAfter = Instant.ofEpochMilli(midTimestamp).toString();
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldFilterByCreatedBefore() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create first project
+        var location1 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Old Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location1);
+        Thread.sleep(100);
+        
+        long midTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        // Create second project
+        var location2 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("New Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location2);
+
+        String builderToken = login(builder);
+        String createdBefore = Instant.ofEpochMilli(midTimestamp).toString();
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdBefore", createdBefore))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldFilterByCreatedAfterAndBefore() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create project before time window
+        var location1 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Too Old Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location1);
+        Thread.sleep(100);
+        
+        long startTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        // Create project within time window
+        var location2 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Within Window Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location2);
+        Thread.sleep(100);
+        
+        long endTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        // Create project after time window
+        var location3 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Too New Street")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location3);
+
+        String builderToken = login(builder);
+        String createdAfter = java.time.Instant.ofEpochMilli(startTimestamp).toString();
+        String createdBefore = java.time.Instant.ofEpochMilli(endTimestamp).toString();
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter)
+                        .param("createdBefore", createdBefore))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldFilterByUpdatedAfter() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create two projects
+        var location1 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 1")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location1);
+        Thread.sleep(100);
+        
+        long midTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        var location2 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 2")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location2);
+
+        String builderToken = login(builder);
+        String updatedAfter = Instant.ofEpochMilli(midTimestamp).toString();
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("updatedAfter", updatedAfter))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldFilterByUpdatedBefore() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create first project
+        var location1 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 1")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location1);
+        Thread.sleep(100);
+        
+        long midTimestamp = System.currentTimeMillis();
+        Thread.sleep(100);
+        
+        // Create second project
+        var location2 = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 2")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location2);
+
+        String builderToken = login(builder);
+        String updatedBefore = Instant.ofEpochMilli(midTimestamp).toString();
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("updatedBefore", updatedBefore))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldCombineAllDateFilters() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 5 projects with different timestamps
+        for (int i = 0; i < 5; i++) {
+            var location = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, location);
+            Thread.sleep(100);
+        }
+
+        String builderToken = login(builder);
+        // Use very wide date range to get all projects
+        String createdAfter = "2024-01-01T00:00:00Z";
+        String createdBefore = "2026-12-31T23:59:59Z";
+        String updatedAfter = "2024-01-01T00:00:00Z";
+        String updatedBefore = "2026-12-31T23:59:59Z";
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter)
+                        .param("createdBefore", createdBefore)
+                        .param("updatedAfter", updatedAfter)
+                        .param("updatedBefore", updatedBefore))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(header().string("X-Total-Count", "5"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldReturnEmptyList_whenNoProjectsMatchDateFilter() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create a project
+        var location = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 1")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location);
+
+        String builderToken = login(builder);
+        // Use date range in the past that won't match
+        String createdAfter = "2020-01-01T00:00:00Z";
+        String createdBefore = "2020-12-31T23:59:59Z";
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter)
+                        .param("createdBefore", createdBefore))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0))
+                .andExpect(header().string("X-Total-Count", "0"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldCombineDateFilterWithPagination() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 10 projects
+        for (int i = 0; i < 10; i++) {
+            var location = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, location);
+            Thread.sleep(50);
+        }
+
+        String builderToken = login(builder);
+        // Wide date range to include all projects, but use pagination
+        String createdAfter = "2024-01-01T00:00:00Z";
+        String createdBefore = "2026-12-31T23:59:59Z";
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter)
+                        .param("createdBefore", createdBefore)
+                        .param("page", "0")
+                        .param("size", "5"))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(header().string("X-Total-Count", "10"))
+                .andExpect(header().string("X-Total-Pages", "2"))
+                .andExpect(header().string("X-Page", "0"))
+                .andExpect(header().string("X-Size", "5"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleInvalidDateFormat() throws Exception {
+        User builder = registerBuilder();
+        String builderToken = login(builder);
+        
+        // Test with invalid date format
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", "invalid-date-format"))
+                // .andDo(print())
+                .andExpect(status().isOk()) // Should still return 200 but ignore invalid filter
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleEmptyDateParameters() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create a project
+        var location = ProjectLocationRequestDto.builder()
+                .streetNumberAndName("Street 1")
+                .city("City")
+                .stateOrProvince("ST")
+                .postalOrZipCode("12345")
+                .country("Country")
+                .build();
+        createProject(adminToken, builder.getId(), true, location);
+
+        String builderToken = login(builder);
+        
+        // Pass empty strings for date parameters
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", "")
+                        .param("createdBefore", ""))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1)) // Should return all projects
+                .andExpect(header().string("X-Total-Count", "1"));
+    }
+
+    @Test
+    void getProjectsByUserId_shouldCombineDateFilterWithSorting() throws Exception {
+        User admin = registerAdmin();
+        String adminToken = login(admin);
+        User builder = registerBuilder();
+        
+        // Create 3 projects
+        for (int i = 0; i < 3; i++) {
+            var location = ProjectLocationRequestDto.builder()
+                    .streetNumberAndName("Street " + i)
+                    .city("City")
+                    .stateOrProvince("ST")
+                    .postalOrZipCode("12345")
+                    .country("Country")
+                    .build();
+            createProject(adminToken, builder.getId(), true, location);
+            Thread.sleep(50);
+        }
+
+        String builderToken = login(builder);
+        String createdAfter = "2024-01-01T00:00:00Z";
+        
+        mockMvc.perform(get("/api/v1/projects/user/{userId}", builder.getId())
+                        .header("Authorization", "Bearer " + builderToken)
+                        .param("createdAfter", createdAfter)
+                        .param("orderBy", "createdAt")
+                        .param("direction", "ASC"))
+                // .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3));
     }
 }

@@ -28,7 +28,6 @@ project/
 ├── ProjectLocationRepository.java            # JPA repository for project locations
 ├── ProjectLocationService.java               # Business logic for project locations
 ├── ProjectNotFoundException.java             # Exception for project lookup failures
-├── ProjectPaginationConfig.java              # Centralized pagination configuration
 ├── ProjectParticipant.java                   # Entity linking projects to contacts with roles
 ├── ProjectParticipantAuthService.java        # Authorization for participant operations
 ├── ProjectParticipantController.java         # REST API controller for participants
@@ -36,6 +35,7 @@ project/
 ├── ProjectParticipantDtoMapper.java          # Mapper for ProjectParticipant conversions
 ├── ProjectParticipantRepository.java         # JPA repository for project participants
 ├── ProjectParticipantService.java            # Business logic for participants
+├── ProjectQueryConfig.java                   # Centralized pagination and date filtering config
 ├── ProjectRepository.java                    # JPA repository for projects
 ├── ProjectRole.java                          # Enum defining project roles (BUILDER, OWNER)
 ├── ProjectService.java                       # Business logic for project operations
@@ -69,7 +69,7 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 
 | File | Description |
 |------|-------------|
-| [ProjectPaginationConfig.java](ProjectPaginationConfig.java) | Centralized pagination configuration with default values and shared helper |
+| [ProjectQueryConfig.java](ProjectQueryConfig.java) | Centralized pagination and date filtering configuration with shared helper instances |
 
 ### Controller Classes
 
@@ -132,6 +132,31 @@ Specialized Data Transfer Objects for project creation workflows with nested loc
 - Default page size: 25
 - Response headers: `X-Total-Count`, `X-Total-Pages`, `X-Page`, `X-Size`, `Link`
 - Sortable fields: `lastUpdatedAt`, `createdAt`
+
+**Date Filtering Support:**
+- Query parameters: `createdAfter`, `createdBefore`, `updatedAfter`, `updatedBefore`
+- All timestamps in ISO 8601 format with timezone (e.g., `2024-01-01T00:00:00Z`)
+- Filters are optional and can be used independently or combined
+- Behavior:
+  - `createdAfter`: Projects where `createdAt >= timestamp` (inclusive)
+  - `createdBefore`: Projects where `createdAt < timestamp` (exclusive)
+  - `updatedAfter`: Projects where `lastUpdatedAt >= timestamp` (inclusive)
+  - `updatedBefore`: Projects where `lastUpdatedAt < timestamp` (exclusive)
+
+**Example API Calls:**
+```bash
+# Get user's projects created in 2024
+GET /api/v1/projects/user/{userId}?createdAfter=2024-01-01T00:00:00Z&createdBefore=2024-12-31T23:59:59Z
+
+# Get user's projects updated in last 30 days
+GET /api/v1/projects/user/{userId}?updatedAfter=2024-11-15T00:00:00Z
+
+# Combine creation and update filters with pagination
+GET /api/v1/projects/user/{userId}?createdAfter=2024-01-01T00:00:00Z&updatedAfter=2024-11-01T00:00:00Z&page=0&size=20&sort=createdAt,desc
+
+# Admin endpoint with date filtering
+GET /api/v1/projects?createdAfter=2024-01-01T00:00:00Z&page=0&size=50
+```
 
 ## Technical Overview
 
@@ -229,35 +254,44 @@ Specialized service for project authorization and access control.
 - **Post-Authorization**: Ownership verification after data retrieval
 - **Exception Handling**: Throws UserNotAuthorizedException for unauthorized access
 
-### ProjectPaginationConfig
-Centralized configuration for pagination across project endpoints.
+### ProjectQueryConfig
+Centralized configuration for pagination and date filtering across project endpoints.
 
 **Key Features:**
-- **Shared Configuration**: Single source of truth for pagination defaults
-- **Static Constants**: Sortable fields, default sort field/direction, page size
-- **Reusable Helper**: Static `PaginationHelper` instance configured with project defaults
-- **Security**: Whitelisted sortable fields prevent SQL injection
-- **Consistency**: Ensures all project endpoints use the same pagination behavior
+- **Pagination Defaults**: Consistent pagination behavior for all project queries
+- **Shared Helper Instance**: Single PaginationHelper instance used across controllers
+- **Date Filtering Patterns**: Documentation and examples for date filter parameters
+- **Sortable Fields**: Defines which fields can be used for sorting (lastUpdatedAt, createdAt)
+- **Configuration Constants**: Default page size (25), sort field (lastUpdatedAt), and direction (DESC)
 
-**Configuration:**
-- **Sortable Fields**: `lastUpdatedAt`, `createdAt` (whitelisted)
-- **Default Sort**: `lastUpdatedAt DESC` (newest first)
-- **Default Page Size**: 25 items per page
-- **Static Helper**: `PAGINATION_HELPER` instance ready for controller use
+**Date Filter Parameters:**
+- `createdAfter` - Filter projects created on or after timestamp (ISO 8601)
+- `createdBefore` - Filter projects created before timestamp (ISO 8601)
+- `updatedAfter` - Filter projects last updated on or after timestamp (ISO 8601)
+- `updatedBefore` - Filter projects last updated before timestamp (ISO 8601)
 
-**Usage Pattern:**
+**Usage:**
 ```java
-// In controllers
-Pageable pageable = ProjectPaginationConfig.PAGINATION_HELPER.createPageable(
-    page, size, sort, orderBy, direction
+// Import shared pagination helper
+import static dev.hr.rezaei.buildflow.project.ProjectQueryConfig.PAGINATION_HELPER;
+
+// In controller
+Pageable pageable = PAGINATION_HELPER.createPageable(page, size, sort, orderBy, direction);
+
+// Parse date filters
+DateFilter dateFilter = DateFilterHelper.createDateFilter(
+    createdAfter, createdBefore, updatedAfter, updatedBefore
 );
+
+// Call service with both pagination and filtering
+Page<Project> projects = projectService.getProjectsByUserId(userId, pageable, dateFilter);
 ```
 
-**Design Benefits:**
-- **No Duplication**: Single definition of pagination rules
-- **Easy Maintenance**: Change defaults in one place
-- **Type Safety**: Compile-time constants prevent typos
-- **Performance**: Static instance avoids repeated object creation
+**Benefits:**
+- **Consistency**: Ensures all project endpoints use the same pagination and filtering behavior
+- **Maintainability**: Single source of truth for pagination and filter configuration
+- **Documentation**: Centralized documentation for query parameters
+- **Type Safety**: Compile-time validation of filter parameters
 
 ## Business Logic
 

@@ -1,5 +1,7 @@
 package dev.hr.rezaei.buildflow.project;
 
+import dev.hr.rezaei.buildflow.config.mvc.DateFilter;
+import dev.hr.rezaei.buildflow.config.mvc.DateFilterHelper;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectRequest;
 import dev.hr.rezaei.buildflow.project.dto.CreateProjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static dev.hr.rezaei.buildflow.config.mvc.PagedResponseBuilder.build;
-import static dev.hr.rezaei.buildflow.project.ProjectPaginationConfig.PAGINATION_HELPER;
+import static dev.hr.rezaei.buildflow.project.ProjectQueryConfig.PAGINATION_HELPER;
 
 @Slf4j
 @RestController
@@ -67,7 +69,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Get projects by user ID", description = "Retrieves all projects for a specific user with pagination support")
+    @Operation(summary = "Get projects by user ID", description = "Retrieves all projects for a specific user with pagination and optional date filtering support")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
@@ -87,12 +89,24 @@ public class ProjectController {
             @Parameter(description = "Order by field (alternative to sort)")
             @RequestParam(required = false) String orderBy,
             @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
-            @RequestParam(required = false) String direction
+            @RequestParam(required = false) String direction,
+            @Parameter(description = "Filter projects created after this date (ISO 8601 format, e.g., '2024-01-01T00:00:00Z')")
+            @RequestParam(required = false) String createdAfter,
+            @Parameter(description = "Filter projects created before this date (ISO 8601 format, e.g., '2024-12-31T23:59:59Z')")
+            @RequestParam(required = false) String createdBefore,
+            @Parameter(description = "Filter projects updated after this date (ISO 8601 format, e.g., '2024-11-01T00:00:00Z')")
+            @RequestParam(required = false) String updatedAfter,
+            @Parameter(description = "Filter projects updated before this date (ISO 8601 format)")
+            @RequestParam(required = false) String updatedBefore
     ) {
-        log.info("Getting projects for user ID: {} with pagination", userId);
+        log.info("Getting projects for user ID: {} with pagination and date filters", userId);
         
         Pageable pageable = PAGINATION_HELPER.createPageable(page, size, sort, orderBy, direction);
-        Page<Project> projectPage = projectService.getProjectsByUserId(userId, pageable);
+        DateFilter dateFilter = DateFilterHelper.createDateFilter(
+            createdAfter, createdBefore, updatedAfter, updatedBefore
+        );
+        
+        Page<Project> projectPage = projectService.getProjectsByUserId(userId, pageable, dateFilter);
         Page<ProjectDto> projectDtoPage = projectPage.map(ProjectDtoMapper::toProjectDto);
         
         return build(projectDtoPage, "/api/v1/projects/user/" + userId);
@@ -130,7 +144,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectDto);
     }
 
-    @Operation(summary = "Get all projects (Admin only)", description = "Retrieves all projects in the system with pagination support. Requires ADMIN_USERS authority.")
+    @Operation(summary = "Get all projects (Admin only)", description = "Retrieves all projects in the system with pagination and optional date filtering support. Requires ADMIN_USERS authority.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projects retrieved successfully",
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProjectDto.class))))
@@ -148,12 +162,24 @@ public class ProjectController {
             @Parameter(description = "Order by field (alternative to sort)")
             @RequestParam(required = false) String orderBy,
             @Parameter(description = "Sort direction (ASC or DESC, used with orderBy)")
-            @RequestParam(required = false) String direction
+            @RequestParam(required = false) String direction,
+            @Parameter(description = "Filter projects created after this date (ISO 8601 format, e.g., '2024-01-01T00:00:00Z')")
+            @RequestParam(required = false) String createdAfter,
+            @Parameter(description = "Filter projects created before this date (ISO 8601 format, e.g., '2024-12-31T23:59:59Z')")
+            @RequestParam(required = false) String createdBefore,
+            @Parameter(description = "Filter projects updated after this date (ISO 8601 format, e.g., '2024-11-01T00:00:00Z')")
+            @RequestParam(required = false) String updatedAfter,
+            @Parameter(description = "Filter projects updated before this date (ISO 8601 format)")
+            @RequestParam(required = false) String updatedBefore
     ) {
-        log.info("Admin getting all projects with pagination");
+        log.info("Admin getting all projects with pagination and date filters");
         
         Pageable pageable = PAGINATION_HELPER.createPageable(page, size, sort, orderBy, direction);
-        Page<Project> projectPage = projectService.getAllProjects(pageable);
+        DateFilter dateFilter = DateFilterHelper.createDateFilter(
+            createdAfter, createdBefore, updatedAfter, updatedBefore
+        );
+        
+        Page<Project> projectPage = projectService.getAllProjects(pageable, dateFilter);
         Page<ProjectDto> projectDtoPage = projectPage.map(ProjectDtoMapper::toProjectDto);
         
         return build(projectDtoPage, "/api/v1/projects");

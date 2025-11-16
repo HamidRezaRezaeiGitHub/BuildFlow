@@ -331,6 +331,8 @@ BuildFlow/
 │   │   │   │   │   │   ├── ErrorResponse.java                 # Unified error response
 │   │   │   │   │   │   └── MessageResponse.java               # Success message response
 │   │   │   │   │   ├── AbstractAuthorizationHandler.java      # Base authorization handler
+│   │   │   │   │   ├── DateFilter.java                        # Date range filtering DTO
+│   │   │   │   │   ├── DateFilterHelper.java                  # ISO 8601 timestamp parser
 │   │   │   │   │   ├── GlobalExceptionHandler.java            # Centralized exception handling
 │   │   │   │   │   ├── OpenApiConfig.java                     # API documentation config
 │   │   │   │   │   ├── PagedResponseBuilder.java              # Paginated response builder
@@ -338,6 +340,7 @@ BuildFlow/
 │   │   │   │   │   ├── ResponseErrorType.java                 # Error type categorization
 │   │   │   │   │   ├── ResponseFacilitator.java               # Response formatting utility
 │   │   │   │   │   ├── SpaPathResourceResolver.java           # SPA routing resolver
+│   │   │   │   │   ├── UpdatableEntitySpecification.java      # JPA Specification for date filtering
 │   │   │   │   │   └── WebMvcConfig.java                      # Central MVC configuration
 │   │   │   │   └── security/               # Security configuration - [📖 Documentation](src/main/java/dev/hr/rezaei/buildflow/config/security/README.md)
 │   │   │   │       ├── dto/
@@ -397,7 +400,7 @@ BuildFlow/
 │   │   │   │   ├── ProjectLocationDtoMapper.java          # MapStruct mapper for Location
 │   │   │   │   ├── ProjectLocationRepository.java         # JPA repository for locations
 │   │   │   │   ├── ProjectLocationService.java            # Business logic for locations
-│   │   │   │   ├── ProjectPaginationConfig.java           # Pagination configuration
+│   │   │   │   ├── ProjectQueryConfig.java                # Pagination and date filter configuration
 │   │   │   │   ├── ProjectParticipant.java                # Participant entity
 │   │   │   │   ├── ProjectParticipantDto.java             # DTO for participants
 │   │   │   │   ├── ProjectParticipantDtoMapper.java       # Mapper for participants

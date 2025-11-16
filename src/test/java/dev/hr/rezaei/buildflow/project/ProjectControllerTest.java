@@ -1,10 +1,14 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractControllerTest;
+import dev.hr.rezaei.buildflow.config.mvc.DateFilter;
 import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 
 import java.util.List;
@@ -103,9 +107,8 @@ class ProjectControllerTest extends AbstractControllerTest {
     @Test
     void getProjectsByUserId_shouldReturnOk_whenUserExists() throws Exception {
         // Given
-        org.springframework.data.domain.Page<Project> page = 
-                new org.springframework.data.domain.PageImpl<>(List.of(testProject));
-        when(projectService.getProjectsByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+        Page<Project> page = new PageImpl<>(List.of(testProject));
+        when(projectService.getProjectsByUserId(any(UUID.class), any(Pageable.class), any(DateFilter.class)))
                 .thenReturn(page);
 
         // When & Then
@@ -124,7 +127,7 @@ class ProjectControllerTest extends AbstractControllerTest {
     void getProjectsByUserId_shouldReturnNotFound_whenUserNotFound() throws Exception {
         // Given
         UUID nonExistentUserId = UUID.randomUUID();
-        when(projectService.getProjectsByUserId(any(UUID.class), any(org.springframework.data.domain.Pageable.class)))
+        when(projectService.getProjectsByUserId(any(UUID.class), any(Pageable.class), any(DateFilter.class)))
                 .thenThrow(new UserNotFoundException("User with ID " + nonExistentUserId + " does not exist."));
 
         // When & Then

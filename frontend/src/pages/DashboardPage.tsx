@@ -26,7 +26,7 @@ export const DashboardPage: React.FC = () => {
       >
         {/* Projects Section - now uses auth-aware container component */}
         <ProjectsSection
-          title="Your Projects"
+          title="Projects"
           description="View and manage all your construction projects"
         />
       </DashboardLayout>

@@ -1,6 +1,7 @@
 package dev.hr.rezaei.buildflow.project;
 
 import dev.hr.rezaei.buildflow.AbstractModelJpaTest;
+import dev.hr.rezaei.buildflow.config.mvc.DateFilter;
 import dev.hr.rezaei.buildflow.user.UserNotFoundException;
 import dev.hr.rezaei.buildflow.user.*;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -324,5 +329,176 @@ class ProjectServiceIntegrationTest extends AbstractModelJpaTest implements User
         // Act & Assert
         assertThrows(UserNotFoundException.class,
                 () -> projectService.getProjectsByUserId(nonExistentUserId));
+    }
+
+    // ============================================
+    // Date Filtering Tests
+    // ============================================
+
+    @Test
+    void getProjectsByUserId_withDateFilter_shouldFilterByCreatedAfter() {
+        // Arrange
+        Contact contact = Contact.builder()
+                .firstName("Builder")
+                .lastName("User")
+                .email("builder@example.com")
+                .build();
+        User user = registerUser(userService, contact);
+        
+        Instant baseTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        Instant oldTime = baseTime.minus(30, ChronoUnit.DAYS);
+        Instant recentTime = baseTime.minus(5, ChronoUnit.DAYS);
+
+        // Create old project
+        ProjectLocation oldLocation = createProjectLocation("Old Street");
+        Project oldProject = projectService.createProject(user.getId(), "BUILDER", oldLocation);
+        oldProject.setCreatedAt(oldTime);
+        oldProject.setLastUpdatedAt(oldTime);
+        projectService.update(oldProject);
+
+        // Create recent project
+        ProjectLocation recentLocation = createProjectLocation("Recent Street");
+        Project recentProject = projectService.createProject(user.getId(), "BUILDER", recentLocation);
+        recentProject.setCreatedAt(recentTime);
+        recentProject.setLastUpdatedAt(recentTime);
+        projectService.update(recentProject);
+
+        // Create date filter for projects created in last 10 days
+        Instant threshold = baseTime.minus(10, ChronoUnit.DAYS);
+        DateFilter dateFilter = DateFilter.builder()
+                .createdAfter(threshold)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Project> result = projectService.getProjectsByUserId(user.getId(), pageable, dateFilter);
+
+        // Assert
+        assertEquals(1, result.getContent().size());
+        assertTrue(result.getContent().get(0).getCreatedAt().isAfter(threshold) ||
+                   result.getContent().get(0).getCreatedAt().equals(threshold));
+    }
+
+    @Test
+    void getProjectsByUserId_withDateFilter_shouldFilterByUpdatedAfter() {
+        // Arrange
+        Contact contact = Contact.builder()
+                .firstName("Builder2")
+                .lastName("User")
+                .email("builder2@example.com")
+                .build();
+        User user = registerUser(userService, contact);
+        
+        Instant baseTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
+        // Create project with old update time
+        ProjectLocation location = createProjectLocation("Test Street");
+        Project project = projectService.createProject(user.getId(), "BUILDER", location);
+        Instant oldUpdateTime = baseTime.minus(20, ChronoUnit.DAYS);
+        project.setLastUpdatedAt(oldUpdateTime);
+        // Save directly to repository to preserve custom lastUpdatedAt
+        projectRepository.save(project);
+
+        // Create date filter for recently updated projects
+        Instant threshold = baseTime.minus(10, ChronoUnit.DAYS);
+        DateFilter dateFilter = DateFilter.builder()
+                .updatedAfter(threshold)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Project> result = projectService.getProjectsByUserId(user.getId(), pageable, dateFilter);
+
+        // Assert
+        // Should be empty since project was last updated 20 days ago
+        assertEquals(0, result.getContent().size());
+    }
+
+    @Test
+    void getProjectsByUserId_withEmptyDateFilter_shouldReturnAllProjects() {
+        // Arrange
+        Contact contact = Contact.builder()
+                .firstName("Builder3")
+                .lastName("User")
+                .email("builder3@example.com")
+                .build();
+        User user = registerUser(userService, contact);
+        
+        ProjectLocation location1 = createProjectLocation("Street 1");
+        ProjectLocation location2 = createProjectLocation("Street 2");
+        projectService.createProject(user.getId(), "BUILDER", location1);
+        projectService.createProject(user.getId(), "OWNER", location2);
+
+        DateFilter emptyFilter = DateFilter.empty();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Project> result = projectService.getProjectsByUserId(user.getId(), pageable, emptyFilter);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+    }
+
+    @Test
+    void getAllProjects_withDateFilter_shouldFilterAllProjects() {
+        // Arrange
+        Contact contact1 = Contact.builder()
+                .firstName("User1")
+                .lastName("Test")
+                .email("user1@example.com")
+                .build();
+        User user1 = registerUser(userService, contact1);
+        
+        Contact contact2 = Contact.builder()
+                .firstName("User2")
+                .lastName("Test")
+                .email("user2@example.com")
+                .build();
+        User user2 = registerUser(userService, contact2);
+        
+        Instant baseTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        Instant oldTime = baseTime.minus(30, ChronoUnit.DAYS);
+        Instant recentTime = baseTime.minus(5, ChronoUnit.DAYS);
+
+        // Create old project for user1
+        ProjectLocation oldLocation = createProjectLocation("Old Street User1");
+        Project oldProject = projectService.createProject(user1.getId(), "BUILDER", oldLocation);
+        oldProject.setCreatedAt(oldTime);
+        oldProject.setLastUpdatedAt(oldTime);
+        projectService.update(oldProject);
+
+        // Create recent project for user2
+        ProjectLocation recentLocation = createProjectLocation("Recent Street User2");
+        Project recentProject = projectService.createProject(user2.getId(), "OWNER", recentLocation);
+        recentProject.setCreatedAt(recentTime);
+        recentProject.setLastUpdatedAt(recentTime);
+        projectService.update(recentProject);
+
+        // Create date filter
+        Instant threshold = baseTime.minus(10, ChronoUnit.DAYS);
+        DateFilter dateFilter = DateFilter.builder()
+                .createdAfter(threshold)
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Project> result = projectService.getAllProjects(pageable, dateFilter);
+
+        // Assert
+        assertEquals(1, result.getContent().size());
+        assertEquals(user2.getId(), result.getContent().get(0).getUser().getId());
+    }
+
+    private ProjectLocation createProjectLocation(String street) {
+        return ProjectLocation.builder()
+                .streetNumberAndName(street)
+                .city("TestCity")
+                .stateOrProvince("TS")
+                .postalOrZipCode("12345")
+                .country("TestCountry")
+                .build();
     }
 }

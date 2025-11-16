@@ -90,7 +90,7 @@ export interface ProjectsSectionProps {
  */
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   filterByRole,
-  title = 'My Projects',
+  title = 'Projects',
   description,
   showCreateAction = true,
   paginationParams,
@@ -184,12 +184,13 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, token, filterByRole, appliedFilter.scope, appliedFilter.createdAfter, appliedFilter.createdBefore]);
 
   // Render loading state
   const renderLoadingState = () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {[...Array(6)].map((_, i) => (
+      {[...Array(initialDisplayCount)].map((_, i) => (
         <Card key={i} className="overflow-hidden">
           <CardHeader>
             <Skeleton className="h-6 w-3/4 mb-2" />
