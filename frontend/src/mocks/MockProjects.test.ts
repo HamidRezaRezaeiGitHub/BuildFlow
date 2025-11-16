@@ -1,4 +1,4 @@
-import type { Project, ProjectLocationRequest } from '../services/dtos';
+import type { Project, ProjectLocationRequest } from '../services';
 import {
     createMockProject,
     findProjectById,

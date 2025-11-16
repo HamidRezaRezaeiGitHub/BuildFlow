@@ -1,7 +1,7 @@
 import mockAuthenticationsData from '../../../mock-data/UserAuthentications.json';
 import mockUsersData from '../../../mock-data/Users.json';
-import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication, UserSummary } from '../services/dtos';
-import { Role } from '../services/dtos';
+import type { AuthResponse, ContactRequest, CreateUserResponse, User, UserAuthentication, UserSummary } from '../services';
+import { Role } from '../services';
 
 /**
  * Mock Users Database - Canadian Users

@@ -4,7 +4,7 @@ import { ProjectsSection } from './ProjectsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/ProjectService';
-import { Project, PagedResponse } from '@/services/dtos';
+import { Project, PagedResponse } from '@/services';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Mock, MockedFunction } from 'vitest';
 

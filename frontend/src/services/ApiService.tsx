@@ -1,6 +1,6 @@
 import { config } from '@/config/environment';
-import { ApiErrorResponse, ApiMessageResponse } from './dtos';
-import { ResponseErrorType } from './dtos/MvcDtos';
+import { ApiErrorResponse, ApiMessageResponse } from '.';
+import { ResponseErrorType } from './MvcDtos';
 
 /**
  * Custom error class for API errors

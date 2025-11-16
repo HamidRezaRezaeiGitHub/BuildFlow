@@ -1,4 +1,4 @@
-import { AddressData } from '@/services/dtos';
+import { AddressData } from '@/services';
 import { render, screen } from '@testing-library/react';
 import FlexibleAddressForm, { FlexibleAddressFormProps } from './FlexibleAddressForm';
 import { describe, expect, test, vi } from 'vitest';

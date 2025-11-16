@@ -3,7 +3,7 @@
  * These DTOs correspond to the backend work item management API
  */
 
-import type { UpdatableEntityDto } from './AddressDtos';
+import type { UpdatableEntity } from '../address/AddressDtos';
 
 /**
  * Work item domain enum
@@ -16,10 +16,10 @@ export enum WorkItemDomain {
 
 /**
  * Work item DTO for representing work item information
- * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Extends UpdatableEntity to include createdAt and lastUpdatedAt fields
  * Matches backend WorkItemDto structure
  */
-export type WorkItemDto = UpdatableEntityDto & {
+export type WorkItem = UpdatableEntity & {
   /** Unique identifier for the work item */
   id: string;
   
@@ -79,5 +79,5 @@ export type CreateWorkItemRequest = {
  */
 export type CreateWorkItemResponse = {
   /** The created work item details */
-  workItem: WorkItemDto;
+  workItem: WorkItem;
 };

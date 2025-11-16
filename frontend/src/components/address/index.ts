@@ -1,4 +1,7 @@
-import { BaseAddressDto } from '@/services/dtos/AddressDtos';
+import { BaseAddress } from '@/services/address/AddressDtos';
+
+// Type alias for backward compatibility
+export type AddressData = BaseAddress;
 
 // Base interface for all address field components
 export interface BaseFieldProps {
@@ -19,10 +22,6 @@ export const createEmptyAddress = (): AddressData => ({
   postalOrZipCode: '',
   country: ''
 });
-
-export interface AddressData extends BaseAddressDto {
-
-}
 
 // Flexible Address Form Component (Primary Address Form)
 export { addressFieldConfigs, default as FlexibleAddressForm } from './FlexibleAddressForm';

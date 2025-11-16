@@ -5,7 +5,7 @@ import {
     Project,
     PagedResponse,
     PaginationParams
-} from '../dtos';
+} from '..';
 import { IProjectService } from './IProjectService';
 import { ProjectMockService } from './ProjectMockService';
 import { ProjectService } from './ProjectService';

@@ -1,4 +1,4 @@
-import type { ContactRequest, User } from '../services/dtos';
+import type { ContactRequest, User } from '../services';
 import {
   createMockUser,
   findUserAuthenticationById,

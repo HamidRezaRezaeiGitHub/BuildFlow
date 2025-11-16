@@ -2,7 +2,7 @@
  * Base DTO for entities with audit fields
  * Matches backend UpdatableEntityDto structure
  */
-export type UpdatableEntityDto = {
+export type UpdatableEntity = {
   /** Timestamp when the entity was created (ISO 8601 format) */
   createdAt: string;
   
@@ -14,7 +14,7 @@ export type UpdatableEntityDto = {
  * Base address information DTO
  * Matches backend BaseAddressDto structure
  */
-export interface BaseAddressDto {
+export interface BaseAddress {
   /** Unit or apartment number */
   unitNumber?: string;
   

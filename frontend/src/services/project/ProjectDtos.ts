@@ -3,7 +3,8 @@
  * These DTOs correspond to the backend project management API
  */
 
-import { BaseAddressDto } from './AddressDtos';
+import { BaseAddress } from '../address/AddressDtos';
+import { Contact, ContactRequest } from '../contact/ContactDtos';
 
 /**
  * Project role enum matching backend ProjectRole
@@ -13,36 +14,38 @@ export type ProjectRole = 'BUILDER' | 'OWNER';
 /**
  * Project participant DTO for representing participant information
  * Matches backend ProjectParticipantDto structure
+ * Note: Backend now includes full Contact instead of just contactId
  */
-export interface ProjectParticipantDto {
+export interface ProjectParticipant {
   /** Unique identifier of the participant */
   id: string;
   
   /** Role of the participant in the project (BUILDER or OWNER) */
   role: string;
   
-  /** Contact ID of the participant */
-  contactId: string;
+  /** Full contact information of the participant */
+  contact: Contact;
 }
 
 /**
  * Project participant request DTO for creating participants
  * Matches backend CreateProjectParticipantRequest structure
+ * Note: Backend expects "contact" as the JSON property name
  */
 export interface CreateProjectParticipantRequest {
   /** Role of the participant in the project (BUILDER or OWNER) */
   role: string;
   
-  /** Contact ID of the participant */
-  contactId: string;
+  /** Contact information for the participant */
+  contact: ContactRequest;
 }
 
 /**
  * Project location request DTO for creating new project locations
- * Matches backend ProjectLocationRequestDto (extends BaseAddressDto without ID)
+ * Matches backend ProjectLocationRequestDto (extends BaseAddress without ID)
  */
-export interface ProjectLocationRequestDto extends BaseAddressDto {
-  // No additional fields - inherits all address fields from BaseAddressDto
+export interface ProjectLocationRequest extends BaseAddress {
+  // No additional fields - inherits all address fields from BaseAddress
 }
 
 /**
@@ -57,16 +60,16 @@ export interface CreateProjectRequest {
   role: string;
   
   /** Location information for the project */
-  location: ProjectLocationRequestDto;
+  location: ProjectLocationRequest;
 }
 
 /**
  * Project DTO for representing project information
- * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Extends UpdatableEntity to include createdAt and lastUpdatedAt fields
  * Matches backend ProjectDto structure
  * Note: Backend serializes locationDto as "location" in JSON
  */
-export interface ProjectDto {
+export interface Project {
   /** Project ID */
   id: string;
 
@@ -77,19 +80,19 @@ export interface ProjectDto {
   role: string;
 
   /** Project location */
-  location: ProjectLocationDto;
+  location: ProjectLocation;
 
-  /** Creation timestamp (ISO 8601 format) - inherited from UpdatableEntityDto */
+  /** Creation timestamp (ISO 8601 format) - inherited from UpdatableEntity */
   createdAt: string;
 
-  /** Last update timestamp (ISO 8601 format) - inherited from UpdatableEntityDto */
+  /** Last update timestamp (ISO 8601 format) - inherited from UpdatableEntity */
   lastUpdatedAt: string;
 }
 
 /**
  * Project location DTO with ID (for responses)
  */
-export interface ProjectLocationDto extends BaseAddressDto {
+export interface ProjectLocation extends BaseAddress {
   /** Location ID */
   id: string;
 }
@@ -101,5 +104,5 @@ export interface ProjectLocationDto extends BaseAddressDto {
  */
 export interface CreateProjectResponse {
   /** The created project details */
-  project: ProjectDto;
+  project: Project;
 }

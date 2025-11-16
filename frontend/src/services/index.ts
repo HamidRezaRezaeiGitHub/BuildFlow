@@ -18,8 +18,23 @@ export { projectService as project } from './project/projectServiceFactory';
 export * from './TimerService';
 export { timerService } from './TimerService';
 
-// Re-export all DTOs
-export * from './dtos';
+// Re-export all DTOs from their respective modules
+export * from './address';
+export * from './contact';
+export * from './user';
+export * from './auth';
+export * from './project';
+export * from './estimate';
+export * from './workitem';
+export * from './quote';
+
+// Re-export shared/infrastructure DTOs
+export * from './MvcDtos';
+export * from './PaginationDtos';
+
+// Type aliases for MVC DTOs
+export type { ErrorResponse as ApiErrorResponse } from './MvcDtos';
+export type { MessageResponse as ApiMessageResponse } from './MvcDtos';
 
 // Re-export API helpers
 export * from './apiHelpers';

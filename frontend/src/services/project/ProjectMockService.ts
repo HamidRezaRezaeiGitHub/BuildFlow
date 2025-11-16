@@ -11,7 +11,7 @@ import {
     Project,
     PagedResponse,
     PaginationParams
-} from '../dtos';
+} from '..';
 import { IProjectService } from './IProjectService';
 
 /**

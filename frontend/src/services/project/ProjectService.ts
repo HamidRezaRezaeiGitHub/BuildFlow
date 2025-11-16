@@ -7,7 +7,7 @@ import {
     PaginationParams,
     buildPaginationQuery,
     extractPaginationMetadata
-} from '../dtos';
+} from '..';
 import { IProjectService } from './IProjectService';
 
 /**

@@ -1,4 +1,10 @@
-import { ContactRequest, User } from '..';
+/**
+ * Authentication-related DTOs matching backend structure
+ * These DTOs correspond to the backend authentication API
+ */
+
+import { ContactRequest } from '../contact/ContactDtos';
+import { User } from '../user/UserDtos';
 
 /**
  * User roles enum

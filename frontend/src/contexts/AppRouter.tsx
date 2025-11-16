@@ -4,7 +4,7 @@ import React from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AddressPage, Admin, DashboardPage, FlexibleBottomNavbarDemo, FlexibleSignUpPage, HomePage, LoginPage, Theme } from '../pages';
 import { NewProject, ProjectDetails } from '../pages/project';
-import { Role } from '../services/dtos';
+import { Role } from '../services';
 import { useAuth } from './AuthContext';
 
 // Define access levels for routes

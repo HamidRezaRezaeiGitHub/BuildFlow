@@ -3,8 +3,8 @@ import type {
     CreateUserResponse,
     User,
     UserAuthentication
-} from '../dtos';
-import type { UserDetails } from '../dtos/UserDtos';
+} from '..';
+import type { UserDetails } from '../user/UserDtos';
 
 /**
  * Admin Service Interface

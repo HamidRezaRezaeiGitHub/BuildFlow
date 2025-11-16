@@ -3,7 +3,7 @@
  * These DTOs correspond to the backend quote management API
  */
 
-import type { BaseAddressDto, UpdatableEntityDto } from './AddressDtos';
+import type { BaseAddress, UpdatableEntity } from '../address/AddressDtos';
 
 /**
  * Quote domain enum
@@ -56,21 +56,21 @@ export const QuoteUnitDisplay: Record<QuoteUnit, string> = {
 
 /**
  * Quote location DTO with ID (for responses)
- * Extends BaseAddressDto and adds ID field
+ * Extends BaseAddress and adds ID field
  * Matches backend QuoteLocationDto structure
  */
-export type QuoteLocationDto = BaseAddressDto & {
+export type QuoteLocation = BaseAddress & {
   /** Unique identifier for the quote location */
   id: string;
 };
 
 /**
  * Quote DTO for representing quote information
- * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Extends UpdatableEntity to include createdAt and lastUpdatedAt fields
  * Matches backend QuoteDto structure
  * Note: Backend serializes locationDto as "location" in JSON
  */
-export type QuoteDto = UpdatableEntityDto & {
+export type Quote = UpdatableEntity & {
   /** Unique identifier for the quote */
   id: string;
   
@@ -96,7 +96,7 @@ export type QuoteDto = UpdatableEntityDto & {
   quoteDomain: string;
   
   /** Location information for the quote */
-  location: QuoteLocationDto;
+  location: QuoteLocation;
   
   /** Whether the quote is valid */
   valid: boolean;

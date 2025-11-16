@@ -2,10 +2,10 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { authService, handleApiError, timerService, type TimerId } from '../services';
 import type {
   AuthResponse,
-  LoginCredentials,
-  SignUpData,
+  LoginRequest,
+  SignUpRequest,
   User
-} from '../services/dtos';
+} from '../services';
 
 interface AuthContextType {
   // State
@@ -16,8 +16,8 @@ interface AuthContextType {
   isLoading: boolean;
 
   // Actions
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (signUpData: SignUpData) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<void>;
+  register: (signUpData: SignUpRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Login function
-  const login = async (credentials: LoginCredentials): Promise<void> => {
+  const login = async (credentials: LoginRequest): Promise<void> => {
     setIsLoading(true);
     try {
       const authResponse: AuthResponse = await authService.login(credentials);
@@ -114,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Register function
-  const register = async (signUpData: SignUpData): Promise<void> => {
+  const register = async (signUpData: SignUpRequest): Promise<void> => {
     setIsLoading(true);
     try {
       await authService.register(signUpData);

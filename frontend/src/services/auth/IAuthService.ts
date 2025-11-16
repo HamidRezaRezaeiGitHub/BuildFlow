@@ -1,12 +1,12 @@
 import type {
     AuthResponse,
     CreateUserResponse,
-    LoginCredentials,
-    SignUpData,
+    LoginRequest,
+    SignUpRequest,
     User,
     UserSummary,
     ValidationResponse
-} from '../dtos';
+} from '..';
 
 /**
  * Authentication Service Interface
@@ -24,14 +24,14 @@ export interface IAuthService {
      * @param credentials - User login credentials
      * @returns Promise with JWT authentication response
      */
-    login(credentials: LoginCredentials): Promise<AuthResponse>;
+    login(credentials: LoginRequest): Promise<AuthResponse>;
 
     /**
      * Register new user
      * @param signUpData - User registration data with contact information
      * @returns Promise with CreateUserResponse containing the created user data
      */
-    register(signUpData: SignUpData): Promise<CreateUserResponse>;
+    register(signUpData: SignUpRequest): Promise<CreateUserResponse>;
 
     /**
      * Get current authenticated user information
@@ -67,7 +67,7 @@ export interface IAuthService {
      * @param token - JWT token with admin privileges
      * @returns Promise with admin user creation response
      */
-    createAdminUser(signUpData: SignUpData, token: string): Promise<User>;
+    createAdminUser(signUpData: SignUpRequest, token: string): Promise<User>;
 
     /**
      * Check if a token appears to be valid format (basic validation)

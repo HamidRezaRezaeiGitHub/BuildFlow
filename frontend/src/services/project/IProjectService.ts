@@ -4,7 +4,7 @@ import {
     Project,
     PagedResponse,
     PaginationParams
-} from '../dtos';
+} from '..';
 
 /**
  * Interface for Project Service operations

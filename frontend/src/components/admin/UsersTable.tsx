@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminServiceWithAuth } from '@/services/admin/adminServiceFactory';
-import { UserDetails } from '@/services/dtos/UserDtos';
+import { UserDetails } from '@/services/user/UserDtos';
 import { useMediaQuery } from '@/utils/useMediaQuery';
 import {
     ChevronDown,

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate as useReactRouterNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
-import { Project } from '@/services/dtos';
+import { Project } from '@/services';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';

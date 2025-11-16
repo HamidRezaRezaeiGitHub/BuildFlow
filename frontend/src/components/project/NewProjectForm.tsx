@@ -2,10 +2,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { AddressData, CreateProjectRequest, ProjectLocationRequest } from '@/services/dtos';
+import { CreateProjectRequest, ProjectLocationRequest } from '@/services';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
-import { AddressFieldConfig, createEmptyAddress, FlexibleAddressForm } from '../address';
+import { AddressFieldConfig, createEmptyAddress, FlexibleAddressForm, AddressData } from '../address';
 
 export interface NewProjectFormProps {
   /** Callback when form is submitted successfully */

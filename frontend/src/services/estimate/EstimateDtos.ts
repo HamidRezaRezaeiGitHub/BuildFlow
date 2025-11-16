@@ -3,7 +3,7 @@
  * These DTOs correspond to the backend estimate management API
  */
 
-import type { UpdatableEntityDto } from './AddressDtos';
+import type { UpdatableEntity } from '../address/AddressDtos';
 
 /**
  * Estimate line strategy enum
@@ -17,10 +17,10 @@ export enum EstimateLineStrategy {
 
 /**
  * Estimate line DTO for individual line items
- * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Extends UpdatableEntity to include createdAt and lastUpdatedAt fields
  * Matches backend EstimateLineDto structure
  */
-export type EstimateLineDto = UpdatableEntityDto & {
+export type EstimateLine = UpdatableEntity & {
   /** Unique identifier for the estimate line */
   id: string;
   
@@ -45,7 +45,7 @@ export type EstimateLineDto = UpdatableEntityDto & {
  * Matches backend EstimateGroupDto structure
  * Note: Backend serializes estimateLineDtos as "estimateLines" in JSON
  */
-export type EstimateGroupDto = {
+export type EstimateGroup = {
   /** Unique identifier for the estimate group */
   id: string;
   
@@ -59,16 +59,16 @@ export type EstimateGroupDto = {
   description?: string;
   
   /** Set of estimate line items in this group */
-  estimateLines: EstimateLineDto[];
+  estimateLines: EstimateLine[];
 };
 
 /**
  * Estimate DTO for project cost estimates
- * Extends UpdatableEntityDto to include createdAt and lastUpdatedAt fields
+ * Extends UpdatableEntity to include createdAt and lastUpdatedAt fields
  * Matches backend EstimateDto structure
  * Note: Backend serializes groupDtos as "groups" in JSON
  */
-export type EstimateDto = UpdatableEntityDto & {
+export type Estimate = UpdatableEntity & {
   /** Unique identifier for the estimate */
   id: string;
   
@@ -79,5 +79,5 @@ export type EstimateDto = UpdatableEntityDto & {
   overallMultiplier: number;
   
   /** Set of estimate groups in this estimate */
-  groups: EstimateGroupDto[];
+  groups: EstimateGroup[];
 };

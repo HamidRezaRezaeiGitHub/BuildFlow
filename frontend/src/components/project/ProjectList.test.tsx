@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ProjectList } from './ProjectList';
-import { Project } from '@/services/dtos';
+import { Project } from '@/services';
 import { describe, expect, test, vi } from 'vitest';
 
 describe('ProjectList', () => {

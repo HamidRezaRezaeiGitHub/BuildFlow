@@ -1,7 +1,7 @@
 // Example usage of the backend-compatible response types
 import { apiService, StructuredApiError } from './ApiService';
-import { ApiMessageResponse } from './dtos';
-import { ResponseErrorType } from './dtos/MvcDtos';
+import { ApiMessageResponse } from '.';
+import { ResponseErrorType } from './MvcDtos';
 
 /**
  * Example utility functions showing how to work with backend response types

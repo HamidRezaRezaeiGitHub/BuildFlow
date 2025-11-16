@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { UserDetails } from '@/services/dtos/UserDtos';
+import { UserDetails } from '@/services/user/UserDtos';
 import {
     Building,
     Calendar,

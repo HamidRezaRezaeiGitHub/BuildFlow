@@ -1,4 +1,4 @@
-import { AddressFieldConfig, FlexibleAddressForm, addressFieldConfigs, createEmptyAddress } from '@/components/address';
+import { AddressFieldConfig, FlexibleAddressForm, addressFieldConfigs, createEmptyAddress, AddressData } from '@/components/address';
 import { StandardNavbar } from '@/components/navbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate } from '@/contexts';
-import { AddressData } from '@/services/dtos';
 import React, { useState } from 'react';
 
 // Types for field configuration UI

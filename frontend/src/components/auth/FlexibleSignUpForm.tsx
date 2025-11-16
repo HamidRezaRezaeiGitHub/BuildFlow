@@ -1,4 +1,4 @@
-import { SignUpData } from '@/services/dtos';
+import { SignUpRequest } from '@/services';
 import { StructuredApiError } from '@/services';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -173,7 +173,7 @@ export interface FlexibleSignUpFormProps {
     onSignUpError?: (error: string) => void;
 
     /** Context alternatives - provide either contexts or callback functions */
-    onRegister?: (signUpData: SignUpData) => Promise<void>;
+    onRegister?: (signUpData: SignUpRequest) => Promise<void>;
     onNavigate?: (path: string, options?: { replace?: boolean }) => void;
 
     /** Redirect configuration */
@@ -246,7 +246,7 @@ const FlexibleSignUpForm: React.FC<FlexibleSignUpFormProps> = ({
     }
 
     // Use provided callbacks or context functions
-    const registerFunction: (signUpData: SignUpData) => Promise<void> = onRegister || authRegisterContext?.register;
+    const registerFunction: (signUpData: SignUpRequest) => Promise<void> = onRegister || authRegisterContext?.register;
     const navigateFunction = onNavigate || navigationContext?.navigate;
 
     // Initialize form data with empty address

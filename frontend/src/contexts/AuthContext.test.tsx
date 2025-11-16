@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { authService } from '../services';
-import type { AuthResponse, UserSummary } from '../services/dtos';
+import type { AuthResponse, UserSummary } from '../services';
 import { AuthProvider, useAuth } from './AuthContext';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Mock } from 'vitest';

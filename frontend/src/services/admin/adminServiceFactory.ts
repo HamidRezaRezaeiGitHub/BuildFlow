@@ -1,6 +1,6 @@
 import { config } from '@/config/environment';
-import type { CreateUserRequest } from '../dtos';
-import type { UserDetails } from '../dtos/UserDtos';
+import type { CreateUserRequest } from '..';
+import type { UserDetails } from '../user/UserDtos';
 import { AdminMockService } from './AdminMockService';
 import { AdminService } from './AdminService';
 import type { IAdminService } from './IAdminService';

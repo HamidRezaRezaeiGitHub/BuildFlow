@@ -10,12 +10,12 @@ import {
 import type {
     AuthResponse,
     CreateUserResponse,
-    LoginCredentials,
-    SignUpData,
+    LoginRequest,
+    SignUpRequest,
     User,
     UserSummary,
     ValidationResponse
-} from '../dtos';
+} from '..';
 import type { IAuthService } from './IAuthService';
 
 /**
@@ -36,7 +36,7 @@ export class AuthMockService implements IAuthService {
      * @param credentials - User login credentials
      * @returns Promise with mock JWT authentication response
      */
-    async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    async login(credentials: LoginRequest): Promise<AuthResponse> {
         if (config.enableConsoleLogs) {
             console.log('[AuthMockService] Mock login for:', credentials.username);
         }
@@ -59,7 +59,7 @@ export class AuthMockService implements IAuthService {
      * @param signUpData - User registration data with contact information
      * @returns Promise with mock CreateUserResponse
      */
-    async register(signUpData: SignUpData): Promise<CreateUserResponse> {
+    async register(signUpData: SignUpRequest): Promise<CreateUserResponse> {
         if (config.enableConsoleLogs) {
             console.log('[AuthMockService] Mock registration for:', signUpData.username);
         }
@@ -161,7 +161,7 @@ export class AuthMockService implements IAuthService {
      * @param _token - Mock JWT token (ignored in mock mode)
      * @returns Promise with mock admin user creation response
      */
-    async createAdminUser(signUpData: SignUpData, _token: string): Promise<User> {
+    async createAdminUser(signUpData: SignUpRequest, _token: string): Promise<User> {
         if (config.enableConsoleLogs) {
             console.log('[AuthMockService] Mock admin creation for:', signUpData.username);
         }

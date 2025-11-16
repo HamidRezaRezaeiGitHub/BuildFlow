@@ -2,12 +2,12 @@ import { apiService } from '../ApiService';
 import type {
     AuthResponse,
     CreateUserResponse,
-    LoginCredentials,
-    SignUpData,
+    LoginRequest,
+    SignUpRequest,
     User,
     UserSummary,
     ValidationResponse
-} from '../dtos';
+} from '..';
 import type { IAuthService } from './IAuthService';
 
 /**
@@ -27,7 +27,7 @@ export class AuthService implements IAuthService {
      * @param credentials - User login credentials
      * @returns Promise with JWT authentication response
      */
-    async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    async login(credentials: LoginRequest): Promise<AuthResponse> {
         return apiService.post<AuthResponse>('/auth/login', credentials);
     }
 
@@ -36,7 +36,7 @@ export class AuthService implements IAuthService {
      * @param signUpData - User registration data with contact information
      * @returns Promise with CreateUserResponse containing the created user data
      */
-    async register(signUpData: SignUpData): Promise<CreateUserResponse> {
+    async register(signUpData: SignUpRequest): Promise<CreateUserResponse> {
         return apiService.create<CreateUserResponse>('/auth/register', signUpData);
     }
 
@@ -88,7 +88,7 @@ export class AuthService implements IAuthService {
      * @param token - JWT token with admin privileges
      * @returns Promise with admin user creation response
      */
-    async createAdminUser(signUpData: SignUpData, token: string): Promise<User> {
+    async createAdminUser(signUpData: SignUpRequest, token: string): Promise<User> {
         return apiService.post<User>('/auth/admin', signUpData, token);
     }
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
-import { Project, PagedResponse, PaginationParams } from '@/services/dtos';
+import { Project, PagedResponse, PaginationParams } from '@/services';
 import { DashboardSection } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
