@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
 import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
-import { Project, PagedResponse, PaginationParams } from '@/services';
+import { Project, PagedResponse, PaginationParams, DateFilterParams } from '@/services';
 import { DashboardSection } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -49,12 +49,8 @@ export interface ProjectsSectionProps {
   description?: string;
   /** Show "Create Project" action button (default: true) */
   showCreateAction?: boolean;
-  /** Optional pagination parameters */
-  paginationParams?: PaginationParams;
   /** Optional custom class name */
   className?: string;
-  /** Initial number of items to display (default: 3) */
-  initialDisplayCount?: number;
 }
 
 /**
@@ -66,131 +62,130 @@ export interface ProjectsSectionProps {
  * - Passing ready-to-render data to ProjectList presentational component
  * - Integrating section header UI (title, actions)
  * - Fitting visually and functionally inside DashboardLayout
- * - Progressive loading with background prefetch
  * 
  * Data Flow:
  * 1. Uses useAuth() to get current user
- * 2. Calls ProjectService.getCombinedProjectsPaginated (both builder and owner)
- * 3. Stores projects and state (loading, empty, error) in local state
- * 4. Initially displays only first 3 items (progressive loading)
- * 5. Background prefetch triggered when displayed items reach (totalFetched - 3)
- * 6. Passes final projects[] array to ProjectList for rendering
+ * 2. Calls ProjectService.getProjectsByUserId with pagination and date filters
+ * 3. Initial fetch retrieves first page (3 items)
+ * 4. "Load More" button fetches next page and appends to existing projects
+ * 5. Passes accumulated projects array to ProjectList for rendering
  * 
  * Features:
  * - Auth-aware data fetching from AuthContext
- * - Combined builder + owner projects (de-duplicated, sorted by lastUpdatedAt DESC)
+ * - True backend pagination with accumulation (3 items per page)
+ * - "Load More" button (shown when hasNext from pagination metadata)
+ * - Date filtering (createdAfter, createdBefore) via backend
+ * - Role-based filtering (builder/owner) applied client-side
  * - Loading state with skeleton placeholders
  * - Empty state with call-to-action
  * - Error state with retry option
- * - Progressive loading with "Load More" button
- * - Background prefetch for smooth UX
  * - Export and Filter actions in header
  * - Responsive mobile-first design
- * - Pagination support (metadata available, UI controls can be added later)
+ * - Auto-reset to page 0 when filters change
  */
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   filterByRole,
   title = 'Projects',
   description,
   showCreateAction = true,
-  paginationParams,
   className,
-  initialDisplayCount = 3,
 }) => {
   const { user, token } = useAuth();
   const { navigateToNewProject } = useNavigate();
   const [allFetchedProjects, setAllFetchedProjects] = useState<Project[]>([]);
-  const [displayedCount, setDisplayedCount] = useState(initialDisplayCount);
   const [pagination, setPagination] = useState<PagedResponse<Project>['pagination'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoadingMore] = useState(false);
   const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [pendingFilter, setPendingFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Internal pagination state - mutable for true backend pagination
+  const [paginationParams, setPaginationParams] = useState<PaginationParams>({
+    page: 0,
+    size: 3,
+    orderBy: 'lastUpdatedAt',
+    direction: 'DESC'
+  });
+  
+  // Internal date filter state (managed separately from UI filter)
+  const [dateFilterParams, setDateFilterParams] = useState<DateFilterParams | undefined>(undefined);
+  
+  // Memoized project service - only recreated when token changes
+  const projectService = useMemo(() => {
+    return new ProjectServiceWithAuth(() => token);
+  }, [token]);
+
+  // Memoized filter function - applies role-based filtering
+  const filterProjects = useCallback((projects: Project[]): Project[] => {
+    const effectiveScope = filterByRole || appliedFilter.scope;
+    
+    if (effectiveScope === 'builder') {
+      return projects.filter((p: Project) => p.role === 'BUILDER');
+    } else if (effectiveScope === 'owner') {
+      return projects.filter((p: Project) => p.role === 'OWNER');
+    }
+    
+    return projects;
+  }, [filterByRole, appliedFilter.scope]);
 
   // Extract fetch logic into a reusable function
-  const fetchProjects = useCallback(async (isBackgroundFetch = false) => {
+  const fetchProjects = useCallback(async (appendResults = false) => {
     if (!user || !token) {
       setIsLoading(false);
       return;
     }
 
-    if (!isBackgroundFetch) {
-      setIsLoading(true);
-    }
+    setIsLoading(true);
     setError(null);
 
     try {
-      const projectService = new ProjectServiceWithAuth(() => token);
+      // Fetch all projects for the user with pagination and date filters
+      const response = await projectService.getProjectsByUserId(user.id, paginationParams, dateFilterParams);
       
-      // Fetch all projects for the user
-      // Note: Backend only supports GET /api/v1/projects/user/{userId}
-      // Role-based filtering (builder/owner) and date filtering are not supported by backend yet
-      const response = await projectService.getProjectsByUserId(user.id, paginationParams);
-      
-      // Apply client-side filtering if needed
-      let filteredProjects = response.content;
-      
-      // Apply date filters client-side
-      if (appliedFilter.createdAfter) {
-        const afterDate = new Date(appliedFilter.createdAfter);
-        filteredProjects = filteredProjects.filter((p: Project) => new Date(p.createdAt) >= afterDate);
-      }
-      if (appliedFilter.createdBefore) {
-        const beforeDate = new Date(appliedFilter.createdBefore);
-        filteredProjects = filteredProjects.filter((p: Project) => new Date(p.createdAt) <= beforeDate);
-      }
-      
-      // Apply role-based filter client-side if specified
-      const effectiveScope = filterByRole || appliedFilter.scope;
-      if (effectiveScope === 'builder') {
-        filteredProjects = filteredProjects.filter((p: Project) => p.role === 'BUILDER');
-      } else if (effectiveScope === 'owner') {
-        filteredProjects = filteredProjects.filter((p: Project) => p.role === 'OWNER');
-      }
+      // Apply client-side role filtering
+      const filteredProjects = filterProjects(response.content);
 
-      setAllFetchedProjects(filteredProjects);
-      setPagination(response.pagination);
-      
-      // Reset displayed count to initial on non-background fetches
-      if (!isBackgroundFetch) {
-        setDisplayedCount(initialDisplayCount);
+      if (appendResults) {
+        // Append new page results to existing projects
+        setAllFetchedProjects(prev => [...prev, ...filteredProjects]);
+      } else {
+        // Replace with new results (initial fetch or filter change)
+        setAllFetchedProjects(filteredProjects);
       }
+      
+      setPagination(response.pagination);
     } catch (err) {
       console.error('Failed to fetch projects:', err);
       setError('Failed to load projects. Please try again later.');
     } finally {
-      if (!isBackgroundFetch) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-  }, [user, token, filterByRole, appliedFilter, paginationParams, initialDisplayCount]);
+  }, [user, token, projectService, paginationParams, dateFilterParams, filterProjects]);
 
-  // Trigger background prefetch when we're near the end of current data
+  // Effect for initial fetch and filter changes (page 0)
   useEffect(() => {
-    const shouldPrefetch = 
-      allFetchedProjects.length > 0 && 
-      displayedCount >= (allFetchedProjects.length - 3) &&
-      pagination?.hasNext;
-
-    if (shouldPrefetch && !isLoadingMore) {
-      // Trigger background fetch of next page
-      // This is a placeholder - in a real implementation, you'd fetch the next page
-      // and append to allFetchedProjects
-      console.log('[ProjectsSection] Background prefetch triggered');
-    }
-  }, [displayedCount, allFetchedProjects.length, pagination?.hasNext, isLoadingMore]);
-
-  useEffect(() => {
-    fetchProjects();
+    // Reset pagination and fetch fresh results
+    setPaginationParams(prev => ({ ...prev, page: 0 }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, token, filterByRole, appliedFilter.scope, appliedFilter.createdAfter, appliedFilter.createdBefore]);
+  }, [user?.id, filterByRole, appliedFilter.scope, dateFilterParams]);
+
+  // Effect for pagination changes (fetch and append)
+  useEffect(() => {
+    if (paginationParams.page === 0) {
+      // Initial fetch or after filter change - replace results
+      fetchProjects(false);
+    } else {
+      // Load more - append results
+      fetchProjects(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginationParams.page]);
 
   // Render loading state
   const renderLoadingState = () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {[...Array(initialDisplayCount)].map((_, i) => (
+      {[...Array(3)].map((_, i) => (
         <Card key={i} className="overflow-hidden">
           <CardHeader>
             <Skeleton className="h-6 w-3/4 mb-2" />
@@ -250,6 +245,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               onClick={() => {
                 setAppliedFilter(DEFAULT_FILTER);
                 setPendingFilter(DEFAULT_FILTER);
+                setDateFilterParams(undefined);
                 setIsFilterOpen(false);
               }}
             >
@@ -291,15 +287,24 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     );
   };
 
-  // Handle load more
-  const handleLoadMore = () => {
-    const newCount = Math.min(displayedCount + initialDisplayCount, allFetchedProjects.length);
-    setDisplayedCount(newCount);
-  };
-
   // Handle filter apply - only applies when "Apply Filters" is clicked
   const handleApplyFilter = (newFilter: ProjectFilter) => {
     setAppliedFilter(newFilter);
+    
+    // Update date filter params for backend
+    const newDateFilter: DateFilterParams = {};
+    if (newFilter.createdAfter) {
+      newDateFilter.createdAfter = new Date(newFilter.createdAfter).toISOString();
+    }
+    if (newFilter.createdBefore) {
+      newDateFilter.createdBefore = new Date(newFilter.createdBefore).toISOString();
+    }
+    
+    // Only set if there are actual date filters
+    setDateFilterParams(Object.keys(newDateFilter).length > 0 ? newDateFilter : undefined);
+    
+    // Reset to first page when filters change
+    setPaginationParams(prev => ({ ...prev, page: 0 }));
     setIsFilterOpen(false);
   };
   
@@ -314,9 +319,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     alert('Export functionality will be implemented in a future update.');
   };
 
-  // Get projects to display (progressive loading)
-  const displayedProjects = allFetchedProjects.slice(0, displayedCount);
-  const hasMoreToShow = displayedCount < allFetchedProjects.length;
+  // Handle load more - fetch next page and append results
+  const handleLoadMore = () => {
+    // Increment page number
+    setPaginationParams(prev => ({ ...prev, page: (prev.page ?? 0) + 1 }));
+  };
 
   // Section actions - Export and Filter (no Create Project when items exist)
   const actions = (
@@ -385,7 +392,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 </div>
                 <div>
                   <label htmlFor="created-after" className="text-sm font-medium mb-2 block">
-                    Created between (start date)
+                    Created after
                   </label>
                   <input
                     id="created-after"
@@ -398,7 +405,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 </div>
                 <div>
                   <label htmlFor="created-before" className="text-sm font-medium mb-2 block">
-                    Created between (end date)
+                    Created before
                   </label>
                   <input
                     id="created-before"
@@ -441,17 +448,17 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       {!isLoading && !error && allFetchedProjects.length === 0 && renderEmptyState()}
       {!isLoading && !error && allFetchedProjects.length > 0 && (
         <>
-          <ProjectList projects={displayedProjects} />
-          
-          {/* Load More button */}
-          {hasMoreToShow && (
+          <ProjectList projects={allFetchedProjects} />
+
+          {/* Load More button - shown if there are more pages to fetch */}
+          {pagination && pagination.hasNext && (
             <div className="flex justify-center mt-4">
               <Button 
                 onClick={handleLoadMore} 
                 variant="outline"
-                disabled={isLoadingMore}
+                disabled={isLoading}
               >
-                {isLoadingMore ? 'Loading...' : 'Load More'}
+                {isLoading ? 'Loading...' : 'Load More'}
               </Button>
             </div>
           )}
@@ -459,8 +466,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           {/* Pagination info */}
           {pagination && pagination.totalElements > 0 && (
             <div className="text-center text-sm text-muted-foreground mt-4">
-              Showing {displayedProjects.length} of {pagination.totalElements} project{pagination.totalElements !== 1 ? 's' : ''}
-              {pagination.totalPages > 1 && ` • Page ${pagination.page + 1} of ${pagination.totalPages}`}
+              Showing {allFetchedProjects.length} of {pagination.totalElements} project{pagination.totalElements !== 1 ? 's' : ''}
+              {pagination.totalPages > 1 && ` • Page ${(pagination.page ?? 0) + 1} of ${pagination.totalPages}`}
             </div>
           )}
         </>

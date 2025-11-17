@@ -3,7 +3,8 @@ import {
     CreateProjectResponse,
     Project,
     PagedResponse,
-    PaginationParams
+    PaginationParams,
+    DateFilterParams
 } from '..';
 
 /**
@@ -37,13 +38,15 @@ export interface IProjectService {
      * 
      * @param userId - ID of the user whose projects to retrieve
      * @param token - JWT authentication token
-     * @param params - Optional pagination parameters (page, size, orderBy, direction)
+     * @param pagination - Optional pagination parameters (page, size, orderBy, direction)
+     * @param dateFilter - Optional date filter parameters (createdAfter, createdBefore, updatedAfter, updatedBefore)
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     getProjectsByUserId(
         userId: string,
         token: string,
-        params?: PaginationParams
+        pagination?: PaginationParams,
+        dateFilter?: DateFilterParams
     ): Promise<PagedResponse<Project>>;
 
     /**

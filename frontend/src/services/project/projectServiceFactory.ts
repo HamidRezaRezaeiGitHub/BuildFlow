@@ -4,7 +4,8 @@ import {
     CreateProjectResponse,
     Project,
     PagedResponse,
-    PaginationParams
+    PaginationParams,
+    DateFilterParams
 } from '..';
 import { IProjectService } from './IProjectService';
 import { ProjectMockService } from './ProjectMockService';
@@ -82,11 +83,16 @@ export class ProjectServiceWithAuth {
      * Automatically injects authentication token
      * 
      * @param userId - ID of the user whose projects to retrieve
-     * @param params - Optional pagination parameters
+     * @param pagination - Optional pagination parameters
+     * @param dateFilter - Optional date filter parameters
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
-    async getProjectsByUserId(userId: string, params?: PaginationParams): Promise<PagedResponse<Project>> {
-        return this.projectService.getProjectsByUserId(userId, this.ensureToken(), params);
+    async getProjectsByUserId(
+        userId: string, 
+        pagination?: PaginationParams,
+        dateFilter?: DateFilterParams
+    ): Promise<PagedResponse<Project>> {
+        return this.projectService.getProjectsByUserId(userId, this.ensureToken(), pagination, dateFilter);
     }
 
     /**

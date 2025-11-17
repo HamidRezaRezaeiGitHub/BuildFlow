@@ -5,8 +5,11 @@ import {
     Project,
     PagedResponse,
     PaginationParams,
+    extractPaginationMetadata,
+    DateFilterParams,
     buildPaginationQuery,
-    extractPaginationMetadata
+    buildDateFilterQuery,
+    combineQueries
 } from '..';
 import { IProjectService } from './IProjectService';
 
@@ -45,15 +48,20 @@ export class ProjectService implements IProjectService {
      * 
      * @param userId - ID of the user whose projects to retrieve
      * @param token - JWT authentication token
-     * @param params - Optional pagination parameters (page, size, orderBy, direction)
+     * @param pagination - Optional pagination parameters (page, size, orderBy, direction)
+     * @param dateFilter - Optional date filter parameters (createdAfter, createdBefore, updatedAfter, updatedBefore)
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByUserId(
         userId: string,
         token: string,
-        params?: PaginationParams
+        pagination?: PaginationParams,
+        dateFilter?: DateFilterParams
     ): Promise<PagedResponse<Project>> {
-        const endpoint = `/v1/projects/user/${encodeURIComponent(userId)}${buildPaginationQuery(params)}`;
+        const paginationQuery = buildPaginationQuery(pagination);
+        const dateQuery = buildDateFilterQuery(dateFilter);
+        const combinedQuery = combineQueries(paginationQuery, dateQuery);
+        const endpoint = `/v1/projects/user/${encodeURIComponent(userId)}${combinedQuery}`;
 
         const { data, headers } = await apiService.requestWithMetadata<Project[]>(
             endpoint,

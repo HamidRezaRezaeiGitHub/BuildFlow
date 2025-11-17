@@ -93,34 +93,3 @@ export function extractPaginationMetadata(headers: Headers): PaginationMetadata 
     isLast: page === totalPages - 1 || totalPages === 0
   };
 }
-
-/**
- * Build query string from pagination parameters
- * Handles optional parameters and uses defaults when not provided
- */
-export function buildPaginationQuery(params?: PaginationParams): string {
-  if (!params) {
-    return '';
-  }
-  
-  const queryParams = new URLSearchParams();
-  
-  if (params.page !== undefined) {
-    queryParams.append('page', params.page.toString());
-  }
-  
-  if (params.size !== undefined) {
-    queryParams.append('size', params.size.toString());
-  }
-  
-  if (params.orderBy) {
-    queryParams.append('orderBy', params.orderBy);
-  }
-  
-  if (params.direction) {
-    queryParams.append('direction', params.direction);
-  }
-  
-  const query = queryParams.toString();
-  return query ? `?${query}` : '';
-}

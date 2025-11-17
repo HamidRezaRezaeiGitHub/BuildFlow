@@ -31,6 +31,8 @@ export * from './quote';
 // Re-export shared/infrastructure DTOs
 export * from './MvcDtos';
 export * from './PaginationDtos';
+export * from './DateFilterDtos';
+export * from './QueryParametersBuilder';
 
 // Type aliases for MVC DTOs
 export type { ErrorResponse as ApiErrorResponse } from './MvcDtos';

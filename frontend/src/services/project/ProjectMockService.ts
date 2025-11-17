@@ -10,7 +10,8 @@ import {
     CreateProjectResponse,
     Project,
     PagedResponse,
-    PaginationParams
+    PaginationParams,
+    DateFilterParams
 } from '..';
 import { IProjectService } from './IProjectService';
 
@@ -34,14 +35,22 @@ export class ProjectMockService implements IProjectService {
     private static readonly DEFAULT_SIZE = 25;
 
     /**
-     * Simulates pagination for mock data
+     * Simulates pagination and date filtering for mock data
+     * Note: Date filtering is not fully implemented in mock mode
+     * In mock mode, date filter parameters are accepted but ignored
+     * 
      * @param allProjects - Complete list of projects to paginate
-     * @param params - Optional pagination parameters
+     * @param pagination - Optional pagination parameters
+     * @param _dateFilter - Optional date filter parameters (ignored in mock mode)
      * @returns Paginated response with metadata
      */
-    private simulatePagination(allProjects: Project[], params?: PaginationParams): PagedResponse<Project> {
-        const page = params?.page || ProjectMockService.DEFAULT_PAGE;
-        const size = params?.size || ProjectMockService.DEFAULT_SIZE;
+    private simulatePagination(
+        allProjects: Project[], 
+        pagination?: PaginationParams,
+        _dateFilter?: DateFilterParams
+    ): PagedResponse<Project> {
+        const page = pagination?.page || ProjectMockService.DEFAULT_PAGE;
+        const size = pagination?.size || ProjectMockService.DEFAULT_SIZE;
         const start = page * size;
         const end = start + size;
         const paginatedProjects = allProjects.slice(start, end);
@@ -90,24 +99,32 @@ export class ProjectMockService implements IProjectService {
      * Get all projects for a specific user ID (mock implementation)
      * Simulates paginated project retrieval with 300ms delay
      * 
+     * Note: Date filtering is accepted but not implemented in mock mode
+     * Mock data returns all projects for the user without applying date filters
+     * 
      * @param userId - ID of the user whose projects to retrieve
      * @param _token - JWT authentication token (ignored in mock mode)
-     * @param params - Optional pagination parameters (page, size, orderBy, direction)
+     * @param pagination - Optional pagination parameters (page, size, orderBy, direction)
+     * @param dateFilter - Optional date filter parameters (ignored in mock mode)
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByUserId(
         userId: string,
         _token: string,
-        params?: PaginationParams
+        pagination?: PaginationParams,
+        dateFilter?: DateFilterParams
     ): Promise<PagedResponse<Project>> {
         if (config.enableConsoleLogs) {
             console.log('[ProjectMockService] Getting mock projects for user:', userId);
+            if (dateFilter) {
+                console.log('[ProjectMockService] Date filter parameters (ignored in mock mode):', dateFilter);
+            }
         }
 
         return new Promise((resolve) => {
             setTimeout(() => {
                 const allProjects = findProjectsByUserId(userId);
-                resolve(this.simulatePagination(allProjects, params));
+                resolve(this.simulatePagination(allProjects, pagination, dateFilter));
             }, 300); // Simulate network delay
         });
     }
