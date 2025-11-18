@@ -39,7 +39,8 @@ BuildFlow-0.0.1-SNAPSHOT.jar
 
 **Key Configuration**:
 - Vite: Dev server port 3000, builds to `dist/`, path aliases (`@/`)
-- Jest: jsdom environment, TypeScript via ts-jest
+- Vitest: jsdom environment, TypeScript via ts-jest, test execution with React Testing Library
+- TypeScript: Separate configs for IDE (`tsconfig.json`) and build (`tsconfig.build.json`)
 - Tailwind CSS: v4 utility-first styling
 - Spring Boot: H2 database, Spring Security, Maven
 
@@ -101,7 +102,7 @@ java -version  # Must show "openjdk version 21.0.x"
 - Follow existing component structure patterns
 
 **D. Testing Requirements** (MANDATORY)
-- Write Jest tests for component logic, co-located with components
+- Write Vitest tests for component logic, co-located with components
 - Test user interactions with React Testing Library
 - Verify responsive behavior
 - Follow existing test patterns
@@ -124,8 +125,8 @@ java -version  # Must show "openjdk version 21.0.x"
 ```bash
 cd frontend
 npm install           # If package.json changed (~30 seconds)
-npm run build         # 3-5 seconds
-npm test              # Run Jest suite
+npm run build         # 3-5 seconds (uses tsconfig.build.json)
+npm test              # Run Vitest suite
 ```
 
 #### Full-Stack Changes:
@@ -146,7 +147,7 @@ cd frontend && npm install && npm run build && cd ..
 2. Startup: Verify Spring Boot starts without errors
 
 #### Frontend Validation:
-1. Type Check: `npm run type-check`
+1. Build: `npm run build` (uses tsconfig.build.json, excludes test files)
 2. Dev Server: `npm run dev` (verify localhost:3000) - **TERMINATE when done**
 3. Screenshots: Include mobile-width screenshots in PR description (if applicable)
 

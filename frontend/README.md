@@ -210,11 +210,55 @@ frontend/
 ├── .env.github-pages           # GitHub Pages config
 ├── .env.test                   # Test environment config
 ├── vitest.config.ts            # Vitest test configuration
-├── tsconfig.json               # TypeScript configuration
+├── tsconfig.json               # TypeScript IDE configuration
+├── tsconfig.build.json         # TypeScript build configuration
+├── tsconfig.node.json          # TypeScript Node configuration
 ├── vite.config.ts              # Vite build configuration
 ├── tailwind.config.js          # Tailwind CSS configuration
 ├── package.json                # Dependencies and scripts
 └── README.md                   # This file
+```
+
+## ⚙️ TypeScript Configuration
+
+The project uses **separate TypeScript configurations** for IDE support and production builds:
+
+### Configuration Files
+
+#### `tsconfig.json` - IDE Configuration
+- **Purpose**: Used by VS Code for IntelliSense, type checking, and import resolution
+- **Includes**: All TypeScript files including test files (`*.test.ts`, `*.test.tsx`)
+- **Features**: 
+  - Path aliases (`@/*` → `./src/*`) for clean imports
+  - Vitest globals and jest-dom type declarations
+  - Full type checking for development experience
+
+#### `tsconfig.build.json` - Build Configuration
+- **Purpose**: Used during production builds (`npm run build`)
+- **Extends**: `tsconfig.json` for base configuration
+- **Excludes**: Test files and test utilities to prevent build errors
+- **Features**:
+  - Ensures test-specific code doesn't cause compilation errors
+  - Faster build times by skipping unnecessary files
+  - Production-ready output without test dependencies
+
+#### `tsconfig.node.json` - Node Configuration
+- **Purpose**: TypeScript configuration for Vite config files
+- **Scope**: Build tools and configuration files only
+
+### Why Separate Configurations?
+
+This pattern solves a common TypeScript challenge:
+- ✅ **IDE Support**: Test files get full IntelliSense and path alias resolution in VS Code
+- ✅ **Clean Builds**: Test files excluded from production compilation
+- ✅ **Type Safety**: Both development and production maintain strong typing
+- ✅ **No Import Changes**: No need to modify import patterns in test files
+
+### Build Scripts
+
+All build scripts use `tsconfig.build.json` to exclude test files:
+```json
+"build": "tsc --project tsconfig.build.json && vite build"
 ```
 
 ## 🚀 Getting Started

@@ -127,7 +127,13 @@ BuildFlow's frontend is a modern React-based web application built with TypeScri
 - **Vite 4.4** - Fast build tool and development server
 - **Tailwind CSS 3.3** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
-- **Jest 30.1** & React Testing Library 16.3 - Comprehensive testing
+- **Vitest 4.0** & React Testing Library 16.3 - Comprehensive testing
+
+**TypeScript Configuration:**
+The frontend uses separate TypeScript configurations for optimal developer experience:
+- `tsconfig.json` - IDE configuration (includes test files for IntelliSense)
+- `tsconfig.build.json` - Build configuration (excludes test files for production)
+- This pattern ensures VS Code provides full support for test files while keeping builds clean
 
 ### Backend Overview
 
@@ -302,8 +308,10 @@ BuildFlow/
 │   ├── .env.production        # Production environment config
 │   ├── .env.uat               # UAT environment config
 │   ├── .env.github-pages      # GitHub Pages config
-│   ├── jest.config.js         # Jest test configuration
-│   ├── tsconfig.json          # TypeScript configuration
+│   ├── vitest.config.ts       # Vitest test configuration
+│   ├── tsconfig.json          # TypeScript IDE configuration
+│   ├── tsconfig.build.json    # TypeScript build configuration
+│   ├── tsconfig.node.json     # TypeScript Node configuration
 │   ├── vite.config.ts         # Vite build configuration
 │   ├── tailwind.config.js     # Tailwind CSS configuration
 │   ├── package.json           # Dependencies and scripts
