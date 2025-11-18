@@ -14,13 +14,13 @@
 export interface DateFilterParams {
   /** Filter records created after this timestamp (inclusive) */
   createdAfter?: string;
-  
+
   /** Filter records created before this timestamp (inclusive) */
   createdBefore?: string;
-  
+
   /** Filter records updated after this timestamp (inclusive) */
   updatedAfter?: string;
-  
+
   /** Filter records updated before this timestamp (inclusive) */
   updatedBefore?: string;
 }
@@ -50,22 +50,22 @@ export function createDateFilter(params: {
   updatedBefore?: Date;
 }): DateFilterParams {
   const filter: DateFilterParams = {};
-  
+
   if (params.createdAfter) {
     filter.createdAfter = dateToISOString(params.createdAfter);
   }
-  
+
   if (params.createdBefore) {
     filter.createdBefore = dateToISOString(params.createdBefore);
   }
-  
+
   if (params.updatedAfter) {
     filter.updatedAfter = dateToISOString(params.updatedAfter);
   }
-  
+
   if (params.updatedBefore) {
     filter.updatedBefore = dateToISOString(params.updatedBefore);
   }
-  
+
   return filter;
 }

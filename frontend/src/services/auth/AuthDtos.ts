@@ -24,10 +24,10 @@ export enum Role {
 export interface SignUpRequest {
   /** Username for the new account (3-50 characters) */
   username: string;
-  
+
   /** Password for the new account (8-128 characters with complexity requirements) */
   password: string;
-  
+
   /** Contact information for the new user */
   contact: ContactRequest;
 }
@@ -53,7 +53,7 @@ export interface CreateUserRequest {
  * Note: Backend serializes userDto as "user" in JSON
  */
 export interface CreateUserResponse {
-    user: User;
+  user: User;
 }
 
 /**
@@ -63,7 +63,7 @@ export interface CreateUserResponse {
 export interface LoginRequest {
   /** Username or email */
   username: string;
-  
+
   /** User password */
   password: string;
 }
@@ -75,13 +75,13 @@ export interface LoginRequest {
 export interface AuthResponse {
   /** Token type (typically "Bearer") */
   tokenType: string;
-  
+
   /** JWT access token for API authentication */
   accessToken: string;
-  
+
   /** Expiration date and time of the token in ISO 8601 format */
   expiryDate: string;
-  
+
   /** Time in seconds until the token expires */
   expiresInSeconds: number;
 }
@@ -92,17 +92,17 @@ export interface AuthResponse {
  * Returned by the /auth/current endpoint
  */
 export interface UserSummary {
-    /** User unique identifier */
-    id: string;
-    
-    /** Username */
-    username: string;
-    
-    /** Email address */
-    email: string;
-    
-    /** User role */
-    role: string;
+  /** User unique identifier */
+  id: string;
+
+  /** Username */
+  username: string;
+
+  /** Email address */
+  email: string;
+
+  /** User role */
+  role: string;
 }
 
 /**

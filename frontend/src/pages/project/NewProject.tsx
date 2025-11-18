@@ -305,8 +305,8 @@ export const NewProject: React.FC = () => {
                               type="button"
                               onClick={() => handleRoleChange('builder')}
                               className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'builder'
-                                  ? 'border-primary bg-primary/10 text-primary'
-                                  : 'border-border hover:border-border/60'
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border hover:border-border/60'
                                 }`}
                               disabled={isSubmitting}
                               aria-pressed={formData.userRole === 'builder'}
@@ -324,8 +324,8 @@ export const NewProject: React.FC = () => {
                               type="button"
                               onClick={() => handleRoleChange('owner')}
                               className={`flex-1 p-4 rounded-lg border-2 transition-colors ${formData.userRole === 'owner'
-                                  ? 'border-primary bg-primary/10 text-primary'
-                                  : 'border-border hover:border-border/60'
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border hover:border-border/60'
                                 }`}
                               disabled={isSubmitting}
                               aria-pressed={formData.userRole === 'owner'}

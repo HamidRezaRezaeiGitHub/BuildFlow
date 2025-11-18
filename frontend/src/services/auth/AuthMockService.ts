@@ -130,7 +130,7 @@ export class AuthMockService implements IAuthService {
         if (config.enableConsoleLogs) {
             console.log('[AuthMockService] Mock logout');
         }
-        
+
         // In standalone mode, just simulate logout
         return Promise.resolve();
     }

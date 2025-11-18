@@ -1,9 +1,8 @@
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { NavigationProvider, useNavigate } from './NavigationContext';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Mock } from 'vitest';
+import { NavigationProvider, useNavigate } from './NavigationContext';
 
 // Test component that uses the navigation context
 const TestNavigationComponent: React.FC = () => {
@@ -75,7 +74,7 @@ describe('NavigationContext', () => {
 
   test('NavigationContext_shouldThrowError_whenUsedOutsideProvider', () => {
     // Suppress console.error for this test
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
     expect(() => {
       render(<TestNavigationComponent />);
@@ -150,7 +149,7 @@ describe('NavigationContext', () => {
   });
 
   test('NavigationContext_shouldWarnWhenElementNotFound', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
     mockGetElementById.mockReturnValue(null);
 
     renderWithNavigationProvider(<TestNavigationComponent />);

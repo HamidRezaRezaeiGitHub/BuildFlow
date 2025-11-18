@@ -10,25 +10,25 @@
 export interface PaginationMetadata {
   /** Current page number (0-based) */
   page: number;
-  
+
   /** Number of items per page */
   size: number;
-  
+
   /** Total number of elements across all pages */
   totalElements: number;
-  
+
   /** Total number of pages */
   totalPages: number;
-  
+
   /** Whether there is a next page */
   hasNext: boolean;
-  
+
   /** Whether there is a previous page */
   hasPrevious: boolean;
-  
+
   /** Whether this is the first page */
   isFirst: boolean;
-  
+
   /** Whether this is the last page */
   isLast: boolean;
 }
@@ -39,7 +39,7 @@ export interface PaginationMetadata {
 export interface PagedResponse<T> {
   /** The actual data/content array */
   content: T[];
-  
+
   /** Pagination metadata */
   pagination: PaginationMetadata;
 }
@@ -51,13 +51,13 @@ export interface PagedResponse<T> {
 export interface PaginationParams {
   /** Page number (0-based, default: 0) */
   page?: number;
-  
+
   /** Page size (default: 25) */
   size?: number;
-  
+
   /** Sort field (e.g., 'lastUpdatedAt' or 'createdAt') */
   orderBy?: string;
-  
+
   /** Sort direction ('ASC' or 'DESC', default: 'DESC') */
   direction?: 'ASC' | 'DESC';
 }
@@ -81,7 +81,7 @@ export function extractPaginationMetadata(headers: Headers): PaginationMetadata 
   const size = parseInt(headers.get('X-Size') || '0', 10);
   const totalElements = parseInt(headers.get('X-Total-Count') || '0', 10);
   const totalPages = parseInt(headers.get('X-Total-Pages') || '0', 10);
-  
+
   return {
     page,
     size,

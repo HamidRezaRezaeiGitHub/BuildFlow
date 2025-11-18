@@ -4,10 +4,10 @@
  * Provides custom render helpers and common test utilities
  */
 
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { render, RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 
 /**
  * Props for the test wrapper component
@@ -167,15 +167,8 @@ export * from '@testing-library/react';
 
 // Export our custom utilities
 export {
-  customRender as render,
-  renderWithoutProviders,
-  setupUser,
   createMockLocalStorage,
-  createMockMatchMedia,
-  mockResizeObserver,
-  mockIntersectionObserver,
-  waitForElementToBeRemoved,
-  createMockNavigation,
-  expectToBeAccessible,
-  renderWithErrorBoundary,
+  createMockMatchMedia, createMockNavigation,
+  expectToBeAccessible, mockIntersectionObserver, mockResizeObserver, customRender as render, renderWithErrorBoundary, renderWithoutProviders,
+  setupUser, waitForElementToBeRemoved
 };

@@ -1,6 +1,6 @@
 // Example usage of the backend-compatible response types
-import { apiService, StructuredApiError } from './ApiService';
 import { ApiMessageResponse } from '.';
+import { apiService, StructuredApiError } from './ApiService';
 import { ResponseErrorType } from './MvcDtos';
 
 /**
@@ -14,7 +14,7 @@ export function handleMessageResponse(response: ApiMessageResponse | any): strin
   if (apiService.isMessageResponse(response)) {
     return response.success ? response.message : `Error: ${response.message}`;
   }
-  
+
   return apiService.extractMessage(response);
 }
 
@@ -25,49 +25,49 @@ export function handleMessageResponse(response: ApiMessageResponse | any): strin
 export function analyzeApiError(error: Error): { message: string; isRecoverable: boolean } {
   if (error instanceof StructuredApiError) {
     const errorResponse = error.apiErrorResponse;
-    
+
     if (!errorResponse) {
       return { message: error.message, isRecoverable: false };
     }
-    
+
     switch (errorResponse.errorType) {
       case ResponseErrorType.VALIDATION_ERROR:
         return {
           message: `Please check your input: ${error.getDetailedMessage()}`,
           isRecoverable: true
         };
-        
+
       case ResponseErrorType.AUTHENTICATION_ERROR:
         return {
           message: 'Please log in again to continue',
           isRecoverable: true
         };
-        
+
       case ResponseErrorType.AUTHORIZATION_ERROR:
         return {
           message: 'You do not have permission to perform this action',
           isRecoverable: false
         };
-        
+
       case ResponseErrorType.RESOURCE_NOT_FOUND:
         return {
           message: 'The requested resource was not found',
           isRecoverable: false
         };
-        
+
       case ResponseErrorType.BUSINESS_LOGIC_ERROR:
         return {
           message: `Business rule violation: ${error.message}`,
           isRecoverable: true
         };
-        
+
       case ResponseErrorType.SYSTEM_ERROR:
       case ResponseErrorType.EXTERNAL_SERVICE_ERROR:
         return {
           message: 'A system error occurred. Please try again later.',
           isRecoverable: true
         };
-        
+
       default:
         return {
           message: error.getDetailedMessage(),
@@ -75,7 +75,7 @@ export function analyzeApiError(error: Error): { message: string; isRecoverable:
         };
     }
   }
-  
+
   return {
     message: error.message || 'An unexpected error occurred',
     isRecoverable: false
@@ -88,13 +88,13 @@ export function analyzeApiError(error: Error): { message: string; isRecoverable:
 export function useApiErrorHandler() {
   const handleError = (error: Error) => {
     const { message, isRecoverable } = analyzeApiError(error);
-    
+
     // Here you could integrate with your notification system
     console.error('API Error:', message, { recoverable: isRecoverable });
-    
+
     return { message, isRecoverable };
   };
-  
+
   return { handleError };
 }
 
@@ -104,16 +104,16 @@ export function useApiErrorHandler() {
 export async function exampleApiCall(endpoint: string, token?: string): Promise<string> {
   try {
     const response = await apiService.get<ApiMessageResponse>(endpoint, token);
-    
+
     if (apiService.isMessageResponse(response)) {
       if (!response.success) {
         throw new Error(`Operation failed: ${response.message}`);
       }
       return response.message;
     }
-    
+
     return 'Operation completed successfully';
-    
+
   } catch (error) {
     const { message } = analyzeApiError(error as Error);
     throw new Error(message);
@@ -134,13 +134,13 @@ export async function exampleCreateResource(data: any, token?: string): Promise<
       },
       token
     );
-    
+
     return {
       created: status === 201,
       message: status === 201 ? 'Resource created successfully' : 'Resource processed',
       status
     };
-    
+
   } catch (error) {
     const { message } = analyzeApiError(error as Error);
     throw new Error(message);

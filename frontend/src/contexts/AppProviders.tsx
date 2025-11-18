@@ -1,9 +1,9 @@
+import { Toaster } from '@/components/ui/toaster';
 import React, { ReactNode } from 'react';
 import { AuthProvider } from './AuthContext';
-import { ThemeProvider } from './ThemeContext';
 import { NavigationProvider } from './NavigationContext';
 import { RouterProvider } from './RouterProvider';
-import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from './ThemeContext';
 
 interface AppProvidersProps {
   children: ReactNode;

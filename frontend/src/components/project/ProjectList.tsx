@@ -87,10 +87,10 @@ export const ProjectList: React.FC<ProjectListProps> = ({
       const weeks = Math.floor(diffDays / 7);
       return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
       });
     }
   };
@@ -99,7 +99,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   const formatLocation = (project: Project): string => {
     const { location } = project;
     const parts = [];
-    
+
     if (location.unitNumber) {
       parts.push(`Unit ${location.unitNumber}`);
     }
@@ -112,7 +112,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
     if (location.stateOrProvince) {
       parts.push(location.stateOrProvince);
     }
-    
+
     return parts.join(', ') || 'No location specified';
   };
 
@@ -120,8 +120,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => (
-        <Card 
-          key={project.id} 
+        <Card
+          key={project.id}
           className="hover:shadow-md transition-shadow cursor-pointer focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
           role="button"
           tabIndex={0}
@@ -143,9 +143,9 @@ export const ProjectList: React.FC<ProjectListProps> = ({
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="h-8 w-8 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -179,7 +179,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({
                   }}>
                     View Details
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(project.id);

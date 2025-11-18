@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CreateProjectRequest, ProjectLocationRequest } from '@/services';
 import { Building2, User } from 'lucide-react';
 import React from 'react';
-import { AddressFieldConfig, createEmptyAddress, FlexibleAddressForm, AddressData } from '../address';
+import { AddressData, AddressFieldConfig, createEmptyAddress, FlexibleAddressForm } from '../address';
 
 export interface NewProjectFormProps {
   /** Callback when form is submitted successfully */

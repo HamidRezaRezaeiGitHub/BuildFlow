@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext } from 'react';
 import { useNavigate as useReactRouterNavigate } from 'react-router-dom';
 
 export interface NavigationContextType {
@@ -6,23 +6,23 @@ export interface NavigationContextType {
     navigate: (to: string, options?: { replace?: boolean; state?: any }) => void;
     goBack: () => void;
     goForward: () => void;
-    
+
     // Section navigation (for home page)
     scrollToSection: (sectionId: string, tabId?: string) => void;
     navigateToAuth: (tab: 'signup' | 'login') => void;
     navigateToSignup: () => void;
     navigateToLogin: () => void;
-    
+
     // Common page navigation helpers
     navigateToHome: () => void;
     navigateToDashboard: () => void;
     navigateToAdmin: () => void;
-    
+
     // Project navigation helpers
     navigateToProjects: () => void;
     navigateToNewProject: () => void;
     navigateToEstimates: () => void;
-    
+
     // External navigation
     openExternalLink: (url: string, newTab?: boolean) => void;
 }

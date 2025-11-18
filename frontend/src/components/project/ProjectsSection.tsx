@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Empty } from '@/components/ui/empty';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetDescription, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetTrigger 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
 } from '@/components/ui/sheet';
 import { ProjectList } from './ProjectList';
 
@@ -35,9 +35,9 @@ const DEFAULT_FILTER: ProjectFilter = { scope: 'both' };
  * @returns true if the filter has any non-default values
  */
 const isDefaultFilter = (filter: ProjectFilter): boolean => {
-  return filter.scope === DEFAULT_FILTER.scope && 
-         !filter.createdAfter && 
-         !filter.createdBefore;
+  return filter.scope === DEFAULT_FILTER.scope &&
+    !filter.createdAfter &&
+    !filter.createdBefore;
 };
 
 export interface ProjectsSectionProps {
@@ -99,7 +99,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [appliedFilter, setAppliedFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [pendingFilter, setPendingFilter] = useState<ProjectFilter>(DEFAULT_FILTER);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // Internal pagination state - mutable for true backend pagination
   const [paginationParams, setPaginationParams] = useState<PaginationParams>({
     page: 0,
@@ -107,10 +107,10 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     orderBy: 'lastUpdatedAt',
     direction: 'DESC'
   });
-  
+
   // Internal date filter state (managed separately from UI filter)
   const [dateFilterParams, setDateFilterParams] = useState<DateFilterParams | undefined>(undefined);
-  
+
   // Memoized project service - only recreated when token changes
   const projectService = useMemo(() => {
     return new ProjectServiceWithAuth(() => token);
@@ -119,13 +119,13 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   // Memoized filter function - applies role-based filtering
   const filterProjects = useCallback((projects: Project[]): Project[] => {
     const effectiveScope = filterByRole || appliedFilter.scope;
-    
+
     if (effectiveScope === 'builder') {
       return projects.filter((p: Project) => p.role === 'BUILDER');
     } else if (effectiveScope === 'owner') {
       return projects.filter((p: Project) => p.role === 'OWNER');
     }
-    
+
     return projects;
   }, [filterByRole, appliedFilter.scope]);
 
@@ -142,7 +142,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     try {
       // Fetch all projects for the user with pagination and date filters
       const response = await projectService.getProjectsByUserId(user.id, paginationParams, dateFilterParams);
-      
+
       // Apply client-side role filtering
       const filteredProjects = filterProjects(response.content);
 
@@ -153,7 +153,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         // Replace with new results (initial fetch or filter change)
         setAllFetchedProjects(filteredProjects);
       }
-      
+
       setPagination(response.pagination);
     } catch (err) {
       console.error('Failed to fetch projects:', err);
@@ -217,7 +217,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const renderEmptyState = () => {
     // Check if filters are applied (non-default values)
     const hasActiveFilters = !isDefaultFilter(appliedFilter);
-    
+
     if (hasActiveFilters) {
       return (
         <Empty
@@ -240,7 +240,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           title="No Projects Match Your Filter"
           description="Try adjusting your filter criteria to see more results."
           action={
-            <Button 
+            <Button
               variant="outline"
               onClick={() => {
                 setAppliedFilter(DEFAULT_FILTER);
@@ -255,7 +255,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         />
       );
     }
-    
+
     return (
       <Empty
         icon={
@@ -290,7 +290,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   // Handle filter apply - only applies when "Apply Filters" is clicked
   const handleApplyFilter = (newFilter: ProjectFilter) => {
     setAppliedFilter(newFilter);
-    
+
     // Update date filter params for backend
     const newDateFilter: DateFilterParams = {};
     if (newFilter.createdAfter) {
@@ -299,15 +299,15 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     if (newFilter.createdBefore) {
       newDateFilter.createdBefore = new Date(newFilter.createdBefore).toISOString();
     }
-    
+
     // Only set if there are actual date filters
     setDateFilterParams(Object.keys(newDateFilter).length > 0 ? newDateFilter : undefined);
-    
+
     // Reset to first page when filters change
     setPaginationParams(prev => ({ ...prev, page: 0 }));
     setIsFilterOpen(false);
   };
-  
+
   // Handle filter cancel - reverts to currently applied filter
   const handleCancelFilter = () => {
     setPendingFilter(appliedFilter);
@@ -420,8 +420,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                   <Button onClick={() => handleApplyFilter(pendingFilter)} className="flex-1">
                     Apply Filters
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleCancelFilter}
                     className="flex-1"
                   >
@@ -453,8 +453,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           {/* Load More button - shown if there are more pages to fetch */}
           {pagination && pagination.hasNext && (
             <div className="flex justify-center mt-4">
-              <Button 
-                onClick={handleLoadMore} 
+              <Button
+                onClick={handleLoadMore}
                 variant="outline"
                 disabled={isLoading}
               >

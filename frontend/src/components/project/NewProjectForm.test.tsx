@@ -1,9 +1,9 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NewProjectForm } from './NewProjectForm';
-import { useAuth } from '@/contexts/AuthContext';
+import type { MockedFunction } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Mock, MockedFunction } from 'vitest';
+import { NewProjectForm } from './NewProjectForm';
 
 // Mock the useAuth hook
 vi.mock('@/contexts/AuthContext', () => ({
@@ -43,7 +43,7 @@ describe('NewProjectForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mock return value
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -88,7 +88,7 @@ describe('NewProjectForm', () => {
 
   it('has Create Project button disabled initially', () => {
     renderForm();
-    
+
     const submitButton = screen.getByRole('button', { name: /Create Project/i });
     expect(submitButton).toBeDisabled();
   });

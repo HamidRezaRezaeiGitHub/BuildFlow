@@ -19,10 +19,10 @@ export type ProjectRole = 'BUILDER' | 'OWNER';
 export interface ProjectParticipant {
   /** Unique identifier of the participant */
   id: string;
-  
+
   /** Role of the participant in the project (BUILDER or OWNER) */
   role: string;
-  
+
   /** Full contact information of the participant */
   contact: Contact;
 }
@@ -35,7 +35,7 @@ export interface ProjectParticipant {
 export interface CreateProjectParticipantRequest {
   /** Role of the participant in the project (BUILDER or OWNER) */
   role: string;
-  
+
   /** Contact information for the participant */
   contact: ContactRequest;
 }
@@ -55,10 +55,10 @@ export interface ProjectLocationRequest extends BaseAddress {
 export interface CreateProjectRequest {
   /** ID of the user making the request */
   userId: string;
-  
+
   /** Role of the user in the project (BUILDER or OWNER) */
   role: string;
-  
+
   /** Location information for the project */
   location: ProjectLocationRequest;
 }

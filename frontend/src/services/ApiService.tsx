@@ -75,12 +75,12 @@ class ApiService {
      */
     private async handleErrorResponse(response: Response): Promise<never> {
         const contentType = response.headers.get('content-type');
-        
+
         // Try to parse JSON response body
         if (contentType?.includes('application/json')) {
             try {
                 const errorData = await response.json();
-                
+
                 // Check if it's our structured ErrorResponse format
                 if (errorData.timestamp && errorData.status && errorData.message) {
                     throw new StructuredApiError(
@@ -89,7 +89,7 @@ class ApiService {
                         errorData as ApiErrorResponse
                     );
                 }
-                
+
                 // Simple JSON with message field
                 if (errorData.message) {
                     throw new ApiError(errorData.message, response.status);

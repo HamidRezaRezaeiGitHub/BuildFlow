@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import type { Project, ProjectLocationRequest } from '../services';
 import {
     createMockProject,
@@ -7,8 +8,6 @@ import {
     generateMockCreateProjectResponse,
     mockProjects,
 } from './MockProjects';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import type { Mock } from 'vitest';
 
 describe('MockProjects', () => {
     // Store the original mockProjects array before each test

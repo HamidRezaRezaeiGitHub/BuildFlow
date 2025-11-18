@@ -1,10 +1,10 @@
-import { apiService } from '../ApiService';
 import type {
     CreateUserRequest,
     CreateUserResponse,
     User,
     UserAuthentication
 } from '..';
+import { apiService } from '../ApiService';
 import type { UserDetails } from '../user/UserDtos';
 import type { IAdminService } from './IAdminService';
 

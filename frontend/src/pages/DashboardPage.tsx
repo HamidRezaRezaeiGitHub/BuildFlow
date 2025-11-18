@@ -1,6 +1,6 @@
+import { DashboardLayout } from '@/components/dashboard';
 import { StandardBottomNavbar } from '@/components/navbar';
 import { ProjectsSection } from '@/components/project';
-import { DashboardLayout } from '@/components/dashboard';
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 

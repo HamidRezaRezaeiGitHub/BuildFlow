@@ -102,7 +102,7 @@ describe('ProjectsSection', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockUseAuth.mockReturnValue({
       user: mockUser,
       token: 'mock-token',
@@ -137,8 +137,8 @@ describe('ProjectsSection', () => {
   describe('Loading State', () => {
     test('displays loading skeletons while fetching data', () => {
       // Mock service to never resolve
-      const mockGetProjectsByUserId = vi.fn(() => new Promise(() => {}));
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      const mockGetProjectsByUserId = vi.fn(() => new Promise(() => { }));
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -149,7 +149,7 @@ describe('ProjectsSection', () => {
       renderWithRouter(<ProjectsSection />);
 
       // Should show loading skeletons
-      const cards = screen.getAllByRole('generic').filter(el => 
+      const cards = screen.getAllByRole('generic').filter(el =>
         el.className.includes('animate-pulse')
       );
       expect(cards.length).toBeGreaterThan(0);
@@ -159,7 +159,7 @@ describe('ProjectsSection', () => {
   describe('Success State - Projects Loaded', () => {
     beforeEach(() => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -244,7 +244,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(emptyResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -295,7 +295,7 @@ describe('ProjectsSection', () => {
   describe('Error State', () => {
     beforeEach(() => {
       const mockGetProjectsByUserId = vi.fn().mockRejectedValue(new Error('Network error'));
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -325,8 +325,8 @@ describe('ProjectsSection', () => {
       const mockGetProjectsByUserId = vi.fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockPagedResponse);
-      
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -360,8 +360,8 @@ describe('ProjectsSection', () => {
   describe('Filter by Role', () => {
     test('fetches builder projects when filterByRole is "builder"', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -378,8 +378,8 @@ describe('ProjectsSection', () => {
 
     test('fetches owner projects when filterByRole is "owner"', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -396,8 +396,8 @@ describe('ProjectsSection', () => {
 
     test('fetches combined projects by default when no filterByRole is specified', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -424,7 +424,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mixedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -459,7 +459,7 @@ describe('ProjectsSection', () => {
       });
 
       const mockGetProjectsByUserId = vi.fn();
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -478,8 +478,8 @@ describe('ProjectsSection', () => {
   describe('Pagination Parameters', () => {
     test('passes pagination parameters to service', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -516,7 +516,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -547,7 +547,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -594,8 +594,8 @@ describe('ProjectsSection', () => {
       const mockGetProjectsByUserId = vi.fn()
         .mockResolvedValueOnce(firstPageResponse)
         .mockResolvedValueOnce(secondPageResponse);
-        
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -639,7 +639,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -660,7 +660,7 @@ describe('ProjectsSection', () => {
   describe('Export Functionality', () => {
     test('shows export button when projects exist', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -691,7 +691,7 @@ describe('ProjectsSection', () => {
       };
 
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(emptyResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -712,7 +712,7 @@ describe('ProjectsSection', () => {
   describe('Filter Functionality', () => {
     test('opens filter sheet when Filter button is clicked', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -736,7 +736,7 @@ describe('ProjectsSection', () => {
 
     test('displays filter options in the sheet', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
@@ -764,7 +764,7 @@ describe('ProjectsSection', () => {
 
     test('closes filter sheet when Cancel button is clicked', async () => {
       const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() {
+      MockedProjectServiceWithAuth.mockImplementation(function () {
         return {
           getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),

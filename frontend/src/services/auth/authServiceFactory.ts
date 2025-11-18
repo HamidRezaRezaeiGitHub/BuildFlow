@@ -54,6 +54,6 @@ export { createAuthService };
 /**
  * Export types and classes for advanced usage and testing
  */
-export type { IAuthService };
-export { AuthService } from './AuthService';
 export { AuthMockService } from './AuthMockService';
+export { AuthService } from './AuthService';
+export type { IAuthService };

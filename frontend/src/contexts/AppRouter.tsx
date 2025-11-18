@@ -106,7 +106,7 @@ export const getRoutesByAccessLevel = (accessLevel: AccessLevel): RouteDefinitio
 // Helper function to get accessible routes for current user
 export const getAccessibleRoutes = (isAuthenticated: boolean, isAdmin: boolean = false): RouteDefinition[] => {
     if (!isAuthenticated) {
-        return AVAILABLE_ROUTES.filter(route => 
+        return AVAILABLE_ROUTES.filter(route =>
             route.accessLevel === 'public' || route.accessLevel === 'temp'
         );
     }

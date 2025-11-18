@@ -7,9 +7,8 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider, useTheme } from './ThemeContext';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Mock } from 'vitest';
+import { ThemeProvider, useTheme } from './ThemeContext';
 
 // Mock localStorage
 const localStorageMock = {
@@ -78,7 +77,7 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('light');
   });
@@ -89,33 +88,33 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('dark');
   });
 
   test('ThemeProvider_shouldLoadFromLocalStorage_whenSavedThemeExists', () => {
     localStorageMock.getItem.mockReturnValue('dark');
-    
+
     render(
       <ThemeProvider>
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
     expect(localStorageMock.getItem).toHaveBeenCalledWith('app-theme');
   });
 
   test('ThemeProvider_shouldIgnoreInvalidStoredTheme_whenInvalidThemeInStorage', () => {
     localStorageMock.getItem.mockReturnValue('invalid-theme');
-    
+
     render(
       <ThemeProvider>
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
   });
 
@@ -126,9 +125,9 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     await user.click(screen.getByText('Set Dark'));
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('dark');
     expect(localStorageMock.setItem).toHaveBeenCalledWith('app-theme', 'dark');
@@ -141,14 +140,14 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     await user.click(screen.getByText('Set Dark'));
-    
+
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.classList.contains('light')).toBe(false);
-    
+
     await user.click(screen.getByText('Set Light'));
-    
+
     expect(document.documentElement.classList.contains('light')).toBe(true);
     expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
@@ -160,12 +159,12 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('light');
-    
+
     await user.click(screen.getByText('Toggle'));
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    
+
     await user.click(screen.getByText('Toggle'));
     expect(screen.getByTestId('theme')).toHaveTextContent('light');
   });
@@ -177,10 +176,10 @@ describe('ThemeProvider', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('light');
-    
+
     await user.click(screen.getByText('Toggle'));
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
   });
@@ -195,13 +194,13 @@ describe('ThemeProvider', () => {
       dispatchEvent: vi.fn(),
     };
     mockMatchMedia.mockReturnValue(mockMediaQuery);
-    
+
     render(
       <ThemeProvider defaultTheme="system">
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('light');
     expect(mockMediaQuery.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
   });
@@ -217,16 +216,16 @@ describe('ThemeProvider', () => {
       dispatchEvent: vi.fn(),
     };
     mockMatchMedia.mockReturnValue(mockMediaQuery);
-    
+
     render(
       <ThemeProvider defaultTheme="system">
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     // Change to non-system theme
     await user.click(screen.getByText('Set Light'));
-    
+
     expect(mockMediaQuery.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
   });
 });
@@ -234,7 +233,7 @@ describe('ThemeProvider', () => {
 describe('useTheme', () => {
   test('useTheme_shouldThrowError_whenUsedOutsideProvider', () => {
     render(<TestComponentWithoutProvider />);
-    
+
     expect(screen.getByTestId('error')).toHaveTextContent(
       'useTheme must be used within a ThemeProvider'
     );
@@ -246,7 +245,7 @@ describe('useTheme', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     // Should render without error and show theme values
     expect(screen.getByTestId('theme')).toBeInTheDocument();
     expect(screen.getByTestId('actual-theme')).toBeInTheDocument();
@@ -263,13 +262,13 @@ describe('ThemeProvider system theme detection', () => {
       onchange: null,
       dispatchEvent: vi.fn(),
     });
-    
+
     render(
       <ThemeProvider defaultTheme="system">
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
@@ -284,13 +283,13 @@ describe('ThemeProvider system theme detection', () => {
       onchange: null,
       dispatchEvent: vi.fn(),
     });
-    
+
     render(
       <ThemeProvider defaultTheme="system">
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     expect(screen.getByTestId('actual-theme')).toHaveTextContent('light');
     expect(document.documentElement.classList.contains('light')).toBe(true);
@@ -298,13 +297,13 @@ describe('ThemeProvider system theme detection', () => {
 
   test('ThemeProvider_shouldUseCustomStorageKey_whenStorageKeyProvided', () => {
     localStorageMock.getItem.mockReturnValue('dark');
-    
+
     render(
       <ThemeProvider storageKey="custom-theme">
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     expect(localStorageMock.getItem).toHaveBeenCalledWith('custom-theme');
   });
 
@@ -315,9 +314,9 @@ describe('ThemeProvider system theme detection', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     await user.click(screen.getByText('Set Dark'));
-    
+
     // Classes should not be added when enableClassToggle is false
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(document.documentElement.classList.contains('light')).toBe(false);
@@ -330,9 +329,9 @@ describe('ThemeProvider system theme detection', () => {
         <TestComponent />
       </ThemeProvider>
     );
-    
+
     await user.click(screen.getByText('Set Dark'));
-    
+
     expect(localStorageMock.setItem).toHaveBeenCalledWith('my-app-theme', 'dark');
   });
 });

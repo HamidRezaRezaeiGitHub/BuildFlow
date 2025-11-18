@@ -88,7 +88,7 @@ export class ProjectServiceWithAuth {
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByUserId(
-        userId: string, 
+        userId: string,
         pagination?: PaginationParams,
         dateFilter?: DateFilterParams
     ): Promise<PagedResponse<Project>> {

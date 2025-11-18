@@ -56,9 +56,9 @@ export { createAdminService };
 /**
  * Export types and classes for advanced usage and testing
  */
-export type { IAdminService };
-export { AdminService } from './AdminService';
 export { AdminMockService } from './AdminMockService';
+export { AdminService } from './AdminService';
+export type { IAdminService };
 
 /**
  * Service wrapper that integrates with AuthContext

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate as useReactRouterNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
-import { Project } from '@/services';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, AlertCircle, Pencil, Trash2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Project } from '@/services';
+import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
+import { AlertCircle, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate as useReactRouterNavigate } from 'react-router-dom';
 
 /**
  * ProjectDetails Component
@@ -74,9 +74,9 @@ export const ProjectDetails: React.FC = () => {
   // Format timestamp for display
   const formatDate = (timestamp: string): string => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -87,14 +87,14 @@ export const ProjectDetails: React.FC = () => {
   const getShortAddress = (project: Project): string => {
     const { location } = project;
     const parts = [];
-    
+
     if (location.streetNumberAndName) {
       parts.push(location.streetNumberAndName);
     }
     if (location.city) {
       parts.push(location.city);
     }
-    
+
     return parts.join(', ') || 'Project Details';
   };
 
@@ -134,7 +134,7 @@ export const ProjectDetails: React.FC = () => {
       setIsLoading(false);
       return;
     }
-    
+
     const refetchProject = async () => {
       try {
         const projectService = new ProjectServiceWithAuth(() => token);
@@ -147,7 +147,7 @@ export const ProjectDetails: React.FC = () => {
         setIsLoading(false);
       }
     };
-    
+
     refetchProject();
   };
 
@@ -256,11 +256,10 @@ export const ProjectDetails: React.FC = () => {
         <div className="mx-auto max-w-screen-xl px-4 lg:px-8">
           {/* Action Message Banner */}
           {actionMessage && (
-            <div className={`mb-4 p-4 rounded-lg border ${
-              actionMessage.type === 'info' 
-                ? 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300' 
+            <div className={`mb-4 p-4 rounded-lg border ${actionMessage.type === 'info'
+                ? 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300'
                 : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
-            }`}>
+              }`}>
               <p className="text-sm">{actionMessage.text}</p>
             </div>
           )}

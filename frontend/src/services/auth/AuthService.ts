@@ -1,4 +1,3 @@
-import { apiService } from '../ApiService';
 import type {
     AuthResponse,
     CreateUserResponse,
@@ -8,6 +7,7 @@ import type {
     UserSummary,
     ValidationResponse
 } from '..';
+import { apiService } from '../ApiService';
 import type { IAuthService } from './IAuthService';
 
 /**

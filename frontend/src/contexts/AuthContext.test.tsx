@@ -1,16 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { authService } from '../services';
-import type { AuthResponse, UserSummary } from '../services';
-import { AuthProvider, useAuth } from './AuthContext';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { AuthResponse, UserSummary } from '../services';
+import { authService } from '../services';
+import { AuthProvider, useAuth } from './AuthContext';
 
 // Create mock timer service in hoisted scope
 const { mockTimerService } = vi.hoisted(() => {
     const scheduledCallbacks = new Map<number, { callback: () => void | Promise<void>; delayMs: number }>();
     let nextId = 1;
-    
+
     return {
         mockTimerService: {
             schedule(callback: () => void | Promise<void>, delayMs: number) {
@@ -254,7 +254,7 @@ describe('AuthProvider', () => {
 
             // Verify timer was scheduled
             expect(mockTimerService.getScheduledCount()).toBe(1);
-            
+
             const scheduled = mockTimerService.getAllScheduled()[0];
             expect(scheduled.delayMs).toBe(3570000); // 3600 - 30 seconds = 3570 seconds
         });
@@ -514,7 +514,7 @@ describe('AuthProvider', () => {
 
             // Test manual refresh failure behavior (same logic as auto-refresh)
             (authService.refreshToken as Mock).mockRejectedValue(new Error('Refresh failed'));
-            
+
             await user.click(screen.getByText('Refresh Token'));
 
             await waitFor(() => {
@@ -590,7 +590,7 @@ describe('AuthProvider', () => {
             };
 
             // Suppress error boundary console.error for this test
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
             expect(() => {
                 render(<TestComponentWithoutProvider />);

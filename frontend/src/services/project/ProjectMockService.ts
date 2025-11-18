@@ -45,7 +45,7 @@ export class ProjectMockService implements IProjectService {
      * @returns Paginated response with metadata
      */
     private simulatePagination(
-        allProjects: Project[], 
+        allProjects: Project[],
         pagination?: PaginationParams,
         dateFilter?: DateFilterParams
     ): PagedResponse<Project> {
@@ -55,25 +55,25 @@ export class ProjectMockService implements IProjectService {
         if (dateFilter) {
             if (dateFilter.createdAfter) {
                 const createdAfterDate = new Date(dateFilter.createdAfter);
-                filteredProjects = filteredProjects.filter(p => 
+                filteredProjects = filteredProjects.filter(p =>
                     new Date(p.createdAt) >= createdAfterDate
                 );
             }
             if (dateFilter.createdBefore) {
                 const createdBeforeDate = new Date(dateFilter.createdBefore);
-                filteredProjects = filteredProjects.filter(p => 
+                filteredProjects = filteredProjects.filter(p =>
                     new Date(p.createdAt) <= createdBeforeDate
                 );
             }
             if (dateFilter.updatedAfter) {
                 const updatedAfterDate = new Date(dateFilter.updatedAfter);
-                filteredProjects = filteredProjects.filter(p => 
+                filteredProjects = filteredProjects.filter(p =>
                     new Date(p.lastUpdatedAt) >= updatedAfterDate
                 );
             }
             if (dateFilter.updatedBefore) {
                 const updatedBeforeDate = new Date(dateFilter.updatedBefore);
-                filteredProjects = filteredProjects.filter(p => 
+                filteredProjects = filteredProjects.filter(p =>
                     new Date(p.lastUpdatedAt) <= updatedBeforeDate
                 );
             }

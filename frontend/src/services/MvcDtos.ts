@@ -24,13 +24,13 @@ export enum ResponseErrorType {
 export interface MessageResponse {
   /** Timestamp when the response was generated (ISO string format) */
   timestamp: string;
-  
+
   /** Indicates if the operation was successful */
   success: boolean;
-  
+
   /** HTTP status code of the response */
   status: string;
-  
+
   /** Message related to the response */
   message: string;
 }
@@ -42,22 +42,22 @@ export interface MessageResponse {
 export interface ErrorResponse {
   /** Timestamp when the error occurred (ISO string format) */
   timestamp: string;
-  
+
   /** HTTP status code */
   status: string;
-  
+
   /** Error message describing the failure */
   message: string;
-  
+
   /** List of specific error details */
   errors: string[];
-  
+
   /** Request path where the error occurred */
   path: string;
-  
+
   /** HTTP method */
   method: string;
-  
+
   /** Type of error that occurred */
   errorType: ResponseErrorType;
 }

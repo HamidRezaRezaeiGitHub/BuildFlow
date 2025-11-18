@@ -17,8 +17,8 @@
  * - Parallel/agnostic handling - no coupling between different parameter types
  */
 
-import type { PaginationParams } from './PaginationDtos';
 import type { DateFilterParams } from './DateFilterDtos';
+import type { PaginationParams } from './PaginationDtos';
 
 /**
  * Build URLSearchParams from pagination parameters

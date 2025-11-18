@@ -1,11 +1,11 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NewProject } from './NewProject';
 import { BrowserRouter } from 'react-router-dom';
+import type { MockedFunction } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Mock, MockedFunction } from 'vitest';
 import { useAuth } from '../../contexts/AuthContext';
 import { projectService } from '../../services';
+import { NewProject } from './NewProject';
 
 // Mock navigate function
 const mockNavigate = vi.fn();
@@ -65,7 +65,7 @@ const mockUser = {
 describe('NewProject - Multi-Step Accordion Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockUseAuth.mockReturnValue({
       user: mockUser,
       token: 'mock-token',
@@ -91,7 +91,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
   describe('Initial Render', () => {
     it('renders the page with accordion steps', () => {
       renderPage();
-      
+
       expect(screen.getByText(/Create New Project/i)).toBeInTheDocument();
       expect(screen.getByText(/Your Role/i)).toBeInTheDocument();
       expect(screen.getByText(/Owner Information/i)).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
     it('starts with Step 1 expanded', () => {
       renderPage();
-      
+
       // Step 1 should be visible with role selection buttons
       expect(screen.getByRole('button', { name: /I will be constructing this project/i })).toBeVisible();
       expect(screen.getByRole('button', { name: /I own the property for this project/i })).toBeVisible();
@@ -132,14 +132,14 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
     it('shows Next button in Step 1', () => {
       renderPage();
-      
+
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       expect(nextButtons.length).toBeGreaterThan(0);
     });
 
     it('does not show Previous button in Step 1', () => {
       renderPage();
-      
+
       // Previous buttons should not be visible initially
       const previousButtons = screen.queryAllByRole('button', { name: /Previous/i });
       expect(previousButtons.length).toBe(0);
@@ -147,14 +147,14 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
     it('displays role options with proper layout structure', () => {
       renderPage();
-      
+
       // Check that both role buttons are present
       const builderButton = screen.getByRole('button', { name: /I will be constructing this project/i });
       const ownerButton = screen.getByRole('button', { name: /I own the property for this project/i });
-      
+
       expect(builderButton).toBeInTheDocument();
       expect(ownerButton).toBeInTheDocument();
-      
+
       // Both buttons should be visible (side-by-side layout on larger screens)
       expect(builderButton).toBeVisible();
       expect(ownerButton).toBeVisible();
@@ -168,7 +168,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       // Select Builder role using more specific selector
       await user.click(screen.getByRole('button', { name: /I will be constructing this project/i }));
-      
+
       // Click Next to go to Step 2
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
@@ -188,7 +188,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
 
       // Select Owner role using more specific selector
       await user.click(screen.getByRole('button', { name: /I own the property for this project/i }));
-      
+
       // Click Next to go to Step 2
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
@@ -221,11 +221,11 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const firstNameInput = screen.getByLabelText(/First Name/i);
       await user.click(firstNameInput);
       await user.paste('John');
-      
+
       const lastNameInput = screen.getByLabelText(/Last Name/i);
       await user.click(lastNameInput);
       await user.paste('Doe');
-      
+
       const emailInput = screen.getByLabelText(/Email/i);
       await user.click(emailInput);
       await user.paste('john@example.com');
@@ -267,7 +267,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Row 1: First Name and Last Name should be present
       expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Last Name/i)).toBeInTheDocument();
-      
+
       // Row 2: Email and Phone should be present
       expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/Phone/i)).toBeInTheDocument();
@@ -303,7 +303,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate through steps to Step 3
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]); // Step 1 -> Step 2
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /Previous/i })).toBeVisible();
       });
@@ -327,7 +327,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         const buttons = screen.getAllByRole('button', { name: /Next/i });
         user.click(buttons[0]);
@@ -346,7 +346,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3
       const nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         const buttons = screen.getAllByRole('button', { name: /Next/i });
         user.click(buttons[0]);
@@ -365,7 +365,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         nextButtons = screen.getAllByRole('button', { name: /Next/i });
       });
@@ -382,13 +382,13 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Fill required address fields using fireEvent for reliability
       const streetInput = screen.getByLabelText(/Street/i);
       fireEvent.change(streetInput, { target: { value: '123 Main St' } });
-      
+
       const cityInput = screen.getByLabelText(/City/i);
       fireEvent.change(cityInput, { target: { value: 'Toronto' } });
-      
+
       const stateInput = screen.getByLabelText(/Province/i);
       fireEvent.change(stateInput, { target: { value: 'ON' } });
-      
+
       const countryInput = screen.getByLabelText(/Country/i);
       fireEvent.change(countryInput, { target: { value: 'Canada' } });
 
@@ -443,7 +443,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       const firstNameInput = screen.getByLabelText(/First Name/i);
       await user.click(firstNameInput);
       await user.paste('John');
-      
+
       const emailInput = screen.getByLabelText(/Email/i);
       await user.click(emailInput);
       await user.paste('john@test.com');
@@ -501,7 +501,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         nextButtons = screen.getAllByRole('button', { name: /Next/i });
       });
@@ -518,13 +518,13 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Fill required fields using fireEvent for reliability
       const streetInput = screen.getByLabelText(/Street/i);
       fireEvent.change(streetInput, { target: { value: '123 Main St' } });
-      
+
       const cityInput = screen.getByLabelText(/City/i);
       fireEvent.change(cityInput, { target: { value: 'Toronto' } });
-      
+
       const stateInput = screen.getByLabelText(/Province/i);
       fireEvent.change(stateInput, { target: { value: 'ON' } });
-      
+
       const countryInput = screen.getByLabelText(/Country/i);
       fireEvent.change(countryInput, { target: { value: 'Canada' } });
 
@@ -570,7 +570,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         nextButtons = screen.getAllByRole('button', { name: /Next/i });
       });
@@ -597,7 +597,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
       // Navigate to Step 3 and click Cancel
       let nextButtons = screen.getAllByRole('button', { name: /Next/i });
       await user.click(nextButtons[0]);
-      
+
       await waitFor(() => {
         nextButtons = screen.getAllByRole('button', { name: /Next/i });
       });

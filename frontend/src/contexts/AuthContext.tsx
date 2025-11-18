@@ -1,11 +1,11 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { authService, handleApiError, timerService, type TimerId } from '../services';
 import type {
   AuthResponse,
   LoginRequest,
   SignUpRequest,
   User
 } from '../services';
+import { authService, handleApiError, timerService, type TimerId } from '../services';
 
 interface AuthContextType {
   // State
