@@ -22,40 +22,71 @@ import { IProjectService } from './IProjectService';
  * 
  * This implementation simulates:
  * - Network delays (300-500ms)
- * - Pagination logic
+ * - Pagination logic (matching backend behavior)
+ * - Date filtering (matching backend behavior)
  * - Data validation
  * 
  * All methods work without requiring a real backend connection
  */
 export class ProjectMockService implements IProjectService {
     /**
-     * Default pagination values
+     * Default pagination values (matching backend defaults)
      */
     private static readonly DEFAULT_PAGE = 0;
-    private static readonly DEFAULT_SIZE = 25;
+    private static readonly DEFAULT_SIZE = 5;
 
     /**
      * Simulates pagination and date filtering for mock data
-     * Note: Date filtering is not fully implemented in mock mode
-     * In mock mode, date filter parameters are accepted but ignored
+     * Matches backend ProjectController behavior
      * 
-     * @param allProjects - Complete list of projects to paginate
+     * @param allProjects - Complete list of projects to filter and paginate
      * @param pagination - Optional pagination parameters
-     * @param _dateFilter - Optional date filter parameters (ignored in mock mode)
+     * @param dateFilter - Optional date filter parameters
      * @returns Paginated response with metadata
      */
     private simulatePagination(
         allProjects: Project[], 
         pagination?: PaginationParams,
-        _dateFilter?: DateFilterParams
+        dateFilter?: DateFilterParams
     ): PagedResponse<Project> {
-        const page = pagination?.page || ProjectMockService.DEFAULT_PAGE;
-        const size = pagination?.size || ProjectMockService.DEFAULT_SIZE;
+        let filteredProjects = [...allProjects];
+
+        // Apply date filters (matching backend DateFilter behavior)
+        if (dateFilter) {
+            if (dateFilter.createdAfter) {
+                const createdAfterDate = new Date(dateFilter.createdAfter);
+                filteredProjects = filteredProjects.filter(p => 
+                    new Date(p.createdAt) >= createdAfterDate
+                );
+            }
+            if (dateFilter.createdBefore) {
+                const createdBeforeDate = new Date(dateFilter.createdBefore);
+                filteredProjects = filteredProjects.filter(p => 
+                    new Date(p.createdAt) <= createdBeforeDate
+                );
+            }
+            if (dateFilter.updatedAfter) {
+                const updatedAfterDate = new Date(dateFilter.updatedAfter);
+                filteredProjects = filteredProjects.filter(p => 
+                    new Date(p.lastUpdatedAt) >= updatedAfterDate
+                );
+            }
+            if (dateFilter.updatedBefore) {
+                const updatedBeforeDate = new Date(dateFilter.updatedBefore);
+                filteredProjects = filteredProjects.filter(p => 
+                    new Date(p.lastUpdatedAt) <= updatedBeforeDate
+                );
+            }
+        }
+
+        // Apply pagination (matching backend pagination behavior)
+        const page = pagination?.page ?? ProjectMockService.DEFAULT_PAGE;
+        const size = pagination?.size ?? ProjectMockService.DEFAULT_SIZE;
         const start = page * size;
         const end = start + size;
-        const paginatedProjects = allProjects.slice(start, end);
+        const paginatedProjects = filteredProjects.slice(start, end);
 
-        const totalElements = allProjects.length;
+        const totalElements = filteredProjects.length;
         const totalPages = Math.ceil(totalElements / size);
 
         return {
@@ -89,7 +120,7 @@ export class ProjectMockService implements IProjectService {
         return new Promise((resolve) => {
             setTimeout(() => {
                 const { userId, role, location } = request;
-                const newProject = createMockProject(userId, role, location, []);
+                const newProject = createMockProject(userId, role, location);
                 resolve(generateMockCreateProjectResponse(newProject));
             }, 500); // Simulate network delay
         });
@@ -98,14 +129,12 @@ export class ProjectMockService implements IProjectService {
     /**
      * Get all projects for a specific user ID (mock implementation)
      * Simulates paginated project retrieval with 300ms delay
-     * 
-     * Note: Date filtering is accepted but not implemented in mock mode
-     * Mock data returns all projects for the user without applying date filters
+     * Matches backend ProjectController behavior with date filtering
      * 
      * @param userId - ID of the user whose projects to retrieve
      * @param _token - JWT authentication token (ignored in mock mode)
      * @param pagination - Optional pagination parameters (page, size, orderBy, direction)
-     * @param dateFilter - Optional date filter parameters (ignored in mock mode)
+     * @param dateFilter - Optional date filter parameters (createdAfter, createdBefore, updatedAfter, updatedBefore)
      * @returns Promise<PagedResponse<Project>> - Paginated response with projects and metadata
      */
     async getProjectsByUserId(
@@ -116,8 +145,11 @@ export class ProjectMockService implements IProjectService {
     ): Promise<PagedResponse<Project>> {
         if (config.enableConsoleLogs) {
             console.log('[ProjectMockService] Getting mock projects for user:', userId);
+            if (pagination) {
+                console.log('[ProjectMockService] Pagination:', pagination);
+            }
             if (dateFilter) {
-                console.log('[ProjectMockService] Date filter parameters (ignored in mock mode):', dateFilter);
+                console.log('[ProjectMockService] Date filter:', dateFilter);
             }
         }
 

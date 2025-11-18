@@ -3,15 +3,15 @@ import { BrowserRouter } from 'react-router-dom';
 import { ProjectsSection } from './ProjectsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@/contexts/NavigationContext';
-import { ProjectServiceWithAuth } from '@/services/ProjectService';
+import { ProjectServiceWithAuth } from '@/services/project/projectServiceFactory';
 import { Project, PagedResponse } from '@/services';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Mock, MockedFunction } from 'vitest';
+import type { MockedFunction } from 'vitest';
 
 // Mock the dependencies
 vi.mock('@/contexts/AuthContext');
 vi.mock('@/contexts/NavigationContext');
-vi.mock('@/services/ProjectService', () => ({
+vi.mock('@/services/project/projectServiceFactory', () => ({
   ProjectServiceWithAuth: vi.fn()
 }));
 
@@ -137,16 +137,13 @@ describe('ProjectsSection', () => {
   describe('Loading State', () => {
     test('displays loading skeletons while fetching data', () => {
       // Mock service to never resolve
-      const mockGetCombinedProjectsPaginated = vi.fn(() => new Promise(() => {}));
+      const mockGetProjectsByUserId = vi.fn(() => new Promise(() => {}));
       MockedProjectServiceWithAuth.mockImplementation(function() {
         return {
-          getProjectsByBuilderIdPaginated: vi.fn(),
-          getProjectsByOwnerIdPaginated: vi.fn(),
-          getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
+          getProjectsByUserId: mockGetProjectsByUserId,
           createProject: vi.fn(),
-          getProjectsByBuilderId: vi.fn(),
-          getProjectsByOwnerId: vi.fn(),
-        } as any;
+          getProjectById: vi.fn(),
+        };
       });
 
       renderWithRouter(<ProjectsSection />);
@@ -161,22 +158,21 @@ describe('ProjectsSection', () => {
 
   describe('Success State - Projects Loaded', () => {
     beforeEach(() => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
     });
 
     test('renders section title by default', async () => {
       renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(screen.getByText('My Projects')).toBeInTheDocument();
+        expect(screen.getByText('Projects')).toBeInTheDocument();
       });
     });
 
@@ -247,15 +243,14 @@ describe('ProjectsSection', () => {
         }
       };
 
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(emptyResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(emptyResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
     });
 
     test('displays empty state when no projects exist', async () => {
@@ -282,19 +277,31 @@ describe('ProjectsSection', () => {
         expect(screen.queryByText('Create Project')).not.toBeInTheDocument();
       });
     });
+
+    test('calls navigateToNewProject when Create Project button is clicked', async () => {
+      renderWithRouter(<ProjectsSection showCreateAction={true} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Create Project')).toBeInTheDocument();
+      });
+
+      const createButton = screen.getByText('Create Project');
+      fireEvent.click(createButton);
+
+      expect(mockNavigateToNewProject).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('Error State', () => {
     beforeEach(() => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockRejectedValue(new Error('Network error'));
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn().mockRejectedValue(new Error('Network error'));
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
     });
 
     test('displays error state when fetch fails', async () => {
@@ -315,18 +322,17 @@ describe('ProjectsSection', () => {
     });
 
     test('retry button refetches data without page reload', async () => {
-      const mockGetCombinedProjectsPaginated = vi.fn()
+      const mockGetProjectsByUserId = vi.fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
       renderWithRouter(<ProjectsSection />);
 
@@ -341,7 +347,7 @@ describe('ProjectsSection', () => {
 
       // Verify the function was called twice (initial + retry)
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledTimes(2);
+        expect(mockGetProjectsByUserId).toHaveBeenCalledTimes(2);
       });
 
       // Verify projects are now displayed
@@ -353,60 +359,87 @@ describe('ProjectsSection', () => {
 
   describe('Filter by Role', () => {
     test('fetches builder projects when filterByRole is "builder"', async () => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
       renderWithRouter(<ProjectsSection filterByRole="builder" />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'builder', undefined, undefined, undefined);
+        expect(mockGetProjectsByUserId).toHaveBeenCalledWith('1', expect.any(Object), undefined);
       });
     });
 
     test('fetches owner projects when filterByRole is "owner"', async () => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
       renderWithRouter(<ProjectsSection filterByRole="owner" />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'owner', undefined, undefined, undefined);
+        expect(mockGetProjectsByUserId).toHaveBeenCalledWith('1', expect.any(Object), undefined);
       });
     });
 
     test('fetches combined projects by default when no filterByRole is specified', async () => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
       renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, undefined);
+        expect(mockGetProjectsByUserId).toHaveBeenCalledWith('1', expect.any(Object), undefined);
       });
+    });
+
+    test('filters projects by BUILDER role on client side', async () => {
+      const mixedProjects: Project[] = [
+        { ...mockProjects[0], role: 'BUILDER' },
+        { ...mockProjects[1], role: 'OWNER' },
+      ];
+
+      const mixedResponse: PagedResponse<Project> = {
+        ...mockPagedResponse,
+        content: mixedProjects,
+      };
+
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mixedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection filterByRole="builder" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
+      });
+
+      // OWNER project should not be shown
+      expect(screen.queryByText(/Unit 302, 456 Oak Ave, Toronto, ON/)).not.toBeInTheDocument();
     });
   });
 
@@ -425,200 +458,342 @@ describe('ProjectsSection', () => {
         getCurrentUser: vi.fn(),
       });
 
-      const mockGetCombinedProjectsPaginated = vi.fn();
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn();
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
       renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).not.toHaveBeenCalled();
+        expect(mockGetProjectsByUserId).not.toHaveBeenCalled();
       });
     });
   });
 
   describe('Pagination Parameters', () => {
     test('passes pagination parameters to service', async () => {
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(mockPagedResponse);
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
       
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
-      const paginationParams = { page: 1, size: 10 };
-      renderWithRouter(<ProjectsSection paginationParams={paginationParams} />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(mockGetCombinedProjectsPaginated).toHaveBeenCalledWith('1', 'both', undefined, undefined, paginationParams);
+        // Verify the service was called with userId, pagination params, and date filter
+        expect(mockGetProjectsByUserId).toHaveBeenCalledWith('1', expect.objectContaining({
+          page: expect.any(Number),
+          size: expect.any(Number),
+        }), undefined);
       });
     });
   });
 
   describe('Progressive Loading', () => {
-    test('initially displays only 3 projects when more are available', async () => {
-      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
-        id: String(i + 1),
-        userId: '1',
-        role: 'BUILDER',
-        location: {
-          id: String(i + 1),
-          unitNumber: '',
-          streetNumberAndName: `${i + 1} Test St`,
-          city: 'Vancouver',
-          stateOrProvince: 'BC',
-          postalOrZipCode: 'V5K 1A1',
-          country: 'Canada',
-        },
-        createdAt: '2024-01-15T10:30:00Z',
-        lastUpdatedAt: '2024-10-20T14:20:00Z',
-      }));
-
-      const largeResponse: PagedResponse<Project> = {
-        content: manyProjects,
+    test('shows pagination info when projects are loaded', async () => {
+      const response: PagedResponse<Project> = {
+        content: mockProjects,
         pagination: {
           page: 0,
-          size: 25,
+          size: 5,
           totalElements: 10,
-          totalPages: 1,
-          hasNext: false,
+          totalPages: 2,
+          hasNext: true,
           hasPrevious: false,
           isFirst: true,
-          isLast: true,
+          isLast: false,
         }
       };
 
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
-      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        const displayedText = screen.getByText(/Showing 3 of 10 projects/);
-        expect(displayedText).toBeInTheDocument();
+        expect(screen.getByText(/Showing 2 of 10 projects/)).toBeDefined();
       });
     });
 
     test('shows Load More button when more projects are available', async () => {
-      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
-        id: String(i + 1),
-        userId: '1',
-        role: 'BUILDER',
-        location: {
-          id: String(i + 1),
-          unitNumber: '',
-          streetNumberAndName: `${i + 1} Test St`,
-          city: 'Vancouver',
-          stateOrProvince: 'BC',
-          postalOrZipCode: 'V5K 1A1',
-          country: 'Canada',
-        },
-        createdAt: '2024-01-15T10:30:00Z',
-        lastUpdatedAt: '2024-10-20T14:20:00Z',
-      }));
-
-      const largeResponse: PagedResponse<Project> = {
-        content: manyProjects,
+      const response: PagedResponse<Project> = {
+        content: mockProjects,
         pagination: {
           page: 0,
-          size: 25,
+          size: 5,
           totalElements: 10,
-          totalPages: 1,
-          hasNext: false,
+          totalPages: 2,
+          hasNext: true,
           hasPrevious: false,
           isFirst: true,
-          isLast: true,
+          isLast: false,
         }
       };
 
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
 
-      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
+      renderWithRouter(<ProjectsSection />);
 
       await waitFor(() => {
-        expect(screen.getByText('Load More')).toBeInTheDocument();
+        expect(screen.getByText('Load More')).toBeDefined();
       });
     });
 
-    test('Load More button increases displayed projects', async () => {
-      const manyProjects: Project[] = Array.from({ length: 10 }, (_, i) => ({
-        id: String(i + 1),
-        userId: '1',
-        role: 'BUILDER',
-        location: {
-          id: String(i + 1),
-          unitNumber: '',
-          streetNumberAndName: `${i + 1} Test St`,
-          city: 'Vancouver',
-          stateOrProvince: 'BC',
-          postalOrZipCode: 'V5K 1A1',
-          country: 'Canada',
-        },
-        createdAt: '2024-01-15T10:30:00Z',
-        lastUpdatedAt: '2024-10-20T14:20:00Z',
-      }));
-
-      const largeResponse: PagedResponse<Project> = {
-        content: manyProjects,
+    test('Load More button fetches next page', async () => {
+      const firstPageResponse: PagedResponse<Project> = {
+        content: mockProjects.slice(0, 1),
         pagination: {
           page: 0,
-          size: 25,
-          totalElements: 10,
-          totalPages: 1,
-          hasNext: false,
+          size: 1,
+          totalElements: 2,
+          totalPages: 2,
+          hasNext: true,
           hasPrevious: false,
           isFirst: true,
+          isLast: false,
+        }
+      };
+
+      const secondPageResponse: PagedResponse<Project> = {
+        content: mockProjects.slice(1, 2),
+        pagination: {
+          page: 1,
+          size: 1,
+          totalElements: 2,
+          totalPages: 2,
+          hasNext: false,
+          hasPrevious: true,
+          isFirst: false,
           isLast: true,
         }
       };
 
-      const mockGetCombinedProjectsPaginated = vi.fn().mockResolvedValue(largeResponse);
-      MockedProjectServiceWithAuth.mockImplementation(function() { return {
-        getProjectsByBuilderIdPaginated: vi.fn(),
-        getProjectsByOwnerIdPaginated: vi.fn(),
-        getCombinedProjectsPaginated: mockGetCombinedProjectsPaginated,
-        createProject: vi.fn(),
-        getProjectsByBuilderId: vi.fn(),
-        getProjectsByOwnerId: vi.fn(),
-      } as any; });
-
-      renderWithRouter(<ProjectsSection initialDisplayCount={3} />);
-
-      await waitFor(() => {
-        expect(screen.getByText(/Showing 3 of 10 projects/)).toBeInTheDocument();
+      const mockGetProjectsByUserId = vi.fn()
+        .mockResolvedValueOnce(firstPageResponse)
+        .mockResolvedValueOnce(secondPageResponse);
+        
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
       });
 
+      renderWithRouter(<ProjectsSection />);
+
+      // Wait for first page to load
+      await waitFor(() => {
+        expect(screen.getByText('Load More')).toBeDefined();
+      });
+
+      // Click Load More
       const loadMoreButton = screen.getByText('Load More');
       fireEvent.click(loadMoreButton);
 
+      // Verify second page was requested
       await waitFor(() => {
-        expect(screen.getByText(/Showing 6 of 10 projects/)).toBeInTheDocument();
+        expect(mockGetProjectsByUserId).toHaveBeenCalledTimes(2);
+        expect(mockGetProjectsByUserId).toHaveBeenCalledWith('1', expect.objectContaining({
+          page: 1
+        }), undefined);
+      });
+    });
+
+    test('hides Load More button when all projects are loaded', async () => {
+      const response: PagedResponse<Project> = {
+        content: mockProjects,
+        pagination: {
+          page: 0,
+          size: 25,
+          totalElements: 2,
+          totalPages: 1,
+          hasNext: false,
+          hasPrevious: false,
+          isFirst: true,
+          isLast: true,
+        }
+      };
+
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(response);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('123 Main St, Vancouver, BC')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Load More')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Export Functionality', () => {
+    test('shows export button when projects exist', async () => {
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Export')).toBeInTheDocument();
+      });
+    });
+
+    test('hides export button when no projects exist', async () => {
+      const emptyResponse: PagedResponse<Project> = {
+        content: [],
+        pagination: {
+          page: 0,
+          size: 25,
+          totalElements: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrevious: false,
+          isFirst: true,
+          isLast: true,
+        }
+      };
+
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(emptyResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('No Projects Yet')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Export')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Filter Functionality', () => {
+    test('opens filter sheet when Filter button is clicked', async () => {
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter')).toBeInTheDocument();
+      });
+
+      const filterButton = screen.getByText('Filter');
+      fireEvent.click(filterButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter Projects')).toBeInTheDocument();
+      });
+    });
+
+    test('displays filter options in the sheet', async () => {
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter')).toBeInTheDocument();
+      });
+
+      const filterButton = screen.getByText('Filter');
+      fireEvent.click(filterButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Builder or Owner')).toBeInTheDocument();
+        expect(screen.getByText('Builder only')).toBeInTheDocument();
+        expect(screen.getByText('Owner only')).toBeInTheDocument();
+        expect(screen.getByLabelText('Filter by created after date')).toBeInTheDocument();
+        expect(screen.getByLabelText('Filter by created before date')).toBeInTheDocument();
+      });
+    });
+
+    test('closes filter sheet when Cancel button is clicked', async () => {
+      const mockGetProjectsByUserId = vi.fn().mockResolvedValue(mockPagedResponse);
+      MockedProjectServiceWithAuth.mockImplementation(function() {
+        return {
+          getProjectsByUserId: mockGetProjectsByUserId,
+          createProject: vi.fn(),
+          getProjectById: vi.fn(),
+        };
+      });
+
+      renderWithRouter(<ProjectsSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter')).toBeInTheDocument();
+      });
+
+      const filterButton = screen.getByText('Filter');
+      fireEvent.click(filterButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Cancel')).toBeInTheDocument();
+      });
+
+      const cancelButton = screen.getByText('Cancel');
+      fireEvent.click(cancelButton);
+
+      // Wait for the filter sheet to close
+      await waitFor(() => {
+        expect(screen.queryByText('Filter Projects')).not.toBeInTheDocument();
       });
     });
   });
+
+
 });

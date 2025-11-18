@@ -543,7 +543,7 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
           expect.objectContaining({
             userId: mockUser.id,
             role: 'BUILDER',
-            locationRequestDto: expect.objectContaining({
+            location: expect.objectContaining({
               streetNumberAndName: '123 Main St',
               city: 'Toronto',
               stateOrProvince: 'ON',

@@ -58,12 +58,16 @@ export function findProjectsByOwnerId(ownerId: string): Project[] {
 /**
  * Create a new mock project (simulates project creation)
  * Adds the project to the mock database and returns it
+ * Matches backend ProjectController.createProject behavior
+ * 
+ * @param userId - ID of the user creating the project
+ * @param role - Role of the user in the project (BUILDER or OWNER)
+ * @param location - Project location details
  */
 export function createMockProject(
     userId: string,
     role: string,
-    locationRequestDto: ProjectLocationRequest,
-    _participants: Array<{ role: string; contactId: string }> = [] // kept for backwards compatibility but ignored
+    location: ProjectLocationRequest
 ): Project {
     const newProjectId = String(mockProjects.length + 1);
     const now = new Date().toISOString();
@@ -73,12 +77,12 @@ export function createMockProject(
         role,
         location: {
             id: newProjectId,
-            unitNumber: locationRequestDto.unitNumber || '',
-            streetNumberAndName: locationRequestDto.streetNumberAndName,
-            city: locationRequestDto.city,
-            stateOrProvince: locationRequestDto.stateOrProvince,
-            postalOrZipCode: locationRequestDto.postalOrZipCode || '',
-            country: locationRequestDto.country,
+            unitNumber: location.unitNumber || '',
+            streetNumberAndName: location.streetNumberAndName,
+            city: location.city,
+            stateOrProvince: location.stateOrProvince,
+            postalOrZipCode: location.postalOrZipCode || '',
+            country: location.country,
         },
         createdAt: now,
         lastUpdatedAt: now,

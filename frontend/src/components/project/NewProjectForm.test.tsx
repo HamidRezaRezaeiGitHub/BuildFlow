@@ -172,7 +172,7 @@ describe('NewProjectForm', () => {
         expect.objectContaining({
           userId: mockUser.id,
           role: 'BUILDER',
-          locationRequestDto: expect.objectContaining({
+          location: expect.objectContaining({
             streetNumberAndName: '123 Main Street',
             city: 'Toronto',
             stateOrProvince: 'ON',

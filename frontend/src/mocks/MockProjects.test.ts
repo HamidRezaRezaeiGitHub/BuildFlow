@@ -164,9 +164,7 @@ describe('MockProjects', () => {
                 country: 'Canada',
             };
 
-            const newProject = createMockProject('1', 'BUILDER', locationRequest, [
-                { role: 'OWNER', contactId: '2' }
-            ]);
+            const newProject = createMockProject('1', 'BUILDER', locationRequest);
 
             expect(newProject).toBeDefined();
             expect(newProject.id).toBe(String(initialLength + 1));

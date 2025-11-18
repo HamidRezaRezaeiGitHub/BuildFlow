@@ -178,14 +178,16 @@ All projects have Canadian addresses in various provinces (BC, ON, AB, QC).
 
 ### Available Functions
 - `findProjectById(id)` - Find a project by its ID
-- `findProjectsByBuilderId(builderId)` - Get all projects for a builder
-- `findProjectsByOwnerId(ownerId)` - Get all projects for an owner
-- `createMockProject(builderId, ownerId, locationRequest)` - Create a new mock project
+- `findProjectsByUserId(userId)` - Get all projects for a user (any role)
+- `findProjectsByBuilderId(builderId)` - Get projects where user is BUILDER (legacy)
+- `findProjectsByOwnerId(ownerId)` - Get projects where user is OWNER (legacy)
+- `createMockProject(userId, role, location)` - Create a new mock project
 - `generateMockCreateProjectResponse(project)` - Generate mock API response
 
-### Usage in ProjectService
-The ProjectService automatically uses mock projects when `config.enableMockData = true`:
+### Usage in ProjectMockService
+The ProjectMockService automatically uses mock projects when `config.enableMockData = true`:
 - `createProject()` - Creates and stores new mock projects
-- `getProjectsByUserIdPaginated()` - Returns paginated filtered mock projects by user
+- `getProjectsByUserId()` - Returns paginated and date-filtered mock projects by user
 - `getProjectById()` - Returns specific mock project by ID
 - All methods simulate network delays (300-500ms) for realistic behavior
+- Pagination and date filtering match backend ProjectController behavior
