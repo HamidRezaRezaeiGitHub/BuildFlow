@@ -21,7 +21,7 @@ export interface ProjectParticipant {
   id: string;
 
   /** Role of the participant in the project (BUILDER or OWNER) */
-  role: string;
+  role: ProjectRole;
 
   /** Full contact information of the participant */
   contact: Contact;
@@ -34,7 +34,7 @@ export interface ProjectParticipant {
  */
 export interface CreateProjectParticipantRequest {
   /** Role of the participant in the project (BUILDER or OWNER) */
-  role: string;
+  role: ProjectRole;
 
   /** Contact information for the participant */
   contact: ContactRequest;
@@ -57,7 +57,7 @@ export interface CreateProjectRequest {
   userId: string;
 
   /** Role of the user in the project (BUILDER or OWNER) */
-  role: string;
+  role: ProjectRole;
 
   /** Location information for the project */
   location: ProjectLocationRequest;
@@ -77,7 +77,7 @@ export interface Project {
   userId: string;
 
   /** Role of the main user in the project (BUILDER or OWNER) */
-  role: string;
+  role: ProjectRole;
 
   /** Project location */
   location: ProjectLocation;

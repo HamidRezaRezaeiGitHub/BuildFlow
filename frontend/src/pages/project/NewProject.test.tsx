@@ -554,10 +554,16 @@ describe('NewProject - Multi-Step Accordion Flow', () => {
         );
       });
 
-      // Verify navigation to project details page
+      // Verify success message is displayed
+      await waitFor(() => {
+        expect(screen.getByText(/Project created successfully!/i)).toBeInTheDocument();
+        expect(screen.getByText(/Redirecting to project details/i)).toBeInTheDocument();
+      });
+
+      // Verify navigation to project details page after 2 seconds
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/projects/project-123');
-      });
+      }, { timeout: 3000 });
     });
   });
 

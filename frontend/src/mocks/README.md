@@ -181,7 +181,7 @@ All projects have Canadian addresses in various provinces (BC, ON, AB, QC).
 - `findProjectsByUserId(userId)` - Get all projects for a user (any role)
 - `findProjectsByBuilderId(builderId)` - Get projects where user is BUILDER (legacy)
 - `findProjectsByOwnerId(ownerId)` - Get projects where user is OWNER (legacy)
-- `createMockProject(userId, role, location)` - Create a new mock project
+- `createMockProject(userId, role: ProjectRole, location)` - Create a new mock project (role must be 'BUILDER' or 'OWNER')
 - `generateMockCreateProjectResponse(project)` - Generate mock API response
 
 ### Usage in ProjectMockService

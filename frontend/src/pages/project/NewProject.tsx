@@ -70,6 +70,7 @@ export const NewProject: React.FC = () => {
   const { user, token } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   // Current active step (controlled accordion)
   const [activeStep, setActiveStep] = React.useState<string>('step-1');
@@ -201,8 +202,13 @@ export const NewProject: React.FC = () => {
 
       console.log('Project created successfully:', response);
 
-      // Navigate to project details page
-      navigate(`/projects/${response.project.id}`);
+      // Show success message
+      setSuccessMessage('Project created successfully!');
+
+      // Navigate to project details after 2 seconds
+      setTimeout(() => {
+        navigate(`/projects/${response.project.id}`);
+      }, 2000);
 
     } catch (err) {
       console.error('Error creating project:', err);
@@ -229,37 +235,6 @@ export const NewProject: React.FC = () => {
               Follow the steps below to set up your new construction project.
             </p>
           </div>
-
-          {/* Error Display */}
-          {error && (
-            <div className="max-w-2xl mx-auto mb-6">
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-destructive"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-destructive-foreground">
-                      Error Creating Project
-                    </h3>
-                    <div className="mt-2 text-sm text-destructive-foreground/80">
-                      <p>{error}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Multi-Step Accordion Form */}
           <div className="max-w-2xl mx-auto">
@@ -356,6 +331,13 @@ export const NewProject: React.FC = () => {
                   </AccordionItem>
 
                   {/* Step 2: Other Party Information */}
+                  {/* TODO: Implement participant creation after project is created.
+                      This requires:
+                      1. Backend API: POST /api/v1/projects/{projectId}/participants
+                      2. Frontend service: projectParticipantService.createParticipant()
+                      3. Request DTO: CreateProjectParticipantRequest { role, contact }
+                      For now, this step collects data but does not submit it.
+                      User can add participants later through project details page. */}
                   <AccordionItem value="step-2">
                     <AccordionTrigger
                       data-step="step-2"
@@ -520,6 +502,69 @@ export const NewProject: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Success Message Display - Below Form */}
+          {successMessage && (
+            <div className="max-w-2xl mx-auto mt-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-green-600 dark:text-green-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
+                      Success
+                    </h3>
+                    <div className="mt-2 text-sm text-green-700 dark:text-green-300">
+                      <p>{successMessage}</p>
+                      <p className="mt-1 text-xs">Redirecting to project details...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Error Display - Below Form */}
+          {error && (
+            <div className="max-w-2xl mx-auto mt-6">
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-destructive"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-destructive-foreground">
+                      Error Creating Project
+                    </h3>
+                    <div className="mt-2 text-sm text-destructive-foreground/80">
+                      <p>{error}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Help Text */}
           <div className="max-w-2xl mx-auto mt-8 text-center">

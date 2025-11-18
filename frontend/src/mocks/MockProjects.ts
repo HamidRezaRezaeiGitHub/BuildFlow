@@ -1,6 +1,6 @@
 import mockProjectsData from '../../../mock-data/Projects.json';
 import { config } from '../config/environment';
-import type { CreateProjectResponse, Project, ProjectLocationRequest } from '../services';
+import type { CreateProjectResponse, Project, ProjectLocationRequest, ProjectRole } from '../services';
 
 /**
  * Mock Projects Database - Canadian Projects
@@ -66,7 +66,7 @@ export function findProjectsByOwnerId(ownerId: string): Project[] {
  */
 export function createMockProject(
     userId: string,
-    role: string,
+    role: ProjectRole,
     location: ProjectLocationRequest
 ): Project {
     const newProjectId = String(mockProjects.length + 1);
